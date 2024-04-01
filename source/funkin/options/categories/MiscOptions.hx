@@ -4,6 +4,12 @@ package funkin.options.categories;
 class MiscOptions extends OptionsScreen {
 	public override function new() {
 		super("Miscellaneous", "Use this menu to reset save data or engine settings.");
+		var lanArray:Array<String> = TranslationsUtil.translList();
+		lanArray.push(TranslationsUtil.DEFAULT_LANGUAGE);
+		add(new ArrayOption(
+			"Language",
+			'The language the Engine currently uses (the default one is ${TranslationsUtil.DEFAULT_LANGUAGE}).',
+			lanArray, lanArray, "language", function(lan:String) TranslationsUtil.setTransl(lan)));
 		#if UPDATE_CHECKING
 		add(new Checkbox(
 			"Enable Nightly Updates",

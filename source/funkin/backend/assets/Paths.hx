@@ -37,7 +37,7 @@ class Paths
 		return library != null ? '$library:assets/$library/$file' : 'assets/$file';
 
 	public static inline function translationsMain(key:String)
-		return getPath(key, 'translations');
+		return getPath('translations/$key');
 
 	public static inline function translations(key:String)
 		return translationsMain('${TranslationsUtil.get_curLanguage()}/$key');

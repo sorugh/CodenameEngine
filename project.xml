@@ -124,6 +124,9 @@
 	<!-- Comment this out to disable mods folder !-->
 	<haxedef name="MOD_SUPPORT" unless="web"/>
 
+	<!-- Comment this out to disable translations folders !-->
+	<haxedef name="TRANSLATIONS_SUPPORT"/>
+
 	<!-- Comment this out to disable global scripts !-->
 	<haxedef name="GLOBAL_SCRIPT" />
 

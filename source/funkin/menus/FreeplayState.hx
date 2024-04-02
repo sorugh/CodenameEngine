@@ -161,7 +161,7 @@ class FreeplayState extends MusicBeatState
 		diffText.font = scoreText.font;
 		add(diffText);
 
-		coopText = new FlxText(diffText.x, diffText.y + diffText.height + 2, 0, "[TAB] Solo", 24);
+		coopText = new FlxText(diffText.x, diffText.y + diffText.height + 2, 0, "", 24);
 		coopText.font = scoreText.font;
 		add(coopText);
 
@@ -347,10 +347,10 @@ class FreeplayState extends MusicBeatState
 	 * Array containing all labels for Co-Op / Opponent modes.
 	 */
 	public var coopLabels:Array<String> = [
-		"[TAB] Solo",
-		"[TAB] Opponent Mode",
-		"[TAB] Co-Op Mode",
-		"[TAB] Co-Op Mode (Switched)"
+		TranslationsUtil.checkTransl("[TAB] Solo"),
+		TranslationsUtil.checkTransl("[TAB] Opponent Mode"),
+		TranslationsUtil.checkTransl("[TAB] Co-Op Mode"),
+		TranslationsUtil.checkTransl("[TAB] Co-Op Mode (Switched)")
 	];
 
 	/**

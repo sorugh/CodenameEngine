@@ -22,7 +22,7 @@ class TranslationsUtil
     /**
 	 * The default language used inside of the source code.
 	 */
-    public static var DEFAULT_LANGUAGE:String = 'English';  // no inline so psycopathic mods can edit it  - Nex
+    public static var DEFAULT_LANGUAGE:String = 'en/English';  // no inline so psycopathic mods can edit it  - Nex
 
     /**
 	 * Returns the current language.
@@ -48,7 +48,7 @@ class TranslationsUtil
      * If `name` is `null`, it's gonna use the current language.
 	 */
     public static function setTransl(?name:String)
-		trace(transMap = loadLanguage(name == null ? get_curLanguage() : name));
+		transMap = loadLanguage(name == null ? get_curLanguage() : name);
 
     /**
 	 * This is for checking a translation, `defString` it's just the string that gets returned just in case it won't find the translation OR the current language selected is ``DEFAULT_LANGUAGE``.
@@ -71,32 +71,29 @@ class TranslationsUtil
     {
         var translations:Array<String> = [];
 		#if TRANSLATIONS_SUPPORT
-		// to finish once done with the lib thing  - Nex
-        for(l in Assets.list()) {
-            var d = Path.directory(l);
-            if(d.startsWith(Paths.translationsMain(''))) {
-                d = (d.replace(Paths.translationsMain(''), "").split("/"))[0];
-                if(!translations.contains(d)) translations.push(d);
-            }
-        }
+		var main:String = Paths.translationsMain('');
+        for(l in Paths.assetsTree.getFolders(main)) for(f in Paths.assetsTree.getFiles(main + l))
+			if(Path.extension('$l/$f') == "xml") translations.push(Path.withoutExtension('$l/$f'));
 		#end
         return translations;
     }
 
     /**
-	 * Returns a map of translations based on its main.xml.
+	 * Returns a map of translations based on its XML.
 	 */
     public static function loadLanguage(name:String):Map<String, String>
     {
 		#if TRANSLATIONS_SUPPORT
-        var path:String = Paths.translationsMain('$name/main.xml');
+        var path:String = Paths.translationsMain(name);
+		if(!path.endsWith(".xml")) path += ".xml";
         if (!Assets.exists(path, TEXT)) return [];
 
         var xml:Access = null;
         try xml = new Access(Xml.parse(Assets.getText(path)))
         catch(e) {
-            FlxG.log.error('Error while parsing main.xml: ${Std.string(e)}');
-            throw new Exception('Error while parsing main.xml: ${Std.string(e)}');
+			var msg:String = 'Error while parsing ${Path.withoutDirectory(name)}.xml: ${Std.string(e)}';
+            FlxG.log.error(msg);
+            throw new Exception(msg);
         }
         if (xml == null) return [];
         if (!xml.hasNode.translations) {

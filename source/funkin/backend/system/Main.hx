@@ -219,7 +219,7 @@ class Main extends Sprite
 		#elseif android
 		Sys.setCwd(Path.addTrailingSlash(VERSION.SDK_INT > 30 ? Context.getObbDir() : Context.getExternalFilesDir()));
 		#elseif (ios || switch)
-		Sys.setCwd(Path.addTrailingSlash(File.applicationStorageDirectory.nativePath));
+		Sys.setCwd(Path.addTrailingSlash(openfl.filesystem.File.applicationStorageDirectory.nativePath));
 		#end
 	}
 }

@@ -204,4 +204,13 @@ class Main extends Sprite
 
 		MemoryUtil.clearMajor();
 	}
+
+	public static var noCwdFix:Bool = false;
+	public static function fixWorkingDirectory() {
+		#if windows
+			if (!noCwdFix && !sys.FileSystem.exists('manifest/default.json')) {
+				Sys.setCwd(haxe.io.Path.directory(Sys.programPath()));
+			}
+		#end
+	}
 }

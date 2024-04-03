@@ -19,6 +19,7 @@ class CommandLineHandler {
 					#end
 					Sys.println("-nocolor             | Disables colors in the terminal");
 					Sys.println("-nogpubitmap         | Forces GPU only bitmaps off");
+					Sys.println("-nocwdfix            | Turns off automatic working directory fix");
 					Sys.exit(0);
 				#if MOD_SUPPORT
 				case "-m" | "-mod" | "-currentmod":
@@ -59,6 +60,8 @@ class CommandLineHandler {
 					Main.noTerminalColor = true;
 				case "-nogpubitmap":
 					Main.forceGPUOnlyBitmapsOff = true;
+				case "-nocwdfix":
+					Main.noCwdFix = true;
 				case "-livereload":
 					// do nothing
 				default:

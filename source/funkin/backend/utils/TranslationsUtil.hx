@@ -27,8 +27,13 @@ class TranslationsUtil
 	/**
 	 * Returns the current language.
 	 */
-	inline public static function get_curLanguage():String
+	public static var curLanguage(get, set):String;
+	@:noCompletion private static function get_curLanguage():String {
 		return Options.language;
+	}
+	@:noCompletion private static function set_curLanguage(value:String):String {
+		return Options.language = value;
+	}
 
 	/**
 	 * Returns if the current language is the default one (`DEFAULT_LANGUAGE`).
@@ -48,7 +53,7 @@ class TranslationsUtil
 	 * If `name` is `null`, it's gonna use the current language.
 	 */
 	public static function setTransl(?name:String)
-		transMap = loadLanguage(name == null ? get_curLanguage() : name);
+		transMap = loadLanguage(name == null ? curLanguage : name);
 
 	/**
 	 * This is for checking a translation, `defString` it's just the string that gets returned just in case it won't find the translation OR the current language selected is ``DEFAULT_LANGUAGE``.
@@ -155,12 +160,14 @@ class FormatInfo {
 		}
 	}
 
-	public function format(values:Array<Dynamic>) {
-		// todo
-		var string:Array<Dynamic> = strings.copy();
-		for(i => v in strings) {
-			string.insert(i*2+1, Std.string(values[indexes[i]]));
+	public function format(values:Array<Dynamic>):String {
+		var str:String = "";
+		for(i=>s in strings) {
+			str += s;
+			if(i < strings.length-1)
+				str += values[indexes[i]];
 		}
-		return string.join("");
+
+		return str;
 	}
 }

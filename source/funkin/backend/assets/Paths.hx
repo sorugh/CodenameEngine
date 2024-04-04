@@ -40,7 +40,7 @@ class Paths
 		return getPath('translations/$key');
 
 	public static inline function translations(key:String)
-		return translationsMain('${TranslationsUtil.get_curLanguage()}/$key');
+		return translationsMain('${TranslationsUtil.curLanguage}/$key');
 
 	public static inline function video(key:String, ?ext:String = "mp4")
 		return getPath('videos/$key.$ext');

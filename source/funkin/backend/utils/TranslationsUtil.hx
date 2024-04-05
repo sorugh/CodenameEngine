@@ -21,7 +21,7 @@ class TranslationsUtil
 
 	@:noCompletion private static function set_transMap(value:Map<String, IFormatInfo>):Map<String, IFormatInfo> {
 		if (value == null) value = [];
-		return value;
+		return transMap = value;
 	}
 
 	/**

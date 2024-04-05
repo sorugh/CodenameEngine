@@ -55,7 +55,7 @@ class MainState extends FlxState {
 
 		Main.refreshAssets();
 		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder);
-		TranslationsUtil.setTransl();
+		TranslationsUtil.setLanguage();
 		DiscordUtil.init();
 		EventsData.reloadEvents();
 		TitleState.initialized = false;
@@ -69,7 +69,10 @@ class MainState extends FlxState {
 
 		#if sys
 		sys.FileSystem.createDirectory('./.temp/');
-		#if windows new funkin.backend.utils.native.HiddenProcess("attrib +h .temp"); #end
+		#if windows
+		try new funkin.backend.utils.native.HiddenProcess("attrib +h .temp")
+		catch(e) Logs.trace('Failed to set hidden attribute on .temp folder', WARNING);
+		#end
 		#end
 	}
 }

@@ -17,7 +17,12 @@ class TranslationsUtil
 	 *
 	 * Using this class function it'll never be `null`.
 	 */
-	public static var transMap(default, null):Map<String, FormatInfo> = [];
+	public static var transMap(default, set):Map<String, IFormatInfo> = [];
+
+	@:noCompletion private static function set_transMap(value:Map<String, IFormatInfo>):Map<String, IFormatInfo> {
+		if (value == null) value = [];
+		return value;
+	}
 
 	/**
 	 * The default language used inside of the source code.
@@ -38,21 +43,25 @@ class TranslationsUtil
 	/**
 	 * Returns if the current language is the default one (`DEFAULT_LANGUAGE`).
 	 */
-	inline public static function is_defaultLanguage():Bool
+	public static var isDefaultLanguage(get, never):Bool;
+	@:noCompletion private static function get_isDefaultLanguage():Bool
 		return Options.language == DEFAULT_LANGUAGE;
 
 	/**
-	 * Returns if any translation is loaded.
+	 * Returns if any translation are loaded.
 	 */
-	inline public static function is_anyTransLoaded():Bool
-		return transMap != [];
+	public static var isAnyTransLoaded(get, never):Bool;
+	@:noCompletion private static function get_isAnyTransLoaded():Bool
+		return Lambda.count(transMap) > 0;
 
 	/**
-	 * Changes the translations map.
+	 * Updates the language.
+	 * Also changes the translations map.
 	 *
-	 * If `name` is `null`, it's gonna use the current language.
+	 * If `name` is `null`, its gonne reload current language.
+	 * If `name` is not `null`, it will load the translations for the given language.
 	 */
-	public static function setTransl(?name:String)
+	public static function setLanguage(?name:String)
 		transMap = loadLanguage(name == null ? curLanguage : name);
 
 	/**
@@ -60,38 +69,38 @@ class TranslationsUtil
 	 *
 	 * If `id` is `null` then it's gonna search using `defString`.
 	 */
-	public static function getTransl(defString:String, ?id:String, ?parms:Array<Dynamic>):String
+	public static function get(defString:String, ?id:String, ?parms:Array<Dynamic>):String
 	{
-		if(parms == null) parms = [];
+		if (parms == null) parms = [];
 		#if TRANSLATIONS_SUPPORT
-		if(id == null) id = defString;
-		if(transMap.exists(id)) return transMap.get(id).format(parms);
+		if (id == null) id = defString;
+		if (transMap.exists(id)) return transMap.get(id).format(parms);
 		#end
-		return new FormatInfo(defString).format(parms);
+		return FormatUtil.get(defString).format(parms);
 	}
 
 	/**
-	 * Returns an array that specifies which translations were found.
+	 * Returns an array that specifies which languages were found.
 	 */
-	public static function translList():Array<String>
+	public static function getLanguages():Array<String>
 	{
-		var translations:Array<String> = [];
+		var languages:Array<String> = [];
 		#if TRANSLATIONS_SUPPORT
 		var main:String = Paths.translationsMain('');
-		for(l in Paths.assetsTree.getFolders(main)) for(f in Paths.assetsTree.getFiles(main + l))
-			if(Path.extension('$l/$f') == "xml") translations.push(Path.withoutExtension('$l/$f'));
+		for (l in Paths.assetsTree.getFolders(main)) for (f in Paths.assetsTree.getFiles(main + l))
+			if (Path.extension('$l/$f') == "xml") languages.push(Path.withoutExtension('$l/$f'));
 		#end
-		return translations;
+		return languages;
 	}
 
 	/**
 	 * Returns a map of translations based on its XML.
 	 */
-	public static function loadLanguage(name:String):Map<String, FormatInfo>
+	public static function loadLanguage(name:String):Map<String, IFormatInfo>
 	{
 		#if TRANSLATIONS_SUPPORT
 		var path:String = Paths.translationsMain(name);
-		if(!path.endsWith(".xml")) path += ".xml";
+		if (!path.endsWith(".xml")) path += ".xml";
 		if (!Assets.exists(path, TEXT)) return [];
 
 		var xml:Access = null;
@@ -107,7 +116,8 @@ class TranslationsUtil
 			return [];
 		}
 
-		var leMap:Map<String, FormatInfo> = [];
+		FormatUtil.clear(); // Clean up the format cache
+		var leMap:Map<String, IFormatInfo> = [];
 		for(node in xml.node.translations.elements) {
 			switch(node.name) {
 				case "trans":
@@ -115,11 +125,10 @@ class TranslationsUtil
 						FlxG.log.warn("A translation node requires an ID attribute.");
 						continue;
 					}
-					if (!node.has.string) {
-						FlxG.log.warn("A translation node requires a string attribute.");
-						continue;
-					}
-					leMap.set(node.att.id, new FormatInfo(node.att.string));
+
+					var string:String = node.has.string ? node.att.string : node.x.nodeValue;
+					string = string.replace("\\n", "\n").replace("\r", ""); // remove stupid windows line breaks and convert newline literals to newlines
+					leMap.set(node.att.id, FormatUtil.get(string));
 			}
 		}
 		return leMap;
@@ -138,37 +147,82 @@ indexes: [1, 0]
 strings[0] + values[indexes[0]] + strings[1] + values[indexes[1]] + strings[2]
 
 */
-class FormatInfo {
+class FormatUtil {
+	private static var cache:Map<String, IFormatInfo> = new Map();
+
+	public static function get(id:String):IFormatInfo {
+		if (cache.exists(id))
+			return cache.get(id);
+
+		var fi:IFormatInfo = ParamFormatInfo.returnOnlyIfValid(id);
+		if(fi == null) fi = new StrFormatInfo(id);
+		cache.set(id, fi);
+		return fi;
+	}
+
+	public inline static function clear() {
+		cache.clear();
+	}
+}
+
+class StrFormatInfo implements IFormatInfo {
+	public var string:String;
+
+	public function new(str:String) {
+		this.string = str;
+	}
+
+	public function format(values:Array<Dynamic>):String {
+		return string;
+	}
+}
+
+// TODO: add support for @:({0}==1?(Hello):(World))
+class ParamFormatInfo implements IFormatInfo {
 	public var strings:Array<String> = [];
 	public var indexes:Array<Int> = [];
 
 	public function new(str:String) {
 		var i = 0;
 
-		while(i < str.length) {
+		while (i < str.length) {
 			var fi = str.indexOf("{", i); // search from the start of i
 
-			if(fi == -1) {
-				strings.push(str.substring(i));
+			if (fi == -1) {
+				// if there are no more parameters, just add the rest of the string
+				this.strings.push(str.substring(i));
 				break;
 			}
 
 			var fe = str.indexOf("}", fi);
 
-			strings.push(str.substring(i, fi));
-			indexes.push(Std.parseInt(str.substring(fi+1, fe)));
+			this.strings.push(str.substring(i, fi));
+			this.indexes.push(Std.parseInt(str.substring(fi+1, fe)));
 			i = fe + 1;
 		}
 	}
 
+	public static function isValid(str:String):Bool {
+		var fi = new ParamFormatInfo(str);
+		return fi.indexes.length > 0;
+	}
+	public static function returnOnlyIfValid(str:String):Bool {
+		var fi = new ParamFormatInfo(str);
+		return fi.indexes.length > 0 ? fi : null;
+	}
+
 	public function format(values:Array<Dynamic>):String {
 		var str:String = "";
-		for(i=>s in strings) {
+		for (i=>s in strings) {
 			str += s;
-			if(i < indexes.length)
+			if (i < indexes.length)
 				str += values[indexes[i]];
 		}
 
 		return str;
 	}
+}
+
+interface IFormatInfo {
+	public function format(values:Array<Dynamic>):String;
 }

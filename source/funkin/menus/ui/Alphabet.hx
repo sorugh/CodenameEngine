@@ -81,7 +81,7 @@ class Alphabet extends FlxSpriteGroup
 	{
 		super(x, y);
 
-		_finalText = this.text = TranslationsUtil.getTransl(text, transID, transParams);
+		_finalText = this.text = TranslationsUtil.get(text, transID, transParams);
 		isBold = bold;
 
 		var alphabetPath = Paths.xml("alphabet");

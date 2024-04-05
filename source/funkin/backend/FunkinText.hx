@@ -5,7 +5,7 @@ import flixel.text.FlxText;
 
 class FunkinText extends FlxText {
 	public function new(X:Float = 0, Y:Float = 0, FieldWidth:Float = 0, ?Text:String, Size:Int = 16, Border:Bool = true, ?TranslationID:String, ?TranslParameters:Array<Dynamic>) {
-		super(X, Y, FieldWidth, TranslationsUtil.getTransl(Text, TranslationID, TranslParameters), Size);
+		super(X, Y, FieldWidth, TranslationsUtil.get(Text, TranslationID, TranslParameters), Size);
 		setFormat(Paths.font("vcr.ttf"), Size, FlxColor.WHITE);
 		if (Border) {
 			borderStyle = OUTLINE;

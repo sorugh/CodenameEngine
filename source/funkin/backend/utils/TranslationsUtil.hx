@@ -206,7 +206,7 @@ class ParamFormatInfo implements IFormatInfo {
 		var fi = new ParamFormatInfo(str);
 		return fi.indexes.length > 0;
 	}
-	public static function returnOnlyIfValid(str:String):Bool {
+	public static function returnOnlyIfValid(str:String):IFormatInfo {
 		var fi = new ParamFormatInfo(str);
 		return fi.indexes.length > 0 ? fi : null;
 	}

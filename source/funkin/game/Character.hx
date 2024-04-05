@@ -405,11 +405,10 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		if (hasInterval) beatInterval = Std.parseInt(xml.x.get("interval"));
 
 		var tempList = ["isPlayer", "isGF", "x", "y", "gameOverChar", "camx", "camy", "holdTime", "flipX", "icon", "color", "scale", "antialiasing", "sprite", "interval"];
-		var atts = [for (i in xml.x.attributes()) i];
+		var atts = xml.x.attributes();
 		for (i in atts)
-			if (!tempList.contains(i)) {
+			if (!tempList.contains(i))
 				extra[i] = xml.x.get(i);
-			}
 
 		loadSprite(Paths.image('characters/$sprite'));
 
@@ -451,7 +450,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 			for (name in animsOrder)
 				if (animDatas.exists(name)) anims.push(animDatas.get(name));
 		} else
-			anims = [for (anim in animDatas) anim];
+			anims = Lambda.array(animDatas);
 
 		for (anim in anims)
 		{

@@ -967,7 +967,7 @@ class PlayState extends MusicBeatState
 	{
 		if (songData == null) songData = SONG;
 
-		events = songData.events != null ? [for(e in songData.events) e] : [];
+		events = songData.events != null ? songData.events.copy() : [];
 		// get first camera focus
 		for(e in events) {
 			if (e.time > 10) break;

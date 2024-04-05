@@ -285,10 +285,12 @@ class XMLUtil {
 	}
 
 	/**
+	 * Trims and removes spacing from the nodeValue in the XML
+	 *
 	 * WARNING: will edit directly the node!
 	 */
 	public static function fixSpacingInNode(node:Access):Access {
-		var arr = [for(x in node.x) x];
+		var arr = Lambda.array(node.x);
 		for(i => n in arr) {
 			if(n.nodeType == PCData) {
 				if(i == 0) n.nodeValue = n.nodeValue.ltrim();

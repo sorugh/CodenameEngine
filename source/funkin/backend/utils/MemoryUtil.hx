@@ -141,25 +141,4 @@ class MemoryUtil {
 		#end
 		return "Unknown";
 	}
-
-	private static var _nb:Int = 0;
-	private static var _nbD:Int = 0;
-	private static var _zombie:Dynamic;
-
-	public static function destroyFlixelZombies() {
-		#if cpp
-		// Gc.enterGCFreeZone();
-
-		while ((_zombie = Gc.getNextZombie()) != null) {
-			_nb++;
-			if (_zombie is flixel.util.FlxDestroyUtil.IFlxDestroyable) {
-				flixel.util.FlxDestroyUtil.destroy(cast(_zombie, flixel.util.FlxDestroyUtil.IFlxDestroyable));
-				_nbD++;
-			}
-		}
-		Sys.println('Zombies: ${_nb}; IFlxDestroyable Zombies: ${_nbD}');
-
-		// Gc.exitGCFreeZone();
-		#end
-	}
 }

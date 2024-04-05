@@ -159,7 +159,7 @@ class Strum extends FlxSprite {
 		centerOffsets();
 		centerOrigin();
 	}
-	public function getAnim() {
+	public inline function getAnim() {
 		return animation.name;
 	}
 }

@@ -27,7 +27,7 @@ class Note extends FlxSprite
 		return strumLine = strLine;
 	}
 
-	private function get_mustPress():Bool {
+	private inline function get_mustPress():Bool {
 		return false;
 	}
 	public var noteData:Int = 0;

@@ -77,11 +77,11 @@ class Alphabet extends FlxSpriteGroup
 			trace(e.details());
 		}
 	}
-	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = false, typed:Bool = false, ?transID:String)
+	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = false, typed:Bool = false, ?transID:String, ?transParams:Array<Dynamic>)
 	{
 		super(x, y);
 
-		_finalText = this.text = TranslationsUtil.checkTransl(text, transID);
+		_finalText = this.text = TranslationsUtil.getTransl(text, transID, transParams);
 		isBold = bold;
 
 		var alphabetPath = Paths.xml("alphabet");

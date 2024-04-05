@@ -17,7 +17,7 @@ class TranslationsUtil
 	 *
 	 * Using this class function it'll never be `null`.
 	 */
-	public static var transMap(default, null):Map<String, String> = [];
+	public static var transMap(default, null):Map<String, FormatInfo> = [];
 
 	/**
 	 * The default language used inside of the source code.
@@ -56,17 +56,18 @@ class TranslationsUtil
 		transMap = loadLanguage(name == null ? curLanguage : name);
 
 	/**
-	 * This is for checking a translation, `defString` it's just the string that gets returned just in case it won't find the translation OR the current language selected is ``DEFAULT_LANGUAGE``.
+	 * This is for checking and getting a translation, `defString` it's just the string that gets returned just in case it won't find the translation OR the current language selected is ``DEFAULT_LANGUAGE``.
 	 *
 	 * If `id` is `null` then it's gonna search using `defString`.
 	 */
-	public static function checkTransl(defString:String, ?id:String):String
+	public static function getTransl(defString:String, ?id:String, ?parms:Array<Dynamic>):String
 	{
+		if(parms == null) parms = [];
 		#if TRANSLATIONS_SUPPORT
 		if(id == null) id = defString;
-		if(transMap.exists(id)) return transMap.get(id);
+		if(transMap.exists(id)) return transMap.get(id).format(parms);
 		#end
-		return defString;
+		return new FormatInfo(defString).format(parms);
 	}
 
 	/**
@@ -86,7 +87,7 @@ class TranslationsUtil
 	/**
 	 * Returns a map of translations based on its XML.
 	 */
-	public static function loadLanguage(name:String):Map<String, String>
+	public static function loadLanguage(name:String):Map<String, FormatInfo>
 	{
 		#if TRANSLATIONS_SUPPORT
 		var path:String = Paths.translationsMain(name);
@@ -106,7 +107,7 @@ class TranslationsUtil
 			return [];
 		}
 
-		var leMap:Map<String, String> = [];
+		var leMap:Map<String, FormatInfo> = [];
 		for(node in xml.node.translations.elements) {
 			switch(node.name) {
 				case "trans":
@@ -118,7 +119,7 @@ class TranslationsUtil
 						FlxG.log.warn("A translation node requires a string attribute.");
 						continue;
 					}
-					leMap.set(node.att.id, node.att.string);
+					leMap.set(node.att.id, new FormatInfo(node.att.string));
 			}
 		}
 		return leMap;
@@ -164,7 +165,7 @@ class FormatInfo {
 		var str:String = "";
 		for(i=>s in strings) {
 			str += s;
-			if(i < strings.length-1)
+			if(i < indexes.length)
 				str += values[indexes[i]];
 		}
 

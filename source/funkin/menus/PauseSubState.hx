@@ -72,8 +72,7 @@ class PauseSubState extends MusicBeatSubstate
 		var levelInfo:FunkinText = new FunkinText(20, 15, 0, PlayState.SONG.meta.displayName, 32, false);
 		var levelDifficulty:FunkinText = new FunkinText(20, 15, 0, PlayState.difficulty.toUpperCase(), 32, false);
 		var multiplayerText:FunkinText = new FunkinText(20, 15, 0, PlayState.opponentMode ? 'OPPONENT MODE' : (PlayState.coopMode ? 'CO-OP MODE' : ''), 32, false);
-		var deathCounter:FunkinText = new FunkinText(20, 15, 0, "Blue balled", 32, false);
-		deathCounter.text += ": " + PlayState.deathCounter;  // Adding it later for the translation  - Nex
+		var deathCounter:FunkinText = new FunkinText(20, 15, 0, "Blue balled: {0}", 32, false, "blue_balled", [PlayState.deathCounter]);
 
 		for(k=>label in [levelInfo, levelDifficulty, deathCounter, multiplayerText]) {
 			label.scrollFactor.set();

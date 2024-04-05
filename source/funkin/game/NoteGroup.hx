@@ -106,8 +106,7 @@ class NoteGroup extends FlxTypedGroup<Note> {
 		if (members == null)
 			return null;
 
-		// TODO: maybe lastIndexOf
-		var index:Int = members.indexOfFromLast(Object);
+		var index:Int = members.lastIndexOf(Object);
 
 		if (index < 0)
 			return null;

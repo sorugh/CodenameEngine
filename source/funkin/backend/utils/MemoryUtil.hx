@@ -134,7 +134,7 @@ class MemoryUtil {
 		if (process.exitCode() != 0) return "Unknown";
 		var lines = process.stdout.readAll().toString().split("\n");
 		for (line in lines) {
-			if (line.indexOf("Type:") == 0) {
+			if (line.startsWith("Type:")) {
 				return line.substring("Type:".length).trim();
 			}
 		}

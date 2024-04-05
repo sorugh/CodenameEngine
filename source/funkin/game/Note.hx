@@ -290,7 +290,7 @@ class Note extends FlxSprite
 		setClipRect(swagRect);
 	}
 
-	public function setClipRect(rect:FlxRect) {
+	public inline function setClipRect(rect:FlxRect) {
 		this.clipRect = rect;
 	}
 

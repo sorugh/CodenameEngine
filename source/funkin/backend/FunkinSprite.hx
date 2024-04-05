@@ -227,7 +227,7 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 			for (key in animOffsets.keys()) {
 				final point = animOffsets[key];
 				animOffsets.remove(key);
-				if(point != null)
+				if (point != null)
 					point.put();
 			}
 			animOffsets = null;
@@ -322,19 +322,8 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 		return animateAtlas != null ? (animateAtlas.anim.animsMap.exists(AnimName)
 			|| animateAtlas.anim.symbolDictionary.exists(AnimName)) : animation.exists(AnimName);
 
-	public inline function getAnimName()
-	{
-		var name = null;
-		if (animateAtlas != null)
-		{
-			name = atlasPlayingAnim;
-		}
-		else
-		{
-			if (animation.curAnim != null)
-				name = animation.curAnim.name;
-		}
-		return name;
+	public inline function getAnimName() {
+		return (animateAtlas != null) ? atlasPlayingAnim : animation.name;
 	}
 
 	public inline function removeAnimation(name:String) {
@@ -358,8 +347,7 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 			animation.stop();
 	}
 
-	public inline function isAnimFinished()
-	{
+	public inline function isAnimFinished() {
 		return animateAtlas != null ? (animateAtlas.anim.finished) : (animation.curAnim != null ? animation.curAnim.finished : true);
 	}
 	#end

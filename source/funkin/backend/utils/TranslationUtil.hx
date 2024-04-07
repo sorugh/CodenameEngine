@@ -1,5 +1,6 @@
 package funkin.backend.utils;
 
+import funkin.backend.assets.TranslatedAssetLibrary;
 import funkin.backend.assets.ModsFolderLibrary;
 import funkin.backend.assets.ModsFolder;
 import funkin.backend.assets.IModsAssetLibrary;
@@ -68,7 +69,9 @@ class TranslationUtil
 	public static function setLanguage(?name:String) {
 		if(name == null) name = curLanguage;
 		transMap = loadLanguage(name);
-		// To add the switch for the language in TranslatedAssetLibrary here!  - Nex
+
+		for(mod in ModsFolder.getLoadedModsLibs()) if(mod is TranslatedAssetLibrary)
+			cast(mod, TranslatedAssetLibrary).langFolder = name.split("/")[0];
 	}
 
 	/**

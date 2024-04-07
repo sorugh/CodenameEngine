@@ -12,14 +12,25 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 	public var basePath:String;
 	public var prefix:String = Paths.translFolderName + "/";
 
-	public function new(langFolder:String) {
-		this.libName = this.modName = langFolder;
-		this.basePath = prefix + libName + "/";
+	public var langFolder(get, set):String;
+	@:noCompletion private inline function get_langFolder():String {
+		return libName;
+	}
+	@:noCompletion private inline function set_langFolder(value:String):String {
+		basePath = prefix + (libName = modName = (value == null ? value : TranslationUtil.DEFAULT_LANGUAGE.split("/")[0])) + "/";
+		return libName;
+	}
+
+	public function new(?langFolder:String) {
 		super();
+		this.langFolder = langFolder;
 	}
 
 	function toString():String
-		return '(TranslatedAssetLibrary: The labguage folder is $libName)';
+		return '(TranslatedAssetLibrary: The language folder is $libName)';
+
+	private inline function getAssetPath():String  // because of the IModsAssetLibrary  - Nex
+		return basePath;
 
 	public override function getAudioBuffer(id:String):AudioBuffer
 	{
@@ -110,9 +121,6 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 		}
 		return [];
 	}
-
-	private inline function getAssetPath():String
-		return basePath;
 
 	private function __isCacheValid(cache:Map<String, Dynamic>, asset:String, isLocal:Bool = false):Bool
 	{

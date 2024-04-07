@@ -114,13 +114,22 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 	private inline function getAssetPath():String
 		return basePath;
 
-	// TODO: Make this actually work
 	private function __isCacheValid(cache:Map<String, Dynamic>, asset:String, isLocal:Bool = false):Bool
 	{
 		for(lib in ModsFolder.getLoadedModsLibs()) {
+			if(!(lib is AssetLibrary)) continue;
+
+			// are you fucking serious (no the fucking switch doesnt work here)  - Nex
+			var _lib = cast(lib, AssetLibrary);
+			var libCache = (cache == cachedAudioBuffers) ? _lib.cachedAudioBuffers :
+				(cache == cachedBytes) ? _lib.cachedBytes :
+				(cache == cachedFonts) ? _lib.cachedFonts :
+				(cache == cachedImages) ? _lib.cachedImages :
+				(cache == cachedText) ? _lib.cachedText : cache;
+
 			var mainPath = lib.prefix;
 			if(!mainPath.endsWith('/')) mainPath += '/';
-			@:privateAccess if(lib.__isCacheValid(cache, mainPath + getAssetPath() + asset, isLocal)) return true;
+			@:privateAccess if(lib.__isCacheValid(libCache, mainPath + getAssetPath() + asset, isLocal)) return true;
 		}
 		return false;
 	}

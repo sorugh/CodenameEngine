@@ -1,13 +1,8 @@
 package funkin.backend.assets;
 
 import funkin.backend.system.MainState;
-import funkin.menus.TitleState;
-import funkin.backend.system.Main;
-import openfl.utils.AssetCache;
-import flixel.util.FlxSignal.FlxTypedSignal;
 import openfl.utils.AssetManifest;
 import openfl.utils.AssetLibrary;
-import flixel.graphics.FlxGraphic;
 import flixel.util.FlxSignal.FlxTypedSignal;
 
 import lime.text.Font;
@@ -17,7 +12,6 @@ import openfl.text.Font as OpenFLFont;
 import sys.FileSystem;
 #end
 
-import flixel.FlxState;
 import haxe.io.Path;
 
 using StringTools;

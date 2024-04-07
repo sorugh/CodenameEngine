@@ -121,16 +121,17 @@ class ModsFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 	private function __isCacheValid(cache:Map<String, Dynamic>, asset:String, isLocalCache:Bool = false) {
 		if (!editedTimes.exists(asset))
 			return false;
-		if (editedTimes[asset] == null || editedTimes[asset] < FileSystem.stat(getPath(asset)).mtime.getTime()) {
+		var editedTime = editedTimes[asset];
+		if (editedTime == null || editedTime < FileSystem.stat(getPath(asset)).mtime.getTime()) {
 			// destroy already existing to prevent memory leak!!!
-			var asset = cache[asset];
+			/*var asset = cache[asset];
 			if (asset != null) {
 				switch(Type.getClass(asset)) {
 					case lime.graphics.Image:
 						trace("getting rid of image cause replaced");
 						cast(asset, lime.graphics.Image);
 				}
-			}
+			}*/
 			return false;
 		}
 

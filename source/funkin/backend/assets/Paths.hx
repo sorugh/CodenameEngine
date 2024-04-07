@@ -42,7 +42,7 @@ class Paths
 		return getPath('$translFolderName/$key');
 
 	public static inline function translations(key:String)
-		return translationsMain('${TranslationsUtil.curLanguage}/$key');
+		return translationsMain('${TranslationUtil.curLanguage}/$key');
 
 	public static inline function video(key:String, ?ext:String = "mp4")
 		return getPath('videos/$key.$ext');

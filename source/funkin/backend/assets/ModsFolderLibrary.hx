@@ -1,8 +1,6 @@
 package funkin.backend.assets;
 
 import openfl.utils.AssetLibrary;
-//import lime.utils.Assets as LimeAssets;
-
 import lime.media.AudioBuffer;
 import lime.graphics.Image;
 import lime.text.Font;
@@ -26,10 +24,7 @@ class ModsFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 		this.basePath = basePath;
 		this.libName = libName;
 		this.prefix = 'assets/$libName/';
-		if(modName == null)
-			this.modName = libName;
-		else
-			this.modName = modName;
+		this.modName = modName == null ? libName : modName;
 		super();
 	}
 

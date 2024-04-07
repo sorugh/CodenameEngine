@@ -14,7 +14,7 @@ import haxe.Exception;
  *
  * Made by @NexIsDumb originally for the Poldhub mod.
  */
-class TranslationsUtil
+class TranslationUtil
 {
 	/**
 	 * The current language selected translation map; If the current language it's english, this map will be empty.
@@ -68,17 +68,7 @@ class TranslationsUtil
 	public static function setLanguage(?name:String) {
 		if(name == null) name = curLanguage;
 		transMap = loadLanguage(name);
-
-		for(mod in ModsFolder.getLoadedModsLibs()) {
-			if(!(mod is IModsAssetLibrary) || mod is ZipFolderLibrary) continue;  // TODO: add support for zipped mods
-			// TODO: clean this code
-			var _mod = cast(mod, openfl.utils.AssetLibrary);
-			var mod = cast(mod, IModsAssetLibrary);
-			var mainPath = mod.basePath;
-			if(!mainPath.endsWith('/')) mainPath += '/';
-			trace("Set sub library to " + mainPath + Paths.translFolderName + "/" + name + "/assets/");
-			_mod.subLibraries = [ModsFolder.loadLibraryFromFolder(name, '$mainPath${Paths.translFolderName}/$name/assets/', true)];
-		}
+		// To add the switch for the language in TranslatedAssetLibrary here!  - Nex
 	}
 
 	/**

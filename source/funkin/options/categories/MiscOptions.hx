@@ -6,17 +6,17 @@ class MiscOptions extends OptionsScreen {
 		super("Miscellaneous", "Use this menu to reset save data or engine settings.");
 
 		{ // Language Option
-			var lanArray:Array<String> = TranslationsUtil.getLanguages();
-			if (lanArray.contains(TranslationsUtil.DEFAULT_LANGUAGE))
-				lanArray.remove(TranslationsUtil.DEFAULT_LANGUAGE);
-			lanArray.insert(0, TranslationsUtil.DEFAULT_LANGUAGE);
+			var lanArray:Array<String> = TranslationUtil.getLanguages();
+			if (lanArray.contains(TranslationUtil.DEFAULT_LANGUAGE))
+				lanArray.remove(TranslationUtil.DEFAULT_LANGUAGE);
+			lanArray.insert(0, TranslationUtil.DEFAULT_LANGUAGE);
 
 			add(new ArrayOption(
 				"Language",
-				'The language that the engine currently uses (the default one is ${TranslationsUtil.DEFAULT_LANGUAGE}).',
+				'The language that the engine currently uses (the default one is ${TranslationUtil.DEFAULT_LANGUAGE}).',
 				lanArray, [for(lan in lanArray) lan.split("/").last()], "language",
 				function(path:String) {
-					TranslationsUtil.setLanguage(path);
+					TranslationUtil.setLanguage(path);
 					parent.remove(this);
 					// Reload the current screen
 					// todo add parent.reload();

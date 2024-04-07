@@ -347,10 +347,10 @@ class FreeplayState extends MusicBeatState
 	 * Array containing all labels for Co-Op / Opponent modes.
 	 */
 	public var coopLabels:Array<String> = [
-		TranslationsUtil.get("[TAB] Solo"),
-		TranslationsUtil.get("[TAB] Opponent Mode"),
-		TranslationsUtil.get("[TAB] Co-Op Mode"),
-		TranslationsUtil.get("[TAB] Co-Op Mode (Switched)")
+		TranslationUtil.get("[TAB] Solo"),
+		TranslationUtil.get("[TAB] Opponent Mode"),
+		TranslationUtil.get("[TAB] Co-Op Mode"),
+		TranslationUtil.get("[TAB] Co-Op Mode (Switched)")
 	];
 
 	/**

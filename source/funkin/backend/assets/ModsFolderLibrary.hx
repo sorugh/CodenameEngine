@@ -1,7 +1,7 @@
 package funkin.backend.assets;
 
-import lime.utils.AssetLibrary;
-import lime.utils.Assets as LimeAssets;
+import openfl.utils.AssetLibrary;
+//import lime.utils.Assets as LimeAssets;
 
 import lime.media.AudioBuffer;
 import lime.graphics.Image;
@@ -16,14 +16,14 @@ import sys.FileSystem;
 using StringTools;
 
 class ModsFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
-	public var folderPath:String;
+	public var basePath:String;
 	public var modName:String;
 	public var libName:String;
 	public var useImageCache:Bool = true;
 	public var prefix = 'assets/';
 
-	public function new(folderPath:String, libName:String, ?modName:String) {
-		this.folderPath = folderPath;
+	public function new(basePath:String, libName:String, ?modName:String) {
+		this.basePath = basePath;
 		this.libName = libName;
 		this.prefix = 'assets/$libName/';
 		if(modName == null)
@@ -31,6 +31,10 @@ class ModsFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 		else
 			this.modName = modName;
 		super();
+	}
+
+	function toString():String {
+		return '(ModsFolderLibrary: $libName/$modName)';
 	}
 
 	#if MOD_SUPPORT
@@ -111,7 +115,7 @@ class ModsFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 	}
 
 	private function getAssetPath() {
-		return '$folderPath/$_parsedAsset';
+		return '$basePath/$_parsedAsset';
 	}
 
 	private function __isCacheValid(cache:Map<String, Dynamic>, asset:String, isLocalCache:Bool = false) {
@@ -150,4 +154,14 @@ class ModsFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 		return true;
 	}
 	#end
+
+	// Backwards compat
+
+	@:noCompletion public var folderPath(get, set):String;
+	@:noCompletion private inline function get_folderPath():String {
+		return basePath;
+	}
+	@:noCompletion private inline function set_folderPath(value:String):String {
+		return basePath = value;
+	}
 }

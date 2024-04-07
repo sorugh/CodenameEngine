@@ -50,7 +50,11 @@ class AssetLibrary #if lime extends LimeAssetLibrary #end
 		}
 		else
 		{
-			for(lib in subLibraries) if(lib != null && lib.exists(id, type)) return true;
+			for(lib in subLibraries) {
+				trace(lib, id, type);
+				if(lib != null && lib.exists(id, type)) return true;
+			}
+			trace(this, id, type);
 			return super.exists(id, type);
 		}
 	}
@@ -301,7 +305,7 @@ class AssetLibrary #if lime extends LimeAssetLibrary #end
 		else
 		{
 			// TODO: Make this work by using multiple Futures
-			for(lib in subLibraries) if(lib != null) return lib.load();
+			for(lib in subLibraries) if(lib != null) lib.load();
 			return super.load();
 		}
 	}

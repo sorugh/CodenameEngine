@@ -1,7 +1,6 @@
 package funkin.backend.assets;
 
 import lime.utils.Log;
-import lime.utils.AssetLibrary;
 import lime.utils.AssetManifest;
 
 import haxe.io.Path;
@@ -15,6 +14,7 @@ import lime.utils.AssetType;
 import lime.utils.Bytes;
 import lime.utils.Assets as LimeAssets;
 import openfl.text.Font as OpenFLFont;
+import openfl.utils.AssetLibrary;
 
 
 #if MOD_SUPPORT
@@ -26,7 +26,7 @@ import funkin.backend.utils.SysZip;
 import funkin.backend.utils.SysZip.SysZipEntry;
 
 class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
-	public var zipPath:String;
+	public var basePath:String;
 	public var modName:String;
 	public var libName:String;
 	public var useImageCache:Bool = false;
@@ -35,21 +35,26 @@ class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 	public var zip:SysZip;
 	public var assets:Map<String, SysZipEntry> = [];
 
-	public function new(zipPath:String, libName:String, ?modName:String) {
-		this.zipPath = zipPath;
+	public function new(basePath:String, libName:String, ?modName:String) {
 		this.libName = libName;
+
+		this.basePath = basePath;
 
 		if(modName == null)
 			this.modName = libName;
 		else
 			this.modName = modName;
 
-		zip = SysZip.openFromFile(zipPath);
+		zip = SysZip.openFromFile(basePath);
 		zip.read();
 		for(entry in zip.entries)
 			assets[entry.fileName.toLowerCase()] = entry;
 
 		super();
+	}
+
+	function toString():String {
+		return '(ZipFolderLibrary: $libName/$modName)';
 	}
 
 	public var _parsedAsset:String;
@@ -110,8 +115,8 @@ class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 	}
 
 	private function getAssetPath() {
-		trace('[ZIP]$zipPath/$_parsedAsset');
-		return '[ZIP]$zipPath/$_parsedAsset';
+		trace('[ZIP]$basePath/$_parsedAsset');
+		return '[ZIP]$basePath/$_parsedAsset';
 	}
 
 	public function getFiles(folder:String):Array<String> {
@@ -149,6 +154,16 @@ class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 			}
 		}
 		return content;
+	}
+
+	// Backwards compat
+
+	@:noCompletion public var zipPath(get, set):String;
+	@:noCompletion private inline function get_zipPath():String {
+		return basePath;
+	}
+	@:noCompletion private inline function set_zipPath(value:String):String {
+		return basePath = value;
 	}
 }
 #end

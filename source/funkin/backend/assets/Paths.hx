@@ -23,6 +23,8 @@ class Paths
 	 */
 	inline public static final SOUND_EXT = #if web "mp3" #else "ogg" #end;
 
+	public static inline var translFolderName:String = "translations";
+
 	public static var assetsTree:AssetsLibraryList;
 
 	public static var tempFramesCache:Map<String, FlxFramesCollection> = [];
@@ -37,7 +39,7 @@ class Paths
 		return library != null ? '$library:assets/$library/$file' : 'assets/$file';
 
 	public static inline function translationsMain(key:String)
-		return getPath('translations/$key');
+		return getPath('$translFolderName/$key');
 
 	public static inline function translations(key:String)
 		return translationsMain('${TranslationsUtil.curLanguage}/$key');

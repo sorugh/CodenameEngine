@@ -108,7 +108,7 @@ class ModsFolder {
 		#end
 		return mods;
 	}
-	public static function getLoadedMods():Array<String> {
+	public static function getLoadedModsLibs():Array<IModsAssetLibrary> {
 		var libs = [];
 		for (i in Paths.assetsTree.libraries) {
 			var l = i;
@@ -117,13 +117,13 @@ class ModsFolder {
 				@:privateAccess
 				if (al.__proxy != null) l = al.__proxy;
 			}
-			var libString:String;
-			if (l is ScriptedAssetLibrary || l is IModsAssetLibrary) libString = cast(l, IModsAssetLibrary).modName;
-			else continue;
-			libs.push(libString);
+			if (l is ScriptedAssetLibrary || l is IModsAssetLibrary) libs.push(cast(l, IModsAssetLibrary));
 		}
 		return libs;
 	}
+	public static function getLoadedMods():Array<String>
+		return [for (modLib in getLoadedModsLibs()) modLib.modName];
+
 	public static function prepareLibrary(libName:String, force:Bool = false) {
 		var assets:AssetManifest = new AssetManifest();
 		assets.name = libName;

@@ -25,6 +25,7 @@ interface IModsAssetLibrary {
 	public var prefix:String;
 	public var modName:String;
 	public var libName:String;
+	public var basePath:String;
 
 	#if MOD_SUPPORT
 	public var _parsedAsset:String;

@@ -1,5 +1,9 @@
 package funkin.backend.utils;
 
+import funkin.backend.assets.ModsFolderLibrary;
+import funkin.backend.assets.ModsFolder;
+import funkin.backend.assets.IModsAssetLibrary;
+import funkin.backend.assets.ZipFolderLibrary;
 import openfl.utils.Assets;
 import haxe.io.Path;
 import haxe.xml.Access;
@@ -15,7 +19,7 @@ class TranslationsUtil
 	/**
 	 * The current language selected translation map; If the current language it's english, this map will be empty.
 	 *
-	 * Using this class function it'll never be `null`.
+	 * It'll never be `null`.
 	 */
 	public static var transMap(default, set):Map<String, IFormatInfo> = [];
 
@@ -58,25 +62,37 @@ class TranslationsUtil
 	 * Updates the language.
 	 * Also changes the translations map.
 	 *
-	 * If `name` is `null`, its gonne reload current language.
+	 * If `name` is `null`, its gonna use the current language.
 	 * If `name` is not `null`, it will load the translations for the given language.
 	 */
-	public static function setLanguage(?name:String)
-		transMap = loadLanguage(name == null ? curLanguage : name);
+	public static function setLanguage(?name:String) {
+		if(name == null) name = curLanguage;
+		transMap = loadLanguage(name);
+
+		for(mod in ModsFolder.getLoadedModsLibs()) {
+			if(!(mod is IModsAssetLibrary) || mod is ZipFolderLibrary) continue;  // TODO: add support for zipped mods
+			// TODO: clean this code
+			var _mod = cast(mod, openfl.utils.AssetLibrary);
+			var mod = cast(mod, IModsAssetLibrary);
+			var mainPath = mod.basePath;
+			if(!mainPath.endsWith('/')) mainPath += '/';
+			trace("Set sub library to " + mainPath + Paths.translFolderName + "/" + name + "/assets/");
+			_mod.subLibraries = [ModsFolder.loadLibraryFromFolder(name, '$mainPath${Paths.translFolderName}/$name/assets/', true)];
+		}
+	}
 
 	/**
 	 * This is for checking and getting a translation, `defString` it's just the string that gets returned just in case it won't find the translation OR the current language selected is ``DEFAULT_LANGUAGE``.
 	 *
 	 * If `id` is `null` then it's gonna search using `defString`.
 	 */
-	public static function get(defString:String, ?id:String, ?parms:Array<Dynamic>):String
+	public static function get(defString:String, ?id:String, ?params:Array<Dynamic>):String
 	{
-		if (parms == null) parms = [];
 		#if TRANSLATIONS_SUPPORT
 		if (id == null) id = defString;
-		if (transMap.exists(id)) return transMap.get(id).format(parms);
+		if (transMap.exists(id)) return transMap.get(id).format(params);
 		#end
-		return FormatUtil.get(defString).format(parms);
+		return FormatUtil.get(defString).format(params);
 	}
 
 	/**
@@ -87,8 +103,10 @@ class TranslationsUtil
 		var languages:Array<String> = [];
 		#if TRANSLATIONS_SUPPORT
 		var main:String = Paths.translationsMain('');
-		for (l in Paths.assetsTree.getFolders(main)) for (f in Paths.assetsTree.getFiles(main + l))
-			if (Path.extension('$l/$f') == "xml") languages.push(Path.withoutExtension('$l/$f'));
+		for (l in Paths.assetsTree.getFolders(main))
+			for (f in Paths.assetsTree.getFiles(main + l))
+				if (Path.extension('$l/$f') == "xml")
+					languages.push(Path.withoutExtension('$l/$f'));
 		#end
 		return languages;
 	}
@@ -172,7 +190,7 @@ class StrFormatInfo implements IFormatInfo {
 		this.string = str;
 	}
 
-	public function format(values:Array<Dynamic>):String {
+	public function format(params:Array<Dynamic>):String {
 		return string;
 	}
 }
@@ -211,12 +229,14 @@ class ParamFormatInfo implements IFormatInfo {
 		return fi.indexes.length > 0 ? fi : null;
 	}
 
-	public function format(values:Array<Dynamic>):String {
+	public function format(params:Array<Dynamic>):String {
+		if (params == null) params = [];
+
 		var str:String = "";
 		for (i=>s in strings) {
 			str += s;
 			if (i < indexes.length)
-				str += values[indexes[i]];
+				str += params[indexes[i]];
 		}
 
 		return str;
@@ -224,5 +244,5 @@ class ParamFormatInfo implements IFormatInfo {
 }
 
 interface IFormatInfo {
-	public function format(values:Array<Dynamic>):String;
+	public function format(params:Array<Dynamic>):String;
 }

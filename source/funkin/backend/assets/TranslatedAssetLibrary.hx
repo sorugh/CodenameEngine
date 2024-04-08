@@ -32,14 +32,16 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 	private inline function getAssetPath():String  // because of the IModsAssetLibrary  - Nex
 		return basePath;
 
+	public inline function formatPath(mainPath:String, ?asset:String):String {  // TO MAKE THIS WORKS GOOD  - Nex
+		if(!mainPath.endsWith('/')) mainPath += '/';
+		return mainPath + getAssetPath() + (asset == null ? "" : asset);
+	}
+
 	public override function getAudioBuffer(id:String):AudioBuffer
 	{
 		for(lib in ModsFolder.getLoadedModsLibs()) {
-			if(!(lib is AssetLibrary)) continue;
-
-			var mainPath = lib.prefix;
-			if(!mainPath.endsWith('/')) mainPath += '/';
-			var val = cast(lib, AssetLibrary).getAudioBuffer(mainPath + getAssetPath() + id);
+			if(lib is TranslatedAssetLibrary || !(lib is AssetLibrary)) continue;
+			var val = cast(lib, AssetLibrary).getAudioBuffer(formatPath(lib.basePath, id));
 			if(val != null) return val;
 		}
 		return null;
@@ -48,11 +50,8 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 	public override function getBytes(id:String):Bytes
 	{
 		for(lib in ModsFolder.getLoadedModsLibs()) {
-			if(!(lib is AssetLibrary)) continue;
-
-			var mainPath = lib.prefix;
-			if(!mainPath.endsWith('/')) mainPath += '/';
-			var val = cast(lib, AssetLibrary).getBytes(mainPath + getAssetPath() + id);
+			if(lib is TranslatedAssetLibrary || !(lib is AssetLibrary)) continue;
+			var val = cast(lib, AssetLibrary).getBytes(formatPath(lib.basePath, id));
 			if(val != null) return val;
 		}
 		return null;
@@ -61,11 +60,8 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 	public override function getFont(id:String):Font
 	{
 		for(lib in ModsFolder.getLoadedModsLibs()) {
-			if(!(lib is AssetLibrary)) continue;
-
-			var mainPath = lib.prefix;
-			if(!mainPath.endsWith('/')) mainPath += '/';
-			var val = cast(lib, AssetLibrary).getFont(mainPath + getAssetPath() + id);
+			if(lib is TranslatedAssetLibrary || !(lib is AssetLibrary)) continue;
+			var val = cast(lib, AssetLibrary).getFont(formatPath(lib.basePath, id));
 			if(val != null) return val;
 		}
 		return null;
@@ -74,11 +70,8 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 	public override function getImage(id:String):Image
 	{
 		for(lib in ModsFolder.getLoadedModsLibs()) {
-			if(!(lib is AssetLibrary)) continue;
-
-			var mainPath = lib.prefix;
-			if(!mainPath.endsWith('/')) mainPath += '/';
-			var val = cast(lib, AssetLibrary).getImage(mainPath + getAssetPath() + id);
+			if(lib is TranslatedAssetLibrary || !(lib is AssetLibrary)) continue;
+			var val = cast(lib, AssetLibrary).getImage(formatPath(lib.basePath, id));
 			if(val != null) return val;
 		}
 		return null;
@@ -87,11 +80,8 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 	public override function getPath(id:String):String
 	{
 		for(lib in ModsFolder.getLoadedModsLibs()) {
-			if(!(lib is AssetLibrary)) continue;
-
-			var mainPath = lib.prefix;
-			if(!mainPath.endsWith('/')) mainPath += '/';
-			var val = cast(lib, AssetLibrary).getPath(mainPath + getAssetPath() + id);
+			if(lib is TranslatedAssetLibrary || !(lib is AssetLibrary)) continue;
+			var val = cast(lib, AssetLibrary).getPath(formatPath(lib.basePath, id));
 			if(val != null) return val;
 		}
 		return null;
@@ -103,9 +93,8 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 	public function getFiles(folder:String):Array<String>
 	{
 		for(lib in ModsFolder.getLoadedModsLibs()) {
-			var mainPath = lib.prefix;
-			if(!mainPath.endsWith('/')) mainPath += '/';
-			var val = lib.getFiles(mainPath + getAssetPath() + folder);
+			if(lib is TranslatedAssetLibrary) continue;
+			var val = lib.getFiles(formatPath(lib.basePath, folder));
 			if(val != []) return val;
 		}
 		return [];
@@ -114,9 +103,8 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 	public function getFolders(folder:String):Array<String>
 	{
 		for(lib in ModsFolder.getLoadedModsLibs()) {
-			var mainPath = lib.prefix;
-			if(!mainPath.endsWith('/')) mainPath += '/';
-			var val = lib.getFolders(mainPath + getAssetPath() + folder);
+			if(lib is TranslatedAssetLibrary) continue;
+			var val = lib.getFolders(formatPath(lib.basePath, folder));
 			if(val != []) return val;
 		}
 		return [];
@@ -125,7 +113,7 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 	private function __isCacheValid(cache:Map<String, Dynamic>, asset:String, isLocal:Bool = false):Bool
 	{
 		for(lib in ModsFolder.getLoadedModsLibs()) {
-			if(!(lib is AssetLibrary)) continue;
+			if(lib is TranslatedAssetLibrary || !(lib is AssetLibrary)) continue;
 
 			// are you fucking serious (no the fucking switch doesnt work here)  - Nex
 			var _lib = cast(lib, AssetLibrary);
@@ -135,33 +123,22 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 				(cache == cachedImages) ? _lib.cachedImages :
 				(cache == cachedText) ? _lib.cachedText : cache;
 
-			var mainPath = lib.prefix;
-			if(!mainPath.endsWith('/')) mainPath += '/';
-			@:privateAccess if(lib.__isCacheValid(libCache, mainPath + getAssetPath() + asset, isLocal)) return true;
+			@:privateAccess if(lib.__isCacheValid(libCache, formatPath(lib.basePath, asset), isLocal)) return true;
 		}
 		return false;
 	}
 
 	private function __parseAsset(asset:String):Bool
 	{
-		for(lib in ModsFolder.getLoadedModsLibs()) {
-			var mainPath = lib.prefix;
-			if(!mainPath.endsWith('/')) mainPath += '/';
-			@:privateAccess if(lib.__parseAsset(mainPath + getAssetPath() + asset)) return true;
-		}
+		@:privateAccess
+		for(lib in ModsFolder.getLoadedModsLibs()) if(!(lib is TranslatedAssetLibrary) && lib.__parseAsset(formatPath(lib.basePath, asset))) return true;
 		return false;
 	}
 	#end
 
 	public override function exists(id:String, type:String):Bool
 	{
-		for(lib in ModsFolder.getLoadedModsLibs()) {
-			if(!(lib is AssetLibrary)) continue;
-
-			var mainPath = lib.prefix;
-			if(!mainPath.endsWith('/')) mainPath += '/';
-			if(cast(lib, AssetLibrary).exists(mainPath + getAssetPath() + id, type)) return true;
-		}
+		for(lib in ModsFolder.getLoadedModsLibs()) if(!(lib is TranslatedAssetLibrary) && lib is AssetLibrary && cast(lib, AssetLibrary).exists(formatPath(lib.basePath, id), type)) return true;
 		return false;
 	}
 }

@@ -67,11 +67,13 @@ class TranslationUtil
 	 * If `name` is not `null`, it will load the translations for the given language.
 	 */
 	public static function setLanguage(?name:String) {
+		#if TRANSLATIONS_SUPPORT
 		if(name == null) name = curLanguage;
 		transMap = loadLanguage(name);
 
 		for(mod in ModsFolder.getLoadedModsLibs()) if(mod is TranslatedAssetLibrary)
 			cast(mod, TranslatedAssetLibrary).langFolder = name.split("/")[0];
+		#end
 	}
 
 	/**

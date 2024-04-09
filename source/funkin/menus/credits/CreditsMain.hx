@@ -1,5 +1,6 @@
 package funkin.menus.credits;
 
+import funkin.backend.assets.AssetSource;
 import funkin.options.OptionsScreen;
 import funkin.options.type.*;
 import funkin.options.TreeMenu;
@@ -50,7 +51,7 @@ class CreditsMain extends TreeMenu {
 	/**
 	 * XML STUFF
 	 */
-	public function parseCreditsFromXML(xml:Access, source:Bool):Array<OptionType> {
+	public function parseCreditsFromXML(xml:Access, source:AssetSource):Array<OptionType> {
 		var credsMenus:Array<OptionType> = [];
 
 		for(node in xml.elements) {

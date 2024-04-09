@@ -27,7 +27,7 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 	}
 
 	function toString():String
-		return '(TranslatedAssetLibrary: The language folder is $libName)';
+		return '(TranslatedAssetLibrary: Lang: $libName)';
 
 	private inline function getAssetPath():String  // because of the IModsAssetLibrary  - Nex
 		return basePath;

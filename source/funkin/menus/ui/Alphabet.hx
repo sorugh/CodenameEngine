@@ -1,5 +1,6 @@
 package funkin.menus.ui;
 
+import funkin.backend.assets.AssetsLibraryList;
 import openfl.utils.AssetLibrary;
 import haxe.xml.Access;
 import funkin.backend.assets.LimeLibrarySymbol;
@@ -91,12 +92,7 @@ class Alphabet extends FlxSpriteGroup
 		#if MOD_SUPPORT else {
 			var libThing = new LimeLibrarySymbol(alphabetPath);
 			if (libThing.library is AssetLibrary) {
-				var library = cast(libThing.library, AssetLibrary);
-				@:privateAccess
-				if (library.__proxy != null && library.__proxy is AssetLibrary) {
-					@:privateAccess
-					library = cast(library.__proxy, AssetLibrary);
-				}
+				var library = AssetsLibraryList.getCleanLibrary(libThing.library);
 				if (library is IModsAssetLibrary) {
 					var modLib = cast(library, IModsAssetLibrary);
 					@:privateAccess

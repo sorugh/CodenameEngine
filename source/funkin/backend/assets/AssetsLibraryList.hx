@@ -17,17 +17,16 @@ class AssetsLibraryList extends AssetLibrary {
 	#end
 
 	public function removeLibrary(lib:AssetLibrary) {
-		if (lib == null) return lib;
-		libraries.remove(lib);
+		if (lib != null)
+			libraries.remove(lib);
 		return lib;
 	}
 	public function existsSpecific(id:String, type:String, source:AssetSource = BOTH) {
 		if (!id.startsWith("assets/") && existsSpecific('assets/$id', type, source))
 			return true;
-		for(k=>e in libraries) {
-			if (shouldSkipLib(e, source)) continue;
-			if (e.exists(id, type)) {
-				trace('$k $e ${e.tag.toString()} $id exists');
+		for(k=>l in libraries) {
+			if (shouldSkipLib(l, source)) continue;
+			if (l.exists(id, type)) {
 				return true;
 			}
 		}
@@ -55,15 +54,10 @@ class AssetsLibraryList extends AssetLibrary {
 
 	public function getFiles(folder:String, source:AssetSource = BOTH):Array<String> {
 		var content:Array<String> = [];
-		for(k=>e in libraries) {
-			if (shouldSkipLib(e, source)) continue;
+		for(k=>l in libraries) {
+			if (shouldSkipLib(l, source)) continue;
 
-			var l = e;
-
-			if (l is openfl.utils.AssetLibrary) {
-				@:privateAccess
-				l = cast(l, openfl.utils.AssetLibrary).__proxy;
-			}
+			l = getCleanLibrary(l);
 
 			// TODO: do base folder scanning
 			#if MOD_SUPPORT
@@ -79,15 +73,10 @@ class AssetsLibraryList extends AssetLibrary {
 
 	public function getFolders(folder:String, source:AssetSource = BOTH):Array<String> {
 		var content:Array<String> = [];
-		for(k=>e in libraries) {
-			if (shouldSkipLib(e, source)) continue;
+		for(k=>l in libraries) {
+			if (shouldSkipLib(l, source)) continue;
 
-			var l = e;
-
-			if (l is openfl.utils.AssetLibrary) {
-				@:privateAccess
-				l = cast(l, openfl.utils.AssetLibrary).__proxy;
-			}
+			l = getCleanLibrary(l);
 
 			// TODO: do base folder scanning
 			#if MOD_SUPPORT
@@ -109,24 +98,20 @@ class AssetsLibraryList extends AssetLibrary {
 					return ass;
 				}
 			}
-			for(k=>e in libraries) {
-				if (shouldSkipLib(e, source)) continue;
+			for(k=>l in libraries) {
+				if (shouldSkipLib(l, source)) continue;
 
 				@:privateAccess
-				if (e.exists(id, e.types.get(id))) {
-					var asset = e.getAsset(id, type);
+				if (l.exists(id, l.types.get(id))) {
+					var asset = l.getAsset(id, type);
 					if (asset != null) {
-						if(asset.length > 512) {
-							trace('$k $e ${e.tag.toString()} $id asset of length ${asset.length}');
-						} else {
-							trace('$k $e ${e.tag.toString()} $id returned asset $asset');
-						}
 						return asset;
 					}
 				}
 			}
 			return null;
 		} catch(e) {
+			// TODO: trace the error
 			throw e;
 		}
 		return null;
@@ -167,9 +152,24 @@ class AssetsLibraryList extends AssetLibrary {
 			addLibrary(d);
 	}
 
-	public function addLibrary(lib:AssetLibrary, tag:AssetSource = MODS) {
+	public function addLibrary(lib:AssetLibrary, ?tag:AssetSource) {
 		libraries.insert(#if TRANSLATIONS_SUPPORT libraries.indexOf(transLib) + 1 #else 0 #end, lib);
-		lib.tag = tag;
+		if(tag != null)
+			lib.tag = tag;
+		if(lib.tag == null) {
+			lib.tag = MODS;
+			//trace('AssetLibrary ${getCleanLibrary(lib)} tag not set, defaulting to MODS');
+		}
 		return lib;
+	}
+
+	public static function getCleanLibrary(e:AssetLibrary):AssetLibrary {
+		var l = e;
+		if (l is openfl.utils.AssetLibrary) {
+			var al = cast(l, openfl.utils.AssetLibrary);
+			@:privateAccess
+			if (al.__proxy != null) l = al.__proxy;
+		}
+		return l;
 	}
 }

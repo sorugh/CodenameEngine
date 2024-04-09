@@ -67,7 +67,7 @@ class Chart {
 		data.setFieldDefault("parsedColor", data.color.getColorFromDynamic().getDefault(defaultColor));
 
 		if (data.difficulties.length <= 0) {
-			data.difficulties = [for(f in Paths.getFolderContent('songs/${songName.toLowerCase()}/charts/', false, !fromMods)) if (Path.extension(f = f.toUpperCase()) == "JSON") Path.withoutExtension(f)];
+			data.difficulties = [for(f in Paths.getFolderContent('songs/${songName.toLowerCase()}/charts/', false, fromMods ? MODS : SOURCE)) if (Path.extension(f = f.toUpperCase()) == "JSON") Path.withoutExtension(f)];
 			if (data.difficulties.length == 3) {
 				var hasHard = false, hasNormal = false, hasEasy = false;
 				for(d in data.difficulties) {

@@ -29,7 +29,7 @@ class ModsFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 	}
 
 	function toString():String {
-		return '(ModsFolderLibrary: $libName/$modName)';
+		return '(ModsFolderLibrary: $modName)';
 	}
 
 	#if MOD_SUPPORT

@@ -111,12 +111,7 @@ class ModsFolder {
 	public static function getLoadedModsLibs(skipTranslated:Bool = false):Array<IModsAssetLibrary> {
 		var libs = [];
 		for (i in Paths.assetsTree.libraries) {
-			var l = i;
-			if (l is openfl.utils.AssetLibrary) {
-				var al = cast(l, openfl.utils.AssetLibrary);
-				@:privateAccess
-				if (al.__proxy != null) l = al.__proxy;
-			}
+			var l = AssetsLibraryList.getCleanLibrary(i);
 			if(skipTranslated && (l is TranslatedAssetLibrary)) continue;
 			if (l is ScriptedAssetLibrary || l is IModsAssetLibrary) libs.push(cast(l, IModsAssetLibrary));
 		}
@@ -143,21 +138,25 @@ class ModsFolder {
 		return font;
 	}
 
-	public static function prepareModLibrary(libName:String, lib:IModsAssetLibrary, force:Bool = false) {
+	public static function prepareModLibrary(libName:String, lib:IModsAssetLibrary, force:Bool = false, ?tag:AssetSource = MODS) {
 		var openLib = prepareLibrary(libName, force);
 		lib.prefix = 'assets/';
 		@:privateAccess
 		openLib.__proxy = cast(lib, lime.utils.AssetLibrary);
+		if(tag != null) {
+			openLib.tag = tag;
+			cast(lib, lime.utils.AssetLibrary).tag = tag;
+		}
 		return openLib;
 	}
 
 	#if MOD_SUPPORT
-	public static function loadLibraryFromFolder(libName:String, folder:String, force:Bool = false, ?modName:String) {
-		return prepareModLibrary(libName, new ModsFolderLibrary(folder, libName, modName), force);
+	public static function loadLibraryFromFolder(libName:String, folder:String, force:Bool = false, ?modName:String, ?tag:AssetSource = MODS) {
+		return prepareModLibrary(libName, new ModsFolderLibrary(folder, libName, modName), force, tag);
 	}
 
-	public static function loadLibraryFromZip(libName:String, zipPath:String, force:Bool = false, ?modName:String) {
-		return prepareModLibrary(libName, new ZipFolderLibrary(zipPath, libName, modName), force);
+	public static function loadLibraryFromZip(libName:String, zipPath:String, force:Bool = false, ?modName:String, ?tag:AssetSource = MODS) {
+		return prepareModLibrary(libName, new ZipFolderLibrary(zipPath, libName, modName), force, tag);
 	}
 	#end
 }

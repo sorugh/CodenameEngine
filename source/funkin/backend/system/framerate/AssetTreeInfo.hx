@@ -1,5 +1,6 @@
 package funkin.backend.system.framerate;
 
+import funkin.backend.assets.AssetsLibraryList;
 import funkin.backend.assets.IModsAssetLibrary;
 import funkin.backend.assets.ScriptedAssetLibrary;
 
@@ -13,20 +14,17 @@ class AssetTreeInfo extends FramerateCategory {
 		var text = 'Not initialized yet\n';
 		if (Paths.assetsTree != null){
 			text = "";
-			for(e in Paths.assetsTree.libraries) {
-				var l = e;
-				if (l is openfl.utils.AssetLibrary) {
-					var al = cast(l, openfl.utils.AssetLibrary);
-					@:privateAccess
-					if (al.__proxy != null) l = al.__proxy;
-				}
+			for(l in Paths.assetsTree.libraries) {
+				var l = AssetsLibraryList.getCleanLibrary(l);
+
+				var tag = l.tag.toString().toUpperCase();
 
 				if (l is ScriptedAssetLibrary)
-					text += '${Type.getClassName(Type.getClass(l))} - ${cast(l, ScriptedAssetLibrary).scriptName} (${cast(l, ScriptedAssetLibrary).modName} | ${cast(l, ScriptedAssetLibrary).libName} | ${cast(l, ScriptedAssetLibrary).prefix})\n';
+					text += '${Type.getClassName(Type.getClass(l))} - $tag - ${cast(l, ScriptedAssetLibrary).scriptName} (${cast(l, ScriptedAssetLibrary).modName} | ${cast(l, ScriptedAssetLibrary).libName} | ${cast(l, ScriptedAssetLibrary).prefix})\n';
 				else if (l is IModsAssetLibrary)
-					text += '${Type.getClassName(Type.getClass(l))} - ${cast(l, IModsAssetLibrary).modName} - ${cast(l, IModsAssetLibrary).libName} (${cast(l, IModsAssetLibrary).prefix})\n';
+					text += '${Type.getClassName(Type.getClass(l))} - $tag - ${cast(l, IModsAssetLibrary).modName} - ${cast(l, IModsAssetLibrary).libName} (${cast(l, IModsAssetLibrary).prefix})\n';
 				else
-					text += Std.string(e) + "\n";
+					text += Std.string(l) + ' - $tag\n';
 			}
 		}
 		if (text != "")

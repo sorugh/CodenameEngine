@@ -601,7 +601,7 @@ class PlayState extends MusicBeatState
 
 		// PRECACHING
 		#if REGION
-		for(content in Paths.getFolderContent('images/game/score/', true, true))
+		for(content in Paths.getFolderContent('images/game/score/', true, BOTH))
 			graphicCache.cache(Paths.getPath(content));
 
 		for(i in 1...4) {

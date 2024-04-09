@@ -207,7 +207,7 @@ class CoolUtil
 	 * @return String Result without any kind of IP
 	 */
 	public static inline function removeIP(msg:String):String {
-		return ~/\d+.\d+.\d+.\d+/.replace(msg, "[Your IP]");  // For now its just IPs but who knows in the future..  - Nex
+		return ~/\d+.\d+.\d+.\d+/.replace(msg, "[Your IP]"); // For now its just IPs but who knows in the future..  - Nex
 	}
 
 	/**

@@ -191,7 +191,6 @@ class Note extends FlxSprite
 	}
 
 	public var lastScrollSpeed:Null<Float> = null;
-	public var angleOffsets:Bool = true;
 	public var gapFix:Single = 0;
 	public var useAntialiasingFix(get, set):Bool;
 	inline function set_useAntialiasingFix(v:Bool) {

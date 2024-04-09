@@ -22,10 +22,10 @@ class AssetsLibraryList extends AssetLibrary {
 		return lib;
 	}
 	public function existsSpecific(id:String, type:String, source:AssetSource = BOTH) {
-		if (!id.startsWith("assets/") && exists('assets/$id', type))
+		if (!id.startsWith("assets/") && existsSpecific('assets/$id', type, source))
 			return true;
 		for(k=>e in libraries) {
-			if (shouldSkipLib(k, source)) continue;
+			if (shouldSkipLib(e, source)) continue;
 			if (e.exists(id, type))
 				return true;
 		}
@@ -36,7 +36,7 @@ class AssetsLibraryList extends AssetLibrary {
 
 	public function getSpecificPath(id:String, source:AssetSource = BOTH) {
 		for(k=>e in libraries) {
-			if (shouldSkipLib(k, source)) continue;
+			if (shouldSkipLib(e, source)) continue;
 
 			@:privateAccess
 			if (e.exists(id, e.types.get(id))) {
@@ -54,7 +54,7 @@ class AssetsLibraryList extends AssetLibrary {
 	public function getFiles(folder:String, source:AssetSource = BOTH):Array<String> {
 		var content:Array<String> = [];
 		for(k=>e in libraries) {
-			if (shouldSkipLib(k, source)) continue;
+			if (shouldSkipLib(e, source)) continue;
 
 			var l = e;
 
@@ -78,7 +78,7 @@ class AssetsLibraryList extends AssetLibrary {
 	public function getFolders(folder:String, source:AssetSource = BOTH):Array<String> {
 		var content:Array<String> = [];
 		for(k=>e in libraries) {
-			if (shouldSkipLib(k, source)) continue;
+			if (shouldSkipLib(e, source)) continue;
 
 			var l = e;
 
@@ -108,7 +108,7 @@ class AssetsLibraryList extends AssetLibrary {
 				}
 			}
 			for(k=>e in libraries) {
-				if (shouldSkipLib(k, source)) continue;
+				if (shouldSkipLib(e, source)) continue;
 
 				@:privateAccess
 				if (e.exists(id, e.types.get(id))) {
@@ -125,15 +125,9 @@ class AssetsLibraryList extends AssetLibrary {
 		return null;
 	}
 
-	private function shouldSkipLib(k:Int, source:AssetSource) {
-		#if TRANSLATIONS_SUPPORT
-		k -= libraries.indexOf(transLib) + 1;
-		#end
-		return switch(source) {
-			case BOTH:	  false;
-			case SOURCE:	k < libraries.length - __defaultLibraries.length;
-			case MODS:	  k >= libraries.length - __defaultLibraries.length;
-		};
+	private function shouldSkipLib(lib:AssetLibrary, source:AssetSource) {
+		if (source == BOTH || lib.tag == BOTH) return false;
+		return source != lib.tag;
 	}
 	public override inline function getAsset(id:String, type:String):Dynamic
 		return getSpecificAsset(id, type, BOTH);
@@ -171,10 +165,4 @@ class AssetsLibraryList extends AssetLibrary {
 		lib.tag = tag;
 		return lib;
 	}
-}
-
-enum abstract AssetSource(Null<Bool>) from Bool from Null<Bool> to Null<Bool> {
-	var SOURCE = true;
-	var MODS = false;
-	var BOTH = null;
 }

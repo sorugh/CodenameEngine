@@ -236,7 +236,7 @@ class Paths
 		return graph.imageFrame;
 	}
 
-	public static function getFolderDirectories(key:String, addPath:Bool = false, source:AssetsLibraryList.AssetSource = BOTH):Array<String> {
+	public static function getFolderDirectories(key:String, addPath:Bool = false, source:AssetSource = BOTH):Array<String> {
 		if (!key.endsWith("/")) key += "/";
 		var content = assetsTree.getFolders('assets/$key', source);
 		if (addPath) {
@@ -246,7 +246,7 @@ class Paths
 		return content;
 	}
 
-	public static function getFolderContent(key:String, addPath:Bool = false, source:AssetsLibraryList.AssetSource = BOTH):Array<String> {
+	public static function getFolderContent(key:String, addPath:Bool = false, source:AssetSource = BOTH):Array<String> {
 		// designed to work both on windows and web
 		if (!key.endsWith("/")) key += "/";
 		var content = assetsTree.getFiles('assets/$key', source);

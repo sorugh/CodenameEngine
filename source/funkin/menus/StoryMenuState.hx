@@ -297,7 +297,7 @@ class StoryMenuState extends MusicBeatState {
 		characters[charName] = charObj;
 	}
 
-	public function getWeeksFromSource(weeks:Array<String>, source:funkin.backend.assets.AssetsLibraryList.AssetSource) {
+	public function getWeeksFromSource(weeks:Array<String>, source:funkin.backend.assets.AssetSource) {
 		var path:String = Paths.txt('freeplaySonglist');
 		var weeksFound:Array<String> = [];
 		if (Paths.assetsTree.existsSpecific(path, "TEXT", source)) {

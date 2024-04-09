@@ -48,8 +48,10 @@ class ModsFolder {
 	 * Initialises `mods` folder.
 	 */
 	public static function init() {
-		if(!getModsList().contains(Options.lastLoadedMod))
+		if(!getModsList().contains(Options.lastLoadedMod)) {
 			Options.lastLoadedMod = null;
+			Logs.trace("Mod not found in mods list, switching to base game!", WARNING, YELLOW);
+		}
 	}
 
 	/**
@@ -59,6 +61,10 @@ class ModsFolder {
 	public static function switchMod(mod:String) {
 		Options.lastLoadedMod = currentModFolder = mod;
 		reloadMods();
+		Logs.traceColored([
+			Logs.logText('Switched to mod ', GRAY),
+			Logs.logText(mod, GREEN)
+		], VERBOSE);
 	}
 
 	public static function reloadMods() {

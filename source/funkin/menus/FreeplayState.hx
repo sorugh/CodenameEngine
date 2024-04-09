@@ -430,7 +430,7 @@ class FreeplaySonglist {
 
 	public function new() {}
 
-	public function getSongsFromSource(source:funkin.backend.assets.AssetsLibraryList.AssetSource, useTxt:Bool = true) {
+	public function getSongsFromSource(source:funkin.backend.assets.AssetSource, useTxt:Bool = true) {
 		var path:String = Paths.txt('freeplaySonglist');
 		var songsFound:Array<String> = [];
 		if (useTxt && Paths.assetsTree.existsSpecific(path, "TEXT", source)) {

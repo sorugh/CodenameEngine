@@ -1,4 +1,4 @@
-package funkin.backend.system.macros;
+package macros;
 
 #if macro
 import haxe.macro.Expr;
@@ -8,7 +8,7 @@ using StringTools;
 using haxe.macro.PositionTools;
 
 class HashLinkFixer {
-	public static var buildMacroString = '@:build(funkin.backend.system.macros.HashLinkFixer.build())';
+	public static var buildMacroString = '@:build(macros.HashLinkFixer.build())';
 
 	public static var applyOn:Array<String> = [
 		"lime",
@@ -133,7 +133,7 @@ class HashLinkFixer {
 			helperClass.name = hcClassName;
 
 			if(definedFields.length > 0) {
-				trace(cl.module);
+				//trace(cl.module);
 
 				/*for(m in metas.copy()) {
 					trace("   " + m.name);

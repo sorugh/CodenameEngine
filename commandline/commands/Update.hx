@@ -42,6 +42,9 @@ class Update {
 				case "git":
 					prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}" from git url "${lib.url}"');
 					Sys.command('haxelib git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}${globalism != null ? ' $globalism' : ''} --always');
+				case "custom":
+					Sys.command('haxelib dev ${lib.name} "./libraries/${lib.name}"');
+
 				default:
 					prettyPrint('Cannot resolve library of type "${lib.type}"');
 			}

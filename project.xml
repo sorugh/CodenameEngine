@@ -183,6 +183,9 @@
 	<haxelib name="hxdiscord_rpc" if="DISCORD_RPC"/>
 	<haxelib name="markdown" />
 
+	<!-- Custom Libraries -->
+	<haxelib name="macro-fixer" />
+
 	<!-- _________________________________ Additional stuff _______________________________ -->
 
 	<section if="COMPILE_ALL_CLASSES">

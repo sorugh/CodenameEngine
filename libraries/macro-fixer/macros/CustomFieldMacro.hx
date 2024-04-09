@@ -1,4 +1,4 @@
-package funkin.backend.system.macros;
+package macros;
 
 #if macro
 import haxe.macro.Context;
@@ -12,7 +12,7 @@ using StringTools;
  */
 class CustomFieldMacro {
 	public static function init() {
-		Compiler.addGlobalMetadata("lime.utils", '@:build(funkin.backend.system.macros.UsingHandler.build("lime.utils.AssetLibrary", "tag", "funkin.backend.assets.AssetSource"))');
+		Compiler.addGlobalMetadata("lime.utils", '@:build(macros.CustomFieldMacro.build("lime.utils.AssetLibrary", "tag", "funkin.backend.assets.AssetSource"))');
 	}
 
 	// TODO: Add support for default values
@@ -25,7 +25,7 @@ class CustomFieldMacro {
 		var key = cl.module;
 		var fkey = cl.module + "." + cl.name;
 
-		if(fkey != lib) {
+		if(lib != cl.module) {
 			return fields;
 		}
 

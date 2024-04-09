@@ -125,7 +125,7 @@ class TranslationUtil
 		}
 		if (xml == null) return [];
 		if (!xml.hasNode.translations) {
-			FlxG.log.warn("A translation xml file requires a translations root element.");
+			Logs.trace("A translation xml file requires a translations root element.", WARNING, YELLOW);
 			return [];
 		}
 

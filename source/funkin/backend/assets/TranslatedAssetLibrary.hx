@@ -57,6 +57,16 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 		return null;
 	}
 
+	public override function getText(id:String):String
+	{
+		for(lib in ModsFolder.getLoadedModsLibs(true)) {
+			if(!(lib is AssetLibrary)) continue;
+			var val = cast(lib, AssetLibrary).getText(formatPath(lib.prefix, id));
+			if(val != null) return val;
+		}
+		return null;
+	}
+
 	public override function getFont(id:String):Font
 	{
 		for(lib in ModsFolder.getLoadedModsLibs(true)) {

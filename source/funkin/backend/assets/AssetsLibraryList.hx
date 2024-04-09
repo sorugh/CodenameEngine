@@ -26,8 +26,10 @@ class AssetsLibraryList extends AssetLibrary {
 			return true;
 		for(k=>e in libraries) {
 			if (shouldSkipLib(e, source)) continue;
-			if (e.exists(id, type))
+			if (e.exists(id, type)) {
+				trace('$k $e ${e.tag.toString()} $id exists');
 				return true;
+			}
 		}
 		return false;
 	}
@@ -114,6 +116,11 @@ class AssetsLibraryList extends AssetLibrary {
 				if (e.exists(id, e.types.get(id))) {
 					var asset = e.getAsset(id, type);
 					if (asset != null) {
+						if(asset.length > 512) {
+							trace('$k $e ${e.tag.toString()} $id asset of length ${asset.length}');
+						} else {
+							trace('$k $e ${e.tag.toString()} $id returned asset $asset');
+						}
 						return asset;
 					}
 				}

@@ -72,7 +72,6 @@ class MainState extends FlxState {
 		#if windows
 		try new funkin.backend.utils.native.HiddenProcess("attrib +h .temp")
 		catch(e) Logs.trace('Failed to set hidden attribute on .temp folder', WARNING);
-		#end
-		#end
+		#end #end
 	}
 }

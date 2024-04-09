@@ -45,6 +45,8 @@ class Macros {
 	public static function initMacros() {
 		if(Context.defined("hl"))
 			HashLinkFixer.init();
+
+		CustomFieldsMacro.init();
 	}
 }
 #end

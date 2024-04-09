@@ -114,10 +114,6 @@ class Main extends Sprite
 		FunkinCache.init();
 		Paths.assetsTree = new AssetsLibraryList();
 
-		#if TRANSLATIONS_SUPPORT
-		Paths.assetsTree.__defaultLibraries.insert(0, new funkin.backend.assets.TranslatedAssetLibrary());
-		#end
-
 		#if UPDATE_CHECKING
 		funkin.backend.system.updating.UpdateUtil.init();
 		#end

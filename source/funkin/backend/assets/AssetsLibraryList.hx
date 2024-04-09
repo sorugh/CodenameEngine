@@ -1,5 +1,6 @@
 package funkin.backend.assets;
 
+import funkin.backend.assets.TranslatedAssetLibrary;
 import funkin.backend.assets.IModsAssetLibrary;
 import lime.utils.AssetLibrary;
 
@@ -10,6 +11,10 @@ class AssetsLibraryList extends AssetLibrary {
 	@:allow(funkin.backend.system.MainState)
 	private var __defaultLibraries:Array<AssetLibrary> = [];
 	public var base:AssetLibrary;
+
+	#if TRANSLATIONS_SUPPORT
+	public var transLib:TranslatedAssetLibrary;
+	#end
 
 	public function removeLibrary(lib:AssetLibrary) {
 		if (lib == null) return lib;
@@ -121,6 +126,9 @@ class AssetsLibraryList extends AssetLibrary {
 	}
 
 	private function shouldSkipLib(k:Int, source:AssetSource) {
+		#if TRANSLATIONS_SUPPORT
+		k -= libraries.indexOf(transLib) + 1;
+		#end
 		return switch(source) {
 			case BOTH:	  false;
 			case SOURCE:	k < libraries.length - __defaultLibraries.length;
@@ -136,10 +144,10 @@ class AssetsLibraryList extends AssetLibrary {
 
 	public function new(?base:AssetLibrary) {
 		super();
-		if (base == null)
-			base = Assets.getLibrary("default");
-		addLibrary(this.base = base);
-		__defaultLibraries.push(base);
+		#if TRANSLATIONS_SUPPORT
+		__defaultLibraries.push(addLibrary(transLib = new TranslatedAssetLibrary(), BOTH));
+		#end
+		__defaultLibraries.push(addLibrary(this.base = (base == null ? Assets.getLibrary("default") : base), SOURCE));
 	}
 
 	public function unloadLibraries() {
@@ -158,8 +166,9 @@ class AssetsLibraryList extends AssetLibrary {
 			addLibrary(d);
 	}
 
-	public function addLibrary(lib:AssetLibrary) {
-		libraries.insert(0, lib);
+	public function addLibrary(lib:AssetLibrary, tag:AssetSource = MODS) {
+		libraries.insert(#if TRANSLATIONS_SUPPORT libraries.indexOf(transLib) + 1 #else 0 #end, lib);
+		lib.tag = tag;
 		return lib;
 	}
 }

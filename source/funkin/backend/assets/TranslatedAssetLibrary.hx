@@ -32,16 +32,16 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 	private inline function getAssetPath():String  // because of the IModsAssetLibrary  - Nex
 		return basePath;
 
-	public inline function formatPath(mainPath:String, ?asset:String):String {  // TO MAKE THIS WORKS GOOD  - Nex
+	public inline function formatPath(mainPath:String, ?asset:String):String {
 		if(!mainPath.endsWith('/')) mainPath += '/';
 		return mainPath + getAssetPath() + (asset == null ? "" : asset);
 	}
 
 	public override function getAudioBuffer(id:String):AudioBuffer
 	{
-		for(lib in ModsFolder.getLoadedModsLibs()) {
-			if(lib is TranslatedAssetLibrary || !(lib is AssetLibrary)) continue;
-			var val = cast(lib, AssetLibrary).getAudioBuffer(formatPath(lib.basePath, id));
+		for(lib in ModsFolder.getLoadedModsLibs(true)) {
+			if(!(lib is AssetLibrary)) continue;
+			var val = cast(lib, AssetLibrary).getAudioBuffer(formatPath(lib.prefix, id));
 			if(val != null) return val;
 		}
 		return null;
@@ -49,9 +49,9 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 
 	public override function getBytes(id:String):Bytes
 	{
-		for(lib in ModsFolder.getLoadedModsLibs()) {
-			if(lib is TranslatedAssetLibrary || !(lib is AssetLibrary)) continue;
-			var val = cast(lib, AssetLibrary).getBytes(formatPath(lib.basePath, id));
+		for(lib in ModsFolder.getLoadedModsLibs(true)) {
+			if(!(lib is AssetLibrary)) continue;
+			var val = cast(lib, AssetLibrary).getBytes(formatPath(lib.prefix, id));
 			if(val != null) return val;
 		}
 		return null;
@@ -59,9 +59,9 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 
 	public override function getFont(id:String):Font
 	{
-		for(lib in ModsFolder.getLoadedModsLibs()) {
-			if(lib is TranslatedAssetLibrary || !(lib is AssetLibrary)) continue;
-			var val = cast(lib, AssetLibrary).getFont(formatPath(lib.basePath, id));
+		for(lib in ModsFolder.getLoadedModsLibs(true)) {
+			if(!(lib is AssetLibrary)) continue;
+			var val = cast(lib, AssetLibrary).getFont(formatPath(lib.prefix, id));
 			if(val != null) return val;
 		}
 		return null;
@@ -69,9 +69,9 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 
 	public override function getImage(id:String):Image
 	{
-		for(lib in ModsFolder.getLoadedModsLibs()) {
-			if(lib is TranslatedAssetLibrary || !(lib is AssetLibrary)) continue;
-			var val = cast(lib, AssetLibrary).getImage(formatPath(lib.basePath, id));
+		for(lib in ModsFolder.getLoadedModsLibs(true)) {
+			if(!(lib is AssetLibrary)) continue;
+			var val = cast(lib, AssetLibrary).getImage(formatPath(lib.prefix, id));
 			if(val != null) return val;
 		}
 		return null;
@@ -79,9 +79,9 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 
 	public override function getPath(id:String):String
 	{
-		for(lib in ModsFolder.getLoadedModsLibs()) {
-			if(lib is TranslatedAssetLibrary || !(lib is AssetLibrary)) continue;
-			var val = cast(lib, AssetLibrary).getPath(formatPath(lib.basePath, id));
+		for(lib in ModsFolder.getLoadedModsLibs(true)) {
+			if(!(lib is AssetLibrary)) continue;
+			var val = cast(lib, AssetLibrary).getPath(formatPath(lib.prefix, id));
 			if(val != null) return val;
 		}
 		return null;
@@ -92,28 +92,28 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 
 	public function getFiles(folder:String):Array<String>
 	{
-		for(lib in ModsFolder.getLoadedModsLibs()) {
-			if(lib is TranslatedAssetLibrary) continue;
-			var val = lib.getFiles(formatPath(lib.basePath, folder));
-			if(val != []) return val;
+		for(lib in ModsFolder.getLoadedModsLibs(true)) {
+			if(!(lib is AssetLibrary)) continue;
+			var val = lib.getFiles(formatPath(lib.prefix, folder));
+			if(val != null && val.length > 0) return val;
 		}
 		return [];
 	}
 
 	public function getFolders(folder:String):Array<String>
 	{
-		for(lib in ModsFolder.getLoadedModsLibs()) {
-			if(lib is TranslatedAssetLibrary) continue;
-			var val = lib.getFolders(formatPath(lib.basePath, folder));
-			if(val != []) return val;
+		for(lib in ModsFolder.getLoadedModsLibs(true)) {
+			if(!(lib is AssetLibrary)) continue;
+			var val = lib.getFolders(formatPath(lib.prefix, folder));
+			if(val != null && val.length > 0) return val;
 		}
 		return [];
 	}
 
 	private function __isCacheValid(cache:Map<String, Dynamic>, asset:String, isLocal:Bool = false):Bool
 	{
-		for(lib in ModsFolder.getLoadedModsLibs()) {
-			if(lib is TranslatedAssetLibrary || !(lib is AssetLibrary)) continue;
+		for(lib in ModsFolder.getLoadedModsLibs(true)) {
+			if(!(lib is AssetLibrary)) continue;
 
 			// are you fucking serious (no the fucking switch doesnt work here)  - Nex
 			var _lib = cast(lib, AssetLibrary);
@@ -123,7 +123,7 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 				(cache == cachedImages) ? _lib.cachedImages :
 				(cache == cachedText) ? _lib.cachedText : cache;
 
-			@:privateAccess if(lib.__isCacheValid(libCache, formatPath(lib.basePath, asset), isLocal)) return true;
+			@:privateAccess if(lib.__isCacheValid(libCache, formatPath(lib.prefix, asset), isLocal)) return true;
 		}
 		return false;
 	}
@@ -131,14 +131,17 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 	private function __parseAsset(asset:String):Bool
 	{
 		@:privateAccess
-		for(lib in ModsFolder.getLoadedModsLibs()) if(!(lib is TranslatedAssetLibrary) && lib.__parseAsset(formatPath(lib.basePath, asset))) return true;
+		for(lib in ModsFolder.getLoadedModsLibs(true)) {
+			if(!(lib is AssetLibrary)) continue;
+			if(lib.__parseAsset(formatPath(lib.prefix, asset))) return true;
+		}
 		return false;
 	}
 	#end
 
 	public override function exists(id:String, type:String):Bool
 	{
-		for(lib in ModsFolder.getLoadedModsLibs()) if(!(lib is TranslatedAssetLibrary) && lib is AssetLibrary && cast(lib, AssetLibrary).exists(formatPath(lib.basePath, id), type)) return true;
+		for(lib in ModsFolder.getLoadedModsLibs(true)) if(lib is AssetLibrary && cast(lib, AssetLibrary).exists(formatPath(lib.prefix, id), type)) return true;
 		return false;
 	}
 }

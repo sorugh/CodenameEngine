@@ -124,15 +124,15 @@ class TranslationUtil
 
 			if(Assets.exists(path)) {
 				config = IniUtil.parseAsset(path, config);
-				langName = config["name"];
 			} else { // if there was no config.ini, use the file name as the language name
 				for(file in Paths.getFolderContent(mainPath + lang).sortAlphabetically()) {
 					if(Path.extension(path = '$lang/$file') == "xml") {
-						config["name"] = (langName = Path.withoutExtension(file));
+						config["name"] = Path.withoutExtension(file);
 						break;
 					}
 				}
 			}
+			langName = config["name"];
 			nameMap.set(lang, langName);
 			langConfigs.set(lang, config);
 			foundLanguages.push('$lang/$langName');

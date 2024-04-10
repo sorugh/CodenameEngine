@@ -69,8 +69,9 @@ class TranslationUtil
 	public static function setLanguage(?name:String) {
 		#if TRANSLATIONS_SUPPORT
 		if(name == null) name = curLanguage;
-		transMap = loadLanguage(name);
+		name = name.split("/")[0];
 
+		transMap = loadLanguage(name);
 		for(mod in ModsFolder.getLoadedModsLibs()) if(mod is TranslatedAssetLibrary)
 			cast(mod, TranslatedAssetLibrary).langFolder = name.split("/")[0];
 		#end
@@ -98,10 +99,14 @@ class TranslationUtil
 		var languages:Array<String> = [];
 		#if TRANSLATIONS_SUPPORT
 		var main:String = Paths.translationsMain('');
-		for (l in Paths.assetsTree.getFolders(main))
-			for (f in Paths.assetsTree.getFiles(main + l))
-				if (Path.extension('$l/$f') == "xml")
-					languages.push(Path.withoutExtension('$l/$f'));
+		for (l in Paths.assetsTree.getFolders(main)) {
+			var path:String = main + l + "/config.ini";
+			if(Assets.exists(path)) languages.push('$l/' + IniUtil.parseAsset(path, ["name" => l])["name"]);
+			else for(f in Paths.assetsTree.getFiles(main + l)) if(Path.extension(path = '$l/$f') == "xml") {
+				languages.push(Path.withoutExtension(path));
+				break;  // only gets the first xml's name if theres no config.ini!  - Nex
+			}
+		}
 		#end
 		return languages;
 	}
@@ -109,39 +114,38 @@ class TranslationUtil
 	/**
 	 * Returns a map of translations based on its XML.
 	 */
-	public static function loadLanguage(name:String):Map<String, IFormatInfo>
+	public static function loadLanguage(folderName:String):Map<String, IFormatInfo>
 	{
 		#if TRANSLATIONS_SUPPORT
-		var path:String = Paths.translationsMain(name);
-		if (!path.endsWith(".xml")) path += ".xml";
-		if (!Assets.exists(path, TEXT)) return [];
-
-		var xml:Access = null;
-		try xml = new Access(Xml.parse(Assets.getText(path)))
-		catch(e) {
-			var msg:String = 'Error while parsing ${Path.withoutDirectory(name)}.xml: ${Std.string(e)}';
-			FlxG.log.error(msg);
-			throw new Exception(msg);
-		}
-		if (xml == null) return [];
-		if (!xml.hasNode.translations) {
-			Logs.trace("A translation xml file requires a translations root element.", WARNING, YELLOW);
-			return [];
-		}
-
-		FormatUtil.clear(); // Clean up the format cache
+		var mainPath:String = Paths.translationsMain(folderName);
 		var leMap:Map<String, IFormatInfo> = [];
-		for(node in xml.node.translations.elements) {
-			switch(node.name) {
-				case "trans":
-					if (!node.has.id) {
-						FlxG.log.warn("A translation node requires an ID attribute.");
-						continue;
-					}
+		for(file in Paths.getFolderContent(mainPath)) if(Path.extension(file) == "xml") {
+			var xml:Access = null;
+			try xml = new Access(Xml.parse(Assets.getText('$mainPath/$file')))
+			catch(e) {
+				var msg:String = 'Error while parsing $file: ${Std.string(e)}';
+				FlxG.log.error(msg);
+				throw new Exception(msg);
+			}
+			if (xml == null) return [];
+			if (!xml.hasNode.translations) {
+				Logs.trace("A translation xml file requires a translations root element.", WARNING, YELLOW);
+				return [];
+			}
 
-					var string:String = node.has.string ? node.att.string : node.x.nodeValue;
-					string = string.replace("\\n", "\n").replace("\r", ""); // remove stupid windows line breaks and convert newline literals to newlines
-					leMap.set(node.att.id, FormatUtil.get(string));
+			FormatUtil.clear(); // Clean up the format cache
+			for(node in xml.node.translations.elements) {
+				switch(node.name) {
+					case "trans":
+						if (!node.has.id) {
+							FlxG.log.warn("A translation node requires an ID attribute.");
+							continue;
+						}
+
+						var string:String = node.has.string ? node.att.string : node.x.nodeValue;
+						string = string.replace("\\n", "\n").replace("\r", ""); // remove stupid windows line breaks and convert newline literals to newlines
+						leMap.set(node.att.id, FormatUtil.get(string));
+				}
 			}
 		}
 		return leMap;
@@ -151,15 +155,11 @@ class TranslationUtil
 	}
 }
 
-/*
-input:Hello {1}, how are you, {0}
-
-strings: ["Hello ", ", how are you, ", ""]
-indexes: [1, 0]
-
-strings[0] + values[indexes[0]] + strings[1] + values[indexes[1]] + strings[2]
-
-*/
+/**
+ * The class used to format strings based on parameters.
+ *
+ * For example if the parameter list is just an `Int` which is `9`, `You have been blue balled {0} times` becomes `You have been blue balled 9 times`.
+ */
 class FormatUtil {
 	private static var cache:Map<String, IFormatInfo> = new Map();
 

@@ -78,18 +78,18 @@ class TranslationUtil
 		#if TRANSLATIONS_SUPPORT
 		if(name == null) name = curLanguage;
 
-		config = getConfig(name);
-		stringMap = loadLanguage(name);
-
 		Logs.traceColored([
 			Logs.getPrefix("Language"),
-			Logs.logText("Set Language To: "),
+			Logs.logText("Setting Language To: "),
 			Logs.logText('${getLanguageName(name)} ($name)', GREEN)
 		], VERBOSE);
 
 		for(mod in ModsFolder.getLoadedModsLibs(false))
 			if(mod is TranslatedAssetLibrary)
 				cast(mod, TranslatedAssetLibrary).langFolder = name;
+
+		config = getConfig(name);
+		stringMap = loadLanguage(name);
 		#end
 	}
 

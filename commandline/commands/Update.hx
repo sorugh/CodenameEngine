@@ -10,9 +10,19 @@ class Update {
 	public static function main(args:Array<String>) {
 		prettyPrint("Preparing installation...");
 
+		var args = ArgParser.parse(args, ["S" => "silent-progress", "silent" => "silent-progress"]);
+		var CHECK_VSTUDIO = !args.existsOption("no-vscheck");
+		var REINSTALL_ALL = args.existsOption("all");
+		var SILENT = args.existsOption("silent-progress");
+
 		// to prevent messing with currently installed libs
 		if (!FileSystem.exists('.haxelib'))
 			FileSystem.createDirectory('.haxelib');
+
+		if (REINSTALL_ALL) {
+			FileSystem.deleteDirectory('.haxelib');
+			FileSystem.createDirectory('.haxelib');
+		}
 
 		var libs:Array<Library> = [];
 		var libsXML:Access = new Access(Xml.parse(File.getContent('./libs.xml')).firstElement());
@@ -33,15 +43,19 @@ class Update {
 			libs.push(lib);
 		}
 
+		var commandSuffix = " --always";
+		if (SILENT) commandSuffix += " --silent";
+
 		for(lib in libs) {
 			var globalism:Null<String> = lib.global == "true" ? "--global" : null;
+			var globalSuffix = globalism != null ? ' $globalism' : '';
 			switch(lib.type) {
 				case "lib":
 					prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}"...');
-					Sys.command('haxelib install ${lib.name} ${lib.version != null ? " " + lib.version : " "}${globalism != null ? ' $globalism' : ''} --always');
+					Sys.command('haxelib install ${lib.name} ${lib.version != null ? " " + lib.version : " "}$globalSuffix$commandSuffix');
 				case "git":
 					prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}" from git url "${lib.url}"');
-					Sys.command('haxelib git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}${globalism != null ? ' $globalism' : ''} --always');
+					Sys.command('haxelib git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}$globalSuffix$commandSuffix');
 				default:
 					prettyPrint('Cannot resolve library of type "${lib.type}"');
 			}
@@ -73,7 +87,7 @@ class Update {
 		}
 
 		// vswhere.exe its used to find any visual studio related installations on the system, including full visual studio ide installations, visual studio build tools installations, and other related components  - Nex
-		if (Compiler.getBuildTarget().toLowerCase() == "windows" && new Process('"C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -property catalog_productDisplayVersion').exitCode(true) == 1) {
+		if (CHECK_VSTUDIO && Compiler.getBuildTarget().toLowerCase() == "windows" && new Process('"C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -property catalog_productDisplayVersion').exitCode(true) == 1) {
 			prettyPrint("Installing Microsoft Visual Studio Community (Dependency)");
 
 			// thanks to @crowplexus for these two lines!  - Nex

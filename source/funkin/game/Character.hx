@@ -106,7 +106,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 						if (charXML == null) throw new Exception("Missing \"character\" node in XML.");
 						xml = new Access(charXML);
 					} catch (e) {
-						Logs.trace('Error while loading character ${curCharacter}: ${e}', ERROR);
+						Logs.error('Error while loading character ${curCharacter}: ${e}');
 						curCharacter = "bf";
 						continue;
 					}
@@ -521,7 +521,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 						if (charXML == null) throw new Exception("Missing \"character\" node in XML.");
 						xml = new Access(charXML);
 					} catch(e) {
-						Logs.trace('Error while loading character ${curCharacter}: ${e}', ERROR);
+						Logs.error('Error while loading character ${curCharacter}: ${e}');
 						curCharacter = "bf";
 						continue;
 					}

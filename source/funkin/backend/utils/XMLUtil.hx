@@ -24,7 +24,7 @@ class XMLUtil {
 	 */
 	public static function applyXMLProperty(object:Dynamic, property:Access):ErrorCode {
 		if (!property.has.name || !property.has.type || !property.has.value) {
-			Logs.trace('Failed to apply XML property: XML Element is missing name, type, or value attributes.', WARNING);
+			Logs.warn('Failed to apply XML property: XML Element is missing name, type, or value attributes.');
 			return MISSING_PROPERTY;
 		}
 
@@ -57,7 +57,7 @@ class XMLUtil {
 			if(isPath) {
 				str += ' (Path: ${property.att.name})';
 			}
-			Logs.trace(str, WARNING);
+			Logs.warn(str);
 			return REFLECT_ERROR;
 		}
 		return OK;

@@ -409,7 +409,7 @@ class Charter extends UIState {
 		noteHoverer = new CharterNoteHoverer();
 		noteDeleteAnims = new CharterDeleteAnim();
 
-		selectionBox.cameras = notesGroup.cameras = gridBackdrops.cameras = 
+		selectionBox.cameras = notesGroup.cameras = gridBackdrops.cameras =
 		noteHoverer.cameras = noteDeleteAnims.cameras = [charterCamera];
 
 		topMenuSpr = new UITopMenu(topMenu);
@@ -590,8 +590,8 @@ class Charter extends UIState {
 
 		// Just for now until i add event stacking -lunar
 		try {__relinkUndos();}
-		catch (e) {Logs.trace('Failed to relink undos: ${Std.string(e)}', ERROR);}
-		
+		catch (e) {Logs.error('Failed to relink undos: ${Std.string(e)}');}
+
 		__applyPlaytestInfo();
 	}
 
@@ -611,13 +611,13 @@ class Charter extends UIState {
 		var wavesToGenerate:Array<{name:String, sound:FlxSound}> = [
 			{name: "Inst.ogg", sound: FlxG.sound.music},
 		];
-		if (PlayState.SONG.meta.needsVoices != false) 
+		if (PlayState.SONG.meta.needsVoices != false)
 			wavesToGenerate.push({name: "Voices.ogg", sound: vocals});
 
 		for (strumLine in strumLines)
 			if (strumLine.vocals != null && strumLine.strumLine.vocalsSuffix != null && strumLine.strumLine.vocalsSuffix != "")
 				wavesToGenerate.push({
-					name: 'Voices${strumLine.strumLine.vocalsSuffix}.ogg', 
+					name: 'Voices${strumLine.strumLine.vocalsSuffix}.ogg',
 					sound: strumLine.vocals
 				});
 
@@ -699,20 +699,20 @@ class Charter extends UIState {
 		if (autoSaveTimer < Options.charterAutoSaveWarningTime && !autoSaveNotif.cancelled && !autoSaveNotif.showedAnimation) {
 			if (Options.charterAutoSavesSeperateFolder)
 				__autoSaveLocation = __diff.toLowerCase() + DateTools.format(Date.now(), "%m-%d_%H-%M");
-			autoSaveNotif.startAutoSave(autoSaveTimer, 
-				!Options.charterAutoSavesSeperateFolder ? 'Saved chart at ${__diff.toLowerCase()}.json!' : 
+			autoSaveNotif.startAutoSave(autoSaveTimer,
+				!Options.charterAutoSavesSeperateFolder ? 'Saved chart at ${__diff.toLowerCase()}.json!' :
 				'Saved chart at $__autoSaveLocation.json!'
 			);
 		}
 		if (autoSaveTimer <= 0) {
 			autoSaveTimer = Options.charterAutoSaveTime;
 			if (!autoSaveNotif.cancelled) {
-				buildChart(); 
+				buildChart();
 				var songPath:String = '${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}';
-	
+
 				if (Options.charterAutoSavesSeperateFolder)
 					Chart.save(songPath, PlayState.SONG, __autoSaveLocation, {saveMetaInChart: false, folder: "autosaves", prettyPrint: Options.editorPrettyPrint});
-				else 
+				else
 					Chart.save(songPath, PlayState.SONG, __diff.toLowerCase(), {saveMetaInChart: false, prettyPrint: Options.editorPrettyPrint});
 				undos.save();
 			}
@@ -1331,7 +1331,7 @@ class Charter extends UIState {
 			defaultSaveFile: '${__song.toLowerCase().replace(" ", "-")}${__diff.toLowerCase() == "normal" ? "" : '-${__diff.toLowerCase()}'}.json',
 		}));
 	}
-	
+
 	function _file_saveas_psych(_) {
 		openSubState(new SaveSubstate(Json.stringify(PsychParser.encode(PlayState.SONG), null, Options.editorPrettyPrint ? "\t" : null), {
 			defaultSaveFile: '${__song.toLowerCase().replace(" ", "-")}${__diff.toLowerCase() == "normal" ? "" : '-${__diff.toLowerCase()}'}.json',
@@ -1604,7 +1604,7 @@ class Charter extends UIState {
 		t.icon = (Options.charterLowDetailWaveforms = !Options.charterLowDetailWaveforms) ? 1 : 0;
 		for (shader in waveformHandler.waveShaders) shader.data.lowDetail.value = [Options.charterLowDetailWaveforms];
 	}
-	
+
 	inline function _snap_increasesnap(_) changequant(1);
 	inline function _snap_decreasesnap(_) changequant(-1);
 	inline function _snap_resetsnap(_) setquant(16);
@@ -1885,7 +1885,7 @@ class Charter extends UIState {
 	}
 
 	@:noCompletion public function __clearStatics() {
-		selection = null; undos = null; clipboard = null; playtestInfo = null; 
+		selection = null; undos = null; clipboard = null; playtestInfo = null;
 		waveformHandler.destroy(); Charter.waveformHandler = null; autoSaveTimer = 0;
 	}
 

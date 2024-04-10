@@ -73,7 +73,7 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 		var idk = GitHub.getContributors(author, "CodenameEngine", function(e) {
 			error = true;
 			var errMsg:String = 'Error while trying to download contributors list:\n${CoolUtil.removeIP(e.message)}';
-			Logs.traceColored([Logs.logText(errMsg.replace('\n', ' '), RED)], ERROR);
+			Logs.error(errMsg.replace('\n', ' '));
 			funkin.backend.utils.NativeAPI.showMessageBox("Codename Engine Warning", errMsg, MSG_WARNING);
 		});
 		if(error) return false;
@@ -84,7 +84,7 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 		var idk2 = GitHub.getOrganizationMembers(author, function(e) {
 			errorOnMain = true;
 			var errMsg:String = 'Error while trying to download $author members list:\n${CoolUtil.removeIP(e.message)}';
-			Logs.traceColored([Logs.logText(errMsg.replace('\n', ' '), RED)], ERROR);
+			Logs.error(errMsg.replace('\n', ' '));
 			funkin.backend.utils.NativeAPI.showMessageBox("Codename Engine Warning", errMsg, MSG_WARNING);
 		});
 		if(!errorOnMain) {

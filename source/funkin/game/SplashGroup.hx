@@ -39,7 +39,7 @@ class SplashGroup extends FlxTypedGroup<FunkinSprite> {
 			// TODO: change to graphics cache
 			splash.drawComplex(FlxG.camera);
 		} catch(e:Dynamic) {
-			Logs.trace('Couldn\'t parse splash data for "${path}": ${e.toString()}', ERROR);
+			Logs.error('Couldn\'t parse splash data for "${path}": ${e.toString()}');
 			valid = false;
 		}
 		maxSize = 8;

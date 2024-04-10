@@ -75,7 +75,7 @@ class OptionsMenu extends TreeMenu {
 				try {
 					access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT", source)));
 				} catch(e) {
-					Logs.trace('Error while parsing options.xml: ${Std.string(e)}', ERROR);
+					Logs.error('Error while parsing options.xml: ${Std.string(e)}');
 				}
 
 				if (access != null)
@@ -100,7 +100,7 @@ class OptionsMenu extends TreeMenu {
 
 		for(node in xml.elements) {
 			if (!node.has.name) {
-				Logs.trace("An option node requires a name attribute.", WARNING);
+				Logs.warn("An option node requires a name attribute.");
 				continue;
 			}
 			var name = node.getAtt("name");
@@ -109,20 +109,20 @@ class OptionsMenu extends TreeMenu {
 			switch(node.name) {
 				case "checkbox":
 					if (!node.has.id) {
-						Logs.trace("A checkbox option requires an \"id\" for option saving.", WARNING);
+						Logs.warn("A checkbox option requires an \"id\" for option saving.");
 						continue;
 					}
 					options.push(new Checkbox(name, desc, node.att.id, FlxG.save.data));
 
 				case "number":
 					if (!node.has.id) {
-						Logs.trace("A number option requires an \"id\" for option saving.", WARNING);
+						Logs.warn("A number option requires an \"id\" for option saving.");
 						continue;
 					}
 					options.push(new NumOption(name, desc, Std.parseFloat(node.att.min), Std.parseFloat(node.att.max), Std.parseFloat(node.att.change), node.att.id, null, FlxG.save.data));
 				case "choice":
 					if (!node.has.id) {
-						Logs.trace("A choice option requires an \"id\" for option saving.", WARNING);
+						Logs.warn("A choice option requires an \"id\" for option saving.");
 						continue;
 					}
 

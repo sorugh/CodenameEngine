@@ -62,8 +62,10 @@ class DialogueCutscene extends Cutscene {
 			// Add characters
 			for(char in dialogueData.nodes.char) {
 				if (!char.has.name) continue;
-				if (charMap.exists(char.att.name))
-					Logs.trace('2 dialogue characters share the same name (${char.att.name}, ${char.att.name}). The old character has been replaced.');
+				if (charMap.exists(char.att.name)) {
+					Logs.warn('2 dialogue characters share the same name (${char.att.name}, ${char.att.name}). The old character has been replaced.');
+					remove(charMap[char.att.name], true);
+				}
 
 				var leChar:DialogueCharacter = new DialogueCharacter(char.att.name, char.getAtt('position').getDefault('default'));
 				if(char.has.defaultAnim) leChar.defaultAnim = char.att.defaultAnim;
@@ -110,7 +112,7 @@ class DialogueCutscene extends Cutscene {
 
 			next(true);
 		} catch(e) {
-			Logs.trace('Error while loading dialogue at ${dialoguePath}: ${e.toString()}', ERROR);
+			Logs.error('Error while loading dialogue at ${dialoguePath}: ${e.toString()}');
 			trace(CoolUtil.getLastExceptionStack());
 			close();
 		}

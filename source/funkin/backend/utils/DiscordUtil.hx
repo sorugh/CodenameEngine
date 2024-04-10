@@ -79,7 +79,7 @@ class DiscordUtil
 			try
 				config = Json.parse(Assets.getText(jsonPath))
 			catch (e)
-				Logs.trace('Couldn\'t load Discord RPC configuration: ${e.toString()}', ERROR);
+				Logs.error('Couldn\'t load Discord RPC configuration: ${e.toString()}');
 		}
 
 		if (config == null)
@@ -344,7 +344,7 @@ class DiscordUtil
 		Logs.traceColored([
 			Logs.logText("[Discord] ", BLUE),
 			Logs.logText("Someone has just requested to join", YELLOW)
-		], WARNING);
+		], INFO);
 
 		var req:DUser = DUser.initRaw(request);
 		call("onJoinRequest", [req]);

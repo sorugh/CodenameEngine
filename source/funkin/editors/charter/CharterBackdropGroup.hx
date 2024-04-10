@@ -133,7 +133,7 @@ class CharterBackdrop extends FlxTypedGroup<Dynamic> {
 
 		waveformSprite = new FlxSprite().makeSolid(1, 1, 0xFF000000);
 		waveformSprite.scale.set(160, 1);
-		waveformSprite.updateHitbox(); 
+		waveformSprite.updateHitbox();
 		add(waveformSprite);
 
 		sectionSeparator = new FlxBackdrop(null, Y, 0, 0);
@@ -200,7 +200,7 @@ class CharterBackdrop extends FlxTypedGroup<Dynamic> {
 			alpha = strumLine.strumLine.visible ? 0.9 : 0.4;
 		} else alpha = 0.9;
 
-		for (spr in [gridBackDrop, sectionSeparator, beatSeparator, topLimit, bottomLimit, 
+		for (spr in [gridBackDrop, sectionSeparator, beatSeparator, topLimit, bottomLimit,
 				topSeparator, bottomSeparator, conductorFollowerSpr, waveformSprite]) {
 			spr.x = x; if (spr != waveformSprite) spr.alpha = alpha;
 			spr.cameras = this.cameras;

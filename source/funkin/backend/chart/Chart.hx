@@ -26,7 +26,7 @@ class Chart {
 			try {
 				data = Json.parse(Assets.getText(path)).events;
 			} catch(e) {
-				Logs.trace('Failed to load song event data for ${songName} ($path): ${Std.string(e)}', ERROR);
+				Logs.error('Failed to load song event data for ${songName} ($path): ${Std.string(e)}');
 			}
 		}
 		return data;
@@ -44,7 +44,7 @@ class Chart {
 				try {
 					data = Json.parse(Assets.getText(path));
 				} catch(e) {
-					Logs.trace('Failed to load song metadata for ${songName} ($path): ${Std.string(e)}', ERROR);
+					Logs.error('Failed to load song metadata for ${songName} ($path): ${Std.string(e)}');
 				}
 				if (data != null) break;
 			}
@@ -105,7 +105,7 @@ class Chart {
 
 		var valid:Bool = true;
 		if (!Assets.exists(chartPath)) {
-			Logs.trace('Chart for song ${songName} ($difficulty) at "$chartPath" was not found.', ERROR, RED);
+			Logs.error('Chart for song ${songName} ($difficulty) at "$chartPath" was not found.');
 			valid = false;
 		}
 		var data:Dynamic = null;
@@ -113,7 +113,7 @@ class Chart {
 			if (valid)
 				data = Json.parse(Assets.getText(chartPath));
 		} catch(e) {
-			Logs.trace('Could not parse chart for song ${songName} ($difficulty): ${Std.string(e)}', ERROR, RED);
+			Logs.error('Could not parse chart for song ${songName} ($difficulty): ${Std.string(e)}');
 		}
 
 		if (data != null) {

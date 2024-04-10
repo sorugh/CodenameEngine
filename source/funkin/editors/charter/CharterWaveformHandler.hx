@@ -28,7 +28,7 @@ class CharterWaveformHandler extends FlxBasic {
 
 	public function generateData(name:String, sound:FlxSound):BitmapData {
 		if (!sounds.exists(name)) sounds.set(name, sound);
-		if (!analyzers.exists(name)) 
+		if (!analyzers.exists(name))
 			analyzers.set(name, new AudioAnalyzer(sound));
 
 		var analyzer:AudioAnalyzer = analyzers.get(name);

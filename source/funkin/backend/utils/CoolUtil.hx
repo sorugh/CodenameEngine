@@ -72,7 +72,7 @@ class CoolUtil
 				try {
 					sys.FileSystem.deleteFile(delete + "/" + file);
 				} catch(e) {
-					Logs.trace("Could not delete " + delete + "/" + file, WARNING);
+					Logs.warn("Could not delete " + delete + "/" + file);
 				}
 			}
 		}
@@ -92,7 +92,7 @@ class CoolUtil
 			else sys.io.File.saveContent(path, content);
 		} catch(e) {
 			var errMsg:String = 'Error while trying to save the file: ${Std.string(e).replace('\n', ' ')}';
-			Logs.traceColored([Logs.logText(errMsg, RED)], ERROR);
+			Logs.error(errMsg);
 			if(showErrorBox) funkin.backend.utils.NativeAPI.showMessageBox("Codename Engine Warning", errMsg, MSG_WARNING);
 		}
 		#end

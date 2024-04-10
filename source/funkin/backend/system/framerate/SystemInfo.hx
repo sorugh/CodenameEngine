@@ -20,7 +20,7 @@ class SystemInfo extends FramerateCategory {
 	public static inline function init() {
 		#if linux
 		var process = new HiddenProcess("cat", ["/etc/os-release"]);
-		if (process.exitCode() != 0) Logs.trace('Unable to grab OS Label', ERROR, RED);
+		if (process.exitCode() != 0) Logs.error('Unable to grab OS Label');
 		else {
 			var osName = "";
 			var osVersion = "";
@@ -53,7 +53,7 @@ class SystemInfo extends FramerateCategory {
 		if (lime.system.System.platformLabel != null && lime.system.System.platformLabel != "" && lime.system.System.platformVersion != null && lime.system.System.platformVersion != "")
 			osInfo = '${lime.system.System.platformLabel.replace(lime.system.System.platformVersion, "").trim()} ${lime.system.System.platformVersion}';
 		else
-			Logs.trace('Unable to grab OS Label', ERROR, RED);
+			Logs.error('Unable to grab OS Label');
 		#end
 
 		try {
@@ -79,7 +79,7 @@ class SystemInfo extends FramerateCategory {
 			}
 			#end
 		} catch (e) {
-			Logs.trace('Unable to grab CPU Name: $e', ERROR, RED);
+			Logs.error('Unable to grab CPU Name: $e');
 		}
 
 		@:privateAccess {
@@ -93,24 +93,24 @@ class SystemInfo extends FramerateCategory {
 				if(openfl.display3D.Context3D.__glMemoryTotalAvailable != -1) {
 					var vRAMBytes:UInt = cast(flixel.FlxG.stage.context3D.gl.getParameter(openfl.display3D.Context3D.__glMemoryTotalAvailable), UInt);
 					if (vRAMBytes == 1000 || vRAMBytes == 1 || vRAMBytes <= 0)
-						Logs.trace('Unable to grab GPU VRAM', ERROR, RED);
+						Logs.error('Unable to grab GPU VRAM');
 					else
 						vRAM = CoolUtil.getSizeString(vRAMBytes * 1000);
 				}
 			} else
-				Logs.trace('Unable to grab GPU Info', ERROR, RED);
+				Logs.error('Unable to grab GPU Info');
 		}
 
 		#if cpp
 		totalMem = Std.string(MemoryUtil.getTotalMem() / 1024) + " GB";
 		#else
-		Logs.trace('Unable to grab RAM Amount', ERROR, RED);
+		Logs.error('Unable to grab RAM Amount');
 		#end
 
 		try {
 			memType = MemoryUtil.getMemType();
 		} catch (e) {
-			Logs.trace('Unable to grab RAM Type: $e', ERROR, RED);
+			Logs.error('Unable to grab RAM Type: $e');
 		}
 		formatSysInfo();
 	}

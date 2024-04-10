@@ -32,7 +32,7 @@ class PsychParser {
 			for (note in strumLine.notes) {
 				var section:Int = Math.floor(Conductor.getStepForTime(note.time) / Conductor.getMeasureLength());
 				var swagSection:SwagSection = base.notes[section];
-				
+
 				if (section >= 0 && section < base.notes.length) {
 					var sectionNote:Array<Dynamic> = [
 						note.time, // TIME
@@ -44,10 +44,10 @@ class PsychParser {
 					if ((swagSection.mustHitSection && strumLine.type == OPPONENT) ||
 						 (!swagSection.mustHitSection && strumLine.type == PLAYER))
 						sectionNote[1] += 4;
-					swagSection.sectionNotes.push(sectionNote); 
+					swagSection.sectionNotes.push(sectionNote);
 				}
 			}
-			
+
 		var groupedEvents:Array<Array<ChartEvent>> = [];
 		var __last:Array<ChartEvent> = null;
 		var __lastTime:Float = Math.NaN;
@@ -91,7 +91,7 @@ class PsychParser {
 							FlxMath.roundDecimal(event.params[1]/chart.scrollSpeed, 2), // SCROLL SPEED MULTIPLER
 							FlxMath.roundDecimal( // TIME
 								event.params[0] ? // IS TWEENED?
-								(Conductor.getTimeForStep(eventStep+event.params[2]) - Conductor.getTimeForStep(eventStep))/1000 
+								(Conductor.getTimeForStep(eventStep+event.params[2]) - Conductor.getTimeForStep(eventStep))/1000
 								: 0, 2)
 						]);
 					default:
@@ -106,7 +106,7 @@ class PsychParser {
 
 			for (psychEvent in psychEvents)
 				for (i in 1...3) // Turn both vals into strings
-					if (!(psychEvent[i] is String)) 
+					if (!(psychEvent[i] is String))
 						psychEvent[i] = Std.string(psychEvent[i]);
 
 			base.events.push([events[0].time, psychEvents]);

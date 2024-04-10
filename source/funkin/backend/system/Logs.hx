@@ -104,6 +104,18 @@ class Logs {
 			color: color
 		}], level);
 	}
+
+	public inline static function verbose(text:String, level:Level = VERBOSE, color:ConsoleColor = LIGHTGRAY) {
+		Logs.trace(text, level, color);
+	}
+
+	public inline static function warn(text:String, level:Level = WARNING, color:ConsoleColor = YELLOW) {
+		Logs.trace(text, level, color);
+	}
+
+	public inline static function error(text:String, level:Level = ERROR, color:ConsoleColor = RED) {
+		Logs.trace(text, level, color);
+	}
 }
 
 enum abstract Level(Int) {

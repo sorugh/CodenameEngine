@@ -64,7 +64,7 @@ class GithubUserIcon extends FlxSprite
 					var bytes = null;
 					if(unfLink) {
 						try bytes = HttpUtil.requestBytes('${user.avatar_url}?size=$size')
-						catch(e) Logs.traceColored([Logs.logText('Failed to download github pfp for ${user.login}: ${CoolUtil.removeIP(e.message)} - (Retrying using the api..)', RED)], ERROR);
+						catch(e) Logs.error('Failed to download github pfp for ${user.login}: ${CoolUtil.removeIP(e.message)} - (Retrying using the api..)');
 
 						if(bytes != null) {
 							bmap = BitmapData.fromBytes(bytes);
@@ -73,9 +73,9 @@ class GithubUserIcon extends FlxSprite
 					}
 
 					if(planB) {
-						if(unfLink) user = GitHub.getUser(user.login, function(e) Logs.traceColored([Logs.logText('Failed to download github user info for ${user.login}: ${CoolUtil.removeIP(e.message)}', RED)], ERROR));  // Api part - Nex
+						if(unfLink) user = GitHub.getUser(user.login, function(e) Logs.error('Failed to download github user info for ${user.login}: ${CoolUtil.removeIP(e.message)}'));  // Api part - Nex
 						try bytes = HttpUtil.requestBytes('${user.avatar_url}&size=$size')
-						catch(e) Logs.traceColored([Logs.logText('Failed to download github pfp for ${user.login}: ${CoolUtil.removeIP(e.message)}', RED)], ERROR);
+						catch(e) Logs.error('Failed to download github pfp for ${user.login}: ${CoolUtil.removeIP(e.message)}');
 
 						if(bytes != null) bmap = BitmapData.fromBytes(bytes);
 					}
@@ -88,7 +88,7 @@ class GithubUserIcon extends FlxSprite
 						bmap = null;
 						mutex.release();
 					} catch(e) {
-						Logs.traceColored([Logs.logText('Failed to update the pfp for ${user.login}: ${e.message}', RED)], ERROR);
+						Logs.error('Failed to update the pfp for ${user.login}: ${e.message}');
 					}
 				} else {
 					mutex.acquire();

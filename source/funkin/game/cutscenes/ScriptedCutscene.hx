@@ -26,7 +26,7 @@ class ScriptedCutscene extends Cutscene {
 		trace("fuck you");
 		script.call("create");
 		if (Std.isOfType(script, DummyScript)) {
-			Logs.trace('Could not find script for scripted cutscene at ${scriptPath}', ERROR, RED);
+			Logs.error('Could not find script for scripted cutscene at ${scriptPath}');
 			close();
 		}
 	}

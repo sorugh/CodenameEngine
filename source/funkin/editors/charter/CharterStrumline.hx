@@ -32,7 +32,7 @@ class CharterStrumline extends UISprite {
 		}
 		return selectedWaveform = value;
 	}
-	public var waveformShader:CustomShader; 
+	public var waveformShader:CustomShader;
 
 	public function new(strumLine:ChartStrumLine) {
 		super();

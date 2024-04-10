@@ -123,13 +123,12 @@ class TranslationUtil
 			var xml:Access = null;
 			try xml = new Access(Xml.parse(Assets.getText('$mainPath/$file')))
 			catch(e) {
-				var msg:String = 'Error while parsing $file: ${Std.string(e)}';
-				FlxG.log.error(msg);
-				throw new Exception(msg);
+				Logs.error('Error while parsing $file: ${Std.string(e)}');
+				return [];
 			}
 			if (xml == null) return [];
 			if (!xml.hasNode.translations) {
-				Logs.trace("A translation xml file requires a translations root element.", WARNING, YELLOW);
+				Logs.warn("A translation xml file requires a translations root element.");
 				return [];
 			}
 
@@ -138,7 +137,7 @@ class TranslationUtil
 				switch(node.name) {
 					case "trans":
 						if (!node.has.id) {
-							FlxG.log.warn("A translation node requires an ID attribute.");
+							Logs.warn("A translation node requires an ID attribute.");
 							continue;
 						}
 

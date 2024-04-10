@@ -213,13 +213,13 @@ class StoryMenuState extends MusicBeatState {
 			try {
 				week = new Access(Xml.parse(Assets.getText(Paths.xml('weeks/weeks/$weekName'))).firstElement());
 			} catch(e) {
-				Logs.trace('Cannot parse week "$weekName.xml": ${Std.string(e)}`', ERROR);
+				Logs.error('Cannot parse week "$weekName.xml": ${Std.string(e)}');
 			}
 
 			if (week == null) continue;
 
 			if (!week.has.name) {
-				Logs.trace('Story Menu: Week at index ${k} has no name. Skipping...', WARNING);
+				Logs.warn('Story Menu: Week at index ${k} has no name. Skipping...');
 				continue;
 			}
 			var weekObj:WeekData = {
@@ -255,7 +255,7 @@ class StoryMenuState extends MusicBeatState {
 				try {
 					var name = song.innerData.trim();
 					if (name == "") {
-						Logs.trace('Story Menu: Song at index ${k2} in week ${weekObj.name} has no name. Skipping...', WARNING);
+						Logs.warn('Story Menu: Song at index ${k2} in week ${weekObj.name} has no name. Skipping...');
 						continue;
 					}
 					weekObj.songs.push({
@@ -263,12 +263,12 @@ class StoryMenuState extends MusicBeatState {
 						hide: song.getAtt('hide').getDefault('false') == "true"
 					});
 				} catch(e) {
-					Logs.trace('Story Menu: Song at index ${k2} in week ${weekObj.name} cannot contain any other XML nodes in its name.', WARNING);
+					Logs.warn('Story Menu: Song at index ${k2} in week ${weekObj.name} cannot contain any other XML nodes in its name.');
 					continue;
 				}
 			}
 			if (weekObj.songs.length <= 0) {
-				Logs.trace('Story Menu: Week ${weekObj.name} has no songs. Skipping...', WARNING);
+				Logs.warn('Story Menu: Week ${weekObj.name} has no songs. Skipping...');
 				continue;
 			}
 			this.weeks.push(weekObj);
@@ -280,7 +280,7 @@ class StoryMenuState extends MusicBeatState {
 		try {
 			char = new Access(Xml.parse(Assets.getText(Paths.xml('weeks/characters/$charName'))).firstElement());
 		} catch(e) {
-			Logs.trace('Story Menu: Cannot parse character "$charName.xml": ${Std.string(e)}`', ERROR);
+			Logs.error('Story Menu: Cannot parse character "$charName.xml": ${Std.string(e)}');
 		}
 		if (char == null) return;
 

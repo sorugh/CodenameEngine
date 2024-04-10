@@ -11,7 +11,7 @@ class CharterDeleteAnim extends CharterNote {
 		super();
 
 		sustainSpr.color = 0xFF630000; color = 0xFF605A5A;
-		snappedToStrumline = selectable = autoAlpha = false; 
+		snappedToStrumline = selectable = autoAlpha = false;
 		@:privateAccess __animSpeed = 1.25;
 
 		garbageIcon = new FlxSprite().loadGraphic(Paths.image("editors/deleter"));
@@ -40,12 +40,12 @@ class CharterDeleteAnim extends CharterNote {
 		FlxG.mouse.getWorldPosition(Charter.instance.uiCamera, __mousePos);
 		if (FlxG.mouse.pressedRight && __deletionTimer <= 0) {
 			garbageIcon.setPosition(
-				__mousePos.x + garbageIcon.width/2 + (.65*FlxG.random.float(-1, 1)) + 2, 
+				__mousePos.x + garbageIcon.width/2 + (.65*FlxG.random.float(-1, 1)) + 2,
 				__mousePos.y - garbageIcon.height + (.65*FlxG.random.float(-1, 1)) - 8
 			);
 
 			garbageCircle.setPosition(
-				__mousePos.x - garbageCircle.width/2, 
+				__mousePos.x - garbageCircle.width/2,
 				(__mousePos.y - garbageCircle.height/2) + 2
 			);
 		}
@@ -56,7 +56,7 @@ class CharterDeleteAnim extends CharterNote {
 
 	public override function draw() @:privateAccess {
 		for (deleteData in deleteNotes) {
-			y = deleteData.note.y + (deleteData.time>deleteTime*.5 ? (deleteData.time/deleteTime)*FlxG.random.float(-1.1, 1.1) : 0); // lunar when no shake :(( 
+			y = deleteData.note.y + (deleteData.time>deleteTime*.5 ? (deleteData.time/deleteTime)*FlxG.random.float(-1.1, 1.1) : 0); // lunar when no shake :((
 			x = deleteData.note.x + (deleteData.time>deleteTime*.5 ? (deleteData.time/deleteTime)*FlxG.random.float(-1.1, 1.1) : 0); // lunar when no shake :((
 			angle = deleteData.note.angle; alpha = 1;
 			animation.curAnim.curFrame = 3;
@@ -69,7 +69,7 @@ class CharterDeleteAnim extends CharterNote {
 			typeText.exists = deleteData.note.type != 0; typeText.alpha = .4;
 			typeText.follow(this, 20 - (typeText.frameWidth/2), 20 - (typeText.frameHeight/2));
 
-			for (member in [this, sustainSpr, typeText]) 
+			for (member in [this, sustainSpr, typeText])
 				member.alpha *= FlxEase.quadInOut(deleteData.time/deleteTime);
 
 			super.draw();

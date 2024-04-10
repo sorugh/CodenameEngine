@@ -98,13 +98,16 @@ class TranslationUtil
 	 *
 	 * If `id` is `null` then it's gonna search using `defString`.
 	 */
-	public static function get(defString:String, ?id:String, ?params:Array<Dynamic>):String
+	public static inline function get(defString:String, ?id:String, ?params:Array<Dynamic>):String
+		return getUnformatted(defString, id).format(params);
+
+	public static function getUnformatted(defString:String, ?id:String):IFormatInfo
 	{
 		#if TRANSLATIONS_SUPPORT
 		if (id == null) id = defString;
-		if (stringMap.exists(id)) return stringMap.get(id).format(params);
+		if (stringMap.exists(id)) return stringMap.get(id);
 		#end
-		return FormatUtil.get(defString).format(params);
+		return FormatUtil.get(defString);
 	}
 
 	/**

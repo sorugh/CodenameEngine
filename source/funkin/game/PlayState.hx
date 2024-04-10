@@ -720,9 +720,9 @@ class PlayState extends MusicBeatState
 			add(icon);
 		}
 
-		scoreTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), "Score:0", 16);
+		scoreTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), "Score:{0}", 16, "score", [songScore]);
 		missesTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), "Misses:0", 16);
-		accuracyTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), "Accuracy:-% (N/A)", 16);
+		accuracyTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), "Accuracy:{0} - {1}", 16, "accuracy", ["-%", "(N/A)"]);
 		accuracyTxt.addFormat(accFormat, 0, 1);
 
 		for(text in [scoreTxt, missesTxt, accuracyTxt]) {
@@ -1189,7 +1189,7 @@ class PlayState extends MusicBeatState
 	}
 
 	function updateRatingStuff() {
-		scoreTxt.text = 'Score:$songScore';
+		scoreTxt.resetLang([songScore]);
 		missesTxt.text = '${comboBreaks ? "Combo Breaks" : "Misses"}:$misses';
 
 		if (curRating == null)
@@ -1197,7 +1197,7 @@ class PlayState extends MusicBeatState
 
 		@:privateAccess {
 			accFormat.format.color = curRating.color;
-			accuracyTxt.text = 'Accuracy:${accuracy < 0 ? "-%" : '${CoolUtil.quantize(accuracy * 100, 100)}%'} - ${curRating.rating}';
+			accuracyTxt.resetLang([accuracy < 0 ? "-%" : '${CoolUtil.quantize(accuracy * 100, 100)}%', curRating.rating]);
 
 			accuracyTxt._formatRanges[0].range.start = accuracyTxt.text.length - curRating.rating.length;
 			accuracyTxt._formatRanges[0].range.end = accuracyTxt.text.length;
@@ -1913,7 +1913,7 @@ class ComboRating {
 
 	public function new(percent:Float, rating:String, color:FlxColor) {
 		this.percent = percent;
-		this.rating = rating;
+		this.rating = TranslationUtil.get(rating, 'rating_$rating');
 		this.color = color;
 	}
 }

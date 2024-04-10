@@ -98,23 +98,26 @@ class Logs {
 	public static function traceColored(text:Array<LogText>, level:Level = INFO) {
 		__showInConsole(prepareColoredTrace(text, level));
 	}
-	public static function trace(text:String, level:Level = INFO, color:ConsoleColor = LIGHTGRAY) {
-		traceColored([{
-			text: text,
-			color: color
-		}], level);
+	public static function trace(text:String, level:Level = INFO, color:ConsoleColor = LIGHTGRAY, ?prefix:String) {
+		var text = [logText(text, color)];
+		if(prefix != null) text.insert(0, getPrefix(prefix));
+		traceColored(text, level);
 	}
 
-	public inline static function verbose(text:String, level:Level = VERBOSE, color:ConsoleColor = LIGHTGRAY) {
-		Logs.trace(text, level, color);
+	public inline static function getPrefix(prefix:String) {
+		return logText('[${prefix}] ', BLUE);
 	}
 
-	public inline static function warn(text:String, level:Level = WARNING, color:ConsoleColor = YELLOW) {
-		Logs.trace(text, level, color);
+	public inline static function verbose(text:String, level:Level = VERBOSE, color:ConsoleColor = LIGHTGRAY, ?prefix:String) {
+		Logs.trace(text, level, color, prefix);
 	}
 
-	public inline static function error(text:String, level:Level = ERROR, color:ConsoleColor = RED) {
-		Logs.trace(text, level, color);
+	public inline static function warn(text:String, level:Level = WARNING, color:ConsoleColor = YELLOW, ?prefix:String) {
+		Logs.trace(text, level, color, prefix);
+	}
+
+	public inline static function error(text:String, level:Level = ERROR, color:ConsoleColor = RED, ?prefix:String) {
+		Logs.trace(text, level, color, prefix);
 	}
 }
 

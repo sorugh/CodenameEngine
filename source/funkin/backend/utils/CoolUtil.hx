@@ -140,7 +140,16 @@ class CoolUtil
 	}
 
 	/**
-	 * Returns the last of an Array
+	 * Returns the first element of an Array
+	 * @param array Array
+	 * @return T Last element
+	 */
+	public static inline function first<T>(array:Array<T>):T {
+		return array[0];
+	}
+
+	/**
+	 * Returns the last element of an Array
 	 * @param array Array
 	 * @return T Last element
 	 */
@@ -703,6 +712,19 @@ class CoolUtil
 
 	@:noUsing public static inline function flxeaseFromString(mainEase:String, suffix:String)
 		return Reflect.field(FlxEase, mainEase + (mainEase == "linear" ? "" : suffix));
+
+	public static function sortAlphabetically(array:Array<String>, ?lowercase:Bool=false) {
+		array.sort(function(a1, a2):Int {
+			if(lowercase) {
+				a1 = a1.toLowerCase();
+				a2 = a2.toLowerCase();
+			}
+			if (a1 < a2) return -1;
+			if (a1 > a2) return 1;
+			return 0;
+		});
+		return array;
+	}
 }
 
 /**

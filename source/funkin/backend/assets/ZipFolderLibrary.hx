@@ -1,27 +1,15 @@
 package funkin.backend.assets;
 
-import lime.utils.Log;
-import lime.utils.AssetManifest;
 
 import haxe.io.Path;
-import lime.app.Event;
-import lime.app.Future;
-import lime.app.Promise;
 import lime.media.AudioBuffer;
 import lime.graphics.Image;
 import lime.text.Font;
-import lime.utils.AssetType;
 import lime.utils.Bytes;
-import lime.utils.Assets as LimeAssets;
-import openfl.text.Font as OpenFLFont;
 import openfl.utils.AssetLibrary;
 
 
 #if MOD_SUPPORT
-import sys.FileStat;
-import sys.FileSystem;
-import sys.io.File;
-import haxe.zip.Reader;
 import funkin.backend.utils.SysZip;
 import funkin.backend.utils.SysZip.SysZipEntry;
 

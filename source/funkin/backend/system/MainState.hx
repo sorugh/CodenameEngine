@@ -55,6 +55,7 @@ class MainState extends FlxState {
 
 		Main.refreshAssets();
 		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder);
+		TranslationUtil.findAllLanguages();
 		TranslationUtil.setLanguage();
 		DiscordUtil.init();
 		EventsData.reloadEvents();

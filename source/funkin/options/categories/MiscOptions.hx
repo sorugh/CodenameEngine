@@ -6,15 +6,14 @@ class MiscOptions extends OptionsScreen {
 		super("Miscellaneous", "Use this menu to reset save data or engine settings.");
 
 		{ // Language Option
-			var lanArray:Array<String> = TranslationUtil.getLanguages();
-			if (lanArray.contains(TranslationUtil.DEFAULT_LANGUAGE))
-				lanArray.remove(TranslationUtil.DEFAULT_LANGUAGE);
-			lanArray.insert(0, TranslationUtil.DEFAULT_LANGUAGE);
+			var lanArray:Array<String> = TranslationUtil.foundLanguages;
 
+			// TODO: add credits based on the config file
 			add(new ArrayOption(
 				"Language",
 				'The language that the engine currently uses (the default one is ${TranslationUtil.DEFAULT_LANGUAGE}).',
-				lanArray, [for(lan in lanArray) lan.split("/").last()], "language",
+				[for(lan in lanArray) lan.split("/").first()],
+				[for(lan in lanArray) lan.split("/").last()], "language",
 				function(path:String) {
 					TranslationUtil.setLanguage(path);
 					parent.remove(this);

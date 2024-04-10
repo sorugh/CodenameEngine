@@ -1,10 +1,8 @@
 package funkin.backend.utils;
 
+import funkin.backend.utils.IniUtil;
 import funkin.backend.assets.TranslatedAssetLibrary;
-import funkin.backend.assets.ModsFolderLibrary;
 import funkin.backend.assets.ModsFolder;
-import funkin.backend.assets.IModsAssetLibrary;
-import funkin.backend.assets.ZipFolderLibrary;
 import openfl.utils.Assets;
 import haxe.io.Path;
 import haxe.xml.Access;
@@ -15,6 +13,7 @@ import haxe.Exception;
  *
  * Made by @NexIsDumb originally for the Poldhub mod.
  */
+@:allow(funkin.backend.assets.TranslatedAssetLibrary)
 class TranslationUtil
 {
 	/**
@@ -22,42 +21,51 @@ class TranslationUtil
 	 *
 	 * It'll never be `null`.
 	 */
-	public static var transMap(default, set):Map<String, IFormatInfo> = [];
-
-	@:noCompletion private static function set_transMap(value:Map<String, IFormatInfo>):Map<String, IFormatInfo> {
-		if (value == null) value = [];
-		return transMap = value;
-	}
+	public static var stringMap(default, set):Map<String, IFormatInfo> = [];
 
 	/**
 	 * The default language used inside of the source code.
 	 */
-	public static var DEFAULT_LANGUAGE:String = 'en/English';  // no inline so psycopathic mods can edit it  - Nex
+	public static var DEFAULT_LANGUAGE:String = 'en';  // no inline so psychopathic mods can edit it  - Nex
 
+	/**
+	 * Returns the current language config.
+	 */
+	public static var config:IniMap = [];
 	/**
 	 * Returns the current language.
 	 */
 	public static var curLanguage(get, set):String;
-	@:noCompletion private static function get_curLanguage():String {
-		return Options.language;
-	}
-	@:noCompletion private static function set_curLanguage(value:String):String {
-		return Options.language = value;
-	}
+	/**
+	 * Returns the current language name.
+	 */
+	public static var curLanguageName(get, set):String;
 
 	/**
 	 * Returns if the current language is the default one (`DEFAULT_LANGUAGE`).
 	 */
 	public static var isDefaultLanguage(get, never):Bool;
-	@:noCompletion private static function get_isDefaultLanguage():Bool
-		return Options.language == DEFAULT_LANGUAGE;
 
 	/**
 	 * Returns if any translation are loaded.
 	 */
-	public static var isAnyTransLoaded(get, never):Bool;
-	@:noCompletion private static function get_isAnyTransLoaded():Bool
-		return Lambda.count(transMap) > 0;
+	public static var isLanguageLoaded(get, never):Bool;
+
+	/**
+	 * Returns an array has a list of the languages that were found.
+	 */
+	public static var foundLanguages:Array<String> = [];
+
+	// Private
+	private static inline var LANG_FOLDER:String = "languages";
+	private static var langConfigs:Map<String, IniMap> = [];
+	private static var nameMap:Map<String, String> = [];
+	private static inline function getDefaultNameMap():Map<String, String> {
+		return ['en' => 'English'];
+	}
+	private static inline function getDefaultConfig(name:String):IniMap {
+		return ["name" => getLanguageName(name), "credits" => "", "version" => "1.0.0"];
+	}
 
 	/**
 	 * Updates the language.
@@ -69,11 +77,19 @@ class TranslationUtil
 	public static function setLanguage(?name:String) {
 		#if TRANSLATIONS_SUPPORT
 		if(name == null) name = curLanguage;
-		name = name.split("/")[0];
 
-		transMap = loadLanguage(name);
-		for(mod in ModsFolder.getLoadedModsLibs()) if(mod is TranslatedAssetLibrary)
-			cast(mod, TranslatedAssetLibrary).langFolder = name.split("/")[0];
+		config = getConfig(name);
+		stringMap = loadLanguage(name);
+
+		Logs.traceColored([
+			Logs.getPrefix("Language"),
+			Logs.logText("Set Language To: "),
+			Logs.logText('${getLanguageName(name)} ($name)', GREEN)
+		], VERBOSE);
+
+		for(mod in ModsFolder.getLoadedModsLibs(false))
+			if(mod is TranslatedAssetLibrary)
+				cast(mod, TranslatedAssetLibrary).langFolder = name;
 		#end
 	}
 
@@ -86,7 +102,7 @@ class TranslationUtil
 	{
 		#if TRANSLATIONS_SUPPORT
 		if (id == null) id = defString;
-		if (transMap.exists(id)) return transMap.get(id).format(params);
+		if (stringMap.exists(id)) return stringMap.get(id).format(params);
 		#end
 		return FormatUtil.get(defString).format(params);
 	}
@@ -94,64 +110,149 @@ class TranslationUtil
 	/**
 	 * Returns an array that specifies which languages were found.
 	 */
-	public static function getLanguages():Array<String>
+	public static function findAllLanguages()
 	{
-		var languages:Array<String> = [];
 		#if TRANSLATIONS_SUPPORT
-		var main:String = Paths.translationsMain('');
-		for (l in Paths.assetsTree.getFolders(main)) {
-			var path:String = main + l + "/config.ini";
-			if(Assets.exists(path)) languages.push('$l/' + IniUtil.parseAsset(path, ["name" => l])["name"]);
-			else for(f in Paths.assetsTree.getFiles(main + l)) if(Path.extension(path = '$l/$f') == "xml") {
-				languages.push(Path.withoutExtension(path));
-				break;  // only gets the first xml's name if theres no config.ini!  - Nex
+		foundLanguages = [];
+		nameMap = getDefaultNameMap();
+		var mainPath:String = translationsMain("");
+		var langName:String = null;
+		for (lang in Paths.assetsTree.getFolders("assets/" + mainPath)) {
+			var path:String = Path.join([mainPath, lang, "config.ini"]);
+
+			var config = getDefaultConfig(lang);
+
+			if(Assets.exists(path)) {
+				config = IniUtil.parseAsset(path, config);
+				langName = config["name"];
+			} else { // if there was no config.ini, use the file name as the language name
+				for(file in Paths.getFolderContent(mainPath + lang).sortAlphabetically()) {
+					if(Path.extension(path = '$lang/$file') == "xml") {
+						config["name"] = (langName = Path.withoutExtension(file));
+						break;
+					}
+				}
 			}
+			nameMap.set(lang, langName);
+			langConfigs.set(lang, config);
+			foundLanguages.push('$lang/$langName');
 		}
+
+		// Ensure that the default language is always first
+		var englishName = TranslationUtil.DEFAULT_LANGUAGE + "/" + getLanguageName(TranslationUtil.DEFAULT_LANGUAGE);
+		if (foundLanguages.contains(englishName))
+			foundLanguages.remove(englishName);
+		foundLanguages.insert(0, englishName);
 		#end
-		return languages;
 	}
 
 	/**
 	 * Returns a map of translations based on its XML.
 	 */
-	public static function loadLanguage(folderName:String):Map<String, IFormatInfo>
+	public static function loadLanguage(lang:String):Map<String, IFormatInfo>
 	{
 		#if TRANSLATIONS_SUPPORT
-		var mainPath:String = Paths.translationsMain(folderName);
+		FormatUtil.clear(); // Clean up the format cache
+		var mainPath:String = translationsMain(lang);
 		var leMap:Map<String, IFormatInfo> = [];
-		for(file in Paths.getFolderContent(mainPath)) if(Path.extension(file) == "xml") {
-			var xml:Access = null;
-			try xml = new Access(Xml.parse(Assets.getText('$mainPath/$file')))
-			catch(e) {
-				Logs.error('Error while parsing $file: ${Std.string(e)}');
-				return [];
-			}
-			if (xml == null) return [];
-			if (!xml.hasNode.translations) {
-				Logs.warn("A translation xml file requires a translations root element.");
-				return [];
-			}
-
-			FormatUtil.clear(); // Clean up the format cache
-			for(node in xml.node.translations.elements) {
-				switch(node.name) {
-					case "trans":
-						if (!node.has.id) {
-							Logs.warn("A translation node requires an ID attribute.");
-							continue;
-						}
-
-						var string:String = node.has.string ? node.att.string : node.x.nodeValue;
-						string = string.replace("\\n", "\n").replace("\r", ""); // remove stupid windows line breaks and convert newline literals to newlines
-						leMap.set(node.att.id, FormatUtil.get(string));
-				}
+		var translations = [];
+		function parseXml(xml:Access) {
+			for(node in xml.elements) {
+				if (node.name == "group") // Cosmetic name
+					parseXml(node);
+				else if(node.name == "text" || node.name == "trans" || node.name == "lang" || node.name == "string")
+					translations.push(node);
 			}
 		}
+
+		for(file in Paths.getFolderContent(mainPath, true).sortAlphabetically()) {
+			if(Path.extension(file) != "xml") continue;
+
+			// Parse the XML
+			var xml:Access = null;
+			try xml = new Access(Xml.parse(Assets.getText(file)))
+			catch(e) Logs.error('Error while parsing $file: ${Std.string(e)}', "Language");
+
+			if (xml == null) continue;
+			if (!xml.hasNode.language) {
+				Logs.warn('File $file requires a <language> root element.', "Language");
+				continue;
+			}
+
+			var langNode = xml.node.language;
+
+			//if (langNode.has.name) {
+			//	getConfig(lang).set("name", langNode.att.name);
+			//}
+
+			parseXml(langNode);
+		}
+
+		for(node in translations) {
+			if (!node.has.id) {
+				Logs.warn('A <${node.name}> node requires an ID attribute.', "Language");
+				continue;
+			}
+
+			var value:String = node.has.string ? node.att.string : node.innerData;
+			value = value.replace("\\n", "\n").replace("\r", ""); // remove stupid windows line breaks and convert newline literals to newlines
+			leMap.set(node.att.id, FormatUtil.get(value));
+		}
+
 		return leMap;
 		#else
 		return [];
 		#end
 	}
+
+	// Utils
+
+	public static function getLanguageName(lang:String) {
+		return nameMap.exists(lang) ? nameMap.get(lang) : lang;
+	}
+
+	public static function getLanguageFromName(name:String) {
+		var reverseMap = new Map<String, String>();
+		for(key => val in nameMap) reverseMap.set(val, key);
+		return reverseMap.exists(name) ? reverseMap.get(name) : name;
+	}
+
+	public static function getConfig(lang:String):IniMap {
+		return langConfigs.exists(lang) ? langConfigs.get(lang) : getDefaultConfig(lang);
+	}
+
+	public static inline function translationsMain(key:String)
+		return '$LANG_FOLDER/$key';
+
+	public static inline function translations(key:String)
+		return translationsMain('$curLanguage/$key');
+
+	// getters & setters
+
+	@:noCompletion private static function set_stringMap(value:Map<String, IFormatInfo>):Map<String, IFormatInfo> {
+		if (value == null) value = [];
+		return stringMap = value;
+	}
+
+	@:noCompletion private static function get_curLanguage():String {
+		return Options.language;
+	}
+	@:noCompletion private static function set_curLanguage(value:String):String {
+		return Options.language = value;
+	}
+
+	@:noCompletion private static function get_curLanguageName():String {
+		return getLanguageName(Options.language);
+	}
+	@:noCompletion private static function set_curLanguageName(value:String):String {
+		return Options.language = getLanguageFromName(value);
+	}
+
+	@:noCompletion private static function get_isDefaultLanguage():Bool
+		return Options.language == DEFAULT_LANGUAGE;
+
+	@:noCompletion private static function get_isLanguageLoaded():Bool
+		return Lambda.count(stringMap) > 0;
 }
 
 /**
@@ -186,6 +287,10 @@ class StrFormatInfo implements IFormatInfo {
 
 	public function format(params:Array<Dynamic>):String {
 		return string;
+	}
+
+	public function toString():String {
+		return "StrFormatInfo(" + string + ")";
 	}
 }
 
@@ -234,6 +339,10 @@ class ParamFormatInfo implements IFormatInfo {
 		}
 
 		return str;
+	}
+
+	public function toString():String {
+		return 'ParamFormatInfo([${strings.join(", ")}] [${indexes.join(", ")}])';
 	}
 }
 

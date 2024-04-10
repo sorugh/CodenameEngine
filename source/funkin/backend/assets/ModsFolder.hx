@@ -62,7 +62,7 @@ class ModsFolder {
 		Options.lastLoadedMod = currentModFolder = mod;
 		reloadMods();
 		Logs.traceColored([
-			Logs.logText('Switched to mod ', GRAY),
+			Logs.logText('Switched to mod: '),
 			Logs.logText(mod, GREEN)
 		], VERBOSE);
 	}

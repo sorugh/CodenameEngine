@@ -14,8 +14,8 @@ final class FreeplayAlphaUpdateEvent extends CancellableEvent {
 	 */
 	public var selectedAlpha:Float;
 	/**
-	  * The alpha when something is playing and selected
-	  */
+	 * The alpha when something is playing and selected
+	 */
 	public var selectedPlayingAlpha:Float;
 	/**
 	 * The lerp of the alpha

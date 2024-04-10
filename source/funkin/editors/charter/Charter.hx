@@ -1811,7 +1811,7 @@ class Charter extends UIState {
 
 	public inline function __fixSelection(selection:Selection):Selection {
 		var newSelection:Selection = new Selection();
-		for (s in selection) if (newSelection.indexOf(s) == -1) newSelection.push(s);
+		for (s in selection) if (!newSelection.contains(s)) newSelection.push(s);
 		return newSelection.filter((s:ICharterSelectable) -> {return s != null;});
 	}
 

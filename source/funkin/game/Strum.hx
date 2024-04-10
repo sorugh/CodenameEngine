@@ -74,7 +74,7 @@ class Strum extends FlxSprite {
 	}
 
 	public override function draw() {
-		lastDrawCameras = [for(c in cameras) c];
+		lastDrawCameras = cameras.copy();
 		super.draw();
 	}
 
@@ -159,7 +159,7 @@ class Strum extends FlxSprite {
 		centerOffsets();
 		centerOrigin();
 	}
-	public function getAnim() {
+	public inline function getAnim() {
 		return animation.name;
 	}
 }

@@ -27,7 +27,7 @@ class Note extends FlxSprite
 		return strumLine = strLine;
 	}
 
-	private function get_mustPress():Bool {
+	private inline function get_mustPress():Bool {
 		return false;
 	}
 	public var noteData:Int = 0;
@@ -191,7 +191,6 @@ class Note extends FlxSprite
 	}
 
 	public var lastScrollSpeed:Null<Float> = null;
-	public var angleOffsets:Bool = true;
 	public var gapFix:Single = 0;
 	public var useAntialiasingFix(get, set):Bool;
 	inline function set_useAntialiasingFix(v:Bool) {
@@ -290,7 +289,7 @@ class Note extends FlxSprite
 		setClipRect(swagRect);
 	}
 
-	public function setClipRect(rect:FlxRect) {
+	public inline function setClipRect(rect:FlxRect) {
 		this.clipRect = rect;
 	}
 

@@ -967,7 +967,7 @@ class PlayState extends MusicBeatState
 	{
 		if (songData == null) songData = SONG;
 
-		events = songData.events != null ? [for(e in songData.events) e] : [];
+		events = songData.events != null ? songData.events.copy() : [];
 		// get first camera focus
 		for(e in events) {
 			if (e.time > 10) break;
@@ -1678,8 +1678,9 @@ class PlayState extends MusicBeatState
 	}
 
 	public function displayRating(myRating:String, ?evt:NoteHitEvent = null):Void {
-		var pre:String = evt != null ? evt.ratingPrefix : "";
-		var suf:String = evt != null ? evt.ratingSuffix : "";
+		var hasEvent = evt != null;
+		var pre:String = hasEvent ? evt.ratingPrefix : "";
+		var suf:String = hasEvent ? evt.ratingSuffix : "";
 
 		var rating:FlxSprite = comboGroup.recycleLoop(FlxSprite);
 		rating.resetSprite(comboGroup.x + -40, comboGroup.y + -60);
@@ -1687,7 +1688,7 @@ class PlayState extends MusicBeatState
 		rating.acceleration.y = 550;
 		rating.velocity.y -= FlxG.random.int(140, 175);
 		rating.velocity.x -= FlxG.random.int(0, 10);
-		if (evt != null) {
+		if (hasEvent) {
 			rating.scale.set(evt.ratingScale, evt.ratingScale);
 			rating.antialiasing = evt.ratingAntialiasing;
 		}
@@ -1702,8 +1703,9 @@ class PlayState extends MusicBeatState
 	}
 
 	public function displayCombo(?evt:NoteHitEvent = null):Void {
-		var pre:String = evt != null ? evt.ratingPrefix : "";
-		var suf:String = evt != null ? evt.ratingSuffix : "";
+		var hasEvent = evt != null;
+		var pre:String = hasEvent ? evt.ratingPrefix : "";
+		var suf:String = hasEvent ? evt.ratingSuffix : "";
 
 		var separatedScore:String = Std.string(combo).addZeros(3);
 
@@ -1715,7 +1717,7 @@ class PlayState extends MusicBeatState
 				comboSpr.velocity.y -= 150;
 				comboSpr.velocity.x += FlxG.random.int(1, 10);
 
-				if (evt != null) {
+				if (hasEvent) {
 					comboSpr.scale.set(evt.ratingScale, evt.ratingScale);
 					comboSpr.antialiasing = evt.ratingAntialiasing;
 				}
@@ -1734,7 +1736,7 @@ class PlayState extends MusicBeatState
 			{
 				var numScore:FlxSprite = comboGroup.recycleLoop(FlxSprite).loadAnimatedGraphic(Paths.image('${pre}num${separatedScore.charAt(i)}${suf}'));
 				numScore.resetSprite(comboGroup.x + (43 * i) - 90, comboGroup.y + 80);
-				if (evt != null) {
+				if (hasEvent) {
 					numScore.antialiasing = evt.numAntialiasing;
 					numScore.scale.set(evt.numScale, evt.numScale);
 				}

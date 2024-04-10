@@ -363,12 +363,12 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 	}
 
 	public function hget(name:String):Dynamic {
-		if (__instanceFields.contains(name) || __instanceFields.contains('get_${name}')) {
+		if (__instanceFields.contains(name) || __instanceFields.contains('get_${name}'))
 			return Reflect.getProperty(this, name);
-		}
-		if (!Reflect.hasField(data, name)) return null;
-		var field = Reflect.field(data, name);
-		var cl = Type.getClassName(Type.getClass(field));
+		if (!Reflect.hasField(data, name))
+			return null;
+		var field:Dynamic = Reflect.field(data, name);
+		var cl:String = Type.getClassName(Type.getClass(field));
 
 		// little problem we are facing boys...
 
@@ -394,45 +394,37 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 		if (!Reflect.hasField(data, name)) {
 			Reflect.setField(data, name, val);
 			return val;
-		} else {
-			var field = Reflect.field(data, name);
-			var cl = Type.getClassName(Type.getClass(field));
-			// cant do "field is ShaderInput" for some reason
-			if (cl.startsWith("openfl.display.ShaderParameter")) {
-				@:privateAccess
-				if (field.__length <= 1) {
-					// that means we wait for a single number, instead of an array
-					@:privateAccess
-					if (field.__isInt && !(val is Int)) {
-						throw new ShaderTypeException(name, Type.getClass(val), 'Int');
-						return null;
-					} else
-					@:privateAccess
-					if (field.__isBool && !(val is Bool)) {
-						throw new ShaderTypeException(name, Type.getClass(val), 'Bool');
-						return null;
-					} else
-					@:privateAccess
-					if (field.__isFloat && !(val is Float)) {
-						throw new ShaderTypeException(name, Type.getClass(val), 'Float');
-						return null;
-					}
-					return field.value = [val];
-				} else {
-					if (!(val is Array)) {
-						throw new ShaderTypeException(name, Type.getClass(val), Array);
-						return null;
-					}
+		}
+
+		var field:Dynamic = Reflect.field(data, name);
+		var cl:String = Type.getClassName(Type.getClass(field));
+		// cant do "field is ShaderInput" for some reason
+		if (cl.startsWith("openfl.display.ShaderParameter")) {
+			@:privateAccess
+			if (field.__length <= 1) {
+				if ((val is Array))
 					return field.value = val;
-				}
-			} else if (cl.startsWith("openfl.display.ShaderInput")) {
-				// shader input!!
-				if (!(val is BitmapData)) {
-					throw new ShaderTypeException(name, Type.getClass(val), BitmapData);
-					return null;
-				}
-				field.input = cast val;
+				// that means we wait for a single number, instead of an array
+				if (field.__isInt && !(val is Int))
+					throw new ShaderTypeException(name, Type.getClass(val), 'Int');
+				else if (field.__isBool && !(val is Bool))
+					throw new ShaderTypeException(name, Type.getClass(val), 'Bool');
+				else if (field.__isFloat && !(val is Float))
+					throw new ShaderTypeException(name, Type.getClass(val), 'Float');
+
+				return field.value = [val];
+			} else {
+				if (!(val is Array))
+					throw new ShaderTypeException(name, Type.getClass(val), Array);
+
+				return field.value = val;
 			}
+		} else if (cl.startsWith("openfl.display.ShaderInput")) {
+			// shader input!!
+			if (!(val is BitmapData)) {
+				throw new ShaderTypeException(name, Type.getClass(val), BitmapData);
+			}
+			field.input = cast val;
 		}
 
 		return val;

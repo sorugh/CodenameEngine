@@ -3,7 +3,7 @@ package funkin.backend.system.macros;
 #if macro
 class NewHaxeWarning {
 	public static function warn() {
-		#if (haxe >= "4.3.0")
+		#if (haxe >= "4.3.0" && !display)
 			Sys.println("====================");
 			Sys.println("[ WARNING ]");
 			Sys.println("Compiling with Haxe 4.3.0 isnt fully recommended yet, but it does work.");

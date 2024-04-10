@@ -230,7 +230,7 @@ class Chart {
 			if(data.meta != null && Reflect.hasField(data.meta, "parsedColor")) Reflect.deleteField(data.meta, "parsedColor");
 		}
 
-		data.events = saveEventsInChart != true ? null : Reflect.copy(chart.events);  // same here once again
+		data.events = saveEventsInChart != true ? null : Reflect.copy(chart.events); // same here once again
 		data.fromMods = null;
 
 		var sortedData:Dynamic = {};

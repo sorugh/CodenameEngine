@@ -21,6 +21,7 @@ import away3d.utils.Cast;
 import flx3d.Flx3DUtil;
 import haxe.io.Path;
 import openfl.Assets;
+import away3d.utils.Utils.expect;
 #end
 
 // FlxView3D with helpers for easier updating
@@ -81,22 +82,15 @@ class Flx3DView extends FlxView3D {
 		token.addEventListener(Asset3DEvent.ASSET_COMPLETE, (event:Asset3DEvent) -> {
 			// ! Taken from Loader3D https://github.com/openfl/away3d/blob/master/away3d/loaders/Loader3D.hx#L207-L232
 			if (event.type == Asset3DEvent.ASSET_COMPLETE) {
-				var obj:ObjectContainer3D = null;
-				switch (event.asset.assetType) {
-					case Asset3DType.LIGHT:
-						obj = #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end(event.asset, LightBase) ? cast event.asset : null;
-					case Asset3DType.CONTAINER:
-						obj = #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end(event.asset, ObjectContainer3D) ? cast event.asset : null;
-					case Asset3DType.MESH:
-						obj = #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end(event.asset, Mesh) ? cast event.asset : null;
-					case Asset3DType.SKYBOX:
-						obj = #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end(event.asset, SkyBox) ? cast event.asset : null;
-					case Asset3DType.TEXTURE_PROJECTOR:
-						obj = #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end(event.asset, TextureProjector) ? cast event.asset : null;
-					case Asset3DType.CAMERA:
-						obj = #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end(event.asset, Camera3D) ? cast event.asset : null;
-					case Asset3DType.SEGMENT_SET:
-						obj = #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end(event.asset, SegmentSet) ? cast event.asset : null;
+				var obj:ObjectContainer3D = switch (event.asset.assetType) {
+					case Asset3DType.LIGHT: expect(event.asset, LightBase);
+					case Asset3DType.CONTAINER: expect(event.asset, ObjectContainer3D);
+					case Asset3DType.MESH: expect(event.asset, Mesh);
+					case Asset3DType.SKYBOX: expect(event.asset, SkyBox);
+					case Asset3DType.TEXTURE_PROJECTOR: expect(event.asset, TextureProjector);
+					case Asset3DType.CAMERA: expect(event.asset, Camera3D);
+					case Asset3DType.SEGMENT_SET: expect(event.asset, SegmentSet);
+					default: null;
 				}
 				if (obj != null && obj.parent == null)
 					view.scene.addChild(obj);

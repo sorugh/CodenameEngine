@@ -1,8 +1,6 @@
 package funkin.backend.shaders;
 
-import haxe.Exception;
 import openfl.Assets;
-import hscript.IHScriptCustomBehaviour;
 
 /**
  * Class for custom shaders.

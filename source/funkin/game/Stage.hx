@@ -1,13 +1,13 @@
 package funkin.game;
 
-import funkin.backend.scripting.events.StageXMLEvent;
-import funkin.backend.scripting.events.StageNodeEvent;
-import flixel.math.FlxPoint;
 import flixel.FlxState;
-import haxe.xml.Access;
-import funkin.backend.system.interfaces.IBeatReceiver;
+import flixel.math.FlxPoint;
 import funkin.backend.scripting.Script;
+import funkin.backend.scripting.events.StageNodeEvent;
+import funkin.backend.scripting.events.StageXMLEvent;
+import funkin.backend.system.interfaces.IBeatReceiver;
 import haxe.io.Path;
+import haxe.xml.Access;
 
 using StringTools;
 

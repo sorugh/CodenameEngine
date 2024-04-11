@@ -1,10 +1,10 @@
 package funkin.game;
 
-import funkin.backend.chart.ChartData;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
-import funkin.backend.system.Conductor;
+import funkin.backend.chart.ChartData;
 import funkin.backend.scripting.events.*;
+import funkin.backend.system.Conductor;
 
 using StringTools;
 

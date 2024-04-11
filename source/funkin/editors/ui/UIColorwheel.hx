@@ -1,8 +1,8 @@
 package funkin.editors.ui;
 
 import flixel.math.FlxPoint;
-import funkin.backend.shaders.CustomShader;
 import flixel.util.FlxColor;
+import funkin.backend.shaders.CustomShader;
 
 using flixel.util.FlxSpriteUtil;
 

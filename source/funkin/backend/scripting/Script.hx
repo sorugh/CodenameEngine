@@ -1,10 +1,9 @@
 package funkin.backend.scripting;
 
-import lime.app.Application;
 import flixel.util.FlxDestroyUtil.IFlxDestroyable;
-import haxe.io.Path;
-import hscript.IHScriptCustomConstructor;
 import flixel.util.FlxStringUtil;
+import haxe.io.Path;
+import lime.app.Application;
 
 @:allow(funkin.backend.scripting.ScriptPack)
 /**

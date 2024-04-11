@@ -1,8 +1,8 @@
 package funkin.options;
 
-import openfl.Lib;
-import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
+import flixel.util.FlxSave;
+import openfl.Lib;
 
 @:build(funkin.backend.system.macros.OptionsMacro.build())
 @:build(funkin.backend.system.macros.FunkinSaveMacro.build("__save", "__flush", "__load"))

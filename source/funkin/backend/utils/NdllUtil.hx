@@ -1,7 +1,5 @@
 package funkin.backend.utils;
 
-import lime.app.Application;
-
 /**
  * Small util that allows you to load any function from ndlls via `getFunction`.
  *

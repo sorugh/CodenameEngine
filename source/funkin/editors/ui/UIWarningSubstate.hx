@@ -1,9 +1,9 @@
 package funkin.editors.ui;
 
-import openfl.filters.ShaderFilter;
-import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
 import funkin.backend.shaders.CustomShader;
+import openfl.filters.ShaderFilter;
 
 class UIWarningSubstate extends MusicBeatSubstate {
 	var camShaders:Array<FlxCamera> = [];

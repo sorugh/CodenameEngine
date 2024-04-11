@@ -1,13 +1,10 @@
 package funkin.editors.character;
 
-import funkin.options.type.OptionType;
-import funkin.options.type.NewOption;
-import flixel.util.FlxColor;
 import funkin.game.Character;
-import funkin.backend.chart.Chart;
-import funkin.options.type.TextOption;
-import funkin.options.type.IconOption;
 import funkin.options.OptionsScreen;
+import funkin.options.type.IconOption;
+import funkin.options.type.NewOption;
+import funkin.options.type.OptionType;
 
 class CharacterSelection extends EditorTreeMenu
 {

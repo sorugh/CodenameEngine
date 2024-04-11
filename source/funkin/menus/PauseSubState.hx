@@ -1,18 +1,18 @@
 package funkin.menus;
 
-import funkin.editors.charter.Charter;
-import funkin.backend.scripting.events.MenuChangeEvent;
-import funkin.options.OptionsMenu;
-import funkin.backend.scripting.events.PauseCreationEvent;
-import funkin.backend.scripting.events.NameEvent;
-import funkin.backend.scripting.Script;
 import flixel.sound.FlxSound;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
-import funkin.options.keybinds.KeybindsOptions;
-import funkin.menus.StoryMenuState;
+import funkin.backend.scripting.Script;
+import funkin.backend.scripting.events.MenuChangeEvent;
+import funkin.backend.scripting.events.NameEvent;
+import funkin.backend.scripting.events.PauseCreationEvent;
 import funkin.backend.utils.FunkinParentDisabler;
+import funkin.editors.charter.Charter;
+import funkin.menus.StoryMenuState;
+import funkin.options.OptionsMenu;
+import funkin.options.keybinds.KeybindsOptions;
 
 class PauseSubState extends MusicBeatSubstate
 {

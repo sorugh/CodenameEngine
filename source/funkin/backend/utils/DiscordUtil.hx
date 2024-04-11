@@ -1,19 +1,19 @@
 package funkin.backend.utils;
 
-import funkin.backend.scripting.events.DiscordPresenceUpdateEvent;
-import funkin.backend.scripting.events.CancellableEvent;
-import funkin.backend.scripting.*; // lazy
+import flixel.sound.FlxSound;
 import flixel.util.typeLimit.OneOfTwo;
-import openfl.display.BitmapData;
+import funkin.backend.scripting.*; // lazy
+import funkin.backend.scripting.events.CancellableEvent;
+import funkin.backend.scripting.events.DiscordPresenceUpdateEvent;
 import funkin.backend.system.macros.Utils;
 import haxe.Json;
-import flixel.sound.FlxSound;
+import openfl.display.BitmapData;
 #if DISCORD_RPC
+import Sys;
 import hxdiscord_rpc.Discord;
 import hxdiscord_rpc.Types;
-import sys.thread.Thread;
-import Sys;
 import lime.app.Application;
+import sys.thread.Thread;
 #end
 
 class DiscordUtil

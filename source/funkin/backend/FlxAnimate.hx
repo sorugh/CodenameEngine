@@ -1,12 +1,9 @@
 package funkin.backend;
 
-import flixel.graphics.frames.FlxFramesCollection;
-import openfl.geom.ColorTransform;
-import flixel.math.FlxMatrix;
-import flixel.math.FlxAngle;
-import flixel.math.FlxRect;
 import flixel.graphics.frames.FlxFrame;
-import flixel.math.FlxPoint;
+import flixel.math.FlxAngle;
+import flixel.math.FlxMatrix;
+import openfl.geom.ColorTransform;
 
 class FlxAnimate extends flxanimate.FlxAnimate {
 	static var rMatrix = new FlxMatrix();

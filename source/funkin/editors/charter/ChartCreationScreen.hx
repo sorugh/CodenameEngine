@@ -2,12 +2,11 @@ package funkin.editors.charter;
 
 import flixel.text.FlxText.FlxTextFormat;
 import flixel.text.FlxText.FlxTextFormatMarkerPair;
+import funkin.backend.chart.ChartData;
 import funkin.backend.shaders.CustomShader;
 import funkin.game.Character;
-import funkin.game.Stage;
 import funkin.game.HealthIcon;
-import funkin.backend.chart.ChartData;
-import haxe.io.Bytes;
+import funkin.game.Stage;
 
 class ChartCreationScreen extends UISubstateWindow {
 	private var onSave:(String, ChartData) -> Void = null;

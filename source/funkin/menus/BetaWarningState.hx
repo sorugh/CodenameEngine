@@ -1,7 +1,7 @@
 package funkin.menus;
 
-import flixel.util.FlxColor;
 import flixel.text.FlxText;
+import flixel.util.FlxColor;
 import funkin.backend.FunkinText;
 
 class BetaWarningState extends MusicBeatState {

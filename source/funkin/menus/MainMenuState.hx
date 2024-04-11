@@ -1,17 +1,13 @@
 package funkin.menus;
 
-import haxe.Json;
-import funkin.backend.FunkinText;
-import funkin.menus.credits.CreditsMain;
 import flixel.FlxState;
 import flixel.effects.FlxFlicker;
-import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
-import flixel.util.FlxColor;
-import lime.app.Application;
+import funkin.backend.FunkinText;
 import funkin.backend.scripting.events.*;
-
+import funkin.menus.credits.CreditsMain;
 import funkin.options.OptionsMenu;
+import lime.app.Application;
 
 using StringTools;
 

@@ -1,7 +1,7 @@
 package funkin.editors;
 
-import flixel.math.FlxPoint;
 import flixel.effects.FlxFlicker;
+import flixel.math.FlxPoint;
 
 class EditorPicker extends MusicBeatSubstate {
 	public var bg:FlxSprite;

@@ -1,7 +1,6 @@
 package funkin.game.cutscenes;
 
 import funkin.backend.scripting.DummyScript;
-import flixel.addons.transition.FlxTransitionableState;
 import funkin.backend.scripting.Script;
 
 /**

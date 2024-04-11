@@ -1,8 +1,8 @@
 package funkin.editors.ui;
 
-import openfl.filters.ShaderFilter;
 import flixel.tweens.FlxTween;
 import funkin.backend.shaders.CustomShader;
+import openfl.filters.ShaderFilter;
 
 // TODO: make UIWarningSubstate extend this
 class UISubstateWindow extends MusicBeatSubstate {

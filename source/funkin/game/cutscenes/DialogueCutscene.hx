@@ -1,14 +1,14 @@
 package funkin.game.cutscenes;
 
-import funkin.backend.utils.FunkinParentDisabler;
-import funkin.backend.scripting.events.dialogue.*;
+import flixel.sound.FlxSound;
+import funkin.backend.scripting.Script;
 import funkin.backend.scripting.events.CancellableEvent;
 import funkin.backend.scripting.events.DynamicEvent;
-import funkin.backend.scripting.Script;
-import flixel.sound.FlxSound;
+import funkin.backend.scripting.events.dialogue.*;
+import funkin.backend.utils.FunkinParentDisabler;
 import funkin.game.cutscenes.dialogue.*;
-import haxe.xml.Access;
 import haxe.io.Path;
+import haxe.xml.Access;
 
 /**
  * Substate made for dialogue cutscenes. To use it in a scripted cutscene, call `startDialogue`.

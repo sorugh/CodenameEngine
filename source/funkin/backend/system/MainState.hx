@@ -3,11 +3,11 @@ package funkin.backend.system;
 #if MOD_SUPPORT
 import sys.FileSystem;
 #end
-import funkin.backend.assets.ModsFolder;
-import funkin.menus.TitleState;
-import funkin.menus.BetaWarningState;
-import funkin.backend.chart.EventsData;
 import flixel.FlxState;
+import funkin.backend.assets.ModsFolder;
+import funkin.backend.chart.EventsData;
+import funkin.menus.BetaWarningState;
+import funkin.menus.TitleState;
 
 /**
  * Simple state used for loading the game

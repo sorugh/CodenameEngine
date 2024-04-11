@@ -1,7 +1,7 @@
 package funkin.backend;
 
-import flixel.tweens.FlxTween;
 import flixel.FlxState;
+import flixel.tweens.FlxTween;
 import funkin.backend.utils.FunkinParentDisabler;
 
 class MusicBeatTransition extends MusicBeatSubstate {

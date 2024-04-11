@@ -1,15 +1,15 @@
 package funkin.game;
 
-import funkin.editors.charter.Charter;
-import funkin.backend.scripting.events.GameOverCreationEvent;
-import funkin.backend.scripting.events.CancellableEvent;
-import funkin.backend.scripting.Script;
 import flixel.sound.FlxSound;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import funkin.menus.StoryMenuState;
-import funkin.menus.FreeplayState;
+import funkin.backend.scripting.Script;
+import funkin.backend.scripting.events.CancellableEvent;
+import funkin.backend.scripting.events.GameOverCreationEvent;
 import funkin.backend.system.Conductor;
+import funkin.editors.charter.Charter;
+import funkin.menus.FreeplayState;
+import funkin.menus.StoryMenuState;
 
 class GameOverSubstate extends MusicBeatSubstate
 {

@@ -1,12 +1,12 @@
 package funkin.editors.character;
 
-import funkin.backend.system.framerate.Framerate;
-import haxe.xml.Printer;
-import haxe.xml.Access;
-import funkin.backend.utils.XMLUtil.AnimData;
 import flixel.math.FlxPoint;
+import funkin.backend.system.framerate.Framerate;
+import funkin.backend.utils.XMLUtil.AnimData;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
 import funkin.game.Character;
+import haxe.xml.Access;
+import haxe.xml.Printer;
 
 class CharacterEditor extends UIState {
 	static var __character:String;

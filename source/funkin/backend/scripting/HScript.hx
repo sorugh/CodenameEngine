@@ -1,10 +1,9 @@
 package funkin.backend.scripting;
 
-import haxe.io.Path;
+import hscript.*;
 import hscript.Expr.Error;
 import hscript.Parser;
 import openfl.Assets;
-import hscript.*;
 
 class HScript extends Script {
 	public var interp:Interp;

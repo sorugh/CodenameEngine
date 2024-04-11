@@ -1,7 +1,7 @@
 package funkin.backend.chart;
 
-import funkin.backend.chart.FNFLegacyParser.SwagSection;
 import funkin.backend.chart.ChartData.ChartEvent;
+import funkin.backend.chart.FNFLegacyParser.SwagSection;
 import funkin.backend.chart.FNFLegacyParser.SwagSong;
 import funkin.backend.system.Conductor;
 

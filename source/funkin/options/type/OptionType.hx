@@ -1,7 +1,7 @@
 package funkin.options.type;
 
-import funkin.backend.system.Controls;
 import flixel.group.FlxSpriteGroup;
+import funkin.backend.system.Controls;
 
 class OptionType extends FlxSpriteGroup {
 	public var controls(get, null):Controls;

@@ -1,6 +1,5 @@
 package funkin.backend.utils;
 
-
 /**
  * DOESNT SUPPORT CATEGORIES YET!!
  */

@@ -1,14 +1,13 @@
 package funkin.game;
 
 import flixel.math.FlxPoint;
+import flixel.sound.FlxSound;
+import flixel.tweens.FlxTween;
 import flixel.util.FlxSignal.FlxTypedSignal;
-
+import funkin.backend.chart.ChartData;
 import funkin.backend.scripting.events.*;
 import funkin.backend.system.Conductor;
-import funkin.backend.chart.ChartData;
 import funkin.backend.system.Controls;
-import flixel.tweens.FlxTween;
-import flixel.sound.FlxSound;
 
 class StrumLine extends FlxTypedGroup<Strum> {
 	/**

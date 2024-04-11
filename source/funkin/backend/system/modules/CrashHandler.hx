@@ -1,13 +1,11 @@
 package funkin.backend.system.modules;
 
-import lime.system.System;
 import funkin.backend.utils.NativeAPI;
-import openfl.Lib;
-import openfl.events.UncaughtErrorEvent;
-import openfl.events.ErrorEvent;
-import openfl.errors.Error;
-import openfl.events.UncaughtErrorEvent;
 import haxe.CallStack;
+import openfl.Lib;
+import openfl.errors.Error;
+import openfl.events.ErrorEvent;
+import openfl.events.UncaughtErrorEvent;
 
 class CrashHandler {
 	public static function init() {

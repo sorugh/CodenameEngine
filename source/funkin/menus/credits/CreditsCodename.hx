@@ -1,10 +1,10 @@
 package funkin.menus.credits;
 
-import funkin.options.PlayerSettings;
+import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import funkin.backend.system.github.GitHub;
+import funkin.options.PlayerSettings;
 import funkin.options.type.GithubIconOption;
-import flixel.text.FlxText;
 
 using StringTools;
 

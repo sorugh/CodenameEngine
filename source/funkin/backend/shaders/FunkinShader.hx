@@ -2,22 +2,16 @@ package funkin.backend.shaders;
 
 import haxe.Exception;
 import hscript.IHScriptCustomBehaviour;
-import flixel.graphics.tile.FlxGraphicsShader;
-import openfl.display3D.Program3D;
 import flixel.system.FlxAssets.FlxShader;
 
-import openfl.display.BitmapData;
-import openfl.display.ShaderParameter;
-import openfl.display.ShaderParameterType;
-import openfl.display.ShaderInput;
 import lime.utils.Float32Array;
 
-using StringTools;
-
+import openfl.display.ShaderParameterType;
 import openfl.display.ShaderParameter;
 import openfl.display.BitmapData;
 import openfl.display.ShaderInput;
 
+using StringTools;
 @:access(openfl.display3D.Context3D)
 @:access(openfl.display3D.Program3D)
 @:access(openfl.display.ShaderInput)

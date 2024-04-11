@@ -2,9 +2,9 @@ package funkin.backend.system;
 
 import flixel.system.debug.log.LogStyle;
 import flixel.system.frontEnds.LogFrontEnd;
-import haxe.Log;
-import funkin.backend.utils.NativeAPI;
 import funkin.backend.utils.NativeAPI.ConsoleColor;
+import funkin.backend.utils.NativeAPI;
+import haxe.Log;
 
 class Logs {
 	private static var __showing:Bool = false;

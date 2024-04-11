@@ -1,12 +1,12 @@
 package funkin.backend.utils;
 
+import flixel.util.FlxColor;
+import flixel.util.typeLimit.OneOfTwo;
+import funkin.backend.FunkinSprite.XMLAnimType;
 import funkin.backend.FunkinSprite;
 import funkin.backend.system.ErrorCode;
-import funkin.backend.FunkinSprite.XMLAnimType;
-import flixel.util.FlxColor;
-import haxe.xml.Access;
-import flixel.util.typeLimit.OneOfTwo;
 import funkin.backend.system.interfaces.IOffsetCompatible;
+import haxe.xml.Access;
 
 using StringTools;
 

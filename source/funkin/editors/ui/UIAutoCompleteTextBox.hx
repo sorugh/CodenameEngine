@@ -1,7 +1,7 @@
 package funkin.editors.ui;
 
-import lime.ui.KeyModifier;
 import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
 
 class UIAutoCompleteTextBox extends UITextBox {
 	public var suggestionText:UIText;

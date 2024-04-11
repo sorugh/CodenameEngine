@@ -1,22 +1,8 @@
 package funkin.game;
 
-import funkin.editors.charter.CharterSelection;
 import flixel.FlxState;
-import funkin.editors.SaveWarning;
-import funkin.backend.chart.EventsData;
-import funkin.backend.system.RotatingSpriteGroup;
-import funkin.editors.charter.Charter;
-import funkin.savedata.FunkinSave;
-import flixel.graphics.FlxGraphic;
-import funkin.backend.chart.Chart;
-import funkin.backend.chart.ChartData;
-import funkin.game.SplashHandler;
-import funkin.backend.scripting.DummyScript;
-import funkin.menus.StoryMenuState.WeekData;
-import funkin.backend.FunkinText;
-import funkin.backend.scripting.Script;
-import funkin.backend.scripting.ScriptPack;
 import flixel.FlxSubState;
+import flixel.graphics.FlxGraphic;
 import flixel.math.FlxPoint;
 import flixel.sound.FlxSound;
 import flixel.text.FlxText;
@@ -25,12 +11,25 @@ import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
 import flixel.util.FlxSort;
 import flixel.util.FlxTimer;
-import haxe.io.Path;
-import funkin.backend.system.Conductor;
-import funkin.game.cutscenes.*;
-
-import funkin.menus.*;
+import funkin.backend.FunkinText;
+import funkin.backend.chart.Chart;
+import funkin.backend.chart.ChartData;
+import funkin.backend.chart.EventsData;
+import funkin.backend.scripting.DummyScript;
+import funkin.backend.scripting.Script;
+import funkin.backend.scripting.ScriptPack;
 import funkin.backend.scripting.events.*;
+import funkin.backend.system.Conductor;
+import funkin.backend.system.RotatingSpriteGroup;
+import funkin.editors.SaveWarning;
+import funkin.editors.charter.Charter;
+import funkin.editors.charter.CharterSelection;
+import funkin.game.SplashHandler;
+import funkin.game.cutscenes.*;
+import funkin.menus.*;
+import funkin.menus.StoryMenuState.WeekData;
+import funkin.savedata.FunkinSave;
+import haxe.io.Path;
 
 using StringTools;
 

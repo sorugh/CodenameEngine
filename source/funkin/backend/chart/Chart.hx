@@ -1,13 +1,11 @@
 package funkin.backend.chart;
 
-import funkin.backend.system.Conductor;
-import funkin.backend.chart.ChartData;
 import flixel.util.FlxColor;
-import haxe.io.Path;
+import funkin.backend.chart.ChartData;
 import haxe.Json;
+import haxe.io.Path;
 
 #if sys
-import sys.io.File;
 import sys.FileSystem;
 #end
 

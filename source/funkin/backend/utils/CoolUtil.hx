@@ -1,24 +1,24 @@
 package funkin.backend.utils;
 
-import flixel.text.FlxText;
-import funkin.backend.utils.XMLUtil.TextFormat;
-import flixel.util.typeLimit.OneOfTwo;
-import flixel.tweens.FlxTween;
-import flixel.system.frontEnds.SoundFrontEnd;
-import flixel.sound.FlxSound;
-import funkin.backend.system.Conductor;
-import flixel.sound.FlxSoundGroup;
-import haxe.Json;
-import haxe.io.Path;
-import haxe.io.Bytes;
-import haxe.xml.Access;
-import flixel.input.keyboard.FlxKey;
-import lime.utils.Assets;
 import flixel.animation.FlxAnimation;
-import flixel.util.FlxColor;
+import flixel.input.keyboard.FlxKey;
+import flixel.sound.FlxSound;
+import flixel.sound.FlxSoundGroup;
+import flixel.system.frontEnds.SoundFrontEnd;
+import flixel.text.FlxText;
+import flixel.tweens.FlxTween;
 import flixel.util.FlxAxes;
-import openfl.geom.ColorTransform;
+import flixel.util.FlxColor;
+import flixel.util.typeLimit.OneOfTwo;
+import funkin.backend.system.Conductor;
+import funkin.backend.utils.XMLUtil.TextFormat;
 import haxe.CallStack;
+import haxe.Json;
+import haxe.io.Bytes;
+import haxe.io.Path;
+import haxe.xml.Access;
+import lime.utils.Assets;
+import openfl.geom.ColorTransform;
 
 using StringTools;
 

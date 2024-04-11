@@ -1,12 +1,12 @@
 package funkin.menus.ui;
 
-import openfl.utils.AssetLibrary;
-import haxe.xml.Access;
-import funkin.backend.assets.LimeLibrarySymbol;
-import funkin.backend.assets.IModsAssetLibrary;
 import flixel.group.FlxSpriteGroup;
-import flixel.util.FlxTimer;
 import flixel.util.FlxColor;
+import flixel.util.FlxTimer;
+import funkin.backend.assets.IModsAssetLibrary;
+import funkin.backend.assets.LimeLibrarySymbol;
+import haxe.xml.Access;
+import openfl.utils.AssetLibrary;
 
 using StringTools;
 

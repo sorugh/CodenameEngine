@@ -1,8 +1,9 @@
 package funkin.editors.ui;
 
 import flixel.util.FlxColor;
-using flixel.util.FlxSpriteUtil;
+
 using StringTools;
+using flixel.util.FlxSpriteUtil;
 
 typedef SliderSegement = {
 	var start:Float;

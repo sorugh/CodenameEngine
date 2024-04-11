@@ -1,11 +1,10 @@
 package funkin.backend.assets;
 
+import lime.graphics.Image;
+import lime.media.AudioBuffer;
+import lime.text.Font;
 import lime.utils.AssetLibrary;
 import lime.utils.Assets as LimeAssets;
-
-import lime.media.AudioBuffer;
-import lime.graphics.Image;
-import lime.text.Font;
 import lime.utils.Bytes;
 
 #if MOD_SUPPORT

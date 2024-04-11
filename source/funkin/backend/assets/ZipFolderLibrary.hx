@@ -1,29 +1,26 @@
 package funkin.backend.assets;
 
-import lime.utils.Log;
-import lime.utils.AssetLibrary;
-import lime.utils.AssetManifest;
-
+#if MOD_SUPPORT
+import funkin.backend.utils.SysZip.SysZipEntry;
+import funkin.backend.utils.SysZip;
 import haxe.io.Path;
+import haxe.zip.Reader;
 import lime.app.Event;
 import lime.app.Future;
 import lime.app.Promise;
-import lime.media.AudioBuffer;
 import lime.graphics.Image;
+import lime.media.AudioBuffer;
 import lime.text.Font;
+import lime.utils.AssetLibrary;
+import lime.utils.AssetManifest;
 import lime.utils.AssetType;
-import lime.utils.Bytes;
 import lime.utils.Assets as LimeAssets;
+import lime.utils.Bytes;
+import lime.utils.Log;
 import openfl.text.Font as OpenFLFont;
-
-
-#if MOD_SUPPORT
 import sys.FileStat;
 import sys.FileSystem;
 import sys.io.File;
-import haxe.zip.Reader;
-import funkin.backend.utils.SysZip;
-import funkin.backend.utils.SysZip.SysZipEntry;
 
 class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 	public var zipPath:String;

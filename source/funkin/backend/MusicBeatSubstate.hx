@@ -1,15 +1,15 @@
 package funkin.backend;
 
 import flixel.FlxState;
-import funkin.backend.scripting.events.*;
+import flixel.FlxSubState;
+import funkin.backend.scripting.DummyScript;
 import funkin.backend.scripting.Script;
 import funkin.backend.scripting.ScriptPack;
-import funkin.backend.scripting.DummyScript;
-import funkin.backend.system.interfaces.IBeatReceiver;
+import funkin.backend.scripting.events.*;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.Controls;
+import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.options.PlayerSettings;
-import flixel.FlxSubState;
 
 class MusicBeatSubstate extends FlxSubState implements IBeatReceiver
 {

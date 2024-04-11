@@ -1,22 +1,22 @@
 package funkin.game;
 
-import flixel.util.FlxColor;
-import funkin.backend.FunkinSprite;
 import flixel.graphics.frames.FlxFrame;
 import flixel.math.FlxPoint;
-import funkin.backend.system.interfaces.IBeatReceiver;
-import funkin.backend.system.interfaces.IOffsetCompatible;
-import funkin.backend.utils.XMLUtil;
 import flixel.math.FlxRect;
-import haxe.xml.Access;
-import haxe.Exception;
-import haxe.io.Path;
-import funkin.backend.system.Conductor;
-import openfl.geom.ColorTransform;
+import flixel.util.FlxColor;
+import funkin.backend.FunkinSprite;
 import funkin.backend.scripting.DummyScript;
 import funkin.backend.scripting.Script;
 import funkin.backend.scripting.events.*;
 import funkin.backend.scripting.events.PlayAnimEvent.PlayAnimContext;
+import funkin.backend.system.Conductor;
+import funkin.backend.system.interfaces.IBeatReceiver;
+import funkin.backend.system.interfaces.IOffsetCompatible;
+import funkin.backend.utils.XMLUtil;
+import haxe.Exception;
+import haxe.io.Path;
+import haxe.xml.Access;
+import openfl.geom.ColorTransform;
 
 using StringTools;
 

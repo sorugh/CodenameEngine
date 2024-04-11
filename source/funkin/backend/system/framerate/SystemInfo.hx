@@ -1,8 +1,8 @@
 package funkin.backend.system.framerate;
 
-import funkin.backend.utils.native.HiddenProcess;
-import funkin.backend.utils.MemoryUtil;
 import funkin.backend.system.Logs;
+import funkin.backend.utils.MemoryUtil;
+import funkin.backend.utils.native.HiddenProcess;
 
 using StringTools;
 

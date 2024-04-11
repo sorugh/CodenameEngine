@@ -1,13 +1,13 @@
 package funkin.editors.ui;
 
 import flixel.math.FlxRect;
-import flixel.util.FlxColor;
-import flixel.ui.FlxBar;
 import flixel.sound.FlxSound;
+import flixel.ui.FlxBar;
+import flixel.util.FlxColor;
+import flixel.util.FlxStringUtil;
 import haxe.io.Bytes;
 import lime.media.AudioBuffer;
 import openfl.media.Sound;
-import flixel.util.FlxStringUtil;
 
 using flixel.util.FlxSpriteUtil;
 

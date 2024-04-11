@@ -1,8 +1,9 @@
 package funkin.backend;
 
-import funkin.backend.utils.TranslationUtil.IFormatInfo;
-import flixel.util.FlxColor;
 import flixel.text.FlxText;
+import flixel.util.FlxColor;
+import flixel.util.FlxColor;
+import funkin.backend.utils.TranslationUtil.IFormatInfo;
 
 class FunkinText extends FlxText {
 	public var langStrID:String = null;

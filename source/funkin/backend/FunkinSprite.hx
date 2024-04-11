@@ -1,17 +1,17 @@
 package funkin.backend;
 
-import funkin.backend.utils.XMLUtil.BeatAnim;
-import funkin.backend.utils.XMLUtil.AnimData;
-import funkin.backend.utils.XMLUtil.IXMLEvents;
-import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.addons.effects.FlxSkewedSprite;
-import haxe.io.Path;
-import funkin.backend.scripting.events.PlayAnimEvent.PlayAnimContext;
-import funkin.backend.system.interfaces.IOffsetCompatible;
 import flixel.math.FlxMatrix;
-import flixel.math.FlxRect;
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
+import flixel.system.FlxAssets.FlxGraphicAsset;
+import funkin.backend.scripting.events.PlayAnimEvent.PlayAnimContext;
 import funkin.backend.system.interfaces.IBeatReceiver;
+import funkin.backend.system.interfaces.IOffsetCompatible;
+import funkin.backend.utils.XMLUtil.AnimData;
+import funkin.backend.utils.XMLUtil.BeatAnim;
+import funkin.backend.utils.XMLUtil.IXMLEvents;
+import haxe.io.Path;
 
 enum abstract XMLAnimType(Int)
 {

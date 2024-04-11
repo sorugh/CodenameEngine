@@ -1,15 +1,15 @@
 package funkin.editors.charter;
 
-import funkin.backend.chart.ChartData;
 import funkin.backend.chart.ChartData.ChartMetaData;
-import haxe.Json;
-import funkin.editors.charter.SongCreationScreen.SongCreationData;
-import funkin.options.type.NewOption;
+import funkin.backend.chart.ChartData;
 import funkin.backend.system.framerate.Framerate;
-import funkin.menus.FreeplayState.FreeplaySonglist;
 import funkin.editors.EditorTreeMenu;
+import funkin.editors.charter.SongCreationScreen.SongCreationData;
+import funkin.menus.FreeplayState.FreeplaySonglist;
 import funkin.options.*;
 import funkin.options.type.*;
+import funkin.options.type.NewOption;
+import haxe.Json;
 
 using StringTools;
 

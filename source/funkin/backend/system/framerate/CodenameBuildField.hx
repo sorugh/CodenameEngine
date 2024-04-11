@@ -1,9 +1,7 @@
 package funkin.backend.system.framerate;
 
-import openfl.text.TextFormat;
-import openfl.display.Sprite;
-import openfl.text.TextField;
 import funkin.backend.system.macros.GitCommitMacro;
+import openfl.text.TextField;
 
 class CodenameBuildField extends TextField {
 	public function new() {

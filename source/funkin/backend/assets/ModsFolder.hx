@@ -1,20 +1,18 @@
 package funkin.backend.assets;
 
-import funkin.backend.system.MainState;
-import openfl.utils.AssetManifest;
-import openfl.utils.AssetLibrary;
 import flixel.util.FlxSignal.FlxTypedSignal;
-
+import funkin.backend.system.MainState;
+import haxe.io.Path;
 import lime.text.Font;
 import openfl.text.Font as OpenFLFont;
+import openfl.utils.AssetLibrary;
+import openfl.utils.AssetManifest;
 
+using StringTools;
 #if MOD_SUPPORT
 import sys.FileSystem;
 #end
 
-import haxe.io.Path;
-
-using StringTools;
 
 class ModsFolder {
 	/**

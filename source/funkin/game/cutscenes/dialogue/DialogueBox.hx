@@ -1,14 +1,11 @@
 package funkin.game.cutscenes.dialogue;
 
-import funkin.backend.scripting.events.dialogue.*;
-import funkin.backend.scripting.events.PlayAnimEvent;
-import funkin.backend.scripting.events.PlayAnimEvent.PlayAnimContext;
-import funkin.backend.scripting.events.CancellableEvent;
-import funkin.backend.scripting.Script;
-import flixel.sound.FlxSound;
 import flixel.addons.text.FlxTypeText;
-import flixel.math.FlxPoint;
-import flixel.util.FlxColor;
+import flixel.sound.FlxSound;
+import funkin.backend.scripting.Script;
+import funkin.backend.scripting.events.PlayAnimEvent.PlayAnimContext;
+import funkin.backend.scripting.events.PlayAnimEvent;
+import funkin.backend.scripting.events.dialogue.*;
 import haxe.xml.Access;
 
 class DialogueBox extends FunkinSprite {

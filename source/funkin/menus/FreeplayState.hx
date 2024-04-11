@@ -1,15 +1,12 @@
 package funkin.menus;
 
-import funkin.backend.chart.Chart;
-import funkin.backend.chart.ChartData.ChartMetaData;
-import haxe.io.Path;
-import openfl.text.TextField;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
-import lime.utils.Assets;
+import funkin.backend.chart.Chart;
+import funkin.backend.chart.ChartData.ChartMetaData;
+import funkin.backend.scripting.events.*;
 import funkin.game.HealthIcon;
 import funkin.savedata.FunkinSave;
-import funkin.backend.scripting.events.*;
 
 using StringTools;
 

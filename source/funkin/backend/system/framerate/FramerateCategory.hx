@@ -1,9 +1,9 @@
 package funkin.backend.system.framerate;
 
 import openfl.display.Bitmap;
-import openfl.text.TextFormat;
 import openfl.display.Sprite;
 import openfl.text.TextField;
+import openfl.text.TextFormat;
 
 class FramerateCategory extends Sprite {
 	public var title:TextField;

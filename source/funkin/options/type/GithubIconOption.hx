@@ -1,10 +1,10 @@
 package funkin.options.type;
 
-import openfl.display.BitmapData;
 import flixel.graphics.FlxGraphic;
+import flixel.util.FlxColor;
 import funkin.backend.shaders.CustomShader;
 import funkin.backend.system.github.GitHub;
-import flixel.util.FlxColor;
+import openfl.display.BitmapData;
 
 class GithubIconOption extends TextOption
 {

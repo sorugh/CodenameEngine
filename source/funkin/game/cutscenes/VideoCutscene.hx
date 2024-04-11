@@ -1,16 +1,16 @@
 package funkin.game.cutscenes;
 
-import flixel.util.FlxColor;
-import haxe.io.Path;
 import flixel.addons.display.FlxBackdrop;
+import flixel.util.FlxColor;
+import flixel.util.FlxTimer;
+import funkin.backend.FunkinText;
+import haxe.Int64;
+import haxe.io.FPHelper;
+import haxe.io.Path;
+import haxe.xml.Access;
 #if sys
 import sys.io.File;
 #end
-import funkin.backend.FunkinText;
-import haxe.io.FPHelper;
-import haxe.xml.Access;
-import haxe.Int64;
-import flixel.util.FlxTimer;
 #if VIDEO_CUTSCENES
 import hxvlc.flixel.FlxVideo;
 #end

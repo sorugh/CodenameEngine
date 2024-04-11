@@ -1,10 +1,10 @@
 package funkin.backend.system.updating;
 
-import sys.FileSystem;
-import haxe.io.Path;
-import funkin.backend.system.github.GitHubRelease;
 import funkin.backend.system.github.GitHub;
+import funkin.backend.system.github.GitHubRelease;
+import haxe.io.Path;
 import lime.app.Application;
+import sys.FileSystem;
 
 using funkin.backend.system.github.GitHub;
 

@@ -1,32 +1,29 @@
 package flx3d;
 
 #if THREE_D_SUPPORT
-import away3d.entities.SegmentSet;
 import away3d.cameras.Camera3D;
-import away3d.entities.TextureProjector;
-import away3d.primitives.SkyBox;
-import away3d.lights.LightBase;
 import away3d.containers.ObjectContainer3D;
-import away3d.library.Asset3DLibraryBundle;
+import away3d.containers.View3D;
+import away3d.entities.Mesh;
+import away3d.entities.SegmentSet;
+import away3d.entities.TextureProjector;
+import away3d.events.Asset3DEvent;
 import away3d.events.LoaderEvent;
-import away3d.loaders.AssetLoader;
+import away3d.library.Asset3DLibrary;
+import away3d.library.Asset3DLibraryBundle;
+import away3d.library.assets.Asset3DType;
+import away3d.lights.LightBase;
+import away3d.loaders.misc.AssetLoaderContext;
 import away3d.loaders.misc.AssetLoaderToken;
-import funkin.backend.system.Logs;
+import away3d.loaders.parsers.*;
+import away3d.materials.TextureMaterial;
+import away3d.primitives.SkyBox;
+import away3d.utils.Cast;
 import flixel.FlxG;
 import flx3d.Flx3DUtil;
-import away3d.library.assets.Asset3DType;
-import away3d.library.Asset3DLibrary;
-import away3d.events.Asset3DEvent;
-import away3d.loaders.parsers.*;
-import away3d.utils.Cast;
-import away3d.materials.TextureMaterial;
 import haxe.io.Path;
-import away3d.loaders.misc.AssetLoaderContext;
 import openfl.Assets;
-import away3d.entities.Mesh;
-import away3d.loaders.Loader3D;
-import funkin.backend.utils.NativeAPI.ConsoleColor;
-import away3d.containers.View3D;
+
 #end
 import flixel.FlxCamera;
 

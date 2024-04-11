@@ -1,10 +1,9 @@
 package funkin.editors.charter;
 
 import flixel.math.FlxPoint;
-import funkin.game.Note;
+import funkin.backend.chart.ChartData.ChartStrumLine;
 import funkin.game.Character;
 import funkin.game.HealthIcon;
-import funkin.backend.chart.ChartData.ChartStrumLine;
 
 class CharterStrumlineScreen extends UISubstateWindow {
 	public var strumLineID:Int = -1;

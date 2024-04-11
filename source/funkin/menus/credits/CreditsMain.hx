@@ -2,8 +2,8 @@ package funkin.menus.credits;
 
 import funkin.backend.assets.AssetSource;
 import funkin.options.OptionsScreen;
-import funkin.options.type.*;
 import funkin.options.TreeMenu;
+import funkin.options.type.*;
 import haxe.xml.Access;
 
 class CreditsMain extends TreeMenu {

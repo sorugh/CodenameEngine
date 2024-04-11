@@ -1,11 +1,11 @@
 package funkin.editors.charter;
 
-import funkin.editors.charter.Charter.ICharterSelectable;
 import flixel.math.FlxPoint;
+import funkin.backend.chart.ChartData.ChartEvent;
+import funkin.editors.charter.Charter.ICharterSelectable;
+import funkin.editors.charter.CharterBackdropGroup.EventBackdrop;
 import funkin.game.Character;
 import funkin.game.HealthIcon;
-import funkin.editors.charter.CharterBackdropGroup.EventBackdrop;
-import funkin.backend.chart.ChartData.ChartEvent;
 
 class CharterEvent extends UISliceSprite implements ICharterSelectable {
 	public var events:Array<ChartEvent>;

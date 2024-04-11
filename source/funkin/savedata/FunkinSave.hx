@@ -1,8 +1,8 @@
 package funkin.savedata;
 
+import flixel.util.FlxSave;
 import lime.app.Application;
 import openfl.Lib;
-import flixel.util.FlxSave;
 
 /**
  * Class used for saves WITHOUT going through the struggle of type checks

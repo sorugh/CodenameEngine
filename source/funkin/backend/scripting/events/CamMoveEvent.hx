@@ -1,7 +1,7 @@
 package funkin.backend.scripting.events;
 
-import funkin.game.StrumLine;
 import flixel.math.FlxPoint;
+import funkin.game.StrumLine;
 
 final class CamMoveEvent extends CancellableEvent {
 	/**

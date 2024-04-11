@@ -1,8 +1,8 @@
 package funkin.editors.charter;
 
-import flixel.util.FlxTimer;
-import flixel.tweens.FlxTween;
 import flixel.math.FlxRect;
+import flixel.tweens.FlxTween;
+import flixel.util.FlxTimer;
 
 using flixel.util.FlxSpriteUtil;
 

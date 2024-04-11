@@ -1,15 +1,15 @@
 package funkin.menus;
 
-import funkin.savedata.FunkinSave;
-import haxe.io.Path;
-import funkin.backend.scripting.events.*;
-import flixel.util.FlxTimer;
 import flixel.math.FlxPoint;
+import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import flixel.util.FlxTimer;
 import funkin.backend.FunkinText;
+import funkin.backend.scripting.events.*;
+import funkin.savedata.FunkinSave;
+import haxe.io.Path;
 import haxe.xml.Access;
-import flixel.text.FlxText;
 
 class StoryMenuState extends MusicBeatState {
 	public var characters:Map<String, MenuCharacter> = [];

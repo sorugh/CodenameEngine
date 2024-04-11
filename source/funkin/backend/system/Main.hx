@@ -1,29 +1,26 @@
 package funkin.backend.system;
 
-import funkin.editors.SaveWarning;
-import funkin.backend.assets.AssetsLibraryList;
-import funkin.backend.system.framerate.SystemInfo;
-import openfl.utils.AssetLibrary;
-import openfl.text.TextFormat;
+import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
+import flixel.addons.transition.FlxTransitionableState;
+import flixel.addons.transition.TransitionData;
+import flixel.graphics.FlxGraphic;
+import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import flixel.system.ui.FlxSoundTray;
+import funkin.backend.assets.AssetsLibraryList;
+import funkin.backend.assets.ModsFolder;
+import funkin.backend.system.framerate.SystemInfo;
+import funkin.backend.system.modules.*;
+import funkin.editors.SaveWarning;
 import openfl.Assets;
 import openfl.Lib;
 import openfl.display.Sprite;
-import flixel.graphics.FlxGraphic;
-import flixel.addons.transition.FlxTransitionableState;
-import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
-import flixel.addons.transition.TransitionData;
-import flixel.math.FlxPoint;
-import flixel.math.FlxRect;
-import funkin.backend.system.modules.*;
+import openfl.text.TextFormat;
+import openfl.utils.AssetLibrary;
 
 #if ALLOW_MULTITHREADING
 import sys.thread.Thread;
 #end
-#if sys
-import sys.io.File;
-#end
-import funkin.backend.assets.ModsFolder;
 #if android
 import android.content.Context;
 import android.os.Build;
@@ -212,9 +209,9 @@ class Main extends Sprite
 	public static var noCwdFix:Bool = false;
 	public static function fixWorkingDirectory() {
 		#if windows
-			if (!noCwdFix && !sys.FileSystem.exists('manifest/default.json')) {
-				Sys.setCwd(haxe.io.Path.directory(Sys.programPath()));
-			}
+		if (!noCwdFix && !sys.FileSystem.exists('manifest/default.json')) {
+			Sys.setCwd(haxe.io.Path.directory(Sys.programPath()));
+		}
 		#elseif android
 		Sys.setCwd(Path.addTrailingSlash(VERSION.SDK_INT > 30 ? Context.getObbDir() : Context.getExternalFilesDir()));
 		#elseif (ios || switch)

@@ -1,30 +1,21 @@
 package funkin.editors.charter;
 // ! FUCK YOU CHUF (your biggest fan -lunar) <3
 
-import flixel.input.FlxPointer;
-import openfl.geom.Point;
-import openfl.geom.Rectangle;
-import flixel.graphics.FlxGraphic;
-import flixel.addons.display.FlxTiledSprite;
-import funkin.editors.ui.UIContextMenu.UIContextMenuOptionSpr;
-import funkin.editors.ui.UITopMenu.UITopMenuButton;
-import funkin.editors.charter.CharterStrumline;
-import funkin.editors.charter.CharterBackdropGroup.EventBackdrop;
-import funkin.backend.system.framerate.Framerate;
-import haxe.Json;
 import flixel.input.keyboard.FlxKey;
-import flixel.sound.FlxSound;
 import flixel.math.FlxPoint;
-import funkin.editors.charter.CharterBackdropGroup.CharterBackdropDummy;
-import funkin.backend.system.Conductor;
+import flixel.sound.FlxSound;
 import funkin.backend.chart.*;
 import funkin.backend.chart.ChartData;
-import flixel.addons.display.FlxBackdrop;
+import funkin.backend.system.Conductor;
+import funkin.backend.system.framerate.Framerate;
+import funkin.editors.charter.CharterBackdropGroup.CharterBackdropDummy;
+import funkin.editors.charter.CharterBackdropGroup.EventBackdrop;
+import funkin.editors.charter.CharterStrumline;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
+import funkin.editors.ui.UIContextMenu.UIContextMenuOptionSpr;
 import funkin.editors.ui.UIState;
-import flixel.util.FlxColor;
-import openfl.display.BitmapData;
-import funkin.backend.shaders.CustomShader;
+import funkin.editors.ui.UITopMenu.UITopMenuButton;
+import haxe.Json;
 
 class Charter extends UIState {
 	public static var __song:String;

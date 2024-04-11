@@ -1,6 +1,5 @@
 package funkin.game;
 
-import flixel.math.FlxMatrix;
 import flixel.math.FlxPoint;
 
 class HudCamera extends FlxCamera {

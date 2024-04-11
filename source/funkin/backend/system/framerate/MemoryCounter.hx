@@ -1,8 +1,8 @@
 package funkin.backend.system.framerate;
 
-import openfl.text.TextFormat;
 import openfl.display.Sprite;
 import openfl.text.TextField;
+import openfl.text.TextFormat;
 
 class MemoryCounter extends Sprite {
 	public var memoryText:TextField;

@@ -605,13 +605,14 @@ class CoolUtil
 	 * @return Index, or -1 if unsuccessful.
 	 */
 	public static inline function indexOfFromLast<T>(array:Array<T>, element:T):Int {
-		var i = array.length - 1;
+		/*var i = array.length - 1;
 		while(i >= 0) {
 			if (array[i] == element)
 				break;
 			i--;
 		}
-		return i;
+		return i;*/
+		return array.lastIndexOf(element);
 	}
 
 	/**
@@ -703,6 +704,35 @@ class CoolUtil
 
 	@:noUsing public static inline function flxeaseFromString(mainEase:String, suffix:String)
 		return Reflect.field(FlxEase, mainEase + (mainEase == "linear" ? "" : suffix));
+
+	public static function sortAlphabetically(array:Array<String>, ?lowercase:Bool=false) {
+		array.sort(function(a1, a2):Int {
+			if(lowercase) {
+				a1 = a1.toLowerCase();
+				a2 = a2.toLowerCase();
+			}
+			if (a1 < a2) return -1;
+			if (a1 > a2) return 1;
+			return 0;
+		});
+		return array;
+	}
+
+	public static inline function pushOnce<T>(array:Array<T>, element:T) {
+		#if (haxe >= "4.0.0")
+		if (!array.contains(element))
+			array.push(element);
+		#else
+		if (array.indexOf(element) == -1)
+			array.push(element);
+		#end
+	}
+
+	#if !(haxe >= "4.0.0")
+	public static inline function contains<T>(array:Array<T>, element:T) {
+		return array.indexOf(element) != -1;
+	}
+	#end
 }
 
 /**

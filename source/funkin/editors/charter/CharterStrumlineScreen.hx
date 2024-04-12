@@ -146,11 +146,10 @@ class CharterStrumlineScreen extends UISubstateWindow {
 			i = haxe.io.Path.withoutExtension(i.substr("Voices".length));
 			if (i == "") continue;
 			for (j in PlayState.SONG.meta.difficulties) {
-				if (i.endsWith('-${j.toLowerCase()}')) {
-					if (suffixlist.contains(i.substring(0, i.length - j.length))) continue;
-					else suffixlist.push(i.substring(0, i.length - j.length));
-				}
-				else if (!suffixlist.contains(i)) suffixlist.push(i);
+				if (i.endsWith('-${j.toLowerCase()}'))
+					suffixlist.pushOnce(i.substring(0, i.length - j.length));
+				else
+					suffixlist.pushOnce(i);
 			}
 		}
 

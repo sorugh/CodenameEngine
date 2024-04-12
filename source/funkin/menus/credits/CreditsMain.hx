@@ -26,7 +26,7 @@ class CreditsMain extends TreeMenu {
 				try {
 					access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT", source)));
 				} catch(e) {
-					Logs.trace('Error while parsing credits.xml: ${Std.string(e)}', ERROR);
+					Logs.trace('[CreditsMain] Error while parsing credits.xml: ${Std.string(e)}', ERROR);
 				}
 
 				if (access != null)
@@ -50,7 +50,7 @@ class CreditsMain extends TreeMenu {
 	/**
 	 * XML STUFF
 	 */
-	public function parseCreditsFromXML(xml:Access, source:Bool):Array<OptionType> {
+	public function parseCreditsFromXML(xml:Access, source:funkin.backend.assets.AssetsLibraryList.AssetSource):Array<OptionType> {
 		var credsMenus:Array<OptionType> = [];
 
 		for(node in xml.elements) {
@@ -58,7 +58,7 @@ class CreditsMain extends TreeMenu {
 
 			if (node.name == "github") {
 				if (!node.has.user) {
-					Logs.trace("A github node requires a user attribute.", WARNING);
+					Logs.trace("[CreditsMain] A github node requires a user attribute.", WARNING);
 					continue;
 				}
 
@@ -75,7 +75,7 @@ class CreditsMain extends TreeMenu {
 				));
 			} else {
 				if (!node.has.name) {
-					Logs.trace("A credit node requires a name attribute.", WARNING);
+					Logs.trace("[CreditsMain] A credit node requires a name attribute.", WARNING);
 					continue;
 				}
 				var name = node.getAtt("name");

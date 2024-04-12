@@ -1,7 +1,7 @@
 package funkin.backend.system.github;
 
-#if GITHUB_API
 import haxe.Exception;
+#if GITHUB_API
 import haxe.Json;
 #end
 

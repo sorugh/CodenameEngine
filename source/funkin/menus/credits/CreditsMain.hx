@@ -27,7 +27,7 @@ class CreditsMain extends TreeMenu {
 				try {
 					access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT", source)));
 				} catch(e) {
-					Logs.error('Error while parsing credits.xml: ${Std.string(e)}');
+					Logs.error('Error while parsing credits.xml: ${Std.string(e)}', "CreditsMain");
 				}
 
 				if (access != null)
@@ -59,7 +59,7 @@ class CreditsMain extends TreeMenu {
 
 			if (node.name == "github") {
 				if (!node.has.user) {
-					Logs.warn("A github node requires a user attribute.");
+					Logs.warn("A github node requires a user attribute.", "CreditsMain");
 					continue;
 				}
 
@@ -76,7 +76,7 @@ class CreditsMain extends TreeMenu {
 				));
 			} else {
 				if (!node.has.name) {
-					Logs.warn("A credit node requires a name attribute.");
+					Logs.warn("A credit node requires a name attribute.", "CreditsMain");
 					continue;
 				}
 				var name = node.getAtt("name");

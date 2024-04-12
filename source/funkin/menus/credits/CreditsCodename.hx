@@ -78,7 +78,7 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 		});
 		if(error) return false;
 		Options.contributors = idk;
-		trace('Contributors list Updated!');
+		Logs.trace('[CreditsCodename] Contributors list Updated!', VERBOSE);
 
 		var errorOnMain:Bool = false;
 		var idk2 = GitHub.getOrganizationMembers(author, function(e) {
@@ -89,7 +89,7 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 		});
 		if(!errorOnMain) {
 			Options.mainDevs = [for(m in idk2) m.id];
-			trace('Main Devs list Updated!');
+			Logs.trace('[CreditsCodename] Main Devs list Updated!', VERBOSE);
 		}
 
 		return true;

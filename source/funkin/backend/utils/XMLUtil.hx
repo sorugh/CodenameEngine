@@ -268,7 +268,7 @@ class XMLUtil {
 							forced: animData.forced.getDefault(false)
 						});
 					case LOOP:
-						xmlSpr.animation.play(animData.name, animData.forced.getDefault(false));
+						xmlSpr.playAnim(animData.name, animData.forced.getDefault(false));
 					default:
 						// nothing
 				}

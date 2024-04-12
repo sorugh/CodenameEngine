@@ -577,7 +577,7 @@ class PlayState extends MusicBeatState
 					for(folder in scriptsFolders) {
 						for(file in Paths.getFolderContent(folder, true, fromMods ? MODS : BOTH)) {
 							if (folder == 'data/charts/')
-								Logs.trace('data/charts/ is deprecrated and will be removed in the future. Please move script $file to songs/', WARNING, DARKYELLOW);
+								Logs.trace('[PlayState] data/charts/ is deprecrated and will be removed in the future. Please move script $file to songs/', WARNING, DARKYELLOW);
 
 							addScript(file);
 						}
@@ -758,7 +758,7 @@ class PlayState extends MusicBeatState
 			SaveWarning.warningFunc = saveWarn;
 			SaveWarning.saveFunc = () ->  {
 				@:privateAccess Chart.save('${Paths.getAssetsRoot()}/songs/${Charter.__song.toLowerCase()}',
-					PlayState.SONG, Charter.__diff.toLowerCase(), {saveMetaInChart: false, prettyPrint: Options.editorPrettyPrint});
+					SONG, Charter.__diff.toLowerCase(), {saveMetaInChart: false, prettyPrint: Options.editorPrettyPrint});
 			}
 		}
 	}
@@ -799,13 +799,15 @@ class PlayState extends MusicBeatState
 			return;
 		}
 
+		var songName = SONG.meta.name.toLowerCase();
+
 		if (cutsceneScriptPath == null)
-			cutsceneScriptPath = Paths.script('songs/${SONG.meta.name.toLowerCase()}/${prefix}cutscene');
+			cutsceneScriptPath = Paths.script('songs/$songName/${prefix}cutscene');
 
 		inCutscene = true;
-		var videoCutscene = Paths.video('${PlayState.SONG.meta.name.toLowerCase()}-${prefix}cutscene');
-		var videoCutsceneAlt = Paths.file('songs/${PlayState.SONG.meta.name.toLowerCase()}/${prefix}cutscene.mp4');
-		var dialogue = Paths.file('songs/${PlayState.SONG.meta.name.toLowerCase()}/${prefix}dialogue.xml');
+		var videoCutscene = Paths.video('$songName-${prefix}cutscene');
+		var videoCutsceneAlt = Paths.file('songs/$songName/${prefix}cutscene.mp4');
+		var dialogue = Paths.file('songs/$songName/${prefix}dialogue.xml');
 		persistentUpdate = true;
 		var toCall:Void->Void = function() {
 			if(checkSeen) seenCutscene = true;
@@ -1224,9 +1226,9 @@ class PlayState extends MusicBeatState
 				FlxG.switchState(new funkin.editors.charter.Charter(SONG.meta.name, difficulty, false));
 			}
 			if (FlxG.keys.justPressed.F5) {
-				Logs.trace('Reloading scripts...', WARNING, YELLOW);
+				Logs.trace('[PlayState] Reloading scripts...', WARNING, YELLOW);
 				scripts.reload();
-				Logs.trace('Song scripts successfully reloaded.', WARNING, GREEN);
+				Logs.trace('[PlayState] Song scripts successfully reloaded.', WARNING, GREEN);
 			}
 		}
 
@@ -1487,14 +1489,14 @@ class PlayState extends MusicBeatState
 			}
 			else
 			{
-				trace('LOADING NEXT SONG');
-				trace(PlayState.storyPlaylist[0].toLowerCase(), difficulty);
+				// TODO: make this colored
+				Logs.trace('[PlayState] Loading next song (${storyPlaylist[0].toLowerCase()}/$difficulty)', VERBOSE);
 
 				registerSmoothTransition();
 
 				FlxG.sound.music.stop();
 
-				PlayState.__loadSong(PlayState.storyPlaylist[0].toLowerCase(), difficulty);
+				__loadSong(storyPlaylist[0].toLowerCase(), difficulty);
 
 				FlxG.switchState(new PlayState());
 			}
@@ -1884,12 +1886,12 @@ class PlayState extends MusicBeatState
 	 * @param opponentMode Whenever opponent mode is on
 	 * @param coopMode Whenever co-op mode is on.
 	 */
-	public static function loadSong(name:String, difficulty:String = "normal", opponentMode:Bool = false, coopMode:Bool = false) {
+	public static function loadSong(_name:String, _difficulty:String = "normal", _opponentMode:Bool = false, _coopMode:Bool = false) {
 		isStoryMode = false;
-		PlayState.opponentMode = opponentMode;
+		opponentMode = _opponentMode;
 		chartingMode = false;
-		PlayState.coopMode = coopMode;
-		__loadSong(name, difficulty);
+		coopMode = _coopMode;
+		__loadSong(_name, _difficulty);
 	}
 
 	/**
@@ -1897,11 +1899,11 @@ class PlayState extends MusicBeatState
 	 * @param name Song name
 	 * @param difficulty Song difficulty
 	 */
-	public static function __loadSong(name:String, difficulty:String) {
-		PlayState.difficulty = difficulty;
+	public static function __loadSong(_name:String, _difficulty:String) {
+		difficulty = _difficulty;
 
-		PlayState.SONG = Chart.parse(name, difficulty);
-		PlayState.fromMods = PlayState.SONG.fromMods;
+		SONG = Chart.parse(_name, _difficulty);
+		fromMods = SONG.fromMods;
 	}
 }
 

@@ -1,7 +1,5 @@
 package funkin.backend.scripting.events;
 
-import funkin.backend.scripting.events.PlayAnimEvent.PlayAnimContext;
-
 final class DirectionAnimEvent extends CancellableEvent {
 	/**
 		Default animation that will be played

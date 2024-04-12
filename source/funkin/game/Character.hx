@@ -7,8 +7,11 @@ import flixel.util.FlxColor;
 import funkin.backend.FunkinSprite;
 import funkin.backend.scripting.DummyScript;
 import funkin.backend.scripting.Script;
-import funkin.backend.scripting.events.*;
-import funkin.backend.scripting.events.PlayAnimEvent.PlayAnimContext;
+import funkin.backend.scripting.events.DanceEvent;
+import funkin.backend.scripting.events.DirectionAnimEvent;
+import funkin.backend.scripting.events.PlayAnimContext;
+import funkin.backend.scripting.events.PlayAnimEvent;
+import funkin.backend.scripting.events.PointEvent;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.backend.system.interfaces.IOffsetCompatible;
@@ -65,11 +68,11 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		return new FlxPoint(event.x, event.y);
 	}
 
+	var singAnims = ["singLEFT", "singDOWN", "singUP", "singRIGHT"];
+
 	public function playSingAnim(direction:Int, suffix:String = "", Context:PlayAnimContext = SING, Force:Bool = true, Reversed:Bool = false, Frame:Int = 0)
 	{
-		var anims = ["singLEFT", "singDOWN", "singUP", "singRIGHT"];
-
-		var event = EventManager.get(DirectionAnimEvent).recycle(anims[direction] + suffix, direction, suffix, Context, Reversed, Frame, Force);
+		var event = EventManager.get(DirectionAnimEvent).recycle(singAnims[direction % singAnims.length] + suffix, direction, suffix, Context, Reversed, Frame, Force);
 		script.call("onPlaySingAnim", [event]);
 		if (!event.cancelled)
 			playAnim(event.animName, event.force, event.context, event.reversed, event.frame);

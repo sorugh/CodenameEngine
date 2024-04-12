@@ -5,7 +5,7 @@ import flixel.math.FlxMatrix;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.system.FlxAssets.FlxGraphicAsset;
-import funkin.backend.scripting.events.PlayAnimEvent.PlayAnimContext;
+import funkin.backend.scripting.events.PlayAnimContext;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.backend.system.interfaces.IOffsetCompatible;
 import funkin.backend.utils.XMLUtil.AnimData;
@@ -19,9 +19,9 @@ enum abstract XMLAnimType(Int)
 	var BEAT = 1;
 	var LOOP = 2;
 
-	public static function fromString(str:String, def:XMLAnimType = NONE)
+	public static function fromString(str:String, def:XMLAnimType = XMLAnimType.NONE)
 	{
-		return switch (str.trim().toLowerCase())
+		return switch (StringTools.trim(str).toLowerCase())
 		{
 			case "none": NONE;
 			case "beat" | "onbeat": BEAT;

@@ -719,9 +719,9 @@ class PlayState extends MusicBeatState
 			add(icon);
 		}
 
-		scoreTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), "Score:{0}", 16, "score", [songScore]);
-		missesTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), "Misses:0", 16);
-		accuracyTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), "Accuracy:{0} - {1}", 16, "accuracy", ["-%", "(N/A)"]);
+		scoreTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), TU.translate("game.score", [songScore]), 16);
+		missesTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), TU.translate("game.misses", [misses]), 16);
+		accuracyTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), TU.translate("game.accuracy", ["-%", "(N/A)"]), 16);
 		accuracyTxt.addFormat(accFormat, 0, 1);
 
 		for(text in [scoreTxt, missesTxt, accuracyTxt]) {
@@ -751,7 +751,7 @@ class PlayState extends MusicBeatState
 
 		if (chartingMode) {
 			WindowUtils.prefix = Charter.undos.unsaved ? "* " : "";
-			WindowUtils.suffix = " (Chart Playtesting)";
+			WindowUtils.suffix = TU.translate("charter.chartPlaytesting");
 
 			SaveWarning.showWarning = Charter.undos.unsaved;
 			SaveWarning.selectionClass = CharterSelection;
@@ -1141,7 +1141,7 @@ class PlayState extends MusicBeatState
 
 		state.openSubState(new PlaytestingWarningSubstate(closingWindow, [
 			{
-				label: closingWindow ? "Exit Game" : "Exit To Menu",
+				label: closingWindow ? TU.translate("playtesting.exitGame") : TU.translate("playtesting.exitToMenu"),
 				color: 0xFF0000,
 				onClick: function(_) {
 					if (!closingWindow) {
@@ -1153,7 +1153,7 @@ class PlayState extends MusicBeatState
 				}
 			},
 			{
-				label: closingWindow ? "Save & Exit Game" : "Save & Exit To Menu",
+				label: closingWindow ? TU.translate("playtesting.saveAndExitGame") : TU.translate("playtesting.saveAndExitToMenu"),
 				color: 0xFFFF00,
 				onClick: function(_) {
 					if (SaveWarning.saveFunc != null) SaveWarning.saveFunc();
@@ -1166,7 +1166,7 @@ class PlayState extends MusicBeatState
 				}
 			},
 			{
-				label: "Cancel",
+				label: TU.translate("playtesting.cancel"),
 				color: 0xFFFFFF,
 				onClick: function (_) {
 					if (closingWindow) WindowUtils.resetClosing();
@@ -1190,15 +1190,15 @@ class PlayState extends MusicBeatState
 	}
 
 	function updateRatingStuff() {
-		scoreTxt.resetLang([songScore]);
-		missesTxt.text = '${comboBreaks ? "Combo Breaks" : "Misses"}:$misses';
+		scoreTxt.text = TU.translate("game.score", [songScore]);
+		missesTxt.text = TU.translate(comboBreaks ? "game.comboBreaks" : "game.misses", [misses]);
 
 		if (curRating == null)
 			curRating = new ComboRating(0, "[N/A]", 0xFF888888);
 
 		@:privateAccess {
 			accFormat.format.color = curRating.color;
-			accuracyTxt.resetLang([accuracy < 0 ? "-%" : '${CoolUtil.quantize(accuracy * 100, 100)}%', curRating.rating]);
+			accuracyTxt.text = TU.translate("game.accuracy", [accuracy < 0 ? "-%" : '${CoolUtil.quantize(accuracy * 100, 100)}%', curRating.rating]);
 
 			accuracyTxt._formatRanges[0].range.start = accuracyTxt.text.length - curRating.rating.length;
 			accuracyTxt._formatRanges[0].range.end = accuracyTxt.text.length;
@@ -1914,7 +1914,7 @@ class ComboRating {
 
 	public function new(percent:Float, rating:String, color:FlxColor) {
 		this.percent = percent;
-		this.rating = TranslationUtil.get(rating, 'rating_$rating');
+		this.rating = TranslationUtil.get('game.rating.$rating', rating);
 		this.color = color;
 	}
 }

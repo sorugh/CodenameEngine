@@ -70,7 +70,13 @@ class MainMenuState extends MusicBeatState
 
 		FlxG.camera.follow(camFollow, null, 0.06);
 
-		var versionShit:FunkinText = new FunkinText(5, FlxG.height - 2, 0, 'Codename Engine v${Application.current.meta.get('version')}\nCommit ${funkin.backend.system.macros.GitCommitMacro.commitNumber} (${funkin.backend.system.macros.GitCommitMacro.commitHash})\n[TAB] Open Mods menu\n');
+		var versionText = [
+			'Codename Engine v${Application.current.meta.get('version')}',
+			TU.translate("mainMenu.commit", [funkin.backend.system.macros.GitCommitMacro.commitNumber, funkin.backend.system.macros.GitCommitMacro.commitHash]),
+			TU.translate("mainMenu.openMods", ["TAB"]),
+			''
+		].join('\n');
+		var versionShit:FunkinText = new FunkinText(5, FlxG.height - 2, 0, versionText);
 		versionShit.y -= versionShit.height;
 		versionShit.scrollFactor.set();
 		add(versionShit);

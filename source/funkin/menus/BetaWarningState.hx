@@ -13,13 +13,13 @@ class BetaWarningState extends MusicBeatState {
 	public override function create() {
 		super.create();
 
-		titleAlphabet = new Alphabet(0, 0, "WARNING", true);
+		titleAlphabet = new Alphabet(0, 0, TU.translate("betaWarning.title"), true);
 		titleAlphabet.screenCenter(X);
 		add(titleAlphabet);
 
 		disclaimer = new FunkinText(16, titleAlphabet.y + titleAlphabet.height + 10, FlxG.width - 32, "", 32);
 		disclaimer.alignment = CENTER;
-		disclaimer.applyMarkup('This engine is still in a *${Main.releaseCycle}* state. That means *majority of the features* are either *buggy* or *non finished*. If you find any bugs, please report them to the Codename Engine GitHub.\n\nPress ENTER to continue',
+		disclaimer.applyMarkup(TU.translate("betaWarning.desc", [Main.releaseCycle, "ENTER"]),
 			[
 				new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFFF4444), "*")
 			]

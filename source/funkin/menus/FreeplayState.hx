@@ -48,7 +48,7 @@ class FreeplayState extends MusicBeatState
 	/**
 	 * Currently lerped score. Is updated to go towards `intendedScore`.
 	 */
-	public var lerpScore:Int = 0;
+	public var lerpScore:Float = 0;
 	/**
 	 * Destination for the currently lerped score.
 	 */
@@ -207,7 +207,7 @@ class FreeplayState extends MusicBeatState
 			FlxG.sound.music.volume += 0.5 * elapsed;
 		}
 
-		lerpScore = Math.floor(lerp(lerpScore, intendedScore, 0.4));
+		lerpScore = lerp(lerpScore, intendedScore, 0.4);
 
 		if (Math.abs(lerpScore - intendedScore) <= 10)
 			lerpScore = intendedScore;
@@ -220,7 +220,7 @@ class FreeplayState extends MusicBeatState
 			updateOptionsAlpha();
 		}
 
-		scoreText.text = "PERSONAL BEST:" + lerpScore;
+		scoreText.text = TU.translate("freeplay.score", [Math.round(lerpScore)]);
 		scoreBG.scale.set(Math.max(Math.max(diffText.width, scoreText.width), coopText.width) + 8, (coopText.visible ? coopText.y + coopText.height : 66));
 		scoreBG.updateHitbox();
 		scoreBG.x = FlxG.width - scoreBG.width;
@@ -344,10 +344,10 @@ class FreeplayState extends MusicBeatState
 	 * Array containing all labels for Co-Op / Opponent modes.
 	 */
 	public var coopLabels:Array<String> = [
-		TranslationUtil.get("[TAB] Solo"),
-		TranslationUtil.get("[TAB] Opponent Mode"),
-		TranslationUtil.get("[TAB] Co-Op Mode"),
-		TranslationUtil.get("[TAB] Co-Op Mode (Switched)")
+		"[TAB] " + TU.translate("freeplay.solo"),
+		"[TAB] " + TU.translate("freeplay.opponentMode"),
+		"[TAB] " + TU.translate("freeplay.coopMode"),
+		"[TAB] " + TU.translate("freeplay.coopModeSwitched")
 	];
 
 	/**

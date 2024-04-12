@@ -17,7 +17,7 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 
 	public override function new()
 	{
-		super("Codename Engine", "All the contributors of the engine! - Press RESET to update the list (One reset per 2 minutes).");
+		super("Codename Engine", TU.translate("credits.allContributors"));
 		tryUpdating(true);
 	}
 
@@ -40,7 +40,7 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 	}
 
 	public function tryUpdating(forceDisplaying:Bool = false) {
-		updateMenuDesc("Downloading List...");
+		updateMenuDesc(TU.translate("credits.downloadingList"));
 		_canReset = false;
 		Main.execAsync(function() {
 			if(checkUpdate() || forceDisplaying) _downloadingSteps = 2;
@@ -108,9 +108,10 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 		totalContributions = 0;
 		for(c in Options.contributors) totalContributions += c.contributions;
 		for(c in Options.contributors) {
-			var opt:GithubIconOption = new GithubIconOption(c, 'Total Contributions: ~${c.contributions}~ / *${totalContributions}* (~${FlxMath.roundDecimal(c.contributions / totalContributions * 100, 2)}%~) - Select to open GitHub account');
+			var text = TU.translate("credits.totalContributions", [c.contributions, totalContributions, FlxMath.roundDecimal(c.contributions / totalContributions * 100, 2)]);
+			var opt:GithubIconOption = new GithubIconOption(c, text);
 			if(Options.mainDevs.contains(c.id)) {
-				opt.desc += " *- Public member of the main Devs!*";
+				opt.desc += TU.translate("credits.mainDev");
 				@:privateAccess opt.__text.color = mainDevCol;
 			}
 			add(opt);

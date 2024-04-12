@@ -26,7 +26,7 @@ class CharterAutoSaveUI extends UISliceSprite {
 		icon.animation.play("icon"); icon.animation.curAnim.curFrame = 0;
 		members.push(icon);
 
-		members.push(autosavingText = new UIText(x+12+10+4, y+8, 0, "Autosaving in 10 seconds...", 12));
+		members.push(autosavingText = new UIText(x+12+10+4, y+8, 0, TU.translate("editor.autosavingIn", ["?", "..."]), 12));
 
 		progressBarBack = new FlxSprite(x + 10, y + bHeight - 20).makeGraphic(Std.int(bWidth-20), 10, 0x00000000, true);
 		progressBarBack.drawRoundRect(0, 0, progressBarBack.width, progressBarBack.height, 4, 6, 0xFF727272, null, {smoothing: false});
@@ -68,8 +68,10 @@ class CharterAutoSaveUI extends UISliceSprite {
 
 		__tween = FlxTween.num(0, 1, time, null, (v:Float) -> {
 			if ((progress = v) < .95) {
-				autosavingText.text = 'Autosaving in ${Math.min(Math.round(time), 1+Math.floor(Math.abs(time-(progress*time))))} seconds';
-				autosavingText.text += [for (i in 0...(Math.floor((progress*time*3)%4))) "."].join("");
+				autosavingText.text = TU.translate("editor.autosavingIn", [
+					Math.min(Math.round(time), 1+Math.floor(Math.abs(time-(progress*time)))),
+					".".repeat(Math.floor((progress*time*3)%4))
+				]);
 			}
 		});
 		__timer = new FlxTimer();
@@ -109,7 +111,7 @@ class CharterAutoSaveUI extends UISliceSprite {
 	}
 
 	public function appearAnimation() {
-		autosavingText.text = "Autosaving in seconds..."; progress = 0; icon.animation.curAnim.curFrame = 0;
+		progress = 0; icon.animation.curAnim.curFrame = 0;
 		for (member in [this, autosavingText, progressBar, progressBarBack]) member.color = 0xFFFFFFFF;
 
 		x = -(320); alpha=0; FlxTween.cancelTweensOf(this); cancelled = false; cancelButton.visible = true;

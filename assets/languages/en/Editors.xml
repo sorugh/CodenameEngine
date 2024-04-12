@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<language>
+	<group name="General Editor Translations">
+		<str id="editor.autosavingIn">Autosaving in {0} seconds{1}</str>
+	</group>
+
+	<group name="ChartEditor">
+		<str id="charter.name">Chart Editor</str>
+
+		<str id="charter.addEvent">Add Event</str>
+		<str id="charter.editEvent">Edit</str> <!-- Should maybe be "Edit Event" -->
+		<str id="charter.deleteEvent">Delete Event</str>
+	</group>
+
+	<group name="CharacterEditor">
+		<str id="charEditor.name">Character Editor</str>
+	</group>
+
+	<group name="StageEditor">
+		<str id="stageEditor.name">Stage Editor</str>
+	</group>
+
+	<!-- Debug Options here maybe?-->
+</language>

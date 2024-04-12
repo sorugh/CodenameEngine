@@ -20,6 +20,7 @@ class PauseSubState extends MusicBeatSubstate
 
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
+	// TODO: make it possible to translate these
 	var menuItems:Array<String> = ['Resume', 'Restart Song', 'Change Controls', 'Change Options', 'Exit to menu', "Exit to charter"];
 	var curSelected:Int = 0;
 
@@ -69,12 +70,19 @@ class PauseSubState extends MusicBeatSubstate
 		bg.scrollFactor.set();
 		add(bg);
 
+		var multiplayerInfo:String = PlayState.opponentMode ? 'pause.coopMode' :
+									 PlayState.coopMode ? 'pause.opponentMode' :
+									 null;
+
 		var levelInfo:FunkinText = new FunkinText(20, 15, 0, PlayState.SONG.meta.displayName, 32, false);
-		var levelDifficulty:FunkinText = new FunkinText(20, 15, 0, PlayState.difficulty.toUpperCase(), 32, false);
-		var multiplayerText:FunkinText = new FunkinText(20, 15, 0, PlayState.opponentMode ? 'OPPONENT MODE' : (PlayState.coopMode ? 'CO-OP MODE' : ''), 32, false);
-		var deathCounter:FunkinText = new FunkinText(20, 15, 0, "Blue balled: {0}", 32, false, "blue_balled", [PlayState.deathCounter]);
+		var levelDifficulty:FunkinText = new FunkinText(20, 15, 0, TU.translateDiff(PlayState.difficulty).toUpperCase(), 32, false);
+		var deathCounter:FunkinText = new FunkinText(20, 15, 0, TU.translate("pause.deathCounter", [PlayState.deathCounter]), 32, false);
+		var multiplayerText:FunkinText = null;
+		if(multiplayerInfo != "")
+			multiplayerText = new FunkinText(20, 15, 0, TU.translate(multiplayerInfo), 32, false);
 
 		for(k=>label in [levelInfo, levelDifficulty, deathCounter, multiplayerText]) {
+			if(label == null) continue;
 			label.scrollFactor.set();
 			label.updateHitbox();
 			label.alpha = 0;
@@ -194,10 +202,7 @@ class PauseSubState extends MusicBeatSubstate
 		{
 			item.targetY = i - curSelected;
 
-			if (item.targetY == 0)
-				item.alpha = 1;
-			else
-				item.alpha = 0.6;
+			item.alpha = (item.targetY == 0) ? 1 : 0.6;
 		}
 	}
 }

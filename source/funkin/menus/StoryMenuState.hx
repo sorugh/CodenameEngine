@@ -48,7 +48,7 @@ class StoryMenuState extends MusicBeatState {
 		blackBar.color = 0xFF000000;
 		blackBar.updateHitbox();
 
-		scoreText = new FunkinText(10, 10, 0, "SCORE: -", 36);
+		scoreText = new FunkinText(10, 10, 0, TU.translate("story.score", ["-"]), 36);
 		scoreText.setFormat(Paths.font("vcr.ttf"), 32);
 
 		weekTitle = new FlxText(10, 10, FlxG.width - 20, "", 32);
@@ -125,7 +125,7 @@ class StoryMenuState extends MusicBeatState {
 		super.update(elapsed);
 
 		lerpScore = lerp(lerpScore, intendedScore, 0.5);
-		scoreText.text = 'WEEK SCORE:${Math.round(lerpScore)}';
+		scoreText.text = TU.translate("story.score", [Math.round(lerpScore)]);
 
 		if (canSelect) {
 			if (leftArrow != null && leftArrow.exists) leftArrow.animation.play(controls.LEFT ? 'press' : 'idle');
@@ -164,7 +164,18 @@ class StoryMenuState extends MusicBeatState {
 		for(k=>e in weekSprites.members) {
 			e.targetY = k - curWeek;
 		}
-		tracklist.text = 'TRACKS\n\n${[for(e in weeks[curWeek].songs) if (!e.hide) e.name.toUpperCase()].join('\n')}';
+		var str = new StringBuf();
+		str.add(TU.translate("story.tracks") + "\n\n");
+		var len = weeks[curWeek].songs.length;
+		for(i=>e in weeks[curWeek].songs) {
+			if (!e.hide) {
+				str.add(e.name.toUpperCase());
+				if (i != len-1)
+					str.add("\n");
+			}
+		}
+
+		tracklist.text = str.toString();
 		weekTitle.text = weeks[curWeek].name.getDefault("");
 
 		for(i in 0...3)

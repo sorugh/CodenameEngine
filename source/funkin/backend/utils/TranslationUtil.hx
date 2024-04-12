@@ -7,6 +7,7 @@ import openfl.utils.Assets;
 import haxe.io.Path;
 import haxe.xml.Access;
 import haxe.Exception;
+import funkin.backend.utils.translations.FormatUtil;
 
 /**
  * The class used for translations based on the XMLs inside the translations folders.
@@ -14,7 +15,7 @@ import haxe.Exception;
  * Made by @NexIsDumb originally for the Poldhub mod.
  */
 @:allow(funkin.backend.assets.TranslatedAssetLibrary)
-class TranslationUtil
+final class TranslationUtil
 {
 	/**
 	 * The current language selected translation map; If the current language it's english, this map will be empty.
@@ -63,7 +64,7 @@ class TranslationUtil
 	private static inline function getDefaultNameMap():Map<String, String> {
 		return ['en' => 'English'];
 	}
-	private static inline function getDefaultConfig(name:String):IniMap {
+	@:noUsing private static inline function getDefaultConfig(name:String):IniMap {
 		return ["name" => getLanguageName(name), "credits" => "", "version" => "1.0.0"];
 	}
 
@@ -98,16 +99,22 @@ class TranslationUtil
 	 *
 	 * If `id` is `null` then it's gonna search using `defString`.
 	 */
-	public static inline function get(defString:String, ?id:String, ?params:Array<Dynamic>):String
-		return getUnformatted(defString, id).format(params);
+	public static inline function get(?id:String, ?params:Array<Dynamic>, ?def:String):String
+		return getUnformatted(id, def).format(params);
 
-	public static function getUnformatted(defString:String, ?id:String):IFormatInfo
+	public static inline function translate(?id:String, ?params:Array<Dynamic>, ?def:String):String
+		return get(id, params, def);
+
+	public static inline function translateDiff(?id:String, ?params:Array<Dynamic>):String
+		return get("diff." + id.toLowerCase(), params, id);
+
+	public static function getUnformatted(id:String, ?def:String):IFormatInfo
 	{
 		#if TRANSLATIONS_SUPPORT
-		if (id == null) id = defString;
 		if (stringMap.exists(id)) return stringMap.get(id);
 		#end
-		return FormatUtil.get(defString);
+		if(def != null) id = def;
+		return FormatUtil.get(id);
 	}
 
 	/**
@@ -146,6 +153,8 @@ class TranslationUtil
 		if (foundLanguages.contains(englishName))
 			foundLanguages.remove(englishName);
 		foundLanguages.insert(0, englishName);
+
+		Logs.trace("Found languages: " + foundLanguages.join(", "), "Language");
 		#end
 	}
 
@@ -163,17 +172,19 @@ class TranslationUtil
 			for(node in xml.elements) {
 				if (node.name == "group") // Cosmetic name
 					parseXml(node);
-				else if(node.name == "text" || node.name == "trans" || node.name == "lang" || node.name == "string")
+				else if(["text", "trans", "lang", "string", "str"].contains(node.name))
 					translations.push(node);
 			}
 		}
 
 		for(file in Paths.getFolderContent(mainPath, true).sortAlphabetically()) {
-			if(Path.extension(file) != "xml") continue;
+			if(Path.extension(file).toLowerCase() != "xml") continue;
+
+			var afile = "assets/" + file;
 
 			// Parse the XML
 			var xml:Access = null;
-			try xml = new Access(Xml.parse(Assets.getText(file)))
+			try xml = new Access(Xml.parse(Assets.getText(afile)))
 			catch(e) Logs.error('Error while parsing $file: ${Std.string(e)}', "Language");
 
 			if (xml == null) continue;
@@ -197,9 +208,13 @@ class TranslationUtil
 				continue;
 			}
 
+			var shouldTrim = node.has.notrim ? node.att.notrim != "true" : true;
+
 			var value:String = node.has.string ? node.att.string : node.innerData;
+			value = shouldTrim ? value.trim() : value;
 			value = value.replace("\\n", "\n").replace("\r", ""); // remove stupid windows line breaks and convert newline literals to newlines
 			leMap.set(node.att.id, FormatUtil.get(value));
+			//Logs.trace("Added " + node.att.id + " -> `" + value + "`", "Language");
 		}
 
 		return leMap;
@@ -256,99 +271,4 @@ class TranslationUtil
 
 	@:noCompletion private static function get_isLanguageLoaded():Bool
 		return Lambda.count(stringMap) > 0;
-}
-
-/**
- * The class used to format strings based on parameters.
- *
- * For example if the parameter list is just an `Int` which is `9`, `You have been blue balled {0} times` becomes `You have been blue balled 9 times`.
- */
-class FormatUtil {
-	private static var cache:Map<String, IFormatInfo> = new Map();
-
-	public static function get(id:String):IFormatInfo {
-		if (cache.exists(id))
-			return cache.get(id);
-
-		var fi:IFormatInfo = ParamFormatInfo.returnOnlyIfValid(id);
-		if(fi == null) fi = new StrFormatInfo(id);
-		cache.set(id, fi);
-		return fi;
-	}
-
-	public inline static function clear() {
-		cache.clear();
-	}
-}
-
-class StrFormatInfo implements IFormatInfo {
-	public var string:String;
-
-	public function new(str:String) {
-		this.string = str;
-	}
-
-	public function format(params:Array<Dynamic>):String {
-		return string;
-	}
-
-	public function toString():String {
-		return "StrFormatInfo(" + string + ")";
-	}
-}
-
-// TODO: add support for @:({0}==1?(Hello):(World))
-class ParamFormatInfo implements IFormatInfo {
-	public var strings:Array<String> = [];
-	public var indexes:Array<Int> = [];
-
-	public function new(str:String) {
-		var i = 0;
-
-		while (i < str.length) {
-			var fi = str.indexOf("{", i); // search from the start of i
-
-			if (fi == -1) {
-				// if there are no more parameters, just add the rest of the string
-				this.strings.push(str.substring(i));
-				break;
-			}
-
-			var fe = str.indexOf("}", fi);
-
-			this.strings.push(str.substring(i, fi));
-			this.indexes.push(Std.parseInt(str.substring(fi+1, fe)));
-			i = fe + 1;
-		}
-	}
-
-	public static function isValid(str:String):Bool {
-		var fi = new ParamFormatInfo(str);
-		return fi.indexes.length > 0;
-	}
-	public static function returnOnlyIfValid(str:String):IFormatInfo {
-		var fi = new ParamFormatInfo(str);
-		return fi.indexes.length > 0 ? fi : null;
-	}
-
-	public function format(params:Array<Dynamic>):String {
-		if (params == null) params = [];
-
-		var str:String = "";
-		for (i=>s in strings) {
-			str += s;
-			if (i < indexes.length)
-				str += params[indexes[i]];
-		}
-
-		return str;
-	}
-
-	public function toString():String {
-		return 'ParamFormatInfo([${strings.join(", ")}] [${indexes.join(", ")}])';
-	}
-}
-
-interface IFormatInfo {
-	public function format(params:Array<Dynamic>):String;
 }

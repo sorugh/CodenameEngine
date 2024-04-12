@@ -742,6 +742,13 @@ class CoolUtil
 		return array.indexOf(element) != -1;
 	}
 	#end
+
+	public static inline function repeat(str:String, times:Int) {
+		var r = new StringBuf();
+		for(i in 0...times)
+			r.add(str);
+		return r.toString();
+	}
 }
 
 /**

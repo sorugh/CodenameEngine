@@ -94,6 +94,11 @@ class Script extends FlxBasic implements IFlxDestroyable {
 			"EngineUtil"		=> funkin.backend.utils.EngineUtil,
 			"MemoryUtil"		=> funkin.backend.utils.MemoryUtil,
 			"BitmapUtil"		=> funkin.backend.utils.BitmapUtil,
+
+			#if TRANSLATIONS_SUPPORT
+			"TranslationUtil"	=> funkin.backend.utils.TranslationUtil,
+			"translate"		=> funkin.backend.utils.TranslationUtil.get,
+			#end
 		];
 	}
 	public static function getDefaultPreprocessors():Map<String, Dynamic> {

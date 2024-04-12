@@ -134,8 +134,7 @@ class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 				var fileName = k.substr(_parsedAsset.length);
 				if (fileName.contains("/")) {
 					var s = fileName.split("/")[0];
-					if (!content.contains(s))
-						content.push(s);
+					content.pushOnce(s);
 				}
 			}
 		}

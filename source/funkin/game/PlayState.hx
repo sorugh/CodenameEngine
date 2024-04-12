@@ -584,7 +584,7 @@ class PlayState extends MusicBeatState
 					}
 
 					var songEvents:Array<String> = [];
-					for (event in SONG.events) if (!songEvents.contains(event.name)) songEvents.push(event.name);
+					for (event in SONG.events) songEvents.pushOnce(event.name);
 
 					for (file in Paths.getFolderContent('data/events/', true, fromMods ? MODS : BOTH)) {
 						var fileName:String = Path.withoutExtension(Path.withoutDirectory(file));

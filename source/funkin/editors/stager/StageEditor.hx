@@ -226,9 +226,20 @@ class StageEditor extends UIState {
 		stage.onXMLLoaded = function(xml:Access, elems:Array<Access>) {
 			return elems;
 		}
+		stage.onNodeLoadedPost = function(node:Access, sprite:Dynamic) {
+			if(sprite is FlxSprite) {
+				sprite.moves = false;
+			}
+			if (sprite is FunkinSprite) {
+				sprite.animEnabled = false;
+				//sprite.zoomFactorEnabled = false;
+			}
+		}
 		stage.onNodeLoaded = function(node:Access, sprite:Dynamic):Dynamic {
+			if(sprite is FlxSprite) {
+				//sprite.forceIsOnScreen = true; // hack
+			}
 			if(sprite is FunkinSprite) {
-				sprite.forceIsOnScreen = true; // hack
 				sprite.extra.set(exID("type"), node.name);
 				//sprite.active = false;
 			}

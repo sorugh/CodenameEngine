@@ -39,9 +39,11 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 	public var beatAnims:Array<BeatAnim> = [];
 	public var name:String;
 	public var zoomFactor:Float = 1;
-	public var initialZoom:Float = 1;
+	//public var initialZoom:Float = 1;
 	public var debugMode:Bool = false;
 	public var animDatas:Map<String, AnimData> = [];
+	public var animEnabled:Bool = true;
+	public var zoomFactorEnabled:Bool = true;
 
 	/**
 	 * ODD interval -> asynced; EVEN interval -> synced
@@ -87,7 +89,6 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 			spr.transformMatrix = source.transformMatrix;
 			spr.matrixExposed = source.matrixExposed;
 			spr.zoomFactor = source.zoomFactor;
-			spr.initialZoom = source.initialZoom;
 			spr.animOffsets = source.animOffsets.copy();
 		}
 		return spr;
@@ -138,49 +139,6 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 
 	public function measureHit(curMeasure:Int)
 	{
-	}
-
-	public override function getScreenBounds(?newRect:FlxRect, ?camera:FlxCamera):FlxRect
-	{
-		__doPreZoomScaleProcedure(camera);
-		var r = super.getScreenBounds(newRect, camera);
-		__doPostZoomScaleProcedure();
-		return r;
-	}
-
-	public override function drawComplex(camera:FlxCamera)
-	{
-		super.drawComplex(camera);
-	}
-
-	public override function doAdditionalMatrixStuff(matrix:FlxMatrix, camera:FlxCamera)
-	{
-		super.doAdditionalMatrixStuff(matrix, camera);
-		matrix.translate(-camera.width / 2, -camera.height / 2);
-
-		var requestedZoom = FlxMath.lerp(1, camera.zoom, zoomFactor);
-		var diff = requestedZoom / camera.zoom;
-		matrix.scale(diff, diff);
-		matrix.translate(camera.width / 2, camera.height / 2);
-	}
-
-	public override function getScreenPosition(?point:FlxPoint, ?Camera:FlxCamera):FlxPoint
-	{
-		if (__shouldDoScaleProcedure())
-		{
-			__oldScrollFactor.set(scrollFactor.x, scrollFactor.y);
-			var requestedZoom = FlxMath.lerp(initialZoom, camera.zoom, zoomFactor);
-			var diff = requestedZoom / camera.zoom;
-
-			scrollFactor.scale(1 / diff);
-
-			var r = super.getScreenPosition(point, Camera);
-
-			scrollFactor.set(__oldScrollFactor.x, __oldScrollFactor.y);
-
-			return r;
-		}
-		return super.getScreenPosition(point, Camera);
 	}
 
 	// ANIMATE ATLAS DRAWING
@@ -238,33 +196,51 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 	}
 	#end
 
-	// SCALING FUNCS
-	#if REGION
-	private inline function __shouldDoScaleProcedure()
-		return zoomFactor != 1;
+	// ZOOM FACTOR
+	private inline function __shouldDoZoomFactor()
+		return zoomFactorEnabled && zoomFactor != 1;
 
-	static var __oldScrollFactor:FlxPoint = new FlxPoint();
-	static var __oldScale:FlxPoint = new FlxPoint();
-	var __skipZoomProcedure:Bool = false;
-
-	private function __doPreZoomScaleProcedure(camera:FlxCamera)
+	public override function getScreenBounds(?newRect:FlxRect, ?camera:FlxCamera):FlxRect
 	{
-		if (__skipZoomProcedure = !__shouldDoScaleProcedure())
-			return;
-		__oldScale.set(scale.x, scale.y);
-		var requestedZoom = FlxMath.lerp(initialZoom, camera.zoom, zoomFactor);
-		var diff = requestedZoom * camera.zoom;
+		if (camera == null)
+			camera = FlxG.camera;
 
-		scale.scale(diff);
+		var r = super.getScreenBounds(newRect, camera);
+
+		if(__shouldDoZoomFactor()) {
+			r.x -= camera.width / 2;
+			r.y -= camera.height / 2;
+
+			var ratio = FlxMath.lerp(1 / camera.zoom, 1, zoomFactor);
+			r.x *= ratio;
+			r.y *= ratio;
+
+			r.width *= ratio;
+			r.height *= ratio;
+
+			r.x += camera.width / 2;
+			r.y += camera.height / 2;
+		}
+		return r;
 	}
 
-	private function __doPostZoomScaleProcedure()
+	public override function doAdditionalMatrixStuff(matrix:FlxMatrix, camera:FlxCamera)
 	{
-		if (__skipZoomProcedure)
-			return;
-		scale.set(__oldScale.x, __oldScale.y);
+		super.doAdditionalMatrixStuff(matrix, camera);
+		if(__shouldDoZoomFactor()) {
+			matrix.translate(-camera.width / 2, -camera.height / 2);
+
+			var requestedZoom = FlxMath.lerp(1, camera.zoom, zoomFactor);
+			var diff = requestedZoom / camera.zoom;
+			matrix.scale(diff, diff);
+			matrix.translate(camera.width / 2, camera.height / 2);
+		}
 	}
-	#end
+
+	public override function getScreenPosition(?point:FlxPoint, ?Camera:FlxCamera):FlxPoint
+	{
+		return super.getScreenPosition(point, Camera);
+	}
 
 	// OFFSETTING
 	#if REGION
@@ -351,6 +327,11 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 
 	public inline function isAnimFinished() {
 		return animateAtlas != null ? (animateAtlas.anim.finished) : (animation.curAnim != null ? animation.curAnim.finished : true);
+	}
+
+	override function updateAnimation(elapsed:Float) {
+		if (animEnabled)
+			super.updateAnimation(elapsed);
 	}
 	#end
 

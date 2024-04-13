@@ -29,6 +29,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 
 	public var onXMLLoaded:(Access, Array<Access>)->Array<Access> = null;
 	public var onNodeLoaded:(Access, Dynamic)->Dynamic = null;
+	public var onNodeLoadedPost:(Access, Dynamic)->Void = null;
 
 	private var spritesParentFolder = "";
 
@@ -109,9 +110,6 @@ class Stage extends FlxBasic implements IBeatReceiver {
 
 						var spr = XMLUtil.createSpriteFromXML(node, spritesParentFolder, LOOP);
 
-						if (!node.has.zoomfactor/* && PlayState.instance == state*/)
-							spr.initialZoom = defaultZoom;//PlayState.instance.defaultCamZoom;
-
 						stageSprites.set(spr.name, spr);
 						state.add(spr);
 						spr;
@@ -129,9 +127,6 @@ class Stage extends FlxBasic implements IBeatReceiver {
 							Std.parseInt(node.att.height),
 							(node.has.color) ? CoolUtil.getColorFromDynamic(node.att.color) : -1
 						);
-
-						if (!node.has.zoomfactor/* && PlayState.instance == state*/)
-							spr.initialZoom = defaultZoom;//PlayState.instance.defaultCamZoom;
 
 						stageSprites.set(spr.name, spr);
 						state.add(spr);
@@ -181,6 +176,10 @@ class Stage extends FlxBasic implements IBeatReceiver {
 				if (sprite != null) {
 					for(e in node.nodes.property)
 						XMLUtil.applyXMLProperty(sprite, e);
+				}
+
+				if(onNodeLoadedPost != null) {
+					onNodeLoadedPost(node, sprite);
 				}
 			}
 		}

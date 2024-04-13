@@ -24,7 +24,7 @@ class StageCreationScreen extends UISubstateWindow {
 		winTitle = "Creating New Stage";
 
 		winWidth = 748 - 32 + 40;
-		winHeight = 200;
+		winHeight = 220;
 
 		super.create();
 

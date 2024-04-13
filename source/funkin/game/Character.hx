@@ -247,6 +247,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		animation.destroyAnimations();
 		animDatas.clear();
 
+		__baseFlipped = false;
 		buildCharacter(xml);
 	}
 

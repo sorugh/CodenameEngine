@@ -139,7 +139,7 @@ class CharterNote extends UISprite implements ICharterSelectable {
 
 		sustainDraggable = false;
 		if (!hovered && susLength != 0) {
-			UIState.state.updateSpriteRect(sustainSpr);
+			sustainSpr.updateSpriteRect();
 			sustainDraggable = UIState.state.isOverlapping(sustainSpr, @:privateAccess sustainSpr.__rect);
 		}
 

@@ -18,19 +18,28 @@ class UIWindow extends UISliceSprite {
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		if(collapsable && FlxG.mouse.justPressed) {
-			// TOOLBAR
+		cursor = ARROW;
+
+		if(collapsable) {
 			__rect.x = x; __rect.y = y;
-			__rect.width = bWidth; __rect.height = 23;
+			__rect.width = bWidth; __rect.height = topHeight;
+
 			if(UIState.state.isOverlapping(this, __rect)) {
-				content.exists = !content.exists;
-				drawMiddle = !drawMiddle;
-				drawBottom = !drawBottom;
+				cursor = BUTTON;
+				if(FlxG.mouse.justPressed) {
+					content.exists = !content.exists;
+					drawMiddle = !drawMiddle;
+					drawBottom = !drawBottom;
+				}
 			}
 		}
 
-		__rect.x = x; __rect.y = y+23;
-		__rect.width = bWidth; __rect.height = bHeight-23;
+		__rect.x = x;
+		__rect.width = bWidth;
+		if(content.exists) {
+			__rect.y = y+topHeight;
+			__rect.height = bHeight-topHeight;
+		}
 		hovered = UIState.state.isOverlapping(this, __rect);
 	}
 }

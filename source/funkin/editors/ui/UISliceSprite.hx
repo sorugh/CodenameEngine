@@ -45,6 +45,11 @@ class UISliceSprite extends UISprite {
 	var bottom:FlxFrame = null;
 	var bottomright:FlxFrame = null;
 
+	public var topHeight:Int = 0;
+	public var bottomHeight:Int = 0;
+	public var leftWidth:Int = 0;
+	public var rightWidth:Int = 0;
+
 	override function set_frames(val) {
 		super.set_frames(val);
 		calculateFrames();
@@ -70,6 +75,11 @@ class UISliceSprite extends UISprite {
 		bottomleft = frames.frames[framesOffset + 6];
 		bottom = frames.frames[framesOffset + 7];
 		bottomright = frames.frames[framesOffset + 8];
+
+		leftWidth = Std.int(Math.max(topleft.frame.width, Math.max(middleleft.frame.width, bottomleft.frame.width)));
+		rightWidth = Std.int(Math.max(topright.frame.width, Math.max(middleright.frame.width, bottomright.frame.width)));
+		topHeight = Std.int(Math.max(topleft.frame.height, Math.max(top.frame.height, topright.frame.height)));
+		bottomHeight = Std.int(Math.max(topleft.frame.height, Math.max(top.frame.height, topright.frame.height)));
 	}
 
 	public override function draw() @:privateAccess {

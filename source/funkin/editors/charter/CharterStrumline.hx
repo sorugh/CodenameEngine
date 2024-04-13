@@ -85,7 +85,7 @@ class CharterStrumline extends UISprite {
 		healthIcons.follow(this, ((40 * 4) - healthIcons.width) / 2, 7 + (__healthYOffset = FlxMath.lerp(__healthYOffset, draggable ? 8 : 0, 1/20)));
 
 		draggingSprite.selectable = draggable;
-		UIState.state.updateSpriteRect(draggingSprite);
+		draggingSprite.updateSpriteRect();
 
 		var dragScale:Float = FlxMath.lerp(draggingSprite.scale.x, draggable ? 1 : 0.8, 1/16);
 		draggingSprite.scale.set(dragScale, dragScale);

@@ -59,28 +59,15 @@ class UIState extends MusicBeatState {
 			currentFocus.onTextEdit(str, start, end);
 	}
 
-	public inline function updateSpriteRect(spr:UISprite) {
-		spr.__rect.x = spr.x;
-		spr.__rect.y = spr.y;
-		spr.__rect.width = spr.width;
-		spr.__rect.height = spr.height;
-	}
-
 	public function updateButtonHandler(spr:UISprite, buttonHandler:Void->Void) {
-		spr.__rect.x = spr.x;
-		spr.__rect.y = spr.y;
-		spr.__rect.width = spr.width;
-		spr.__rect.height = spr.height;
+		spr.updateSpriteRect();
 		updateRectButtonHandler(spr, spr.__rect, buttonHandler);
 	}
 
 	public function isOverlapping(spr:UISprite, rect:FlxRect) {
 		for(camera in spr.__lastDrawCameras) {
 			var pos = FlxG.mouse.getScreenPosition(camera, FlxPoint.get());
-			__rect.x = rect.x;
-			__rect.y = rect.y;
-			__rect.width = rect.width;
-			__rect.height = rect.height;
+			__rect.copyFrom(rect);
 
 			__rect.x -= camera.scroll.x * spr.scrollFactor.x;
 			__rect.y -= camera.scroll.y * spr.scrollFactor.y;

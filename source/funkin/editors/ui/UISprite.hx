@@ -55,7 +55,8 @@ class UISprite extends FlxSprite {
 			FlxCamera._defaultCameras = cameras;
 
 			for(m in members)
-				m.update(elapsed);
+				if(m.exists && m.active)
+					m.update(elapsed);
 
 			FlxCamera._defaultCameras = __oldDefCams;
 		}
@@ -113,5 +114,12 @@ class UISprite extends FlxSprite {
 			pressed = true;
 		if (hoverCallback != null)
 			hoverCallback();
+	}
+
+	public function updateSpriteRect() {
+		__rect.x = x;
+		__rect.y = y;
+		__rect.width = width;
+		__rect.height = height;
 	}
 }

@@ -123,6 +123,7 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 	private var countedBeat = 0;
 	public function beatHit(curBeat:Int)
 	{
+		if(!animEnabled) return;
 		if (beatAnims.length > 0 && (curBeat + beatOffset) % beatInterval == 0)
 		{
 			if(skipNegativeBeats && curBeat < 0) return;

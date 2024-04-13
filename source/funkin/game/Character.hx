@@ -39,7 +39,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 	public var icon:String = null;
 	public var iconColor:Null<FlxColor> = null;
-	public var gameOverCharacter:String = "bf-dead";
+	public var gameOverCharacter:String = Character.FALLBACK_DEAD_CHARACTER;
 
 	public var cameraOffset:FlxPoint = FlxPoint.get();
 	public var globalOffset:FlxPoint = FlxPoint.get();
@@ -301,23 +301,23 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		var xml:Xml = Xml.createElement("character");
 		xml.attributeOrder = characterProperties.copy();
 		
-		xml.set("x", Std.string(FlxMath.roundDecimal(globalOffset.x, 2)));
-		xml.set("y", Std.string(FlxMath.roundDecimal(globalOffset.y, 2)));
+		if (globalOffset.x != 0) xml.set("x", Std.string(FlxMath.roundDecimal(globalOffset.x, 2)));
+		if (globalOffset.y != 0) xml.set("y", Std.string(FlxMath.roundDecimal(globalOffset.y, 2)));
 
-		xml.set("camx", Std.string(FlxMath.roundDecimal(cameraOffset.x, 2)));
-		xml.set("camy", Std.string(FlxMath.roundDecimal(cameraOffset.y, 2)));
+		if (cameraOffset.x != 0) xml.set("camx", Std.string(FlxMath.roundDecimal(cameraOffset.x, 2)));
+		if (cameraOffset.y != 0) xml.set("camy", Std.string(FlxMath.roundDecimal(cameraOffset.y, 2)));
 
-		xml.set("holdTime", Std.string(FlxMath.roundDecimal(holdTime, 4)));
+		if (holdTime != 4) xml.set("holdTime", Std.string(FlxMath.roundDecimal(holdTime, 4)));
 
-		xml.set("flipX", Std.string(flipX));
+		if (flipX) xml.set("flipX", Std.string(flipX));
 		xml.set("icon", getIcon());
 
-		xml.set("gameOverChar", gameOverCharacter);
+		if (gameOverCharacter != Character.FALLBACK_DEAD_CHARACTER) xml.set("gameOverChar", gameOverCharacter);
 		if (iconColor != null) xml.set("color", iconColor.toWebString());
 
 		xml.set("sprite", sprite);
-		xml.set("scale", Std.string(FlxMath.roundDecimal(scale.x, 4)));
-		xml.set("antialiasing", antialiasing == true ? "true" : "false");
+		if (scale.x != 1) xml.set("scale", Std.string(FlxMath.roundDecimal(scale.x, 4)));
+		if (!antialiasing) xml.set("antialiasing", antialiasing == true ? "true" : "false");
 
 		xml.set("isPlayer", playerOffsets == true ? "true" : "false");
 
@@ -378,6 +378,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 
 	public static var FALLBACK_CHARACTER:String = "bf";
+	public static var FALLBACK_DEAD_CHARACTER:String = "bf-dead";
 	public static function getXMLFromCharName(character:OneOfTwo<String, Character>):Access {
 		var char:Character = null;
 		if (character is Character) {

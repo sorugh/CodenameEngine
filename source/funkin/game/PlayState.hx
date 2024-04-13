@@ -1389,7 +1389,7 @@ class PlayState extends MusicBeatState
 			charToUse == null ? 0 : charToUse.x,
 			charToUse == null ? 0 : charToUse.y,
 			charToUse,
-			deathCharID.getDefault(charToUse != null ? charToUse.gameOverCharacter : "bf-dead"),
+			deathCharID.getDefault(charToUse != null ? charToUse.gameOverCharacter : Character.FALLBACK_DEAD_CHARACTER),
 			charToUse != null ? charToUse.isPlayer : true,
 			gameOverSong.getDefault(this.gameOverSong),
 			lossSFX.getDefault(this.lossSFX),

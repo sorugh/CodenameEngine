@@ -357,15 +357,6 @@ class CharacterEditor extends UIState {
 				button.anim
 		]);
 
-		// clean
-		if (charXML.exists("gameOverChar") && character.gameOverCharacter == "bf-dead") charXML.remove("gameOverChar");
-		if (charXML.exists("camx") && character.cameraOffset.x == 0) charXML.remove("camx");
-		if (charXML.exists("camy") &&  character.cameraOffset.y == 0) charXML.remove("camy");
-		if (charXML.exists("holdTime") && character.holdTime == 4) charXML.remove("holdTime");
-		if (charXML.exists("flipX") && !character.flipX) charXML.remove("flipX");
-		if (charXML.exists("scale") && character.scale.x == 1) charXML.remove("scale");
-		if (charXML.exists("antialiasing") && character.antialiasing) charXML.remove("antialiasing");
-
 		return "<!DOCTYPE codename-engine-character>\n" + Printer.print(charXML, true);
 	}
 

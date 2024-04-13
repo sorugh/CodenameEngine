@@ -280,12 +280,25 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		for (anim in xml.nodes.anim)
 			XMLUtil.addXMLAnimation(this, anim);
 
+		for (attribute in xml.x.attributes())
+			if (!characterProperties.contains(attribute))
+				extra[attribute] = xml.x.get(attribute);
+
 		fixChar(true, !hasInterval);
 		dance();
 	}
 
+	public static var characterProperties:Array<String> = [
+		"x", "y", "sprite", "scale", "antialiasing", 
+		"flipX", "camx", "camy", "isPlayer", "icon", 
+		"color", "gameOverChar", "holdTime"
+	];
+	public static var characterAnimProperties:Array<String> = [
+		"name", "anim", "x", "y", "fps", "loop", "indices"
+	];
 	public inline function buildXML(?animsOrder:Array<String>):Xml {
 		var xml:Xml = Xml.createElement("character");
+		xml.attributeOrder = characterProperties.copy();
 		
 		xml.set("x", Std.string(FlxMath.roundDecimal(globalOffset.x, 2)));
 		xml.set("y", Std.string(FlxMath.roundDecimal(globalOffset.y, 2)));
@@ -307,8 +320,6 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 		xml.set("isPlayer", playerOffsets == true ? "true" : "false");
 
-		xml.attributeOrder = ["x", "y", "sprite", "scale", "antialiasing", "flipX", "camx", "camy", "isPlayer", "icon", "color", "gameOverChar", "holdTime"];
-
 		var anims:Array<AnimData> = [];
 		if (animsOrder != null) {
 			for (name in animsOrder)
@@ -318,6 +329,8 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 		for (anim in anims) {
 			var animXml:Xml = Xml.createElement('anim');
+			animXml.attributeOrder = characterAnimProperties;
+
 			animXml.set("name", anim.name);
 			animXml.set("anim", anim.anim);
 			animXml.set("loop", Std.string(anim.loop));
@@ -326,15 +339,19 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 			var offset:FlxPoint = getAnimOffset(anim.name);
 			animXml.set("x", Std.string(FlxMath.roundDecimal(offset.x, 2)));
 			animXml.set("y", Std.string(FlxMath.roundDecimal(offset.y, 2)));
+			offset.putWeak();
 
 			if (anim.indices.length > 0)
 				animXml.set("indices", anim.indices.join(","));
 
-			animXml.attributeOrder = ["name", "anim", "x", "y", "fps", "loop", "indices"];
 			xml.addChild(animXml);
-
-			offset.putWeak();
 		}
+
+		for (name => val in extra)
+			if (!xml.attributeOrder.contains(name)) {
+				xml.attributeOrder.push(name);
+				xml.set(name, Std.string(val));
+			}
 
 		this.xml = new Access(xml);
 		return xml;

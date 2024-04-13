@@ -5,7 +5,7 @@ import flixel.graphics.frames.FlxFrame;
 class UISliceSprite extends UISprite {
 	public var bWidth:Int = 120;
 	public var bHeight:Int = 20;
-	public var framesOffset:Int = 0;
+	public var framesOffset(default, set):Int = 0;
 
 	public var incorporeal:Bool = false;
 
@@ -14,6 +14,7 @@ class UISliceSprite extends UISprite {
 
 		frames = Paths.getFrames(path);
 		resize(w, h);
+		calculateFrames();
 	}
 
 	public override function updateButton() {
@@ -34,21 +35,41 @@ class UISliceSprite extends UISprite {
 	public var drawMiddle:Bool = true;
 	public var drawBottom:Bool = true;
 
+	var topleft:FlxFrame = null;
+	var top:FlxFrame = null;
+	var topright:FlxFrame = null;
+	var middleleft:FlxFrame = null;
+	var middle:FlxFrame = null;
+	var middleright:FlxFrame = null;
+	var bottomleft:FlxFrame = null;
+	var bottom:FlxFrame = null;
+	var bottomright:FlxFrame = null;
+
+	function set_framesOffset(value:Int) {
+		if(value != framesOffset) {
+			framesOffset = value;
+			calculateFrames();
+		}
+		return value;
+	}
+
+	function calculateFrames() {
+		topleft = frames.frames[framesOffset];
+		top = frames.frames[framesOffset + 1];
+		topright = frames.frames[framesOffset + 2];
+		middleleft = frames.frames[framesOffset + 3];
+		middle = frames.frames[framesOffset + 4];
+		middleright = frames.frames[framesOffset + 5];
+		bottomleft = frames.frames[framesOffset + 6];
+		bottom = frames.frames[framesOffset + 7];
+		bottomright = frames.frames[framesOffset + 8];
+	}
+
 	public override function draw() @:privateAccess {
 		var x:Float = this.x;
 		var y:Float = this.y;
 
 		if (visible && !(bWidth == 0 || bHeight == 0)) {
-			var topleft:FlxFrame = frames.frames[framesOffset];
-			var top:FlxFrame = frames.frames[framesOffset + 1];
-			var topright:FlxFrame = frames.frames[framesOffset + 2];
-			var middleleft:FlxFrame = frames.frames[framesOffset + 3];
-			var middle:FlxFrame = frames.frames[framesOffset + 4];
-			var middleright:FlxFrame = frames.frames[framesOffset + 5];
-			var bottomleft:FlxFrame = frames.frames[framesOffset + 6];
-			var bottom:FlxFrame = frames.frames[framesOffset + 7];
-			var bottomright:FlxFrame = frames.frames[framesOffset + 8];
-
 			// TOP
 			if (drawTop) {
 				// TOP LEFT

@@ -14,7 +14,7 @@ class UIButtonList<T:UIButton> extends UIWindow {
 	public var cameraSpacing = 30;
 
 	public var buttonSpacing:Float = 16;
-	public var buttonSize:FlxPoint = FlxPoint.get();
+	public var buttonSize:FlxPoint = null;
 	public var buttonOffset:FlxPoint = FlxPoint.get();
 
 	public var dragging:Bool = false;
@@ -41,9 +41,9 @@ class UIButtonList<T:UIButton> extends UIWindow {
 		addIcon = new FlxSprite(addButton.x + addButton.bHeight / 2, addButton.y + (32/2) - 8).loadGraphic(Paths.image('editors/charter/add-button'));
 		addIcon.antialiasing = false;
 		addButton.members.push(addIcon);
-		members.push(addButton);
+		content.add(addButton);
 
-		members.push(buttons);
+		content.add(buttons);
 		nextscrollY = buttonCameras.scroll.y = -this.buttonSpacing;
 	}
 

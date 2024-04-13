@@ -1,5 +1,6 @@
 package funkin.game;
 
+import flixel.util.typeLimit.OneOfTwo;
 import flixel.FlxState;
 import flixel.math.FlxPoint;
 import funkin.backend.scripting.Script;
@@ -12,64 +13,93 @@ import haxe.xml.Access;
 using StringTools;
 
 class Stage extends FlxBasic implements IBeatReceiver {
+	public var extra:Map<String, Dynamic> = [];
+
 	public var stageXML:Access;
 	public var stagePath:String;
+	public var stageFile:String;
+	public var stageName:String;
 	public var stageSprites:Map<String, FlxSprite> = [];
 	public var stageScript:Script;
 	public var state:FlxState;
 	public var characterPoses:Map<String, StageCharPos> = [];
 
+	public var defaultZoom:Float = 1.05;
+	public var startCam = new FlxPoint();
+
+	public var onXMLLoaded:(Access, Array<Access>)->Array<Access> = null;
+	public var onNodeLoaded:(Access, Dynamic)->Dynamic = null;
+
 	private var spritesParentFolder = "";
 
-	public function getSprite(name:String) {
+	public inline function getSprite(name:String) {
 		return stageSprites[name];
 	}
 
-	public function new(stage:String, ?state:FlxState) {
+	public function new(stage:String, ?state:FlxState, autoLoad:Bool = true) {
 		super();
 
 		if (state == null) state = PlayState.instance;
 		if (state == null) state = FlxG.state;
 		this.state = state;
 
-		stagePath = Paths.xml('stages/$stage');
+		stageFile = stage;
+
+		stagePath = Paths.xml('stages/$stageFile');
 		try {
 			if (Assets.exists(stagePath)) stageXML = new Access(Xml.parse(Assets.getText(stagePath)).firstElement());
 		} catch(e) {
-			Logs.trace('Couldn\'t load stage "$stage": ${e.message}', ERROR);
+			Logs.trace('Couldn\'t load stage "$stageFile": ${e.message}', ERROR);
 		}
 
-		if (PlayState.instance != null) {
-			stageScript = Script.create(Paths.script('data/stages/$stage'));
+		if (autoLoad) loadXml(stageXML);
+	}
+
+	public function loadXml(xml:Access, forceLoadAll:Bool = false) {
+		if (PlayState.instance == state) {
+			stageScript = Script.create(Paths.script('data/stages/$stageFile'));
 			PlayState.instance.scripts.add(stageScript);
 			stageScript.load();
 		}
 
-		if (stageXML != null) {
-			if (PlayState.instance != null) {
-				var parsed:Null<Float>;
-				if(stageXML.has.startCamPosX && (parsed = Std.parseFloat(stageXML.att.startCamPosX)) != null) PlayState.instance.camFollow.x = parsed;
-				if(stageXML.has.startCamPosY && (parsed = Std.parseFloat(stageXML.att.startCamPosY)) != null) PlayState.instance.camFollow.y = parsed;
-				if(stageXML.has.zoom && (parsed = Std.parseFloat(stageXML.att.zoom)) != null) PlayState.instance.defaultCamZoom = parsed;
-				PlayState.instance.curStage = stageXML.has.name ? stageXML.att.name : stage;
+		if (xml != null) {
+			var parsed:Null<Float>;
+			if((parsed = Std.parseFloat(xml.getAtt("startCamPosX"))).isNotNull()) startCam.x = parsed;
+			if((parsed = Std.parseFloat(xml.getAtt("startCamPosY"))).isNotNull()) startCam.y = parsed;
+			if((parsed = Std.parseFloat(xml.getAtt("zoom"))).isNotNull()) defaultZoom = parsed;
+
+			stageName = xml.getAtt("name").getDefault(stageFile);
+
+			if (PlayState.instance == state) {
+				if(xml.has.startCamPosX) PlayState.instance.camFollow.x = startCam.x;
+				if(xml.has.startCamPosY) PlayState.instance.camFollow.y = startCam.y;
+				if(xml.has.zoom) PlayState.instance.defaultCamZoom = defaultZoom;
+				PlayState.instance.curStage = stageName;
 			}
-			if (stageXML.has.folder) {
-				spritesParentFolder = stageXML.att.folder;
+			if (xml.has.folder) {
+				spritesParentFolder = xml.att.folder;
 				if (!spritesParentFolder.endsWith("/")) spritesParentFolder += "/";
 			}
 
-			var elems = [];
-			for(node in stageXML.elements) {
-				if (node.name == "high-memory" && !Options.lowMemoryMode)
+			var elems:Array<Access> = [];
+			// some way to tag that the sprites are from the group
+			for(node in xml.elements) {
+				if (node.name == "high-memory" && (!Options.lowMemoryMode || forceLoadAll))
+					for(e in node.elements)
+						elems.push(e);
+				else if (node.name == "low-memory" && (Options.lowMemoryMode || forceLoadAll))
 					for(e in node.elements)
 						elems.push(e);
 				else
 					elems.push(node);
 			}
 
-			if (PlayState.instance != null) {
-				var event = PlayState.instance.scripts.event("onStageXMLParsed", EventManager.get(StageXMLEvent).recycle(this, stageXML, elems));
+			if (PlayState.instance == state) {
+				var event = PlayState.instance.scripts.event("onStageXMLParsed", EventManager.get(StageXMLEvent).recycle(this, xml, elems));
 				elems = event.elems;
+			}
+			if(onXMLLoaded != null) {
+				elems = onXMLLoaded(xml, elems);
 			}
 
 			for(node in elems) {
@@ -79,8 +109,8 @@ class Stage extends FlxBasic implements IBeatReceiver {
 
 						var spr = XMLUtil.createSpriteFromXML(node, spritesParentFolder, LOOP);
 
-						if (!node.has.zoomfactor && PlayState.instance != null)
-							spr.initialZoom = PlayState.instance.defaultCamZoom;
+						if (!node.has.zoomfactor/* && PlayState.instance == state*/)
+							spr.initialZoom = defaultZoom;//PlayState.instance.defaultCamZoom;
 
 						stageSprites.set(spr.name, spr);
 						state.add(spr);
@@ -88,10 +118,11 @@ class Stage extends FlxBasic implements IBeatReceiver {
 					case "box" | "solid":
 						if ( !node.has.name || !node.has.width || !node.has.height) continue;
 
-						var spr = new FlxSprite(
+						var spr = new FunkinSprite(
 							(node.has.x) ? Std.parseFloat(node.att.x).getDefault(0) : 0,
 							(node.has.y) ? Std.parseFloat(node.att.y).getDefault(0) : 0
 						);
+						spr.name = node.getAtt("name");
 
 						(node.name == "solid" ? spr.makeSolid : spr.makeGraphic)(
 							Std.parseInt(node.att.width),
@@ -99,7 +130,10 @@ class Stage extends FlxBasic implements IBeatReceiver {
 							(node.has.color) ? CoolUtil.getColorFromDynamic(node.att.color) : -1
 						);
 
-						stageSprites.set(node.getAtt("name"), spr);
+						if (!node.has.zoomfactor/* && PlayState.instance == state*/)
+							spr.initialZoom = defaultZoom;//PlayState.instance.defaultCamZoom;
+
+						stageSprites.set(spr.name, spr);
 						state.add(spr);
 						spr;
 					case "boyfriend" | "bf" | "player":
@@ -127,7 +161,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 						if (!node.has.name) continue;
 						addCharPos(node.att.name, node);
 					case "ratings" | "combo":
-						if (PlayState.instance == null) continue;
+						if (PlayState.instance != state) continue;
 						PlayState.instance.comboGroup.setPosition(
 							Std.parseFloat(node.getAtt("x")).getDefault(PlayState.instance.comboGroup.x),
 							Std.parseFloat(node.getAtt("y")).getDefault(PlayState.instance.comboGroup.y)
@@ -137,8 +171,11 @@ class Stage extends FlxBasic implements IBeatReceiver {
 					default: null;
 				}
 
-				if(PlayState.instance != null) {
+				if(PlayState.instance == state) {
 					sprite = PlayState.instance.scripts.event("onStageNodeParsed", EventManager.get(StageNodeEvent).recycle(this, node, sprite, node.name)).sprite;
+				}
+				if(onNodeLoaded != null) {
+					sprite = onNodeLoaded(node, sprite);
 				}
 
 				if (sprite != null) {
@@ -172,7 +209,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 				flip: true
 			});
 
-		if (PlayState.instance == null) return;
+		if (PlayState.instance != state) return;
 		for(k=>e in stageSprites) {
 			stageScript.set(k, e);
 		}
@@ -181,6 +218,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 	public function addCharPos(name:String, node:Access, ?nonXMLInfo:StageCharPosInfo):StageCharPos {
 		var charPos = new StageCharPos();
 		charPos.visible = charPos.active = false;
+		charPos.name = name;
 
 		if (nonXMLInfo != null) {
 			charPos.setPosition(nonXMLInfo.x, nonXMLInfo.y);
@@ -239,19 +277,28 @@ class Stage extends FlxBasic implements IBeatReceiver {
 
 	public function measureHit(curMeasure:Int) {}
 
-	public static function getList(?mods:Bool = false):Array<String> {
+	public static function getList(?mods:Bool = false, ?xmlOnly:Bool = false):Array<String> {
 		var list:Array<String> = [];
-		for (path in Paths.getFolderContent('data/stages/', true, mods ? MODS : BOTH))
-			if (Path.extension(path) == "xml" || Path.extension(path) == "hx") {
-				var file:String = Path.withoutDirectory(Path.withoutExtension(path));
-				list.pushOnce(file);
+		var extensions:Array<String> = ["xml"];
+		if (!xmlOnly) extensions.push("hx");
+
+		for (path in Paths.getFolderContent("data/stages/", false, mods ? MODS : BOTH)) {
+			var extension = Path.extension(path);
+			if (extensions.contains(extension)) {
+				list.pushOnce(Path.withoutExtension(path));
 			}
+		}
+
+		trace(list);
 
 		return list;
 	}
 }
 
 class StageCharPos extends FlxObject {
+	public var extra:Map<String, Dynamic> = [];
+
+	public var name:String;
 	public var charSpacingX:Float = 20;
 	public var charSpacingY:Float = 0;
 	public var camxoffset:Float = 0;

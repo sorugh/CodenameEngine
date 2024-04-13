@@ -25,9 +25,13 @@ final class TranslationUtil
 	public static var stringMap(default, set):Map<String, IFormatInfo> = [];
 
 	/**
-	 * The default language used inside of the source code.
+	 * The default language folder used inside of the source code.
 	 */
 	public static var DEFAULT_LANGUAGE:String = 'en';  // no inline so psychopathic mods can edit it  - Nex
+	/**
+	 * The default language used inside of the source code.
+	 */
+	public static var DEFAULT_LANGUAGE_NAME:String = 'English';
 
 	/**
 	 * Returns the current language config.
@@ -62,7 +66,10 @@ final class TranslationUtil
 	private static var langConfigs:Map<String, IniMap> = [];
 	private static var nameMap:Map<String, String> = [];
 	private static inline function getDefaultNameMap():Map<String, String> {
-		return ['en' => 'English'];
+		return [DEFAULT_LANGUAGE => DEFAULT_LANGUAGE_NAME];
+	}
+	private static inline function getDefaultLangConfigs():Map<String, IniMap> {
+		return [DEFAULT_LANGUAGE => getDefaultConfig(DEFAULT_LANGUAGE)];
 	}
 	@:noUsing private static inline function getDefaultConfig(name:String):IniMap {
 		return ["name" => getLanguageName(name), "credits" => "", "version" => "1.0.0"];
@@ -118,6 +125,18 @@ final class TranslationUtil
 	}
 
 	/**
+	 * Formats a normal string into an ID for translations.
+	 *
+	 * Example: `Resume Song` => `resumeSong`
+	 */
+	public static function raw2Id(str:String):String
+	{
+		var result:String = "";
+		for(i => s in str.split(" ")) result += (i == 0 ? s.charAt(0).toLowerCase() : s.charAt(0).toUpperCase()) + s.substr(1);
+		return result.length == 0 ? str : result;
+	}
+
+	/**
 	 * Returns an array that specifies which languages were found.
 	 */
 	public static function findAllLanguages()
@@ -125,6 +144,7 @@ final class TranslationUtil
 		#if TRANSLATIONS_SUPPORT
 		foundLanguages = [];
 		nameMap = getDefaultNameMap();
+		langConfigs = getDefaultLangConfigs();
 		var mainPath:String = translationsMain("");
 		var langName:String = null;
 		for (lang in Paths.assetsTree.getFolders("assets/" + mainPath)) {
@@ -136,7 +156,7 @@ final class TranslationUtil
 				config = IniUtil.parseAsset(path, config);
 			} else { // if there was no config.ini, use the file name as the language name
 				for(file in Paths.getFolderContent(mainPath + lang).sortAlphabetically()) {
-					if(Path.extension(path = '$lang/$file') == "xml") {
+					if(Path.extension(file) == "xml") {
 						config["name"] = Path.withoutExtension(file);
 						break;
 					}
@@ -149,11 +169,11 @@ final class TranslationUtil
 		}
 
 		// Ensure that the default language is always first
-		var englishName = TranslationUtil.DEFAULT_LANGUAGE + "/" + getLanguageName(TranslationUtil.DEFAULT_LANGUAGE);
-		if (foundLanguages.contains(englishName))
-			foundLanguages.remove(englishName);
+		var englishName = DEFAULT_LANGUAGE + "/" + getLanguageName(DEFAULT_LANGUAGE);
+		if(foundLanguages.contains(englishName)) foundLanguages.remove(englishName);
 		foundLanguages.insert(0, englishName);
 
+		if(!nameMap.exists(curLanguage)) curLanguage = DEFAULT_LANGUAGE;
 		Logs.trace("Found languages: " + foundLanguages.join(", "), "Language");
 		#end
 	}
@@ -177,14 +197,12 @@ final class TranslationUtil
 			}
 		}
 
-		for(file in Paths.getFolderContent(mainPath, true).sortAlphabetically()) {
+		for(mod in ModsFolder.getLoadedModsLibs(true)) for(file in mod.getFiles("assets/" + mainPath).sortAlphabetically().map((v)->'$mainPath/$v')) {
 			if(Path.extension(file).toLowerCase() != "xml") continue;
-
-			var afile = "assets/" + file;
 
 			// Parse the XML
 			var xml:Access = null;
-			try xml = new Access(Xml.parse(Assets.getText(afile)))
+			try xml = new Access(Xml.parse(Assets.getText("assets/" + file)))
 			catch(e) Logs.error('Error while parsing $file: ${Std.string(e)}', "Language");
 
 			if (xml == null) continue;
@@ -208,10 +226,9 @@ final class TranslationUtil
 				continue;
 			}
 
-			var shouldTrim = node.has.notrim ? node.att.notrim != "true" : true;
-
+			if(leMap.exists(node.att.id)) continue;
 			var value:String = node.has.string ? node.att.string : node.innerData;
-			value = shouldTrim ? value.trim() : value;
+			if(node.getAtt("notrim").getDefault("true") != "true") value = value.trim();
 			value = value.replace("\\n", "\n").replace("\r", ""); // remove stupid windows line breaks and convert newline literals to newlines
 			leMap.set(node.att.id, FormatUtil.get(value));
 			//Logs.trace("Added " + node.att.id + " -> `" + value + "`", "Language");

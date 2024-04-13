@@ -360,7 +360,7 @@ class StageEditor extends UIState {
 		characterBG.scale.set(FlxG.width/characterBG.width, FlxG.height/characterBG.height);
 		characterBG.scale.set(characterBG.scale.x / charCamera.zoom, characterBG.scale.y / charCamera.zoom);*/
 
-		if (true/*!(characterPropertiresWindow.hovered || characterAnimsWindow.hovered) && !characterAnimsWindow.dragging*/) {
+		if (!(stageSpritesWindow.hovered) && !stageSpritesWindow.dragging) {
 			if (FlxG.mouse.wheel != 0) {
 				zoom += 0.25 * FlxG.mouse.wheel;
 				updateZoom();

@@ -36,12 +36,16 @@ class GameOverSubstate extends MusicBeatSubstate
 
 	public var lossSFX:FlxSound;
 
-	public function new(x:Float, y:Float, character:String = Character.FALLBACK_DEAD_CHARACTER, player:Bool = true, gameOverSong:String = "gameOver", lossSFX:String = "gameOverSFX", retrySFX:String = "gameOverEnd")
+	public function new(x:Float, y:Float, character:String = null, player:Bool = true, gameOverSong:String = "gameOver", lossSFX:String = "gameOverSFX", retrySFX:String = "gameOverEnd")
 	{
 		super();
 		this.x = x;
 		this.y = y;
-		this.characterName = character;
+
+		characterName = character;
+		if (characterName == null) 
+			characterName = Character.FALLBACK_DEAD_CHARACTER;
+
 		this.player = player;
 		this.gameOverSong = gameOverSong;
 		this.lossSFXName = lossSFX;

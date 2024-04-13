@@ -567,13 +567,13 @@ class StageEditor extends UIState {
 			}
 		}*/
 		for(sprite in stage.stageSprites) {
-			if(sprite.visible) {
+			if(sprite.visible && sprite.isOnScreen()) {
 				@:privateAccess if(sprite._frame == null) continue;
 				drawGuides(sprite);
 			}
 		}
 		for(char in chars) {
-			if(char.visible) {
+			if(char.visible && char.isOnScreen()) {
 				@:privateAccess if(char._frame == null) continue;
 				drawGuides(char);
 			}

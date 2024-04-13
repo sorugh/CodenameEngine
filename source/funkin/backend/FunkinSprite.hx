@@ -211,10 +211,9 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 			r.x -= camera.width / 2;
 			r.y -= camera.height / 2;
 
-			var ratio = FlxMath.lerp(1 / camera.zoom, 1, zoomFactor);
+			var ratio = (camera.zoom > 0 ? Math.max : Math.min)(0, FlxMath.lerp(1 / camera.zoom, 1, zoomFactor));
 			r.x *= ratio;
 			r.y *= ratio;
-
 			r.width *= ratio;
 			r.height *= ratio;
 
@@ -224,22 +223,32 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 		return r;
 	}
 
+	override public function isOnScreen(?camera:FlxCamera):Bool
+	{
+		if (forceIsOnScreen)
+			return true;
+
+		if (camera == null)
+			camera = FlxG.camera;
+
+		var bounds = getScreenBounds(_rect, camera);
+		if (bounds.width == 0 && bounds.height == 0)
+			return false;
+		return camera.containsRect(bounds);
+	}
+
+	// ZOOM FACTOR RENDERING
 	public override function doAdditionalMatrixStuff(matrix:FlxMatrix, camera:FlxCamera)
 	{
 		super.doAdditionalMatrixStuff(matrix, camera);
 		if(__shouldDoZoomFactor()) {
 			matrix.translate(-camera.width / 2, -camera.height / 2);
 
-			var requestedZoom = FlxMath.lerp(1, camera.zoom, zoomFactor);
+			var requestedZoom = (camera.zoom >= 0 ? Math.max : Math.min)(FlxMath.lerp(1, camera.zoom, zoomFactor), 0);
 			var diff = requestedZoom / camera.zoom;
 			matrix.scale(diff, diff);
 			matrix.translate(camera.width / 2, camera.height / 2);
 		}
-	}
-
-	public override function getScreenPosition(?point:FlxPoint, ?Camera:FlxCamera):FlxPoint
-	{
-		return super.getScreenPosition(point, Camera);
 	}
 
 	// OFFSETTING

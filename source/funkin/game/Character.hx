@@ -41,8 +41,8 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	public var iconColor:Null<FlxColor> = null;
 	public var gameOverCharacter:String = Character.FALLBACK_DEAD_CHARACTER;
 
-	public var cameraOffset:FlxPoint = FlxPoint.get();
-	public var globalOffset:FlxPoint = FlxPoint.get();
+	public var cameraOffset:FlxPoint = FlxPoint.get(0, 0);
+	public var globalOffset:FlxPoint = FlxPoint.get(0, 0);
 
 	public var script:Script;
 	public var xml:Access;
@@ -169,26 +169,30 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		return super.getScreenBounds(newRect, camera);
 	}
 
+	public override function isOnScreen(?camera:FlxCamera):Bool {
+		if (debugMode) return true;
+		return super.isOnScreen(camera);
+	}
+
 	public function isFlippedOffsets()
 		return (isPlayer != playerOffsets) != (flipX != __baseFlipped);
 
 	public override function draw() {
 		if (isFlippedOffsets()) {
 			__reverseDrawProcedure = true;
-
 			flipX = !flipX;
 			scale.x *= -1;
+
 			super.draw();
+
 			flipX = !flipX;
 			scale.x *= -1;
-
 			__reverseDrawProcedure = false;
 		} else super.draw();
 	}
 
 	public var singAnims = ["singLEFT", "singDOWN", "singUP", "singRIGHT"];
-	public function playSingAnim(direction:Int, suffix:String = "", Context:PlayAnimContext = SING, Force:Bool = true, Reversed:Bool = false, Frame:Int = 0)
-	{
+	public function playSingAnim(direction:Int, suffix:String = "", Context:PlayAnimContext = SING, Force:Bool = true, Reversed:Bool = false, Frame:Int = 0) {
 		var event = EventManager.get(DirectionAnimEvent).recycle(singAnims[direction % singAnims.length] + suffix, direction, suffix, Context, Reversed, Frame, Force);
 		script.call("onPlaySingAnim", [event]);
 		if (!event.cancelled)
@@ -244,6 +248,14 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		}
 
 	public function applyXML(xml:Access) { // just for now till i remake the dumb editor
+		gameOverCharacter = Character.FALLBACK_DEAD_CHARACTER;
+		cameraOffset.set(0, 0);
+		globalOffset.set(0, 0);
+		playerOffsets = false;
+		flipX = false;
+		holdTime = 4;
+		iconColor = null;
+
 		animation.destroyAnimations();
 		animDatas.clear();
 
@@ -319,7 +331,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		if (scale.x != 1) xml.set("scale", Std.string(FlxMath.roundDecimal(scale.x, 4)));
 		if (!antialiasing) xml.set("antialiasing", antialiasing == true ? "true" : "false");
 
-		xml.set("isPlayer", playerOffsets == true ? "true" : "false");
+		if (playerOffsets) xml.set("isPlayer", playerOffsets == true ? "true" : "false");
 
 		var anims:Array<AnimData> = [];
 		if (animsOrder != null) {

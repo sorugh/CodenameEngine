@@ -249,6 +249,20 @@ class CharacterEditor extends UIState {
 
 		playAnimation(animOrder[0]);
 
+		var characterMidpoint:FlxPoint = character.getMidpoint();
+		characterMidpoint.x += ((characterPropertiresWindow.bWidth+23)/2);
+		characterMidpoint.x -= (FlxG.width/2)-character.globalOffset.x;
+		characterMidpoint.y -= (FlxG.height/2)-character.globalOffset.y+(23/4);
+		charCamera.scroll = _nextScroll.set(characterMidpoint.x, characterMidpoint.y);
+		characterMidpoint.put();
+
+		_cameraZoomMulti = 1/(1+(0-character.getScreenPosition().y/FlxG.height));
+		if (!(_cameraZoomMulti < 1)) _cameraZoomMulti *= .9;
+		FlxG.camera.zoom = __camZoom = _cameraZoomMulti;
+
+		_nextScroll.x -= ((FlxG.width/2)*FlxG.camera.zoom)-FlxG.width/2;
+		_nextScroll.y += (((FlxG.height/2)*FlxG.camera.zoom)-FlxG.height/2)/2;
+
 		add(topMenuSpr);
 		add(uiGroup);
 
@@ -270,18 +284,13 @@ class CharacterEditor extends UIState {
 		}
 	}
 
-	//private var movingCam:Bool = false;
-	//private var camDragSpeed:Float = 1.2;
-
-	private var nextScroll:FlxPoint = FlxPoint.get(0,0);
-
+	var _nextScroll:FlxPoint = FlxPoint.get(0,0);
+	var _cameraZoomMulti:Float = 1;
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		if (true) {
-			if(FlxG.keys.justPressed.ANY)
-				UIUtil.processShortcuts(topMenu);
-		}
+		if(FlxG.keys.justPressed.ANY)
+			UIUtil.processShortcuts(topMenu);
 
 		if (character != null)
 			characterPropertiresWindow.characterInfo.text = '${character.getNameList().length} Animations\nFlipped: ${character.flipX}\nSprite: ${character.sprite}\nAnim: ${character.getAnimName()}\nOffset: (${character.frameOffset.x}, ${character.frameOffset.y})';
@@ -297,7 +306,7 @@ class CharacterEditor extends UIState {
 				openContextMenu(topMenu[2].childs);
 			}
 			if (FlxG.mouse.pressed) {
-				nextScroll.set(nextScroll.x - FlxG.mouse.deltaScreenX, nextScroll.y - FlxG.mouse.deltaScreenY);
+				_nextScroll.set(_nextScroll.x - FlxG.mouse.deltaScreenX, _nextScroll.y - FlxG.mouse.deltaScreenY);
 				currentCursor = HAND;
 			} else
 				currentCursor = ARROW;
@@ -305,11 +314,11 @@ class CharacterEditor extends UIState {
 			currentCursor = ARROW;
 
 		charCamera.scroll.set(
-			lerp(charCamera.scroll.x, nextScroll.x, 0.35),
-			lerp(charCamera.scroll.y, nextScroll.y, 0.35)
+			lerp(charCamera.scroll.x, _nextScroll.x, 0.35),
+			lerp(charCamera.scroll.y, _nextScroll.y, 0.35)
 		);
 
-		charCamera.zoom = lerp(charCamera.zoom, __camZoom, 0.125);
+		charCamera.zoom = lerp(charCamera.zoom, __camZoom*_cameraZoomMulti, 0.125);
 
 		characterBG.scale.set(FlxG.width/characterBG.width, FlxG.height/characterBG.height);
 		characterBG.scale.set(characterBG.scale.x / charCamera.zoom, characterBG.scale.y / charCamera.zoom);

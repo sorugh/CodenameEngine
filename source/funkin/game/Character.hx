@@ -78,7 +78,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 			playAnim(event.animName, event.force, event.context, event.reversed, event.frame);
 	}
 
-	public function new(x:Float, y:Float, ?character:String = "bf", isPlayer:Bool = false, switchAnims:Bool = true)
+	public function new(x:Float, y:Float, ?character:String = "bf", isPlayer:Bool = false, switchAnims:Bool = true, disableScripts:Bool = false)
 	{
 		super(x, y);
 
@@ -114,7 +114,12 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 						continue;
 					}
 					// Loads the script
-					script = Script.create(Paths.script(Path.withoutExtension(xmlPath), null, true));
+					if(!disableScripts) {
+						script = Script.create(Paths.script(Path.withoutExtension(xmlPath), null, true));
+					} else {
+						script = new DummyScript(curCharacter);
+					}
+
 					script.setParent(this);
 					script.load();
 					applyXML(xml);

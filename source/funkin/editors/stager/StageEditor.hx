@@ -32,10 +32,14 @@ class StageEditor extends UIState {
 	public var xmlMap:Map<FlxBasic, Access> = new Map<FlxBasic, Access>();
 
 	public var chars:Array<Character> = [];
+	public var charMap:Map<String, Character> = [];
 
 	public var stageCamera:FlxCamera;
 	public var guideCamera:FlxCamera;
 	public var uiCamera:FlxCamera;
+
+	public var showOutlines:Bool = true;
+	public var showCharacters:Bool = true;
 
 	public var undos:UndoList<StageChange> = new UndoList<StageChange>();
 
@@ -81,111 +85,6 @@ class StageEditor extends UIState {
 					}
 				]
 			},
-			/*{
-				label: "Edit",
-				childs: [
-					{
-						label: "Undo",
-						keybind: [CONTROL, Z],
-						onSelect: _edit_undo
-					},
-					{
-						label: "Redo",
-						keybinds: [[CONTROL, Y], [CONTROL, SHIFT, Z]],
-						onSelect: _edit_redo
-					}
-				]
-			},*/
-			/*{
-				label: "Character",
-				childs: [
-					{
-						label: "New Animation",
-						keybind: [CONTROL, N],
-						onSelect: _char_add_anim,
-					},
-					{
-						label: "Edit Animation",
-						onSelect: _char_edit_anim,
-					},
-					{
-						label: "Delete Animation",
-						keybind: [DELETE],
-						onSelect: _char_remove_anim,
-					},
-					null,
-					{
-						label: "Edit Info",
-						onSelect: _char_edit_info,
-					}
-				]
-			},
-			{
-				label: "Playback",
-				childs: [
-					{
-						label: "Play Animation",
-						keybind: [SPACE],
-						onSelect: _playback_play_anim,
-					},
-					{
-						label: "Stop Animation",
-						onSelect: _playback_stop_anim
-					}
-				]
-			},
-			{
-				label: "Offsets",
-				childs: [
-					{
-						label: "Move Left",
-						keybind: [LEFT],
-						onSelect: _offsets_left,
-					},
-					{
-						label: "Move Up",
-						keybind: [UP],
-						onSelect: _offsets_up,
-					},
-					{
-						label: "Move Down",
-						keybind: [DOWN],
-						onSelect: _offsets_down,
-					},
-					{
-						label: "Move Right",
-						keybind: [RIGHT],
-						onSelect: _offsets_right,
-					},
-					null,
-					{
-						label: "Move Extra Left",
-						keybind: [SHIFT, LEFT],
-						onSelect: _offsets_extra_left,
-					},
-					{
-						label: "Move Extra Up",
-						keybind: [SHIFT, UP],
-						onSelect: _offsets_extra_up,
-					},
-					{
-						label: "Move Extra Down",
-						keybind: [SHIFT, DOWN],
-						onSelect: _offsets_extra_down,
-					},
-					{
-						label: "Move Extra Right",
-						keybind: [SHIFT, RIGHT],
-						onSelect: _offsets_extra_right,
-					},
-					null,
-					{
-						label: "Clear Offsets",
-						keybind: [CONTROL, R],
-						onSelect: _offsets_clear,
-					}
-				]
-			},*/
 			{
 				label: "View",
 				childs: [
@@ -204,7 +103,40 @@ class StageEditor extends UIState {
 						keybind: [CONTROL, NUMPADZERO],
 						onSelect: _view_zoomreset
 					},
-
+					null,
+					{
+						label: "Focus Dad",
+						//keybind: [CONTROL, NUMPADZERO],
+						onSelect: _view_focusdad
+					},
+					{
+						label: "Focus Gf",
+						//keybind: [CONTROL, NUMPADZERO],
+						onSelect: _view_focusgf
+					},
+					{
+						label: "Focus BF",
+						//keybind: [CONTROL, NUMPADZERO],
+						onSelect: _view_focusbf
+					},
+					// TODO: add support for custom character focus
+				]
+			},
+			{
+				label: "Editor",
+				childs: [
+					{
+						label: "Show Outlines",
+						//keybind: [CONTROL, NUMPADPLUS],
+						onSelect: _editor_showOutlines,
+						icon: showOutlines ? 1 : 0
+					},
+					{
+						label: "Show Characters",
+						//keybind: [CONTROL, NUMPADMINUS],
+						onSelect: _editor_showCharacters,
+						icon: showCharacters ? 1 : 0
+					}
 				]
 			},
 		];
@@ -226,7 +158,7 @@ class StageEditor extends UIState {
 		stage.onXMLLoaded = function(xml:Access, elems:Array<Access>) {
 			return elems;
 		}
-		stage.onNodeLoadedPost = function(node:Access, sprite:Dynamic) {
+		stage.onNodeFinished = function(node:Access, sprite:Dynamic) {
 			if(sprite is FlxSprite) {
 				sprite.moves = false;
 			}
@@ -245,12 +177,13 @@ class StageEditor extends UIState {
 			}
 			if(sprite is StageCharPos) {
 				var charPos:StageCharPos = cast sprite;
+				// TODO: fix default characters not being added
 				var charName = switch(charPos.name) {
 					case "boyfriend": "bf";
 					case "girlfriend": "gf";
 					default: charPos.name;
 				}
-				var char = new Character(0,0, charName, stage.isCharFlipped(charPos.name, charName == "bf"));
+				var char = new Character(0,0, charName, stage.isCharFlipped(charPos.name, charName == "bf"), true);
 				char.debugMode = true;
 				// Play first anim, and make it the last frame
 				var animToPlay = char.getAnimOrder()[0];
@@ -281,9 +214,10 @@ class StageEditor extends UIState {
 			var node = char.extra.get(exID("node"));
 
 			stage.applyCharStuff(char, charPos.name, 0);
+			charMap[charPos.name] = char;
 		}
 
-		zoom = calculateZoom(stage.defaultZoom);
+		setZoom(stage.defaultZoom);
 
 		topMenuSpr = new UITopMenu(topMenu);
 		topMenuSpr.cameras = uiGroup.cameras = [uiCamera];
@@ -305,7 +239,10 @@ class StageEditor extends UIState {
 					stageSpritesWindow.add((type == "box" || type == "solid") ? new StageSolidButton(0,0, sprite, xml) : new StageSpriteButton(0,0, sprite, xml));
 				}
 				else if(sprite is StageCharPos) {
-					stageSpritesWindow.add(new StageCharacterButton(0,0, sprite, xml));
+					var char = charMap[sprite.name];
+					var button = new StageCharacterButton(0,0, sprite, xml);
+					char.extra.set(exID("button"), button);
+					stageSpritesWindow.add(button);
 				}
 			}
 		}
@@ -346,31 +283,10 @@ class StageEditor extends UIState {
 				UIUtil.processShortcuts(topMenu);
 		}
 
-		/*if (character != null)
-			characterPropertiresWindow.characterInfo.text = '${character.getNameList().length} Animations\nFlipped: ${character.flipX}\nSprite: ${character.sprite}\nAnim: ${character.getAnimName()}\nOffset: (${character.frameOffset.x}, ${character.frameOffset.y})';
+		//if (character != null)
+		//	characterPropertiresWindow.characterInfo.text = '${character.getNameList().length} Animations\nFlipped: ${character.flipX}\nSprite: ${character.sprite}\nAnim: ${character.getAnimName()}\nOffset: (${character.frameOffset.x}, ${character.frameOffset.y})';
 
-		if (!(characterPropertiresWindow.hovered || characterAnimsWindow.hovered) && !characterAnimsWindow.dragging) {
-			if (FlxG.mouse.wheel != 0) {
-				zoom += 0.25 * FlxG.mouse.wheel;
-				__camZoom = Math.pow(2, zoom);
-			}
-
-			if (FlxG.mouse.justReleasedRight) {
-				closeCurrentContextMenu();
-				openContextMenu(topMenu[2].childs);
-			}
-			if (FlxG.mouse.pressed) {
-				nextScroll.set(nextScroll.x - FlxG.mouse.deltaScreenX, nextScroll.y - FlxG.mouse.deltaScreenY);
-				currentCursor = HAND;
-			} else
-				currentCursor = ARROW;
-		} else if (!FlxG.mouse.pressed)
-			currentCursor = ARROW;
-
-		characterBG.scale.set(FlxG.width/characterBG.width, FlxG.height/characterBG.height);
-		characterBG.scale.set(characterBG.scale.x / charCamera.zoom, characterBG.scale.y / charCamera.zoom);*/
-
-		if (!(stageSpritesWindow.hovered) && !stageSpritesWindow.dragging) {
+		if ((!stageSpritesWindow.hovered && !stageSpritesWindow.dragging) && !topMenuSpr.hovered) {
 			if (FlxG.mouse.wheel != 0) {
 				zoom += 0.25 * FlxG.mouse.wheel;
 				updateZoom();
@@ -530,8 +446,7 @@ class StageEditor extends UIState {
 		updateZoom();
 	}
 	function _view_zoomreset(_) {
-		zoom = 0;
-		updateZoom();
+		setZoom(stage.defaultZoom);
 	}
 
 	inline function updateZoom() {
@@ -541,41 +456,67 @@ class StageEditor extends UIState {
 	inline function calculateZoom(zoom:Float) {
 		return Math.log(zoom) / Math.log(2);
 	}
+
+	inline function setZoom(_zoom:Float) {
+		zoom = calculateZoom(__camZoom = _zoom);
+	}
+
+	function _view_focusdad(_) {
+		focusCharacter(charMap["dad"]);
+	}
+	function _view_focusgf(_) {
+		focusCharacter(charMap["girlfriend"]);
+	}
+	function _view_focusbf(_) {
+		focusCharacter(charMap["boyfriend"]);
+	}
+
+	function focusCharacter(char:Character) {
+		// TODO: fix this being incorrect
+		var point = char.getCameraPosition();
+		nextScroll.set(point.x, point.y);
+
+		setZoom(stage.defaultZoom);
+	}
+
+	function _editor_showOutlines(t) {
+		showOutlines = !showOutlines;
+		t.icon = showOutlines ? 1 : 0;
+	}
+
+	function _editor_showCharacters(t) {
+		showCharacters = !showCharacters;
+		t.icon = showCharacters ? 1 : 0;
+		for(char in chars) {
+			var button:StageCharacterButton = char.extra.get(exID("button"));
+			button.isHidden = !showCharacters;
+			button.updateInfo(button.charPos);
+		}
+	}
 	#end
 
 	override function draw() {
 		super.draw();
+
+		if(!showOutlines) return;
 
 		if(dot == null) {
 			dot = new FlxSprite().makeGraphic(10, 10, FlxColor.RED);
 			dot.camera = stageCamera;
 			dot.forceIsOnScreen = true;
 		}
-		//guideCamera.zoom = stageCamera.zoom;
-		//dot.scrollFactor.set(0, 0);
-
-		/*for(member in members) {
-			if(member is FlxSprite) {
-				if(camera == null || camera == stageCamera) {
-					var sprite:FlxSprite = cast member;
-					@:privateAccess if(sprite._frame == null) continue;
-					if(sprite.visible) {
-						//trace("Drawing Guides for " + sprite);
-						drawGuides(sprite);
-					}
-				}
-			}
-		}*/
 		for(sprite in stage.stageSprites) {
-			if(sprite.visible && sprite.isOnScreen()) {
+			if(sprite.visible && sprite.isOnScreen(stageCamera)) {
 				@:privateAccess if(sprite._frame == null) continue;
 				drawGuides(sprite);
 			}
 		}
-		for(char in chars) {
-			if(char.visible && char.isOnScreen()) {
-				@:privateAccess if(char._frame == null) continue;
-				drawGuides(char);
+		if(showCharacters) {
+			for(char in chars) {
+				if(char.visible && char.isOnScreen(stageCamera)) {
+					@:privateAccess if(char._frame == null) continue;
+					drawGuides(char);
+				}
 			}
 		}
 	}

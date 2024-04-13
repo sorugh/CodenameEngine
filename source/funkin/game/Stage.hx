@@ -29,7 +29,8 @@ class Stage extends FlxBasic implements IBeatReceiver {
 
 	public var onXMLLoaded:(Access, Array<Access>)->Array<Access> = null;
 	public var onNodeLoaded:(Access, Dynamic)->Dynamic = null;
-	public var onNodeLoadedPost:(Access, Dynamic)->Void = null;
+	public var onNodeFinished:(Access, Dynamic)->Void = null;
+	public var onAddSprite:(FlxObject)->Void = null;
 
 	private var spritesParentFolder = "";
 
@@ -111,8 +112,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 						var spr = XMLUtil.createSpriteFromXML(node, spritesParentFolder, LOOP);
 
 						stageSprites.set(spr.name, spr);
-						state.add(spr);
-						spr;
+						addSprite(spr);
 					case "box" | "solid":
 						if ( !node.has.name || !node.has.width || !node.has.height) continue;
 
@@ -129,8 +129,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 						);
 
 						stageSprites.set(spr.name, spr);
-						state.add(spr);
-						spr;
+						addSprite(spr);
 					case "boyfriend" | "bf" | "player":
 						addCharPos("boyfriend", node, {
 							x: 770,
@@ -178,8 +177,8 @@ class Stage extends FlxBasic implements IBeatReceiver {
 						XMLUtil.applyXMLProperty(sprite, e);
 				}
 
-				if(onNodeLoadedPost != null) {
-					onNodeLoadedPost(node, sprite);
+				if(onNodeFinished != null) {
+					onNodeFinished(node, sprite);
 				}
 			}
 		}
@@ -253,8 +252,13 @@ class Stage extends FlxBasic implements IBeatReceiver {
 			}
 		}
 
-		state.add(charPos);
-		return characterPoses[name] = charPos;
+		return addSprite(characterPoses[name] = charPos);
+	}
+
+	function addSprite<T:FlxObject>(sprite:T):T {
+		state.add(sprite);
+		if(onAddSprite != null) onAddSprite(sprite);
+		return sprite;
 	}
 
 	public inline function isCharFlipped(posName:String, def:Bool = false)

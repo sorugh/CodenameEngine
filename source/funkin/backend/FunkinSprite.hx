@@ -39,7 +39,6 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 	public var beatAnims:Array<BeatAnim> = [];
 	public var name:String;
 	public var zoomFactor:Float = 1;
-	//public var initialZoom:Float = 1;
 	public var debugMode:Bool = false;
 	public var animDatas:Map<String, AnimData> = [];
 	public var animEnabled:Bool = true;

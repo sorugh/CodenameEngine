@@ -45,6 +45,12 @@ class UISliceSprite extends UISprite {
 	var bottom:FlxFrame = null;
 	var bottomright:FlxFrame = null;
 
+	override function set_frames(val) {
+		super.set_frames(val);
+		calculateFrames();
+		return val;
+	}
+
 	function set_framesOffset(value:Int) {
 		if(value != framesOffset) {
 			framesOffset = value;
@@ -54,6 +60,7 @@ class UISliceSprite extends UISprite {
 	}
 
 	function calculateFrames() {
+		if(frames == null) return;
 		topleft = frames.frames[framesOffset];
 		top = frames.frames[framesOffset + 1];
 		topright = frames.frames[framesOffset + 2];

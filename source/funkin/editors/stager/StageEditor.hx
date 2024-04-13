@@ -298,7 +298,6 @@ class StageEditor extends UIState {
 			// TODO: implement this
 		}
 		for (i=>sprite in order) {
-			trace(sprite, Type.getClassName(Type.getClass(sprite)));
 			var xml = xmlMap.get(sprite);
 			if(xml != null) {
 				if(sprite is FunkinSprite) {

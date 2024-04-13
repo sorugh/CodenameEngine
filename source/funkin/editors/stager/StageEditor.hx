@@ -472,9 +472,8 @@ class StageEditor extends UIState {
 	}
 
 	function focusCharacter(char:Character) {
-		// TODO: fix this being incorrect
 		var point = char.getCameraPosition();
-		nextScroll.set(point.x, point.y);
+		nextScroll.set(point.x - stageCamera.width / 2, point.y - stageCamera.height / 2);
 
 		setZoom(stage.defaultZoom);
 	}

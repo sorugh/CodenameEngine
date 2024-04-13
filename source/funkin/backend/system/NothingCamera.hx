@@ -31,4 +31,8 @@ class NothingCamera extends FlxCamera {
 	public override function drawTriangles(graphic:FlxGraphic, vertices:DrawData<Float>, indices:DrawData<Int>, uvtData:DrawData<Float>, ?colors:DrawData<Int>, ?position:FlxPoint, ?blend:BlendMode, repeat:Bool = false, smoothing:Bool = false, ?transform:ColorTransform, ?shader:FlxShader):Void {}
 
 	public override function update(elapsed:Float) {}
+
+	// override function set_zoom(Zoom:Float):Float return zoom = (Zoom == 0) ? FlxCamera.defaultZoom : Zoom;
+
+	public override function setScale(X:Float, Y:Float):Void {}
 }

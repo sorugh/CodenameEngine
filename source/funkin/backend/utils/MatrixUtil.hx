@@ -12,10 +12,12 @@ class MatrixUtil {
 		if(camera == null) camera = sprite.camera;
 		if(points is FlxBasePoint) points = [points];
 		var nc = funkin.backend.system.NothingCamera.instance;
+		nc.zoom = camera.zoom;
 		nc.scroll.set(camera.scroll.x, camera.scroll.y);
-		//nc.zoom = camera.zoom; // might not be needed
 		nc.pixelPerfectRender = camera.pixelPerfectRender;
 		@:privateAccess sprite.drawComplex(nc);
+
+		var isFunkinSprite = sprite is FunkinSprite;
 
 		var points:Array<FlxPoint> = cast points;
 		@:privateAccess for(point in points) {
@@ -25,7 +27,14 @@ class MatrixUtil {
 			// reset to ingame coords
 			x += camera.scroll.x;
 			y += camera.scroll.y;
+			
+			if(isFunkinSprite) {
+				var sprite:FunkinSprite = cast sprite;
 
+				var ratio = 1 - FlxMath.lerp(1 / camera.zoom, 1, sprite.zoomFactor);
+				x += camera.width / 2 * ratio;
+				y += camera.height / 2 * ratio;
+			}
 			point.set(x, y);
 		}
 		return points;

@@ -34,7 +34,6 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	public var stunned(default, set):Bool = false;
 
 	public var isPlayer:Bool = false;
-	public var isGF:Bool = false;
 	public var curCharacter:String = 'bf';
 	public var sprite:String = 'bf';
 
@@ -386,7 +385,6 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		sprite = curCharacter;
 
 		if (xml.x.exists("isPlayer")) playerOffsets = (xml.x.get("isPlayer") == "true");
-		if (xml.x.exists("isGF")) isGF = (xml.x.get("isGF") == "true");
 		if (xml.x.exists("x")) globalOffset.x = Std.parseFloat(xml.x.get("x"));
 		if (xml.x.exists("y")) globalOffset.y = Std.parseFloat(xml.x.get("y"));
 		if (xml.x.exists("gameOverChar")) gameOverCharacter = xml.x.get("gameOverChar");
@@ -407,7 +405,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		var hasInterval:Bool = xml.x.exists("interval");
 		if (hasInterval) beatInterval = Std.parseInt(xml.x.get("interval"));
 
-		var tempList = ["isPlayer", "isGF", "x", "y", "gameOverChar", "camx", "camy", "holdTime", "flipX", "icon", "color", "scale", "antialiasing", "sprite", "interval"];
+		var tempList = ["isPlayer", "x", "y", "gameOverChar", "camx", "camy", "holdTime", "flipX", "icon", "color", "scale", "antialiasing", "sprite", "interval"];
 		var atts = xml.x.attributes();
 		for (i in atts)
 			if (!tempList.contains(i))
@@ -429,7 +427,6 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	public function buildXML(?animsOrder:Array<String>):Xml {
 		var xml = Xml.createElement("character");
 		xml.set("isPlayer", playerOffsets == true ? "true" : "false");
-		xml.set("isGF", isGF == true ? "true" : "false");
 		xml.set("x", Std.string(globalOffset.x));
 		xml.set("y", Std.string(globalOffset.y));
 		xml.set("gameOverChar", gameOverCharacter);

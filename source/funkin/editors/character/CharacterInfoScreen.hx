@@ -23,7 +23,6 @@ class CharacterInfoScreen extends UISubstateWindow {
 	public var singTimeStepper:UINumericStepper;
 	public var customPropertiesButtonList:UIButtonList<PropertyButton>;
 	public var isPlayerCheckbox:UICheckbox;
-	public var isGFCheckbox:UICheckbox;
 
 	public var saveButton:UIButton;
 	public var closeButton:UIButton;
@@ -119,11 +118,7 @@ class CharacterInfoScreen extends UISubstateWindow {
 		add(isPlayerCheckbox);
 		addLabelOn(isPlayerCheckbox, "Is Player");
 
-		isGFCheckbox = new UICheckbox(isPlayerCheckbox.x + 128, positionXStepper.y + 10 + 32 + 28, "isGF", character.isGF);
-		add(isGFCheckbox);
-		addLabelOn(isGFCheckbox, "Is GF");
-
-		for (checkbox in [isPlayerCheckbox, isGFCheckbox, antialiasingCheckbox, flipXCheckbox])
+		for (checkbox in [isPlayerCheckbox, antialiasingCheckbox, flipXCheckbox])
 			{checkbox.y += 4; checkbox.x += 6;}
 
 		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight- 20, "Save & Close", function() {
@@ -168,7 +163,6 @@ class CharacterInfoScreen extends UISubstateWindow {
 
 		var xml = Xml.createElement("character");
 		xml.set("isPlayer", isPlayerCheckbox.checked ? "true" : "false");
-		xml.set("isGF", isGFCheckbox.checked ? "true" : "false");
 		xml.set("x", Std.string(positionXStepper.value));
 		xml.set("y", Std.string(positionYStepper.value));
 		xml.set("gameOverChar", gameOverCharTextBox.label.text);

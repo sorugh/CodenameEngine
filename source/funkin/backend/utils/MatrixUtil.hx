@@ -11,7 +11,7 @@ class MatrixUtil {
 		//if(_height == -1) _height = sprite.height;
 		if(camera == null) camera = sprite.camera;
 		if(points is FlxBasePoint) points = [points];
-		var nc = funkin.backend.system.NothingCamera.instance;
+		var nc = funkin.backend.system.FakeCamera.instance;
 		nc.zoom = camera.zoom;
 		nc.scroll.set(camera.scroll.x, camera.scroll.y);
 		nc.pixelPerfectRender = camera.pixelPerfectRender;

@@ -12,8 +12,8 @@ import openfl.geom.ColorTransform;
 import openfl.geom.Point;
 import openfl.geom.Rectangle;
 
-class NothingCamera extends FlxCamera {
-	public static final instance = new NothingCamera();
+class FakeCamera extends FlxCamera {
+	public static final instance = new FakeCamera();
 
 	public function new() {
 		super();

@@ -277,17 +277,6 @@ class StageSpriteEditScreen extends UISubstateWindow {
 			}
 		}
 
-		var name = cast(getElement("nameTextBox"), UITextBox).label.text;
-		var imageFile = cast(getElement("spriteTextBox"), UITextBox).label.text;
-
-		// Save in sprite
-		sprite.name = name;
-		sprite.extra.set(StageEditor.exID("imageFile"), imageFile);
-
-		// Save in xml
-		data.xml.x.set("name", name);
-		data.xml.x.set("sprite", imageFile);
-
 		callFunc("onSave", []);
 
 		data.updateInfo(sprite);

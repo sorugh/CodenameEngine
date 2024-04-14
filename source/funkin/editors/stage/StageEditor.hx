@@ -233,7 +233,7 @@ class StageEditor extends UIState {
 		add(stageSprites);
 
 		for(spr in order) {
-			
+
 		}
 
 		setZoom(stage.defaultZoom);
@@ -276,7 +276,7 @@ class StageEditor extends UIState {
 			Framerate.codenameBuildField.alpha = 0.4;
 		}
 
-		DiscordUtil.call("onEditorLoaded", ["Stage Editor", __stage]);
+		//DiscordUtil.call("onEditorLoaded", ["Stage Editor", __stage]);
 	}
 
 	override function destroy() {

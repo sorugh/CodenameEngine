@@ -35,7 +35,7 @@ class StageSelection extends EditorTreeMenu
 
 		main = new OptionsScreen("Stage Editor", "Select a stage to edit. HSCRIPT only stages are not supported.", list);
 
-		DiscordUtil.call("onEditorTreeLoaded", ["Stage Editor"]);
+		//DiscordUtil.call("onEditorTreeLoaded", ["Stage Editor"]);
 	}
 
 	public function saveStage(creation:StageCreationData) {

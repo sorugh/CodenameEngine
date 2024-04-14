@@ -67,6 +67,9 @@
 		}
 
 		function onSave() {
+			sprite.name = nameTextBox.label.text;
+			sprite.extra.set(StageEditor.exID("imageFile"), spriteTextBox.label.text);
+
 			sprite.x = xStepper.value;
 			sprite.y = yStepper.value;
 			sprite.zoomFactor = zoomFactorStepper.value;
@@ -91,6 +94,8 @@
 				}
 			}
 
+			data.xml.set("name", nameTextBox.label.text);
+			data.xml.set("sprite", spriteTextBox.label.text);
 			data.xml.set("x", xStepper.value);
 			data.xml.set("y", yStepper.value);
 			data.xml.set("zoom", zoomFactorStepper.value);

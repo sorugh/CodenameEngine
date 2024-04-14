@@ -1,14 +1,16 @@
 package funkin.editors.stage;
 
-import funkin.backend.scripting.HScript;
-import hscript.Interp;
-import haxe.xml.Access;
 import flixel.math.FlxPoint;
 import funkin.backend.chart.ChartData.ChartMetaData;
+import funkin.backend.scripting.HScript;
+import funkin.backend.scripting.Script;
 import funkin.editors.extra.PropertyButton;
 import funkin.editors.stage.elements.StageElementButton;
+import funkin.editors.ui.UIDropDown;
+import haxe.xml.Access;
 import hscript.*;
 import hscript.Expr.Error;
+import hscript.Interp;
 import hscript.Parser;
 
 using StringTools;
@@ -47,7 +49,11 @@ class StageSpriteEditScreen extends UISubstateWindow {
 
 		sprite = data.getSprite();
 
+		for(k=>e in Script.getDefaultVariables()) {
+			set(k, e);
+		}
 		set("stage", StageEditor.instance.stage);
+		set("self", this);
 		set("sprite", sprite);
 		set("data", data);
 		set("getEx", function(name:String):Dynamic {
@@ -84,24 +90,24 @@ class StageSpriteEditScreen extends UISubstateWindow {
 		function addLabelOn(ui:UISprite, text:String)
 			add(new UIText(ui.x, ui.y - 24, 0, text));
 
-		function execString(code:String):String {
-			if(code.indexOf("${") == -1) return code;
+		function execString(input:String):String {
+			if(input.indexOf("${") == -1) return input;
 			var text = "";
-			while(code.length > 0) {
-				var idx = code.indexOf("${");
+			while(input.length > 0) {
+				var idx = input.indexOf("${");
 				if(idx == -1) {
-					text += code;
+					text += input;
 					break;
 				}
-				text += code.substring(0, idx);
-				var ei = code.indexOf("}", idx);
+				text += input.substring(0, idx);
+				var ei = input.indexOf("}", idx);
 				if(ei == -1) {
-					text += code.substring(idx);
+					text += input.substring(idx);
 					break;
 				}
-				var block = code.substring(idx+2, ei);
+				var block = input.substring(idx+2, ei);
 				text += exec(block);
-				code = code.substring(ei + 1);
+				input = input.substring(ei + 1);
 			}
 			return text;
 		}
@@ -117,7 +123,7 @@ class StageSpriteEditScreen extends UISubstateWindow {
 		for(el in layout.elements) {
 			var type = el.name;
 			//var type:String = el.getAtt("type");
-			var name:String = el.getAtt("name");
+			var name:String = execString(el.getAtt("name"));
 			var label:String = execString(el.getAtt("label"));
 			var text:String = execString(el.getAtt("text"));
 			var x:Float = execAtt(el, "x", 0);
@@ -130,21 +136,28 @@ class StageSpriteEditScreen extends UISubstateWindow {
 
 			var sprite:FlxSprite = switch(type) {
 				case "set":
-					set(el.getAtt("name"), exec(el.getAtt("value")));
+					set(execString(el.getAtt("name")), exec(el.getAtt("value")));
 					continue;
 				case "image":
 					var spr = XMLUtil.createSpriteFromXML(el, "", LOOP);
+					cast add(spr);
+				case "solid":
+					var spr = new FunkinSprite(x, y).makeSolid(
+						execAtt(el, "width", 100),
+						execAtt(el, "height", 100),
+						execAtt(el, "color", 0xFFFFFFFF)
+					);
 					cast add(spr);
 				case "exec":
 					exec(el.innerData);
 					continue;
 				case "textbox":
-					var textBox = new UITextBox(x, y, text, width, height, (el.getAtt("multiline").getDefault("false") == "true"));
+					var textBox = new UITextBox(x, y, text, width, height, execAtt(el, "multiline", false));//(el.getAtt("multiline").getDefault("false") == "true"));
 					add(textBox);
 					addLabelOn(textBox, label);
 					textBox;
 				case "title":
-					cast add(new UIText(x, y, 0, label, size));
+					cast add(new UIText(x, y, 0, text, size));
 				case "stepper":
 					// x:Float, y:Float, value:Float = 0, step:Float = 1, precision:Int = 0, ?min:Float, ?max:Float, w:Int = 180, h:Int = 32
 					var stepper = new UINumericStepper(
@@ -162,7 +175,7 @@ class StageSpriteEditScreen extends UISubstateWindow {
 					addLabelOn(stepper, label);
 					stepper;
 				case "checkbox":
-					var checkbox = new UICheckbox(x, y, label, execAtt(el, "value", false));
+					var checkbox = new UICheckbox(x, y, text, execAtt(el, "value", false));
 					add(checkbox);
 					addLabelOn(checkbox, label);
 					checkbox;
@@ -172,11 +185,14 @@ class StageSpriteEditScreen extends UISubstateWindow {
 					addLabelOn(slider, label);
 					slider;
 				case "dropdown":
-					var options = execString(el.getAtt("options")).split(",");
+					var items:Array<DropDownItem> = [];
+					for(i=>node in el.nodes.item)
+						items.push({label: execString(node.getAtt("label")), value: execAtt(node, "value", i)});
 					var curValue = execAtt(el, "value", null);
-					var index = options.indexOf(curValue);
+					var index = UIDropDown.indexOfItemValue(items, curValue);
 					if (index == -1) index = 0;
-					var dropdown = new UIDropDown(x, y, width, height, options, index);
+
+					var dropdown = new UIDropDown(x, y, width, height, items, index);
 					add(dropdown);
 					addLabelOn(dropdown, label);
 					dropdown;
@@ -246,6 +262,11 @@ class StageSpriteEditScreen extends UISubstateWindow {
 			return Reflect.callMethod(null, func, args);
 
 		return null;
+	}
+
+	override function update(elapsed:Float) {
+		super.update(elapsed);
+		callFunc("onUpdate", [elapsed]);
 	}
 
 	public function saveData() {

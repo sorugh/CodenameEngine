@@ -561,7 +561,7 @@ class StageEditor extends UIState {
 			FlxPoint.get(0.5, 0),
 			// center
 			//FlxPoint.get(0.5, 0.5)
-		], sprite.camera, sprite.width, sprite.height);
+		], sprite.camera, sprite.frameWidth, sprite.frameHeight);
 
 		//Logs.trace("Guide at " + corners[0].x + ", " + corners[0].y + " sprite at " + sprite.x + ", " + sprite.y);
 

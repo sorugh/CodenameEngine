@@ -29,6 +29,15 @@ enum abstract XMLAnimType(Int)
 			default: def;
 		}
 	}
+
+	@:to public function toString():String {
+		return switch (cast this)
+		{
+			case NONE: "none";
+			case BEAT: "beat";
+			case LOOP: "loop";
+		}
+	}
 }
 
 class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements IOffsetCompatible implements IXMLEvents

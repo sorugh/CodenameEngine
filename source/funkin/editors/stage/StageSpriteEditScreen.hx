@@ -56,6 +56,7 @@ class StageSpriteEditScreen extends UISubstateWindow {
 		set("self", this);
 		set("sprite", sprite);
 		set("data", data);
+		set("exID", StageEditor.exID);
 		set("getEx", function(name:String):Dynamic {
 			return sprite.extra.get(StageEditor.exID(name));
 		});

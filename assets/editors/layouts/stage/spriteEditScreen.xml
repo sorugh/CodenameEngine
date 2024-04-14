@@ -68,7 +68,7 @@
 
 		function onSave() {
 			sprite.name = nameTextBox.label.text;
-			sprite.extra.set(StageEditor.exID("imageFile"), spriteTextBox.label.text);
+			sprite.extra.set(exID("imageFile"), spriteTextBox.label.text);
 
 			sprite.x = xStepper.value;
 			sprite.y = yStepper.value;

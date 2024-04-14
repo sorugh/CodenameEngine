@@ -382,7 +382,7 @@ class StageEditor extends UIState {
 		if (charXML.exists("scale") && character.scale.x == 1) charXML.remove("scale");
 		if (charXML.exists("antialiasing") && character.antialiasing) charXML.remove("antialiasing");*/
 
-		return "<!DOCTYPE codename-engine-character>\n";// + Printer.print(charXML, true);
+		return "<!DOCTYPE codename-engine-stage>\n";// + Printer.print(charXML, true);
 	}
 
 	/*function _edit_undo(_) {

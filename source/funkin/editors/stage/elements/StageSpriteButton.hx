@@ -46,6 +46,7 @@ class StageSpriteButton extends StageElementButton {
 	public override function onDelete() {
 		sprite.destroy();
 		xml.x.parent.removeChild(xml.x);
+		StageEditor.instance.stage.stageSprites.remove(sprite.name);
 		StageEditor.instance.xmlMap.remove(sprite);
 		StageEditor.instance.stageSpritesWindow.remove(this);
 	}

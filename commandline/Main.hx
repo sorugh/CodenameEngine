@@ -71,6 +71,17 @@ class Main {
 				].join("\n")
 			},
 			{
+				names: ["run"],
+				doc: "Runs the last build that was created.",
+				func: Compiler.run,
+				dDoc: [
+					"Usage: run <optional arguments>",
+					"",
+					"This will run the last build that was created.",
+					"Additional arguments will be sent to the lime compiler."
+				].join("\n")
+			},
+			{
 				names: ["release"],
 				doc: "Creates a final non debug build, containing all assets.",
 				func: Compiler.release,

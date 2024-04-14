@@ -27,7 +27,7 @@ class MatrixUtil {
 			// reset to ingame coords
 			x += camera.scroll.x;
 			y += camera.scroll.y;
-			
+
 			if(isFunkinSprite) {
 				var sprite:FunkinSprite = cast sprite;
 

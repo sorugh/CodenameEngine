@@ -20,7 +20,7 @@ class EditorPicker extends MusicBeatSubstate {
 		{
 			name: "Stage Editor",
 			iconID: 2,
-			state: funkin.editors.stager.StageSelection
+			state: funkin.editors.stage.StageSelection
 		},
 		{
 			name: "UI Debug State",

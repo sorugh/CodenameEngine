@@ -1,4 +1,4 @@
-package funkin.editors.stager.elements;
+package funkin.editors.stage.elements;
 
 import haxe.xml.Access;
 import flixel.util.FlxColor;

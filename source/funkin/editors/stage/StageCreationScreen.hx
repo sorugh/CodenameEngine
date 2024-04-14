@@ -1,4 +1,4 @@
-package funkin.editors.stager;
+package funkin.editors.stage;
 
 typedef StageCreationData = {
 	var name:String;

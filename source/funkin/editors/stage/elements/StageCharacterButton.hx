@@ -1,4 +1,4 @@
-package funkin.editors.stager.elements;
+package funkin.editors.stage.elements;
 
 import funkin.game.Character;
 import funkin.game.Stage.StageCharPos;

@@ -1,12 +1,12 @@
-package funkin.editors.stager;
+package funkin.editors.stage;
 
-import funkin.options.OptionsScreen;
+import funkin.editors.stage.StageCreationScreen.StageCreationData;
 import funkin.game.Stage;
+import funkin.options.OptionsScreen;
 import funkin.options.type.IconOption;
 import funkin.options.type.NewOption;
 import funkin.options.type.OptionType;
 import funkin.options.type.TextOption;
-import funkin.editors.stager.StageCreationScreen.StageCreationData;
 
 class StageSelection extends EditorTreeMenu
 {

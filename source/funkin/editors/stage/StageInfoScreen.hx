@@ -1,4 +1,4 @@
-package funkin.editors.stager;
+package funkin.editors.stage;
 
 import flixel.math.FlxPoint;
 import funkin.editors.extra.PropertyButton;

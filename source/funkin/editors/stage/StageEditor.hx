@@ -1,11 +1,11 @@
-package funkin.editors.stager;
+package funkin.editors.stage;
 
 import flixel.math.FlxAngle;
-import flixel.util.FlxColor;
 import flixel.math.FlxPoint;
+import flixel.util.FlxColor;
 import funkin.backend.system.framerate.Framerate;
 import funkin.backend.utils.XMLUtil.AnimData;
-import funkin.editors.stager.elements.*;
+import funkin.editors.stage.elements.*;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
 import funkin.game.Character;
 import funkin.game.Stage;

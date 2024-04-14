@@ -32,7 +32,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 	public var onNodeFinished:(Access, Dynamic)->Void = null;
 	public var onAddSprite:(FlxObject)->Void = null;
 
-	private var spritesParentFolder = "";
+	public var spritesParentFolder = "";
 
 	public inline function getSprite(name:String) {
 		return stageSprites[name];

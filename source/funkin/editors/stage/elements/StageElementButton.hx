@@ -90,6 +90,14 @@ class StageElementButton extends UIButton {
 		deleteIcon.x = deleteButton.x + (15/2); deleteIcon.y = deleteButton.y + 8;
 	}
 
+	public function getSprite():FunkinSprite {
+		return null;
+	}
+
+	public function getName():String {
+		return "UNKNOWN";
+	}
+
 	public function onSelect() {
 		// TODO: implement
 	}

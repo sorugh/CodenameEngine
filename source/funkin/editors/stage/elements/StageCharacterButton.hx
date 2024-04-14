@@ -36,6 +36,10 @@ class StageCharacterButton extends StageElementButton {
 		super.updateInfo(charPos);
 	}
 
+	public override function getSprite():FunkinSprite {
+		return char;
+	}
+
 	public override function onSelect() {
 
 	}
@@ -45,8 +49,12 @@ class StageCharacterButton extends StageElementButton {
 		updateInfo(this.charPos);
 	}
 
+	public override function getName():String {
+		return charPos.name;
+	}
+
 	public override function getInfoText():String {
-		return '${charPos.name} (${charPos.x}, ${charPos.y})';
+		return '${getName()} (${charPos.x}, ${charPos.y})';
 	}
 
 	public override function updatePos() {

@@ -28,8 +28,9 @@ class StageEditor extends UIState {
 
 	public var uiGroup:FlxTypedGroup<FlxSprite> = new FlxTypedGroup<FlxSprite>();
 	public var stageSpritesWindow:UIButtonList<StageElementButton>;
+	public var stageSprites:FlxTypedGroup<StageSprite> = new FlxTypedGroup<StageSprite>();
 
-	public var xmlMap:Map<FlxBasic, Access> = new Map<FlxBasic, Access>();
+	public var xmlMap:Map<FlxObject, Access> = new Map<FlxObject, Access>();
 
 	public var chars:Array<Character> = [];
 	public var charMap:Map<String, Character> = [];
@@ -37,6 +38,8 @@ class StageEditor extends UIState {
 	public var stageCamera:FlxCamera;
 	public var guideCamera:FlxCamera;
 	public var uiCamera:FlxCamera;
+
+	public static var selection:Selection;
 
 	public var showOutlines:Bool = true;
 	public var showCharacters:Bool = true;
@@ -168,11 +171,15 @@ class StageEditor extends UIState {
 			}
 		}
 		stage.onNodeLoaded = function(node:Access, sprite:Dynamic):Dynamic {
+			var name = "";
 			if(sprite is FlxSprite) {
 				//sprite.forceIsOnScreen = true; // hack
 			}
 			if(sprite is FunkinSprite) {
+				var sprite:FunkinSprite = cast sprite;
+				name = sprite.name;
 				sprite.extra.set(exID("type"), node.name);
+				sprite.extra.set(exID("imageFile"), '${node.getAtt("sprite").getDefault(sprite.name)}');
 				//sprite.active = false;
 			}
 			if(sprite is StageCharPos) {
@@ -183,6 +190,7 @@ class StageEditor extends UIState {
 					case "girlfriend": "gf";
 					default: charPos.name;
 				}
+				name = charPos.name;
 				var char = new Character(0,0, charName, stage.isCharFlipped(charPos.name, charName == "bf"), true);
 				char.debugMode = true;
 				// Play first anim, and make it the last frame
@@ -204,6 +212,11 @@ class StageEditor extends UIState {
 			}
 			order.push(sprite);
 			xmlMap.set(sprite, node);
+
+			//var t = new StageSprite(name, sprite);
+			//t.node = node;
+			//stageSprites.add(t);
+
 			return sprite;
 		}
 		stage.loadXml(stage.stageXML, true);
@@ -215,6 +228,12 @@ class StageEditor extends UIState {
 
 			stage.applyCharStuff(char, charPos.name, 0);
 			charMap[charPos.name] = char;
+		}
+
+		add(stageSprites);
+
+		for(spr in order) {
+			
 		}
 
 		setZoom(stage.defaultZoom);
@@ -595,4 +614,129 @@ class StageEditor extends UIState {
 
 enum StageChange {
 	CEditInfo(oldInfo:Xml, newInfo:Xml);
+}
+
+@:forward abstract Selection(Array<StageSprite>) from Array<StageSprite> to Array<StageSprite> {
+	public inline function new(?array:Array<StageSprite>)
+		this = array == null ? [] : array;
+
+	// too lazy to put this in every for loop so i made it a abstract
+	//public inline function loop(onNote:CharterNote->Void, ?onEvent:CharterEvent->Void, ?draggableOnly:Bool = true) {
+	//	for (s in this) {
+	//		if (s is CharterNote && onNote != null && (draggableOnly ? s.draggable: true))
+	//			onNote(cast(s, CharterNote));
+	//		else if (s is CharterEvent && onEvent != null && (draggableOnly ? s.draggable: true))
+	//			onEvent(cast(s, CharterEvent));
+	//	}
+	//}
+}
+
+class StageSprite extends UISprite {
+	public var tracker:FlxObject;
+	public var funkinTracker:FunkinSprite;
+	public var node:Access;
+
+	public var name:String;
+
+	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
+
+	public var scrollX:Float;
+	public var scrollY:Float;
+	public var scaleX:Float;
+	public var scaleY:Float;
+	public var zoomFactor:Float = 1; // TODO: implement this
+	public var skewX:Float;
+	public var skewY:Float;
+	public var spriteAnimType:XMLAnimType;
+
+	public var skipNegativeBeats:Bool = false;
+	public var beatInterval:Int = 0;
+	public var beatOffset:Int = 0;
+
+	public var lowMemory:Bool;
+	public var highMemory:Bool;
+
+	public var selected:Bool = false;
+	public var draggable:Bool = false;
+
+	public function new(name:String, sprite:FlxObject) {
+		super(x, y);
+		this.name = name;
+		this.tracker = sprite;
+
+		scrollX = tracker.scrollFactor.x;
+		scrollY = tracker.scrollFactor.y;
+		if(tracker is FunkinSprite) {
+			var tracker:FunkinSprite = cast tracker;
+			scaleX = tracker.scale.x;
+			scaleY = tracker.scale.y;
+			funkinTracker = tracker;
+		}
+		else if (tracker is StageCharPos) {
+			var tracker:StageCharPos = cast tracker;
+			var char:Character = tracker.extra.get(StageEditor.exID("char"));
+			scaleX = tracker.scale.x;
+			scaleY = tracker.scale.y;
+			funkinTracker = char;
+		}
+
+		lowMemory = node.x.parent.nodeName == "low-memory";
+		highMemory = node.x.parent.nodeName == "high-memory";
+
+		if(funkinTracker != null) {
+			skewX = funkinTracker.skew.x;
+			skewY = funkinTracker.skew.y;
+			alpha = funkinTracker.alpha;
+			spriteAnimType = funkinTracker.spriteAnimType;
+			antialiasing = funkinTracker.antialiasing;
+			width = funkinTracker.width;
+			height = funkinTracker.height;
+			color = funkinTracker.color;
+
+			skipNegativeBeats = funkinTracker.skipNegativeBeats;
+			beatInterval = funkinTracker.beatInterval;
+			beatOffset = funkinTracker.beatOffset;
+		}
+
+	}
+
+	public override function update(elapsed:Float) {
+		super.update(elapsed);
+		if (tracker.exists) {
+			tracker.x = x;
+			tracker.y = y;
+			tracker.scrollFactor.set(scrollX, scrollY);
+			if(tracker is FlxSprite) {
+				var tracker:FlxSprite = cast tracker;
+			}
+			else if (tracker is StageCharPos) {
+				var tracker:StageCharPos = cast tracker;
+				tracker.skewX = skewX;
+				tracker.skewY = skewY;
+			}
+
+			if(funkinTracker != null) {
+				funkinTracker.scale.set(scaleX, scaleY);
+				funkinTracker.skew.set(skewX, skewY);
+				funkinTracker.alpha = alpha;
+				funkinTracker.spriteAnimType = spriteAnimType;
+				funkinTracker.antialiasing = antialiasing;
+				funkinTracker.width = width;
+				funkinTracker.height = height;
+
+				funkinTracker.skipNegativeBeats = skipNegativeBeats;
+				funkinTracker.beatInterval = beatInterval;
+				funkinTracker.beatOffset = beatOffset;
+
+				funkinTracker.color = color;
+			}
+		}
+	}
+
+	public function handleSelection(selectionBox:UISliceSprite):Bool {
+		return false;
+	};
+	public function handleDrag(change:FlxPoint):Void {
+
+	};
 }

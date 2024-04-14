@@ -1,0 +1,67 @@
+<window width="1056" height="520" title="Editing Sprite">
+	<set name="XOFFSET" value="40" />
+	<set name="YOFFSET" value="40" />
+	<set name="TO" value="64" />
+
+	<title name="title" x="20" y="30 + 16" label="Sprite Data" />
+
+	<textbox name="nameTextBox" label="Name Identifier" text="${data.getName()}"   x="20" y="title.y + TO" width="200" height="32" />
+	<textbox name="spriteTextBox" label="Image File (${stage.spritesParentFolder})" text="${getEx('imageFile')}"   x="last.x + last.bWidth + XOFFSET" y="title.y + TO" width="200" height="32" />
+
+	<set name="curY" value="nameTextBox.y + nameTextBox.bHeight + YOFFSET" />
+
+	<stepper name="xStepper" label="X" value="sprite.x" x="20" y="curY" step="1" width="100" />
+	<stepper name="yStepper" label="Y" value="sprite.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" step="1" width="100" />
+
+	<stepper name="scrollXStepper" label="Scroll X" value="sprite.scrollFactor.x" x="spriteTextBox.x" y="curY" step="0.01" width="100" />
+	<stepper name="scrollYStepper" label="Scroll Y" value="sprite.scrollFactor.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" step="0.01" width="100" />
+
+	<stepper name="scaleXStepper" label="Scale X" value="sprite.scale.x" x="20 + (200 + XOFFSET) * 2" y="curY" step="0.01" width="100" />
+	<stepper name="scaleYStepper" label="Scale Y" value="sprite.scale.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" step="0.01" width="100" />
+
+	<stepper name="skewXStepper" label="Skew X" value="sprite.skew.x" x="20 + (200 + XOFFSET) * 3" y="curY" step="0.01" width="100" />
+	<stepper name="skewYStepper" label="Skew Y" value="sprite.skew.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" step="0.01" width="100" />
+
+	<set name="curY" value="xStepper.y + xStepper.bHeight + YOFFSET" />
+
+	<stepper name="angleStepper" label="Angle" value="sprite.angle" x="20 + (200 + XOFFSET) * 0" y="curY" step="0.01" width="100" />
+	<stepper name="zoomFactorStepper" label="Zoom Factor" value="sprite.zoomFactor" x="20 + (200 + XOFFSET) * 1" y="curY" step="0.01" width="100" />
+
+	<dropdown name="animType" label="Animation Type" value="['NONE','BEAT','LOOP'][sprite.spriteAnimType]" x="20 + (200 + XOFFSET) * 2" y="curY" width="100" height="32" options="NONE,BEAT,LOOP" />
+
+	<exec>
+		function onSave() {
+			sprite.x = xStepper.value;
+			sprite.y = yStepper.value;
+			sprite.zoomFactor = zoomFactorStepper.value;
+			//sprite.antialiasing = antialiasingCheckbox.checked;
+			//sprite.color = colorWheel.color;
+			sprite.spriteAnimType = animType.index;
+
+			function saveXY(obj:Dynamic, name:String, x:UINumericStepper, y:UINumericStepper) {
+				data.xml.remove(name + "");
+				data.xml.remove(name + "x");
+				data.xml.remove(name + "y");
+
+				obj.x = x.value;
+				obj.y = y.value;
+
+				if(x.value == y.value)
+					data.xml.set(name, x.value);
+				else {
+					data.xml.set(name + "x", x.value);
+					data.xml.set(name + "y", y.value);
+				}
+			}
+
+			data.xml.set("x", xStepper.value);
+			data.xml.set("y", yStepper.value);
+			data.xml.set("zoom", zoomFactorStepper.value);
+			data.xml.set("type", ['NONE','BEAT','LOOP'][animType.index]);
+
+			saveXY(sprite.scrollFactor, "scroll", scrollXStepper, scrollYStepper);
+			saveXY(sprite.scale, "scale", scaleXStepper, scaleYStepper);
+			saveXY(sprite.skew, "skew", skewXStepper, skewYStepper);
+		}
+	</exec>
+</window>

@@ -3,6 +3,8 @@ package funkin.editors.stage.elements;
 import haxe.xml.Access;
 import flixel.util.FlxColor;
 
+using flixel.util.FlxColorTransformUtil;
+
 class StageElementButton extends UIButton {
 	public var xml:Access;
 
@@ -16,6 +18,8 @@ class StageElementButton extends UIButton {
 	public var deleteIcon:FlxSprite;
 
 	public var isHidden:Bool = false;
+
+	public var selected:Bool = false;
 
 	public function new(x:Float,y:Float, xml:Access) {
 		this.xml = xml;
@@ -64,6 +68,8 @@ class StageElementButton extends UIButton {
 		members.push(deleteIcon);
 	}
 
+	var _lastSelected:Bool = false;
+
 	public override function update(elapsed:Float) {
 		editButton.selectable = ghostButton.selectable = deleteButton.selectable = selectable;
 		editButton.shouldPress = ghostButton.shouldPress = deleteButton.shouldPress = shouldPress;
@@ -71,6 +77,22 @@ class StageElementButton extends UIButton {
 		hovered = !deleteButton.hovered;
 		updatePos();
 		super.update(elapsed);
+
+		if(selected != _lastSelected) {
+			_lastSelected = selected;
+			updateColorTransform();
+		}
+	}
+
+	public override function updateColorTransform() {
+		super.updateColorTransform();
+
+		if (selected) {
+			useColorTransform = true;
+			colorTransform.setOffsets(70, 70, 70, 0);
+		} else {
+			colorTransform.setOffsets(0, 0, 0, 0);
+		}
 	}
 
 	public function updateInfo(sprite:Dynamic) {

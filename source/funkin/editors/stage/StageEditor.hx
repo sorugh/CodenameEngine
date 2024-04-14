@@ -2,7 +2,9 @@ package funkin.editors.stage;
 
 import flixel.math.FlxAngle;
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import flixel.util.FlxColor;
+import flixel.util.FlxSort;
 import funkin.backend.system.framerate.Framerate;
 import funkin.backend.utils.XMLUtil.AnimData;
 import funkin.editors.stage.elements.*;
@@ -17,6 +19,8 @@ using funkin.backend.utils.MatrixUtil;
 class StageEditor extends UIState {
 	static var __stage:String;
 	public var stage:Stage;
+
+	private var _point:FlxPoint = new FlxPoint();
 
 	public static var instance(get, null):StageEditor;
 
@@ -255,7 +259,9 @@ class StageEditor extends UIState {
 			if(xml != null) {
 				if(sprite is FunkinSprite) {
 					var type = sprite.extra.get(exID("type"));
-					stageSpritesWindow.add((type == "box" || type == "solid") ? new StageSolidButton(0,0, sprite, xml) : new StageSpriteButton(0,0, sprite, xml));
+					var button:StageElementButton = (type == "box" || type == "solid") ? new StageSolidButton(0,0, sprite, xml) : new StageSpriteButton(0,0, sprite, xml);
+					sprite.extra.set(exID("button"), button);
+					stageSpritesWindow.add(button);
 				}
 				else if(sprite is StageCharPos) {
 					var char = charMap[sprite.name];
@@ -311,6 +317,59 @@ class StageEditor extends UIState {
 				updateZoom();
 			}
 
+			/*if(FlxG.mouse.justPressed) {
+				var bounds:Array<FlxRect> = [];
+				var sprites = stageSpritesWindow.buttons.members.map((o) -> o.getSprite()).filter((o) -> o != null && o.animateAtlas == null);
+				for(sprite in sprites) {
+					if(sprite is FunkinSprite) {
+						var sprite:FunkinSprite = cast sprite;
+						if(sprite.extra.exists(exID("bounds"))) {
+							bounds.push(cast(sprite.extra.get(exID("bounds")), FlxRect));
+						}
+					}
+				}
+
+				// sort by area
+				bounds.sort((a, b) -> FlxSort.byValues(FlxSort.ASCENDING, a.width * a.height, b.width * b.height));
+
+				Logs.trace("------------------------");
+				for(bounds in bounds) {
+					Logs.trace(bounds.width + "x" + bounds.height);
+				}
+			}*/
+
+			/*if(FlxG.mouse.justPressed) {
+				//var sprites = Lambda.array(stage.stageSprites);
+				var sprites = stageSpritesWindow.buttons.members.map((o) -> o.getSprite()).filter((o) -> o != null && o.animateAtlas == null);
+				trace(sprites.map((o) -> cast(o, FunkinSprite).name));
+				var length = sprites.length;
+				// Reset selected sprites
+				for(i in 0...length) {
+					var sprite = sprites[i];
+					if(sprite is FunkinSprite) {
+						var sprite:FunkinSprite = cast sprite;
+						sprite.extra.set(exID("selected"), false);
+					}
+				}
+				for(i in 0...length) {
+					var idx = length - i - 1;
+					var sprite = sprites[idx];
+					if(sprite is FunkinSprite) {
+						var sprite:FunkinSprite = cast sprite;
+						if(!sprite.extra.exists(exID("bounds"))) continue;
+						trace(idx, sprite.name);
+						var bounds = cast(sprite.extra.get(exID("bounds")), FlxRect);
+						var pos = FlxG.mouse.getWorldPosition(stageCamera, _point);
+						trace(sprite.name, bounds, pos);
+						if(bounds.containsPoint(pos)) {
+							sprite.extra.set(exID("selected"), true);
+							trace("Selected " + sprite.name);
+							break;
+						}
+					}
+				}
+			}*/
+
 			//if (FlxG.mouse.justReleasedRight) {
 			//	closeCurrentContextMenu();
 			//	openContextMenu(topMenu[2].childs);
@@ -332,6 +391,22 @@ class StageEditor extends UIState {
 
 		WindowUtils.prefix = undos.unsaved ? "* " : "";
 		SaveWarning.showWarning = undos.unsaved;
+	}
+
+	public function selectSprite(_sprite:FunkinSprite) {
+		var sprites = stageSpritesWindow.buttons.members.map((o) -> o.getSprite()).filter((o) -> o != null);// && o.animateAtlas == null);
+		for(sprite in sprites) {
+			if(sprite is FunkinSprite) {
+				var sprite:FunkinSprite = cast sprite;
+				sprite.extra.set(exID("selected"), false);
+				sprite.extra.get(exID("button")).selected = false;
+			}
+		}
+		if(_sprite is FunkinSprite) {
+			var sprite:FunkinSprite = cast _sprite;
+			sprite.extra.set(exID("selected"), true);
+			sprite.extra.get(exID("button")).selected = true;
+		}
 	}
 
 	// TOP MENU OPTIONS
@@ -519,7 +594,7 @@ class StageEditor extends UIState {
 		if(!showOutlines) return;
 
 		if(dot == null) {
-			dot = new FlxSprite().makeGraphic(10, 10, FlxColor.RED);
+			dot = new FlxSprite().makeGraphic(10, 10, FlxColor.WHITE);
 			dot.camera = stageCamera;
 			dot.forceIsOnScreen = true;
 		}
@@ -564,6 +639,27 @@ class StageEditor extends UIState {
 		], sprite.camera, sprite.frameWidth, sprite.frameHeight);
 
 		//Logs.trace("Guide at " + corners[0].x + ", " + corners[0].y + " sprite at " + sprite.x + ", " + sprite.y);
+
+		if(sprite is FunkinSprite) {
+			var sprite:FunkinSprite = cast sprite;
+			var maxX = Math.max(Math.max(corners[0].x, corners[1].x), Math.max(corners[2].x, corners[3].x));
+			var maxY = Math.max(Math.max(corners[0].y, corners[1].y), Math.max(corners[2].y, corners[3].y));
+			var minX = Math.min(Math.min(corners[0].x, corners[1].x), Math.min(corners[2].x, corners[3].x));
+			var minY = Math.min(Math.min(corners[0].y, corners[1].y), Math.min(corners[2].y, corners[3].y));
+
+			if(!sprite.extra.exists(exID("bounds"))) {
+				sprite.extra.set(exID("bounds"), new FlxRect());
+			}
+			cast(sprite.extra.get(exID("bounds")), FlxRect).set(minX, minY, maxX - minX, maxY - minY);
+		}
+
+		dot.color = FlxColor.RED;
+		if(sprite is FunkinSprite) {
+			var sprite:FunkinSprite = cast sprite;
+			if(sprite.extra.get(exID("selected")) == true) {
+				dot.color = FlxColor.GREEN;
+			}
+		}
 
 		for(corner in corners) {
 			drawDot(corner.x, corner.y);

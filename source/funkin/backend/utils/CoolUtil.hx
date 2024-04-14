@@ -416,6 +416,21 @@ class CoolUtil
 		sprite.scale.set(nScale, nScale);
 	}
 
+	public static function setGraphicSizeFloat(sprite:FlxSprite, Width:Float = 0, Height:Float = 0):Void
+	{
+		if (Width <= 0 && Height <= 0)
+			return;
+
+		var newScaleX:Float = Width / sprite.frameWidth;
+		var newScaleY:Float = Height / sprite.frameHeight;
+		sprite.scale.set(newScaleX, newScaleY);
+
+		if (Width <= 0)
+			sprite.scale.x = newScaleY;
+		else if (Height <= 0)
+			sprite.scale.y = newScaleX;
+	}
+
 	/**
 	 * Returns a simple string representation of a FlxKey. Used in Controls options.
 	 * @param key Key

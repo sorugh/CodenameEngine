@@ -136,7 +136,14 @@ class StageElementButton extends UIButton {
 		// TODO: implement
 	}
 
+	public function getPos():FlxPoint {
+		return FlxPoint.get(-1, -1);
+	}
+
 	public function getInfoText():String {
-		return 'NOT IMPLEMENTED';
+		var pos = getPos();
+		var text = '${getName()} (${CoolUtil.quantize(pos.x, 100)}x${CoolUtil.quantize(pos.y, 100)})';
+		pos.put();
+		return text;
 	}
 }

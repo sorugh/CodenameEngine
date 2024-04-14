@@ -1,5 +1,6 @@
 package funkin.editors.stage;
 
+import lime.ui.MouseCursor;
 import flixel.math.FlxAngle;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
@@ -13,6 +14,7 @@ import funkin.game.Character;
 import funkin.game.Stage;
 import haxe.xml.Access;
 import haxe.xml.Printer;
+import openfl.ui.Mouse;
 
 using funkin.backend.utils.MatrixUtil;
 
@@ -32,7 +34,6 @@ class StageEditor extends UIState {
 
 	public var uiGroup:FlxTypedGroup<FlxSprite> = new FlxTypedGroup<FlxSprite>();
 	public var stageSpritesWindow:UIButtonList<StageElementButton>;
-	public var stageSprites:FlxTypedGroup<StageSprite> = new FlxTypedGroup<StageSprite>();
 
 	public var xmlMap:Map<FlxObject, Access> = new Map<FlxObject, Access>();
 
@@ -43,7 +44,12 @@ class StageEditor extends UIState {
 	public var guideCamera:FlxCamera;
 	public var uiCamera:FlxCamera;
 
-	public static var selection:Selection;
+	public var selection:Selection = new Selection();
+	public var mouseMode:StageEditorMouseMode = NONE;
+	public var mousePoint:FlxPoint = new FlxPoint();
+	public var clickPoint:FlxPoint = new FlxPoint();
+	public var storedPos:FlxPoint = new FlxPoint();
+	public var storedScale:FlxPoint = new FlxPoint();
 
 	public var showOutlines:Bool = true;
 	public var showCharacters:Bool = true;
@@ -182,6 +188,7 @@ class StageEditor extends UIState {
 			if(sprite is FunkinSprite) {
 				var sprite:FunkinSprite = cast sprite;
 				name = sprite.name;
+				sprite.extra.set(exID("node"), node);
 				sprite.extra.set(exID("type"), node.name);
 				sprite.extra.set(exID("imageFile"), '${node.getAtt("sprite").getDefault(sprite.name)}');
 				//sprite.active = false;
@@ -217,10 +224,6 @@ class StageEditor extends UIState {
 			order.push(sprite);
 			xmlMap.set(sprite, node);
 
-			//var t = new StageSprite(name, sprite);
-			//t.node = node;
-			//stageSprites.add(t);
-
 			return sprite;
 		}
 		stage.loadXml(stage.stageXML, true);
@@ -234,12 +237,6 @@ class StageEditor extends UIState {
 			charMap[charPos.name] = char;
 		}
 
-		add(stageSprites);
-
-		for(spr in order) {
-
-		}
-
 		setZoom(stage.defaultZoom);
 
 		topMenuSpr = new UITopMenu(topMenu);
@@ -251,6 +248,8 @@ class StageEditor extends UIState {
 		var buttonSize:FlxPoint = FlxPoint.get(width-margin*2, 32);
 		stageSpritesWindow = new UIButtonList<StageElementButton>(Std.int(FlxG.width - width), TOP_MENU_HEIGHT, width, Std.int(FlxG.height - TOP_MENU_HEIGHT), "Stage Sprites", buttonSize);
 		stageSpritesWindow.collapsable = true;
+		stageSpritesWindow.middleAlpha = 0.5;
+		stageSpritesWindow.bottomAlpha = 0.5;
 		stageSpritesWindow.addButton.callback = () -> {
 			// TODO: implement this
 		}
@@ -311,6 +310,8 @@ class StageEditor extends UIState {
 		//if (character != null)
 		//	characterPropertiresWindow.characterInfo.text = '${character.getNameList().length} Animations\nFlipped: ${character.flipX}\nSprite: ${character.sprite}\nAnim: ${character.getAnimName()}\nOffset: (${character.frameOffset.x}, ${character.frameOffset.y})';
 
+		currentCursor = ARROW;
+
 		if ((!stageSpritesWindow.hovered && !stageSpritesWindow.dragging) && !topMenuSpr.hovered) {
 			if (FlxG.mouse.wheel != 0) {
 				zoom += 0.25 * FlxG.mouse.wheel;
@@ -370,17 +371,23 @@ class StageEditor extends UIState {
 				}
 			}*/
 
+			for(sprite in selection) {
+				if(sprite is FunkinSprite) {
+					handleSelection(cast sprite);
+				}
+			}
+
 			//if (FlxG.mouse.justReleasedRight) {
 			//	closeCurrentContextMenu();
 			//	openContextMenu(topMenu[2].childs);
 			//}
-			if (FlxG.mouse.pressed) {
+
+			if (FlxG.mouse.pressed && mouseMode == NONE) {
 				nextScroll.set(nextScroll.x - FlxG.mouse.deltaScreenX, nextScroll.y - FlxG.mouse.deltaScreenY);
 				currentCursor = HAND;
-			} else
-				currentCursor = ARROW;
-		} else if (!FlxG.mouse.pressed)
-			currentCursor = ARROW;
+			}
+		}/* else if (!FlxG.mouse.pressed)
+			currentCursor = ARROW;*/
 
 		stageCamera.scroll.set(
 			lerp(stageCamera.scroll.x, nextScroll.x, 0.35),
@@ -394,6 +401,7 @@ class StageEditor extends UIState {
 	}
 
 	public function selectSprite(_sprite:FunkinSprite) {
+		selection = new Selection([]);
 		var sprites = stageSpritesWindow.buttons.members.map((o) -> o.getSprite()).filter((o) -> o != null);// && o.animateAtlas == null);
 		for(sprite in sprites) {
 			if(sprite is FunkinSprite) {
@@ -406,6 +414,8 @@ class StageEditor extends UIState {
 			var sprite:FunkinSprite = cast _sprite;
 			sprite.extra.set(exID("selected"), true);
 			sprite.extra.get(exID("button")).selected = true;
+			selection = new Selection([sprite]);
+			Logs.trace("Selected " + sprite.name);
 		}
 	}
 
@@ -592,27 +602,22 @@ class StageEditor extends UIState {
 		super.draw();
 
 		if(!showOutlines) return;
-
+		mousePoint = FlxG.mouse.getWorldPosition(stageCamera, mousePoint);
 		if(dot == null) {
-			dot = new FlxSprite().makeGraphic(10, 10, FlxColor.WHITE);
+			dot = new FlxSprite().makeGraphic(30, 30, FlxColor.WHITE);
 			dot.camera = stageCamera;
 			dot.forceIsOnScreen = true;
 		}
-		for(sprite in stage.stageSprites) {
-			if(sprite.visible && sprite.isOnScreen(stageCamera)) {
+		for(sprite in selection) {
+			if(sprite is FunkinSprite) {
 				@:privateAccess if(sprite._frame == null) continue;
-				drawGuides(sprite);
-			}
-		}
-		if(showCharacters) {
-			for(char in chars) {
-				if(char.visible && char.isOnScreen(stageCamera)) {
-					@:privateAccess if(char._frame == null) continue;
-					drawGuides(char);
-				}
+				drawGuides(cast sprite);
 			}
 		}
 	}
+
+	var lineColor = 0xFFb794b6;
+	var circleColor = 0xFF99a8f2;
 
 	function drawGuides(sprite:FlxSprite) {
 		var oldWidth = sprite.width;
@@ -652,28 +657,123 @@ class StageEditor extends UIState {
 			}
 			cast(sprite.extra.get(exID("bounds")), FlxRect).set(minX, minY, maxX - minX, maxY - minY);
 		}
+		var funkinSprite = sprite is FunkinSprite ? cast(sprite, FunkinSprite) : null;
 
-		dot.color = FlxColor.RED;
-		if(sprite is FunkinSprite) {
-			var sprite:FunkinSprite = cast sprite;
-			if(sprite.extra.get(exID("selected")) == true) {
-				dot.color = FlxColor.GREEN;
+		if(funkinSprite != null) {
+			if(funkinSprite.extra.exists(exID("buttonBoxes"))) {
+				var oldButtonBoxes:Array<FlxPoint> = cast funkinSprite.extra.get(exID("buttonBoxes"));
+				if(oldButtonBoxes != null) {
+					for(point in oldButtonBoxes) {
+						point.put();
+					}
+				}
 			}
 		}
-
-		for(corner in corners) {
-			drawDot(corner.x, corner.y);
-			corner.put();
+		var buttonBoxes = [];
+		if(funkinSprite != null) {
+			funkinSprite.extra.set(exID("buttonBoxes"), buttonBoxes);
 		}
+
+		dot.color = lineColor;
 
 		drawLine(corners[0], corners[1]); // tl - tr
 		drawLine(corners[0], corners[2]); // tl - bl
 		drawLine(corners[1], corners[3]); // tr - br
 		drawLine(corners[2], corners[3]); // bl - br
+		// cross
+		//drawLine(corners[0], corners[3]); // tl - br
+		//drawLine(corners[1], corners[2]); // tr - bl
+
+		dot.color = circleColor;
+
+		for(corner in corners) {
+			drawDot(corner.x, corner.y);
+			buttonBoxes.push(corner);
+		}
+
+		if(funkinSprite == null) {
+			for(corner in buttonBoxes) {
+				corner.put();
+			}
+		}
 
 		// reset hitbox to old values
 		sprite.width = oldWidth;
 		sprite.height = oldHeight;
+	}
+
+	var edges:Array<StageEditorEdge> = [
+		//// corners
+		TOP_LEFT, //FlxPoint.get(0, 0),
+		TOP_RIGHT, //FlxPoint.get(1, 0),
+		BOTTOM_LEFT, //FlxPoint.get(0, 1),
+		BOTTOM_RIGHT, //FlxPoint.get(1, 1),
+		//// edges
+		MIDDLE_LEFT, //FlxPoint.get(0, 0.5),
+		MIDDLE_RIGHT, //FlxPoint.get(1, 0.5),
+		BOTTOM_MIDDLE, //FlxPoint.get(0.5, 1),
+		TOP_MIDDLE, //FlxPoint.get(0.5, 0),
+	];
+
+	function tryUpdateHitbox(sprite:FunkinSprite) {
+		call("tryUpdateHitbox", [sprite]);
+	}
+
+	function handleSelection(sprite:FunkinSprite) {
+		var buttonBoxes = sprite.extra.get(exID("buttonBoxes"));
+
+		dotCheckSize = dot.frameWidth / 0.7/stageCamera.zoom; // basically adjust it to the zoom.
+
+		if(FlxG.mouse.justPressed) {
+			for(i=>edge in edges) {
+				if(checkDot(buttonBoxes[i])) {
+					mouseMode = switch(edge) {
+						case TOP_LEFT: SCALE_TOP_LEFT;
+						case TOP_MIDDLE: SCALE_TOP;
+						case TOP_RIGHT: SCALE_TOP_RIGHT;
+						case MIDDLE_LEFT: SCALE_LEFT;
+						case MIDDLE_RIGHT: SCALE_RIGHT;
+						case BOTTOM_LEFT: SCALE_BOTTOM_LEFT;
+						case BOTTOM_MIDDLE: SCALE_BOTTOM;
+						case BOTTOM_RIGHT: SCALE_BOTTOM_RIGHT;
+						default: NONE;
+					}
+					Logs.trace("Clicked Dot: " + mouseMode.toString());
+					mousePoint.copyTo(clickPoint);
+					storedPos.set(sprite.x, sprite.y);
+					storedScale.copyFrom(sprite.scale);
+				}
+			}
+		}
+		for(i=>edge in edges) {
+			if(checkDot(buttonBoxes[i])) {
+				currentCursor = switch(edge) {
+					// RESIZE_NESW; //RESIZE_NS; //RESIZE_NWSE; //RESIZE_WE;
+					case TOP_LEFT | BOTTOM_RIGHT: MouseCursor.RESIZE_NWSE;
+					case TOP_MIDDLE | BOTTOM_MIDDLE: MouseCursor.RESIZE_NS;
+					case TOP_RIGHT | BOTTOM_LEFT: MouseCursor.RESIZE_NESW;
+					case MIDDLE_LEFT | MIDDLE_RIGHT: MouseCursor.RESIZE_WE;
+					default: ARROW;
+				}
+				break;
+			}
+		}
+
+		mouseMode = (FlxG.mouse.justReleased) ? NONE : mouseMode;
+		if(mouseMode == NONE) return;
+		var relative = clickPoint.subtractNew(mousePoint);
+		// todo: make this origin based
+		relative.rotateByDegrees(sprite.angle);
+		call(mouseMode.toString(), [sprite, relative]);
+		cast(sprite.extra.get(exID("button")), StageElementButton).updateInfo(sprite);
+		relative.put();
+	}
+
+	var dotCheckSize:Float = 50;
+
+	function checkDot(point:FlxPoint):Bool {
+		var rect = new FlxRect(point.x - dotCheckSize/2, point.y - dotCheckSize/2, dotCheckSize, dotCheckSize);
+		return rect.containsPoint(mousePoint);
 	}
 
 	inline function drawDot(x:Float, y:Float) {
@@ -712,8 +812,8 @@ enum StageChange {
 	CEditInfo(oldInfo:Xml, newInfo:Xml);
 }
 
-@:forward abstract Selection(Array<StageSprite>) from Array<StageSprite> to Array<StageSprite> {
-	public inline function new(?array:Array<StageSprite>)
+@:forward abstract Selection(Array<FunkinSprite>) from Array<FunkinSprite> to Array<FunkinSprite> {
+	public inline function new(?array:Array<FunkinSprite>)
 		this = array == null ? [] : array;
 
 	// too lazy to put this in every for loop so i made it a abstract
@@ -727,112 +827,70 @@ enum StageChange {
 	//}
 }
 
-class StageSprite extends UISprite {
-	public var tracker:FlxObject;
-	public var funkinTracker:FunkinSprite;
-	public var node:Access;
+enum abstract StageEditorMouseMode(Int) {
+	var NONE;
 
-	public var name:String;
+	var SCALE_LEFT;
+	var SCALE_BOTTOM;
+	var SCALE_TOP;
+	var SCALE_RIGHT;
+	var SCALE_TOP_LEFT;
+	var SCALE_TOP_RIGHT;
+	var SCALE_BOTTOM_LEFT;
+	var SCALE_BOTTOM_RIGHT;
 
-	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
+	var SKEW_LEFT;
+	var SKEW_BOTTOM;
+	var SKEW_TOP;
+	var SKEW_RIGHT;
 
-	public var scrollX:Float;
-	public var scrollY:Float;
-	public var scaleX:Float;
-	public var scaleY:Float;
-	public var zoomFactor:Float = 1; // TODO: implement this
-	public var skewX:Float;
-	public var skewY:Float;
-	public var spriteAnimType:XMLAnimType;
+	var ROTATE;
 
-	public var skipNegativeBeats:Bool = false;
-	public var beatInterval:Int = 0;
-	public var beatOffset:Int = 0;
-
-	public var lowMemory:Bool;
-	public var highMemory:Bool;
-
-	public var selected:Bool = false;
-	public var draggable:Bool = false;
-
-	public function new(name:String, sprite:FlxObject) {
-		super(x, y);
-		this.name = name;
-		this.tracker = sprite;
-
-		scrollX = tracker.scrollFactor.x;
-		scrollY = tracker.scrollFactor.y;
-		if(tracker is FunkinSprite) {
-			var tracker:FunkinSprite = cast tracker;
-			scaleX = tracker.scale.x;
-			scaleY = tracker.scale.y;
-			funkinTracker = tracker;
-		}
-		else if (tracker is StageCharPos) {
-			var tracker:StageCharPos = cast tracker;
-			var char:Character = tracker.extra.get(StageEditor.exID("char"));
-			scaleX = tracker.scale.x;
-			scaleY = tracker.scale.y;
-			funkinTracker = char;
-		}
-
-		lowMemory = node.x.parent.nodeName == "low-memory";
-		highMemory = node.x.parent.nodeName == "high-memory";
-
-		if(funkinTracker != null) {
-			skewX = funkinTracker.skew.x;
-			skewY = funkinTracker.skew.y;
-			alpha = funkinTracker.alpha;
-			spriteAnimType = funkinTracker.spriteAnimType;
-			antialiasing = funkinTracker.antialiasing;
-			width = funkinTracker.width;
-			height = funkinTracker.height;
-			color = funkinTracker.color;
-
-			skipNegativeBeats = funkinTracker.skipNegativeBeats;
-			beatInterval = funkinTracker.beatInterval;
-			beatOffset = funkinTracker.beatOffset;
-		}
-
-	}
-
-	public override function update(elapsed:Float) {
-		super.update(elapsed);
-		if (tracker.exists) {
-			tracker.x = x;
-			tracker.y = y;
-			tracker.scrollFactor.set(scrollX, scrollY);
-			if(tracker is FlxSprite) {
-				var tracker:FlxSprite = cast tracker;
-			}
-			else if (tracker is StageCharPos) {
-				var tracker:StageCharPos = cast tracker;
-				tracker.skewX = skewX;
-				tracker.skewY = skewY;
-			}
-
-			if(funkinTracker != null) {
-				funkinTracker.scale.set(scaleX, scaleY);
-				funkinTracker.skew.set(skewX, skewY);
-				funkinTracker.alpha = alpha;
-				funkinTracker.spriteAnimType = spriteAnimType;
-				funkinTracker.antialiasing = antialiasing;
-				funkinTracker.width = width;
-				funkinTracker.height = height;
-
-				funkinTracker.skipNegativeBeats = skipNegativeBeats;
-				funkinTracker.beatInterval = beatInterval;
-				funkinTracker.beatOffset = beatOffset;
-
-				funkinTracker.color = color;
-			}
+	public function toString():String {
+		return switch(cast this) {
+			case NONE: "NONE";
+			case SCALE_LEFT: "SCALE_LEFT";
+			case SCALE_BOTTOM: "SCALE_BOTTOM";
+			case SCALE_TOP: "SCALE_TOP";
+			case SCALE_RIGHT: "SCALE_RIGHT";
+			case SCALE_TOP_LEFT: "SCALE_TOP_LEFT";
+			case SCALE_TOP_RIGHT: "SCALE_TOP_RIGHT";
+			case SCALE_BOTTOM_LEFT: "SCALE_BOTTOM_LEFT";
+			case SCALE_BOTTOM_RIGHT: "SCALE_BOTTOM_RIGHT";
+			case SKEW_LEFT: "SKEW_LEFT";
+			case SKEW_BOTTOM: "SKEW_BOTTOM";
+			case SKEW_TOP: "SKEW_TOP";
+			case SKEW_RIGHT: "SKEW_RIGHT";
+			case ROTATE: "ROTATE";
 		}
 	}
+}
 
-	public function handleSelection(selectionBox:UISliceSprite):Bool {
-		return false;
-	};
-	public function handleDrag(change:FlxPoint):Void {
+enum abstract StageEditorEdge(Int) {
+	var NONE;
 
-	};
+	var TOP_LEFT;
+	var TOP_MIDDLE;
+	var TOP_RIGHT;
+	var MIDDLE_LEFT;
+	var MIDDLE_MIDDLE;
+	var MIDDLE_RIGHT;
+	var BOTTOM_LEFT;
+	var BOTTOM_MIDDLE;
+	var BOTTOM_RIGHT;
+
+	function toString():String {
+		return switch(cast this) {
+			case NONE: "NONE";
+			case TOP_LEFT: "TOP_LEFT";
+			case TOP_MIDDLE: "TOP_MIDDLE";
+			case TOP_RIGHT: "TOP_RIGHT";
+			case MIDDLE_LEFT: "MIDDLE_LEFT";
+			case MIDDLE_MIDDLE: "MIDDLE_MIDDLE";
+			case MIDDLE_RIGHT: "MIDDLE_RIGHT";
+			case BOTTOM_LEFT: "BOTTOM_LEFT";
+			case BOTTOM_MIDDLE: "BOTTOM_MIDDLE";
+			case BOTTOM_RIGHT: "BOTTOM_RIGHT";
+		}
+	}
 }

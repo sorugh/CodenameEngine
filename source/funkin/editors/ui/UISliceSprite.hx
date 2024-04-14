@@ -31,6 +31,18 @@ class UISliceSprite extends UISprite {
 		bHeight = h;
 	}
 
+	override function set_alpha(value:Float) {
+		super.set_alpha(value);
+		topAlpha = alpha;
+		middleAlpha = alpha;
+		bottomAlpha = alpha;
+		return value;
+	}
+
+	public var topAlpha:Float = 1;
+	public var middleAlpha:Float = 1;
+	public var bottomAlpha:Float = 1;
+
 	public var drawTop:Bool = true;
 	public var drawMiddle:Bool = true;
 	public var drawBottom:Bool = true;
@@ -87,8 +99,10 @@ class UISliceSprite extends UISprite {
 		var y:Float = this.y;
 
 		if (visible && !(bWidth == 0 || bHeight == 0)) {
+			var oldAlpha = alpha;
 			// TOP
 			if (drawTop) {
+				super.set_alpha(topAlpha);
 				// TOP LEFT
 				frame = topleft;
 				setPosition(x, y);
@@ -118,6 +132,7 @@ class UISliceSprite extends UISprite {
 
 			// MIDDLE
 			if (drawMiddle && bHeight > top.frame.height + bottom.frame.height) {
+				super.set_alpha(middleAlpha);
 				var middleHeight:Float = bHeight - (topleft.frame.height * Math.min(bHeight/(topleft.frame.height*2), 1)) -
 				bottomleft.frame.height * Math.min(bHeight/(bottomleft.frame.height*2), 1);
 
@@ -144,6 +159,7 @@ class UISliceSprite extends UISprite {
 
 			// BOTTOM
 			if (drawBottom) {
+				super.set_alpha(bottomAlpha);
 				// BOTTOM LEFT
 				frame = bottomleft;
 				setPosition(x, y + bHeight - (bottomleft.frame.height * Math.min(bHeight/(bottomleft.frame.height*2), 1)));
@@ -172,7 +188,9 @@ class UISliceSprite extends UISprite {
 					bottomright.frame.height * Math.min(bHeight/(bottomright.frame.height*2), 1)
 				);
 				super.drawSuper();
+
 			}
+			super.set_alpha(oldAlpha);
 		}
 
 		setPosition(x, y);

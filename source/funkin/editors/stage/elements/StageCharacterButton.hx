@@ -53,8 +53,8 @@ class StageCharacterButton extends StageElementButton {
 		return charPos.name;
 	}
 
-	public override function getInfoText():String {
-		return '${getName()} (${charPos.x}, ${charPos.y})';
+	public override function getPos():FlxPoint {
+		return FlxPoint.get(charPos.x, charPos.y);
 	}
 
 	public override function updatePos() {

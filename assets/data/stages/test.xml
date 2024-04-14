@@ -1,0 +1,36 @@
+<!-- praying to god we remove this file later on -->
+
+<stage zoom="0.9" name="stage" folder="stages/default/" startCamPosY="600" startCamPosX="1000">
+	<sprite name="normBG" 			sprite="stagefront" x="-500" y="100" scale="0.75" updateHitbox="true" />
+	<sprite name="noUpdateHitbox" 	sprite="stagefront" x="-500" y="300" scale="0.75" />
+	<sprite name="ro-tat-ay" 		sprite="stagefront" x="-500" y="700" scale="0.75" updateHitbox="true" angle="37" />
+	
+	
+	<!-- oh yeah those exist
+	where the first one go
+	you saw the video?
+	the wha
+	https://www.youtube.com/watch?v=d6iQrh2TK98
+	well that explains a bit
+	whats weird is that i typically think of the number *twenty* seven
+    guess my favortie number
+	37
+	-23.47
+	interesting
+	oops
+	you will be surprised how it looks after me wizard and yosh used it lol, 268kb
+	
+	also i love how most of nthis files size comes from the convo
+	37 is a wacky number so im using that for testing
+ // maybe box? so its colors
+ wrong format lol (im on stepmania xml) 
+ also just realized i cant scale boxes, you can, just not <solid> 
+ we may need a different func for boxes/solids. 
+ storedScale should still work
+ and when we save we just have to save either width and scale.x, or calculate the width from the scale
+ i think we can do sprite.frameWidth * sprite.scale.x when saving boxes luckfully
+ oh yeah -->
+
+ <!-- <box == makeGraphic -->
+ <!-- <solid == makeSolid -->
+</stage>

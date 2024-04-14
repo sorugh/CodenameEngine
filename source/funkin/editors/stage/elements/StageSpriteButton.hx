@@ -59,8 +59,8 @@ class StageSpriteButton extends StageElementButton {
 		return xml.att.name;
 	}
 
-	public override function getInfoText():String {
-		return '${getName()} (${sprite.x}, ${sprite.y})';
+	public override function getPos():FlxPoint {
+		return FlxPoint.get(sprite.x, sprite.y);
 	}
 
 	public override function updatePos() {

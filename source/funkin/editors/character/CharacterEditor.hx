@@ -1,5 +1,6 @@
 package funkin.editors.character;
 
+import funkin.editors.extra.CameraHoverDummy;
 import openfl.display.BitmapData;
 import flixel.math.FlxPoint;
 import funkin.backend.system.framerate.Framerate;
@@ -28,6 +29,8 @@ class CharacterEditor extends UIState {
 	public var topMenuSpr:UITopMenu;
 
 	public var uiGroup:FlxTypedGroup<FlxSprite> = new FlxTypedGroup<FlxSprite>();
+
+	public var cameraHoverDummy:CameraHoverDummy;
 
 	public var characterPropertiresWindow:CharacterPropertiesWindow;
 	public var characterAnimsWindow:CharacterAnimsWindow;
@@ -229,35 +232,26 @@ class CharacterEditor extends UIState {
 		add(ghosts);
 		add(character);
 
+		uiGroup.cameras = [uiCamera];
+		add(cameraHoverDummy = new CameraHoverDummy(uiGroup, FlxPoint.weak(0, 0)));
+
 		characterPropertiresWindow = new CharacterPropertiesWindow((FlxG.width-500), 23+12+10, character);
 		uiGroup.add(characterPropertiresWindow);
 
 		topMenuSpr = new UITopMenu(topMenu);
-		topMenuSpr.cameras = uiGroup.cameras = [uiCamera];
+		topMenuSpr.cameras = [uiCamera];
 
 		var animationsLoaded:Array<String> = character.getAnimOrder();
 
 		characterAnimsWindow = new CharacterAnimsWindow(characterPropertiresWindow.x, characterPropertiresWindow.y+224+16, animationsLoaded);
 		uiGroup.add(characterAnimsWindow);
 
-		playAnimation(animationsLoaded[0]);
-
-		var characterMidpoint:FlxPoint = character.getMidpoint();
-		characterMidpoint.x += ((characterAnimsWindow.bWidth+23)/2);
-		characterMidpoint.x -= (FlxG.width/2)-character.globalOffset.x;
-		characterMidpoint.y -= (FlxG.height/2)-character.globalOffset.y+(23/4);
-		charCamera.scroll = _nextScroll.set(characterMidpoint.x, characterMidpoint.y);
-		characterMidpoint.put();
-
-		_cameraZoomMulti = 1/(1+(0-character.getScreenPosition().y/FlxG.height));
-		if (!(_cameraZoomMulti < 1)) _cameraZoomMulti *= .9;
-		FlxG.camera.zoom = __camZoom = _cameraZoomMulti;
-
-		_nextScroll.x -= ((FlxG.width/2)*FlxG.camera.zoom)-FlxG.width/2;
-		_nextScroll.y += (((FlxG.height/2)*FlxG.camera.zoom)-FlxG.height/2)/2;
-
 		add(uiGroup);
 		add(topMenuSpr);
+
+		playAnimation(animationsLoaded[0]);
+		_view_focus_character(null);
+
 
 		if(Framerate.isLoaded) {
 			Framerate.fpsCounter.alpha = 0.4;
@@ -280,15 +274,10 @@ class CharacterEditor extends UIState {
 	var _nextScroll:FlxPoint = FlxPoint.get(0,0);
 	var _cameraZoomMulti:Float = 1;
 	public override function update(elapsed:Float) {
-		super.update(elapsed);
-
 		if(FlxG.keys.justPressed.ANY)
 			UIUtil.processShortcuts(topMenu);
 
-		// if (character != null)
-			// characterPropertiresWindow.characterInfo.text = '${character.getNameList().length} Animations\nFlipped: ${character.flipX}\nSprite: ${character.sprite}\nAnim: ${character.getAnimName()}\nOffset: (${character.frameOffset.x}, ${character.frameOffset.y})';
-
-		if (/*!(characterPropertiresWindow.hovered || characterAnimsWindow.hovered) && !characterAnimsWindow.dragging*/true) {
+		if (cameraHoverDummy.hovered) {
 			if (FlxG.mouse.wheel != 0) {
 				zoom += 0.25 * FlxG.mouse.wheel;
 				__camZoom = Math.pow(2, zoom);
@@ -298,6 +287,7 @@ class CharacterEditor extends UIState {
 				closeCurrentContextMenu();
 				openContextMenu(topMenu[2].childs);
 			}
+
 			if (FlxG.mouse.pressed) {
 				_nextScroll.set(_nextScroll.x - FlxG.mouse.deltaScreenX, _nextScroll.y - FlxG.mouse.deltaScreenY);
 				currentCursor = HAND;
@@ -315,6 +305,8 @@ class CharacterEditor extends UIState {
 
 		characterBG.scale.set(FlxG.width/characterBG.width, FlxG.height/characterBG.height);
 		characterBG.scale.set(characterBG.scale.x / charCamera.zoom, characterBG.scale.y / charCamera.zoom);
+
+		super.update(elapsed);
 
 		WindowUtils.prefix = undos.unsaved ? "* " : "";
 		SaveWarning.showWarning = undos.unsaved;
@@ -634,6 +626,16 @@ class CharacterEditor extends UIState {
 	function _view_zoomreset(_) {
 		zoom = 0;
 		__camZoom = Math.pow(2, zoom);
+	}
+
+	function _view_focus_character(_) {
+		if (character == null) return;
+
+		var characterMidpoint:FlxPoint = character.getMidpoint();
+		characterMidpoint.x -= (FlxG.width/2)-character.globalOffset.x;
+		characterMidpoint.y -= (FlxG.height/2)-character.globalOffset.y+(23/4);
+		_nextScroll.set(characterMidpoint.x, characterMidpoint.y);
+		characterMidpoint.put();
 	}
 	#end
 }

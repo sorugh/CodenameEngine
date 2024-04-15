@@ -1,6 +1,7 @@
 package funkin.editors.charter;
 // ! FUCK YOU CHUF (your biggest fan -lunar) <3
 
+import funkin.editors.extra.CameraHoverDummy;
 import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxPoint;
 import flixel.sound.FlxSound;
@@ -8,7 +9,6 @@ import funkin.backend.chart.*;
 import funkin.backend.chart.ChartData;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.framerate.Framerate;
-import funkin.editors.charter.CharterBackdropGroup.CharterBackdropDummy;
 import funkin.editors.charter.CharterBackdropGroup.EventBackdrop;
 import funkin.editors.charter.CharterStrumline;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
@@ -50,7 +50,7 @@ class Charter extends UIState {
 	public var eventsBackdrop:EventBackdrop;
 	public var addEventSpr:CharterEventAdd;
 
-	public var gridBackdropDummy:CharterBackdropDummy;
+	public var gridBackdropDummy:CameraHoverDummy;
 	public var noteHoverer:CharterNoteHoverer;
 	public var noteDeleteAnims:CharterDeleteAnim;
 
@@ -391,7 +391,7 @@ class Charter extends UIState {
 		eventsBackdrop.cameras = [charterCamera];
 		eventsGroup.eventsBackdrop = eventsBackdrop;
 
-		add(gridBackdropDummy = new CharterBackdropDummy(gridBackdrops));
+		add(gridBackdropDummy = new CameraHoverDummy(gridBackdrops, FlxPoint.weak(1, 0)));
 		selectionBox = new UISliceSprite(0, 0, 2, 2, 'editors/ui/selection');
 		selectionBox.visible = false;
 		selectionBox.scrollFactor.set(1, 1);

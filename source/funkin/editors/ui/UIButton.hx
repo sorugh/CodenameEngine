@@ -6,6 +6,8 @@ class UIButton extends UISliceSprite {
 	public var shouldPress = true;
 	public var hasBeenPressed = false;
 
+	public var autoFrames:Bool = true;
+
 	public override function new(x:Float, y:Float, text:String, callback:Void->Void, w:Int = 120, h:Int = 32) {
 		super(x, y, w, h, 'editors/ui/button');
 		this.callback = callback;
@@ -38,7 +40,7 @@ class UIButton extends UISliceSprite {
 	}
 
 	public override function draw() {
-		framesOffset = hovered ? (pressed ? 18 : 9) : 0;
+		if (autoFrames) framesOffset = hovered ? (pressed ? 18 : 9) : 0;
 		super.draw();
 	}
 }

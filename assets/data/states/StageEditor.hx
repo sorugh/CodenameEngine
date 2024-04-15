@@ -47,10 +47,9 @@ function update() {
 }
 
 function genericScale(sprite, relative, doX, doY) {
-	if (FlxG.keys.pressed.ALT) {
-		relative.x *= 2;
-		relative.y *= 2;
-	}
+	var relativeMult = 1 / (FlxMath.lerp(1, stageCamera.zoom, sprite.zoomFactor) / stageCamera.zoom) * (FlxG.keys.pressed.ALT ? 2 : 1);
+	relative.x *= relativeMult;
+	relative.y *= relativeMult;
 
 	var width = sprite.frameWidth * storedScale.x;
 	var height = sprite.frameHeight * storedScale.y;

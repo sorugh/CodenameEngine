@@ -10,7 +10,7 @@ class CharacterAnimButton extends UIButton {
 		this.anim = anim;
 		super(x,y, '$anim (${offset.x}, ${offset.y})', function () {
 			CharacterEditor.instance.playAnimation(this.anim);
-		}, Std.int(500-32));
+		}, Std.int(500-16));
 		autoAlpha = false;
 	}
 

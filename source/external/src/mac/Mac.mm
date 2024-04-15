@@ -22,6 +22,8 @@
 #define RESIZE_B 18
 #define RESIZE_L 19
 #define RESIZE_R 20
+#define RESIZE_TLBR 21
+#define RESIZE_TRBL 22
 #define CUSTOM -1
 
 namespace ExternalMac {
@@ -49,6 +51,8 @@ namespace ExternalMac {
 			case RESIZE_B: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeSouthCursor) defaultCursor:[NSCursor arrowCursor]]; break;
 			case RESIZE_L: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeWestCursor) defaultCursor:[NSCursor arrowCursor]]; break;
 			case RESIZE_R: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeEastCursor) defaultCursor:[NSCursor arrowCursor]]; break;
+			case RESIZE_TLBR: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthWestSouthEastCursor) defaultCursor:[NSCursor arrowCursor]]; break;
+			case RESIZE_TRBL: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthEastSouthWestCursor) defaultCursor:[NSCursor arrowCursor]]; break;
 
 			case WAIT: cursor = [CursorHelper getCursorForSelector:@selector(_waitCursor) defaultCursor:[NSCursor arrowCursor]]; break;
 			case WAIT_ARROW: cursor = [CursorHelper getCursorForSelector:@selector(_waitCursor) defaultCursor:[NSCursor arrowCursor]]; break;

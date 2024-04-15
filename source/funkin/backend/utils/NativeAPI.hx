@@ -177,6 +177,9 @@ enum abstract CodeCursor(String) {
 	var RESIZE_L;// = "resize_w";
 	var RESIZE_R;// = "resize_e";
 
+	var RESIZE_TLBR;// = "resize_nw_se";
+	var RESIZE_TRBL;// = "resize_ne_sw";
+
 	var WAIT;// = "wait";
 	var WAIT_ARROW;// = "waitarrow";
 	var DISABLED;// = "disabled";
@@ -207,9 +210,11 @@ enum abstract CodeCursor(String) {
 
 			case RESIZE_T: MouseCursor.__RESIZE_NS;
 			case RESIZE_B: MouseCursor.__RESIZE_NS;
-
 			case RESIZE_L: MouseCursor.__RESIZE_WE;
 			case RESIZE_R: MouseCursor.__RESIZE_WE;
+
+			case RESIZE_TLBR: MouseCursor.__RESIZE_NWSE;
+			case RESIZE_TRBL: MouseCursor.__RESIZE_NESW;
 			case CUSTOM: MouseCursor.__CUSTOM;
 			//default: ARROW;
 		}
@@ -239,9 +244,11 @@ enum abstract CodeCursor(String) {
 
 			case RESIZE_T: 17;
 			case RESIZE_B: 18;
-
 			case RESIZE_L: 19;
 			case RESIZE_R: 20;
+
+			case RESIZE_TLBR: 21;
+			case RESIZE_TRBL: 22;
 
 			case CUSTOM: -1;
 		}

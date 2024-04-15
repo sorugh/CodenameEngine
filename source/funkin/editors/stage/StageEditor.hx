@@ -749,10 +749,19 @@ class StageEditor extends UIState {
 			if(checkDot(buttonBoxes[i])) {
 				currentCursor = switch(edge) {
 					// RESIZE_NESW; //RESIZE_NS; //RESIZE_NWSE; //RESIZE_WE;
-					case TOP_LEFT | BOTTOM_RIGHT: MouseCursor.RESIZE_NWSE;
-					case TOP_MIDDLE | BOTTOM_MIDDLE: MouseCursor.RESIZE_NS;
-					case TOP_RIGHT | BOTTOM_LEFT: MouseCursor.RESIZE_NESW;
-					case MIDDLE_LEFT | MIDDLE_RIGHT: MouseCursor.RESIZE_WE;
+					case TOP_LEFT: RESIZE_TL;
+					case TOP_MIDDLE: RESIZE_T;
+					case TOP_RIGHT: RESIZE_TR;
+					case MIDDLE_LEFT: RESIZE_L;
+					//case MIDDLE_MIDDLE: RESIZE_H;
+					case MIDDLE_RIGHT: RESIZE_R;
+					case BOTTOM_LEFT: RESIZE_BL;
+					case BOTTOM_MIDDLE: RESIZE_B;
+					case BOTTOM_RIGHT: RESIZE_BR;
+					//case TOP_LEFT | BOTTOM_RIGHT: MouseCursor.RESIZE_NWSE;
+					//case TOP_MIDDLE | BOTTOM_MIDDLE: MouseCursor.RESIZE_NS;
+					//case TOP_RIGHT | BOTTOM_LEFT: MouseCursor.RESIZE_NESW;
+					//case MIDDLE_LEFT | MIDDLE_RIGHT: MouseCursor.RESIZE_WE;
 					default: ARROW;
 				}
 				break;
@@ -873,7 +882,7 @@ enum abstract StageEditorEdge(Int) {
 	var TOP_MIDDLE;
 	var TOP_RIGHT;
 	var MIDDLE_LEFT;
-	var MIDDLE_MIDDLE;
+	//var MIDDLE_MIDDLE;
 	var MIDDLE_RIGHT;
 	var BOTTOM_LEFT;
 	var BOTTOM_MIDDLE;
@@ -886,7 +895,7 @@ enum abstract StageEditorEdge(Int) {
 			case TOP_MIDDLE: "TOP_MIDDLE";
 			case TOP_RIGHT: "TOP_RIGHT";
 			case MIDDLE_LEFT: "MIDDLE_LEFT";
-			case MIDDLE_MIDDLE: "MIDDLE_MIDDLE";
+			//case MIDDLE_MIDDLE: "MIDDLE_MIDDLE";
 			case MIDDLE_RIGHT: "MIDDLE_RIGHT";
 			case BOTTOM_LEFT: "BOTTOM_LEFT";
 			case BOTTOM_MIDDLE: "BOTTOM_MIDDLE";

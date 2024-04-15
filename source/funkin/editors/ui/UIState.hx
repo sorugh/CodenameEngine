@@ -3,6 +3,7 @@ package funkin.editors.ui;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import funkin.backend.system.framerate.Framerate;
+import funkin.backend.utils.NativeAPI.CodeCursor;
 import funkin.editors.ui.UIContextMenu.UIContextMenuCallback;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
 import lime.ui.KeyCode;
@@ -19,7 +20,7 @@ class UIState extends MusicBeatState {
 	public var hoveredSprite:UISprite = null;
 	public var currentFocus:IUIFocusable = null;
 
-	public var currentCursor:MouseCursor = ARROW;
+	public var currentCursor:CodeCursor = ARROW;
 
 	private var __rect:FlxRect;
 	private var __mousePos:FlxPoint;
@@ -105,10 +106,12 @@ class UIState extends MusicBeatState {
 		FlxG.sound.keysAllowed = currentFocus != null ? !(currentFocus is UITextBox) : true;
 
 		if (hoveredSprite != null) {
-			Mouse.cursor = hoveredSprite.cursor;
+			NativeAPI.setCursorIcon(hoveredSprite.cursor);
+			//Mouse.cursor = hoveredSprite.cursor;
 			hoveredSprite = null;
 		} else {
-			Mouse.cursor = currentCursor;
+			NativeAPI.setCursorIcon(currentCursor);
+			//Mouse.cursor = currentCursor;
 		}
 	}
 

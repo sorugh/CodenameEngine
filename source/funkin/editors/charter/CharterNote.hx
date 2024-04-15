@@ -44,7 +44,7 @@ class CharterNote extends UISprite implements ICharterSelectable {
 
 		typeText = new UIText(x, y, 0, Std.string(type));
 
-		cursor = sustainSpr.cursor = BUTTON;
+		cursor = sustainSpr.cursor = CLICK;
 		moves = false;
 	}
 

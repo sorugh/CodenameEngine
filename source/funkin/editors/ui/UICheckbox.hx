@@ -22,7 +22,7 @@ class UICheckbox extends UISprite {
 		members.push(check);
 		members.push(field);
 
-		cursor = BUTTON;
+		cursor = CLICK;
 	}
 
 	public override function update(elapsed:Float) {

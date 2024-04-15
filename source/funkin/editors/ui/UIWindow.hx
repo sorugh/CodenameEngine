@@ -25,7 +25,7 @@ class UIWindow extends UISliceSprite {
 			__rect.width = bWidth; __rect.height = topHeight;
 
 			if(UIState.state.isOverlapping(this, __rect)) {
-				cursor = BUTTON;
+				cursor = CLICK;
 				if(FlxG.mouse.justPressed) {
 					content.exists = !content.exists;
 					drawMiddle = !drawMiddle;

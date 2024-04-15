@@ -13,7 +13,7 @@ class UIButton extends UISliceSprite {
 		field.alignment = CENTER;
 		field.fieldWidth = w;
 
-		cursor = BUTTON;
+		cursor = CLICK;
 	}
 
 	public override function resize(w:Int, h:Int) {

@@ -1,7 +1,11 @@
 package funkin.backend.utils.native;
 
 #if mac
-@:cppFileCode("#include <sys/sysctl.h>")
+import funkin.backend.utils.NativeAPI.CodeCursor;
+import openfl.ui.Mouse;
+
+@:build(funkin.backend.system.macros.LinkerMacro.xml('external/external_code.xml'))
+@:headerInclude('sys/sysctl.h')
 class Mac {
 	@:functionCode('
 	int mib [] = { CTL_HW, HW_MEMSIZE };
@@ -17,5 +21,47 @@ class Mac {
 	{
 		return 0;
 	}
+
+	public static function setMouseCursorIcon(icon:CodeCursor):Void
+	{
+		final valid:Bool = ExternalMac.setCursorIcon(icon.toInt());
+		if(!valid) {
+			Mouse.cursor = icon.toOpenFL();
+		}
+	}
+}
+
+@:build(funkin.backend.system.macros.LinkerMacro.xml('external/external_code.xml'))
+@:native("ExternalMac")
+@:include('Mac.h')
+extern class ExternalMac {
+	@:native("ExternalMac::setCursorIcon")
+	public static function setCursorIcon(icon:Int):Bool;
 }
 #end
+
+
+/*
+
+Cursor
+
+Description
+The arrow cursor (arrow)
+The I-beam cursor for indicating insertion points (iBeam)
+The cross-hair cursor (crosshair)
+The closed-hand cursor (closedHand)
+The open-hand cursor (openHand)
+The pointing-hand cursor (pointingHand)
+The resize-left cursor (resizeLeft)
+The resize-right cursor (resizeRight)
+The resize-left-and-right cursor (resizeLeftRight)
+The resize-up cursor (resizeUp)
+The resize-down cursor (resizeDown)
+The resize-up-and-down cursor (resizeUpDown)
+The disappearing item cursor (disappearingItem)
+The I-Beam text cursor for vertical layout (iBeamCursorForVerticalLayout).
+The not allowed cursor (operationNotAllowed).
+The drag link cursor (dragLink).
+The drag copy cursor (dragCopy).
+The contextual menu cursor (contextualMenu).
+*/

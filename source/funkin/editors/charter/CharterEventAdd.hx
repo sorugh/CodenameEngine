@@ -13,7 +13,7 @@ class CharterEventAdd extends UISliceSprite {
 		text = new UIText(0, 0, 0, "");
 		members.push(text);
 
-		cursor = BUTTON;
+		cursor = CLICK;
 	}
 
 	public override function onHovered() {

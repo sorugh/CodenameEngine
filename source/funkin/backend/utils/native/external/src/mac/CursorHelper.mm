@@ -1,0 +1,21 @@
+#import <Cocoa/Cocoa.h>
+#import "CursorHelper.h"
+
+@implementation CursorHelper
+
++ (NSCursor *)getCursorForSelector:(SEL)selector defaultCursor:(NSCursor *)defaultCursor {
+    NSCursor *cursor = nil;
+
+	#pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wundeclared-selector"
+    if ([NSCursor respondsToSelector:selector]) {
+        cursor = [NSCursor performSelector:selector];
+    } else {
+        cursor = defaultCursor;
+    }
+    #pragma clang diagnostic pop
+
+    return cursor;
+}
+
+@end

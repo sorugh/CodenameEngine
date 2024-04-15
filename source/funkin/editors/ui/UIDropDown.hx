@@ -43,7 +43,7 @@ class UIDropDown extends UISliceSprite {
 		this.options = [for(o in _items) o.label]; // backwards compatibility
 		this.index = index;
 
-		cursor = BUTTON;
+		cursor = CLICK;
 
 		label = new UIText(0, 0, width - height, items[index].label);
 		members.push(label);

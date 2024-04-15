@@ -64,7 +64,7 @@ class CharterStrumline extends UISprite {
 		draggingSprite.alpha = 0.4;
 		draggingSprite.y = 9;
 		draggingSprite.antialiasing = true;
-		draggingSprite.cursor = BUTTON;
+		draggingSprite.cursor = CLICK;
 		members.push(draggingSprite);
 
 		button = new CharterStrumlineOptions(this);

@@ -23,7 +23,7 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 		this.step = step;
 		this.events = events.getDefault([]);
 
-		cursor = BUTTON;
+		cursor = CLICK;
 	}
 
 	public override function update(elapsed:Float) {

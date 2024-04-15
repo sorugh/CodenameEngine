@@ -1,5 +1,8 @@
 package funkin.backend.utils;
 
+import openfl.geom.Point;
+import openfl.geom.Rectangle;
+import openfl.display.BitmapData;
 import flixel.animation.FlxAnimation;
 import flixel.input.keyboard.FlxKey;
 import flixel.sound.FlxSound;
@@ -733,6 +736,29 @@ class CoolUtil
 		return array.indexOf(element) != -1;
 	}
 	#end
+
+	/**
+	 * Returns a new bitmap without any empty transperent space on the edges
+	 * @param bitmap The bitmap to be cropped
+	 */
+	public static function cropBitmap(bitmap:BitmapData) {
+		var minX:Int = bitmap.width;
+        var minY:Int = bitmap.height;
+        var maxX:Int = 0; var maxY:Int = 0;
+        
+        for (y in 0...bitmap.height)
+            for (x in 0...bitmap.width)
+                if (bitmap.getPixel32(x, y) != 0x00000000) {
+                    if (x < minX) minX = x;
+                    if (y < minY) minY = y;
+                    if (x > maxX) maxX = x;
+                    if (y > maxY) maxY = y;
+                }
+        
+        var croppedBitmap:BitmapData = new BitmapData(maxX-minX+1, maxY-minY+1, true, 0x00000000);
+		croppedBitmap.copyPixels(bitmap, new Rectangle(minX, minY, croppedBitmap.width, croppedBitmap.height), new Point(0,0));
+		return croppedBitmap;
+	}
 }
 
 /**

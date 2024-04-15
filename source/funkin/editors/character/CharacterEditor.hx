@@ -1,5 +1,6 @@
 package funkin.editors.character;
 
+import openfl.display.BitmapData;
 import flixel.math.FlxPoint;
 import funkin.backend.system.framerate.Framerate;
 import funkin.backend.utils.XMLUtil.AnimData;
@@ -221,6 +222,8 @@ class CharacterEditor extends UIState {
 		characterBG.scrollFactor.set();
 		add(characterBG);
 
+		// characterBG.visible = false;
+
 		FlxG.cameras.add(uiCamera);
 		FlxG.cameras.add(animsCamera);
 
@@ -234,23 +237,23 @@ class CharacterEditor extends UIState {
 		add(ghosts);
 		add(character);
 
+		characterPropertiresWindow = new CharacterPropertiesWindow((FlxG.width-500)+16, 23+12+10, character);
+		uiGroup.add(characterPropertiresWindow);
+
 		topMenuSpr = new UITopMenu(topMenu);
 		topMenuSpr.cameras = uiGroup.cameras = [uiCamera];
-
-		characterPropertiresWindow = new CharacterPropertiesWindow();
-		uiGroup.add(characterPropertiresWindow);
 
 		characterAnimsWindow = new UIButtonList<CharacterAnimButtons>(777, 209, 473, 488, "Character Animations", FlxPoint.get(429, 32));
 		characterAnimsWindow.addButton.callback = function() CharacterEditor.instance.createAnimWithUI();
 		var animOrder = character.getAnimOrder();
 		for (i=>anim in animOrder)
 			characterAnimsWindow.add(new CharacterAnimButtons(0,0, anim, character.getAnimOffset(anim)));
-		uiGroup.add(characterAnimsWindow);
+		// uiGroup.add(characterAnimsWindow);
 
 		playAnimation(animOrder[0]);
 
 		var characterMidpoint:FlxPoint = character.getMidpoint();
-		characterMidpoint.x += ((characterPropertiresWindow.bWidth+23)/2);
+		characterMidpoint.x += ((characterAnimsWindow.bWidth+23)/2);
 		characterMidpoint.x -= (FlxG.width/2)-character.globalOffset.x;
 		characterMidpoint.y -= (FlxG.height/2)-character.globalOffset.y+(23/4);
 		charCamera.scroll = _nextScroll.set(characterMidpoint.x, characterMidpoint.y);
@@ -263,8 +266,8 @@ class CharacterEditor extends UIState {
 		_nextScroll.x -= ((FlxG.width/2)*FlxG.camera.zoom)-FlxG.width/2;
 		_nextScroll.y += (((FlxG.height/2)*FlxG.camera.zoom)-FlxG.height/2)/2;
 
-		add(topMenuSpr);
 		add(uiGroup);
+		add(topMenuSpr);
 
 		if(Framerate.isLoaded) {
 			Framerate.fpsCounter.alpha = 0.4;
@@ -292,10 +295,10 @@ class CharacterEditor extends UIState {
 		if(FlxG.keys.justPressed.ANY)
 			UIUtil.processShortcuts(topMenu);
 
-		if (character != null)
-			characterPropertiresWindow.characterInfo.text = '${character.getNameList().length} Animations\nFlipped: ${character.flipX}\nSprite: ${character.sprite}\nAnim: ${character.getAnimName()}\nOffset: (${character.frameOffset.x}, ${character.frameOffset.y})';
+		// if (character != null)
+			// characterPropertiresWindow.characterInfo.text = '${character.getNameList().length} Animations\nFlipped: ${character.flipX}\nSprite: ${character.sprite}\nAnim: ${character.getAnimName()}\nOffset: (${character.frameOffset.x}, ${character.frameOffset.y})';
 
-		if (!(characterPropertiresWindow.hovered || characterAnimsWindow.hovered) && !characterAnimsWindow.dragging) {
+		if (/*!(characterPropertiresWindow.hovered || characterAnimsWindow.hovered) && !characterAnimsWindow.dragging*/true) {
 			if (FlxG.mouse.wheel != 0) {
 				zoom += 0.25 * FlxG.mouse.wheel;
 				__camZoom = Math.pow(2, zoom);

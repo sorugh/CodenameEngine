@@ -747,6 +747,7 @@ class StageEditor extends UIState {
 		}
 		for(i=>edge in edges) {
 			if(checkDot(buttonBoxes[i])) {
+				// TODO: make it show both sided arrows when resizing, unless its at minimum size then show only one
 				currentCursor = switch(edge) {
 					// RESIZE_NESW; //RESIZE_NS; //RESIZE_NWSE; //RESIZE_WE;
 					case TOP_LEFT: RESIZE_TL;

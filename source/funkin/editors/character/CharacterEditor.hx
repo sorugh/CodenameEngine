@@ -29,15 +29,10 @@ class CharacterEditor extends UIState {
 
 	public var uiGroup:FlxTypedGroup<FlxSprite> = new FlxTypedGroup<FlxSprite>();
 
-	// WINDOWS
 	public var characterPropertiresWindow:CharacterPropertiesWindow;
-	public var characterAnimsWindow:UIButtonList<CharacterAnimButtons>;
+	public var characterAnimsWindow:CharacterAnimsWindow;
 
-	// camera for the character itself so that it can be unzoomed/zoomed in again
 	public var charCamera:FlxCamera;
-	// camera for the animations list
-	public var animsCamera:FlxCamera;
-	// camera for the ui
 	public var uiCamera:FlxCamera;
 
 	public var undos:UndoList<CharacterChange> = new UndoList<CharacterChange>();
@@ -212,8 +207,6 @@ class CharacterEditor extends UIState {
 
 		uiCamera = new FlxCamera();
 		uiCamera.bgColor = 0;
-		animsCamera = new FlxCamera(800-23,140+23+30+46,450+23,511-24-30);
-		animsCamera.bgColor = 0;
 
 		characterBG = new FunkinSprite(0, 0, Paths.image('editors/character/WOAH'));
 		characterBG.cameras = [charCamera];
@@ -225,7 +218,6 @@ class CharacterEditor extends UIState {
 		// characterBG.visible = false;
 
 		FlxG.cameras.add(uiCamera);
-		FlxG.cameras.add(animsCamera);
 
 		character = new Character(0,0, __character, false, false);
 		character.debugMode = true;
@@ -237,20 +229,18 @@ class CharacterEditor extends UIState {
 		add(ghosts);
 		add(character);
 
-		characterPropertiresWindow = new CharacterPropertiesWindow((FlxG.width-500)+16, 23+12+10, character);
+		characterPropertiresWindow = new CharacterPropertiesWindow((FlxG.width-500), 23+12+10, character);
 		uiGroup.add(characterPropertiresWindow);
 
 		topMenuSpr = new UITopMenu(topMenu);
 		topMenuSpr.cameras = uiGroup.cameras = [uiCamera];
 
-		characterAnimsWindow = new UIButtonList<CharacterAnimButtons>(777, 209, 473, 488, "Character Animations", FlxPoint.get(429, 32));
-		characterAnimsWindow.addButton.callback = function() CharacterEditor.instance.createAnimWithUI();
-		var animOrder = character.getAnimOrder();
-		for (i=>anim in animOrder)
-			characterAnimsWindow.add(new CharacterAnimButtons(0,0, anim, character.getAnimOffset(anim)));
-		// uiGroup.add(characterAnimsWindow);
+		var animationsLoaded:Array<String> = character.getAnimOrder();
 
-		playAnimation(animOrder[0]);
+		characterAnimsWindow = new CharacterAnimsWindow(characterPropertiresWindow.x, characterPropertiresWindow.y+224+16, animationsLoaded);
+		uiGroup.add(characterAnimsWindow);
+
+		playAnimation(animationsLoaded[0]);
 
 		var characterMidpoint:FlxPoint = character.getMidpoint();
 		characterMidpoint.x += ((characterAnimsWindow.bWidth+23)/2);
@@ -451,7 +441,7 @@ class CharacterEditor extends UIState {
 	public function createAnim(animData:AnimData, animID:Int = -1, addtoUndo:Bool = true) {
 		XMLUtil.addAnimToSprite(character, animData);
 		ghosts.createGhost(animData.name);
-		var newButton = new CharacterAnimButtons(0, 0, animData.name, FlxPoint.get(animData.x,animData.y));
+		var newButton = new CharacterAnimButton(0, 0, animData.name, FlxPoint.get(animData.x,animData.y));
 		if (animID == -1) characterAnimsWindow.add(newButton);
 		else characterAnimsWindow.insert(newButton, animID);
 
@@ -463,7 +453,7 @@ class CharacterEditor extends UIState {
 
 	public function editAnim(name:String, animData:AnimData, addtoUndo:Bool = true) {
 		var oldAnimData:AnimData = character.animDatas.get(name);
-		var buttoner:CharacterAnimButtons = null;
+		var buttoner:CharacterAnimButton = null;
 		for (button in characterAnimsWindow.buttons.members)
 			if (button.anim == name) buttoner = button;
 
@@ -529,7 +519,7 @@ class CharacterEditor extends UIState {
 		var ghost:Character = ghosts.animGhosts.get(anim);
 		ghost.visible = !ghost.visible;
 
-		var animButton:CharacterAnimButtons = null;
+		var animButton:CharacterAnimButton = null;
 		for (button in characterAnimsWindow.buttons.members)
 			if (button.anim == anim) animButton = button;
 		animButton.updateInfo(anim, character.getAnimOffset(anim), ghost.visible);

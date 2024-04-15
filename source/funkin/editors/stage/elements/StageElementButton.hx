@@ -142,7 +142,7 @@ class StageElementButton extends UIButton {
 
 	public function getInfoText():String {
 		var pos = getPos();
-		var text = '${getName()} (${CoolUtil.quantize(pos.x, 100)}x${CoolUtil.quantize(pos.y, 100)})';
+		var text = '${getName()} (${CoolUtil.quantize(pos.x, 100)}, ${CoolUtil.quantize(pos.y, 100)})';
 		pos.put();
 		return text;
 	}

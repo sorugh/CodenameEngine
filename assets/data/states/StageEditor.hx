@@ -33,7 +33,7 @@ function create() {
 	WindowUtils.onClosing = function() {
 		if(!FlxG.keys.pressed.ALT) {
 			Lib.application.window.onClose.cancel();
-			FlxG.switchState(new StageEditor("test"));
+			FlxG.switchState(new StageEditor(StageEditor.__stage));
 			trace("you dont need to close doofus goofus");
 		}
 	}
@@ -42,7 +42,7 @@ function create() {
 function update() {
 	if(FlxG.keys.justPressed.R) {
 		trace("reloading");
-		FlxG.switchState(new StageEditor("test"));
+		FlxG.switchState(new StageEditor(StageEditor.__stage));
 	}
 }
 

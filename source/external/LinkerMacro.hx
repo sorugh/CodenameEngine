@@ -1,4 +1,4 @@
-package funkin.backend.system.macros;
+package external;
 
 import haxe.io.Path;
 import haxe.macro.Expr;

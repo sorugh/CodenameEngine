@@ -4,7 +4,6 @@ package funkin.backend.utils.native;
 import funkin.backend.utils.NativeAPI.CodeCursor;
 import openfl.ui.Mouse;
 
-@:build(funkin.backend.system.macros.LinkerMacro.xml('external/external_code.xml'))
 @:headerInclude('sys/sysctl.h')
 class Mac {
 	@:functionCode('
@@ -24,19 +23,11 @@ class Mac {
 
 	public static function setMouseCursorIcon(icon:CodeCursor):Void
 	{
-		final valid:Bool = ExternalMac.setCursorIcon(icon.toInt());
+		final valid:Bool = external.ExternalMac.setCursorIcon(icon.toInt());
 		if(!valid) {
 			Mouse.cursor = icon.toOpenFL();
 		}
 	}
-}
-
-@:build(funkin.backend.system.macros.LinkerMacro.xml('external/external_code.xml'))
-@:native("ExternalMac")
-@:include('Mac.h')
-extern class ExternalMac {
-	@:native("ExternalMac::setCursorIcon")
-	public static function setCursorIcon(icon:Int):Bool;
 }
 #end
 

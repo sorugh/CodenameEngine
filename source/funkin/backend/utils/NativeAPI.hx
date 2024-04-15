@@ -192,7 +192,7 @@ enum abstract CodeCursor(String) {
 			case MOVE: MouseCursor.__MOVE;
 			case HAND: MouseCursor.HAND;
 			case DRAG: MouseCursor.HAND;
-			case DRAG_OPEN: MouseCursor.HAND;
+			case DRAG_OPEN: MouseCursor.ARROW; // Could be HAND, but it might be better to use ARROW since on windows it would be weird to have the dragging cursor
 			case WAIT: MouseCursor.__WAIT;
 			case WAIT_ARROW: MouseCursor.__WAIT_ARROW;
 

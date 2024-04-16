@@ -23,8 +23,8 @@
 
 		<textbox name="nameTextBox" label="Name Identifier" value="button.getName()"   x="col(0)" y="curY" width="200" height="32" />
 		<textbox name="spriteTextBox" value="getEx('imageFile')" x="last.x + last.bWidth + XOFFSET" y="curY" width="200" height="32" />
-		<label name="imageFile" text="Image File&#10;In (${stage.spritesParentFolder})" x="last.x" y="nameTextBox.y - 14" size="15" />
 		<stepper name="alphaStepper" label="Alpha" value="sprite.alpha" x="spriteTextBox.x + spriteTextBox.bWidth + XOFFSET" y="curY" precision="2" step="0.01" width="100" />
+		<label name="imageFile" text="Image File&#10;In (${stage.spritesParentFolder})" x="spriteTextBox.x" y="spriteTextBox.y - 14" size="15" />
 	</section>
 
 	<section> <!-- ROW 2 -->

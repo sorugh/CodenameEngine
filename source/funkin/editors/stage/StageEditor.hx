@@ -51,7 +51,6 @@ class StageEditor extends UIState {
 	public var storedPos:FlxPoint = new FlxPoint();
 	public var storedScale:FlxPoint = new FlxPoint();
 
-	public var showOutlines:Bool = true;
 	public var showCharacters:Bool = true;
 
 	public static inline var SPRITE_WINDOW_WIDTH:Int = 400;
@@ -141,12 +140,6 @@ class StageEditor extends UIState {
 			{
 				label: "Editor",
 				childs: [
-					{
-						label: "Show Outlines",
-						//keybind: [CONTROL, NUMPADPLUS],
-						onSelect: _editor_showOutlines,
-						icon: showOutlines ? 1 : 0
-					},
 					{
 						label: "Show Characters",
 						//keybind: [CONTROL, NUMPADMINUS],
@@ -587,11 +580,6 @@ class StageEditor extends UIState {
 		setZoom(stage.defaultZoom);
 	}
 
-	function _editor_showOutlines(t) {
-		showOutlines = !showOutlines;
-		t.icon = showOutlines ? 1 : 0;
-	}
-
 	function _editor_showCharacters(t) {
 		showCharacters = !showCharacters;
 		t.icon = showCharacters ? 1 : 0;
@@ -606,7 +594,6 @@ class StageEditor extends UIState {
 	override function draw() {
 		super.draw();
 
-		if(!showOutlines) return;
 		mousePoint = FlxG.mouse.getWorldPosition(stageCamera, mousePoint);
 		if(dot == null) {
 			dot = new FlxSprite().makeGraphic(30, 30, FlxColor.WHITE);

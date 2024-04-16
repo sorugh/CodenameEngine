@@ -2,20 +2,22 @@ package funkin.editors.ui;
 
 class UICheckbox extends UISprite {
 	public var checked:Bool = false;
+	public var small:Bool = false;
 	public var onChecked:Bool->Void = null;
 
 	public var field:UIText;
 	public var check:FlxSprite;
 
-	public function new(x:Float, y:Float, text:String, checked:Bool = false, w:Int = 0) {
+	public function new(x:Float, y:Float, text:String, checked:Bool = false, w:Int = 0, small:Bool = false) {
 		super(x, y);
-		loadGraphic(Paths.image('editors/ui/checkbox'), true, 20, 20);
+		loadGraphic(Paths.image('editors/ui/checkbox${small ? "-small" : ""}'), true, small ? 14 : 20, small ? 14 : 20);
 		for(frame=>name in ["normal", "hover", "pressed", "checkmark"])
 			animation.add(name, [frame], 0, false);
 
 		this.checked = checked;
+		this.small = small;
 
-		field = new UIText(x, y, w, text);
+		field = new UIText(x, y, w, text, small ? 12 : 15);
 		check = new FlxSprite().loadGraphicFromSprite(this);
 		check.animation.play("checkmark");
 
@@ -42,7 +44,7 @@ class UICheckbox extends UISprite {
 
 	public inline function updatePositions() {
 		check.follow(this);
-		field.follow(this, 25, 0);
+		field.follow(this, (small ? 14 : 20)+5, 0);
 	}
 
 	public override function draw() {

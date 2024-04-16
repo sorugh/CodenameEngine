@@ -7,6 +7,7 @@ class UIButton extends UISliceSprite {
 	public var hasBeenPressed = false;
 
 	public var autoFrames:Bool = true;
+	public var autoFollow:Bool = true;
 
 	public override function new(x:Float, y:Float, text:String, callback:Void->Void, w:Int = 120, h:Int = 32) {
 		super(x, y, w, h, 'editors/ui/button');
@@ -20,7 +21,7 @@ class UIButton extends UISliceSprite {
 
 	public override function resize(w:Int, h:Int) {
 		super.resize(w, h);
-		if (field != null) field.fieldWidth = w;
+		if (field != null && autoFollow) field.fieldWidth = w;
 	}
 
 	public override function onHovered() {
@@ -33,7 +34,7 @@ class UIButton extends UISliceSprite {
 	}
 
 	public override function update(elapsed:Float) {
-		field.follow(this, 0, (bHeight - field.height) / 2);
+		if (autoFollow) field.follow(this, 0, (bHeight - field.height) / 2);
 		if (!hovered && hasBeenPressed && FlxG.mouse.justReleased) hasBeenPressed = false;
 		if (autoAlpha) alpha = field.alpha = selectable ? 1 : 0.4;
 		super.update(elapsed);

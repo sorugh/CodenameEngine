@@ -2,6 +2,8 @@ package funkin.backend.utils;
 
 import flixel.util.FlxColor;
 import openfl.display.BitmapData;
+import openfl.geom.Point;
+import openfl.geom.Rectangle;
 
 class BitmapUtil {
 	/**
@@ -65,5 +67,28 @@ class BitmapUtil {
 			}
 		}
 		return mostPresentColor;
+	}
+
+	/**
+	 * Returns a new bitmap without any empty transperent space on the edges
+	 * @param bitmap The bitmap to be cropped
+	 */
+	public static function crop(bitmap:BitmapData) {
+		var minX:Int = bitmap.width;
+		var minY:Int = bitmap.height;
+		var maxX:Int = 0; var maxY:Int = 0;
+		
+		for (y in 0...bitmap.height)
+			for (x in 0...bitmap.width)
+				if (bitmap.getPixel32(x, y) != 0x00000000) {
+					if (x < minX) minX = x;
+					if (y < minY) minY = y;
+					if (x > maxX) maxX = x;
+					if (y > maxY) maxY = y;
+				}
+		
+		var croppedBitmap:BitmapData = new BitmapData(maxX-minX+1, maxY-minY+1, true, 0x00000000);
+		croppedBitmap.copyPixels(bitmap, new Rectangle(minX, minY, croppedBitmap.width, croppedBitmap.height), new Point(0,0));
+		return croppedBitmap;
 	}
 }

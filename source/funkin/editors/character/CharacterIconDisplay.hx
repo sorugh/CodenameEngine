@@ -5,6 +5,8 @@ import openfl.geom.Rectangle;
 import openfl.display.BitmapData;
 import flixel.util.FlxColor;
 
+using funkin.backend.utils.BitmapUtil;
+
 // DONT DELETE I MIGHT USE LATER -lunar
 class CharacterIconDisplay extends UISprite {
 	public var healthBarBG:FlxSprite;
@@ -22,9 +24,12 @@ class CharacterIconDisplay extends UISprite {
 
 		iconBitmap.copyPixels(imageBitmap, new Rectangle(0, 0, 150, 150), new Point(0,0));
 
-		loadGraphic(iconBitmap.cropBitmap());
+		loadGraphic(FlxG.bitmap.add(iconBitmap.crop()));
 		scale.x = scale.y = 40/pixels.height;
 		updateHitbox();
+
+		// bye guys :((
+		imageBitmap.dispose(); iconBitmap.dispose();
 
 		antialiasing = true;
 

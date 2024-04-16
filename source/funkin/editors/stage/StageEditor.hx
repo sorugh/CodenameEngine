@@ -214,7 +214,7 @@ class StageEditor extends UIState {
 		stage.onNodeLoaded = function(node:Access, sprite:Dynamic):Dynamic {
 			var parent = new Access(node.x.parent);
 			//var name = "";
-			trace(node, sprite);
+			//trace(node, sprite);
 			if(sprite is FlxSprite) {
 				//sprite.forceIsOnScreen = true; // hack
 			}
@@ -239,6 +239,7 @@ class StageEditor extends UIState {
 				}
 				//name = charPos.name;
 				var char = new Character(0,0, charName, stage.isCharFlipped(charPos.name, charName == "bf"), true);
+				char.name = charName;
 				char.debugMode = true;
 				// Play first anim, and make it the last frame
 				var animToPlay = char.getAnimOrder()[0];
@@ -376,6 +377,7 @@ class StageEditor extends UIState {
 	//private var movingCam:Bool = false;
 	//private var camDragSpeed:Float = 1.2;
 
+	private var movedTillRel:FlxPoint = FlxPoint.get(0,0);
 	private var nextScroll:FlxPoint = FlxPoint.get(0,0);
 
 	public override function update(elapsed:Float) {
@@ -397,59 +399,6 @@ class StageEditor extends UIState {
 				updateZoom();
 			}
 
-			/*if(FlxG.mouse.justPressed) {
-				var bounds:Array<FlxRect> = [];
-				var sprites = stageSpritesWindow.buttons.members.map((o) -> o.getSprite()).filter((o) -> o != null && o.animateAtlas == null);
-				for(sprite in sprites) {
-					if(sprite is FunkinSprite) {
-						var sprite:FunkinSprite = cast sprite;
-						if(sprite.extra.exists(exID("bounds"))) {
-							bounds.push(cast(sprite.extra.get(exID("bounds")), FlxRect));
-						}
-					}
-				}
-
-				// sort by area
-				bounds.sort((a, b) -> FlxSort.byValues(FlxSort.ASCENDING, a.width * a.height, b.width * b.height));
-
-				Logs.trace("------------------------");
-				for(bounds in bounds) {
-					Logs.trace(bounds.width + "x" + bounds.height);
-				}
-			}*/
-
-			/*if(FlxG.mouse.justPressed) {
-				//var sprites = Lambda.array(stage.stageSprites);
-				var sprites = stageSpritesWindow.buttons.members.map((o) -> o.getSprite()).filter((o) -> o != null && o.animateAtlas == null);
-				trace(sprites.map((o) -> cast(o, FunkinSprite).name));
-				var length = sprites.length;
-				// Reset selected sprites
-				for(i in 0...length) {
-					var sprite = sprites[i];
-					if(sprite is FunkinSprite) {
-						var sprite:FunkinSprite = cast sprite;
-						sprite.extra.set(exID("selected"), false);
-					}
-				}
-				for(i in 0...length) {
-					var idx = length - i - 1;
-					var sprite = sprites[idx];
-					if(sprite is FunkinSprite) {
-						var sprite:FunkinSprite = cast sprite;
-						if(!sprite.extra.exists(exID("bounds"))) continue;
-						trace(idx, sprite.name);
-						var bounds = cast(sprite.extra.get(exID("bounds")), FlxRect);
-						var pos = FlxG.mouse.getWorldPosition(stageCamera, _point);
-						trace(sprite.name, bounds, pos);
-						if(bounds.containsPoint(pos)) {
-							sprite.extra.set(exID("selected"), true);
-							trace("Selected " + sprite.name);
-							break;
-						}
-					}
-				}
-			}*/
-
 			// TODO: make this work with multiple selections
 			if(selection.length == 1) {
 				for(sprite in selection) {
@@ -464,9 +413,29 @@ class StageEditor extends UIState {
 			//	openContextMenu(topMenu[2].childs);
 			//}
 
-			if (FlxG.mouse.pressed && mouseMode == NONE) {
-				nextScroll.set(nextScroll.x - FlxG.mouse.deltaScreenX, nextScroll.y - FlxG.mouse.deltaScreenY);
-				currentCursor = HAND;
+			if (mouseMode == NONE) {
+				if (FlxG.mouse.pressed) {
+					var pos = [FlxG.mouse.deltaScreenX, FlxG.mouse.deltaScreenY];
+					movedTillRel.x += Math.abs(pos[0]); movedTillRel.y += Math.abs(pos[1]);
+					nextScroll.set(nextScroll.x - pos[0], nextScroll.y - pos[1]);
+					currentCursor = HAND;
+				}
+
+				if (FlxG.mouse.justReleased) {
+					if (movedTillRel.x < 16 && movedTillRel.y < 16) {
+						var sprites = getRealSprites();
+						for (i in 0...sprites.length) {
+							var sprite = sprites[sprites.length - i - 1];
+							if(sprite.animateAtlas != null) continue;
+
+							calcSpriteBounds(sprite);
+							if (cast(sprite.extra.get(exID("bounds")), FlxRect).containsPoint(FlxG.mouse.getWorldPosition(stageCamera, _point))) {
+								selectSprite(sprite); break;
+							}
+						}
+					}
+					movedTillRel.set();
+				}
 			}
 		}/* else if (!FlxG.mouse.pressed)
 			currentCursor = ARROW;*/
@@ -853,43 +822,7 @@ class StageEditor extends UIState {
 	var circleColor = 0xFF99a8f2;
 
 	function drawGuides(sprite:FlxSprite) {
-		var oldWidth = sprite.width;
-		var oldHeight = sprite.height;
-		var oldOffset = sprite.offset.clone(FlxPoint.weak());
-		var oldOrigin = sprite.origin.clone(FlxPoint.weak());
-		sprite.updateHitbox();
-		sprite.offset.copyFrom(oldOffset);
-		sprite.origin.copyFrom(oldOrigin);
-
-		var corners = sprite.getMatrixPosition([
-			// corners
-			FlxPoint.get(0, 0),
-			FlxPoint.get(1, 0),
-			FlxPoint.get(0, 1),
-			FlxPoint.get(1, 1),
-			// edges
-			FlxPoint.get(0, 0.5),
-			FlxPoint.get(1, 0.5),
-			FlxPoint.get(0.5, 1),
-			FlxPoint.get(0.5, 0),
-			// center
-			//FlxPoint.get(0.5, 0.5)
-		], sprite.camera, sprite.frameWidth, sprite.frameHeight);
-
-		//Logs.trace("Guide at " + corners[0].x + ", " + corners[0].y + " sprite at " + sprite.x + ", " + sprite.y);
-
-		if(sprite is FunkinSprite) {
-			var sprite:FunkinSprite = cast sprite;
-			var maxX = Math.max(Math.max(corners[0].x, corners[1].x), Math.max(corners[2].x, corners[3].x));
-			var maxY = Math.max(Math.max(corners[0].y, corners[1].y), Math.max(corners[2].y, corners[3].y));
-			var minX = Math.min(Math.min(corners[0].x, corners[1].x), Math.min(corners[2].x, corners[3].x));
-			var minY = Math.min(Math.min(corners[0].y, corners[1].y), Math.min(corners[2].y, corners[3].y));
-
-			if(!sprite.extra.exists(exID("bounds"))) {
-				sprite.extra.set(exID("bounds"), new FlxRect());
-			}
-			cast(sprite.extra.get(exID("bounds")), FlxRect).set(minX, minY, maxX - minX, maxY - minY);
-		}
+		var corners = calcSpriteBounds(sprite);
 		var funkinSprite = sprite is FunkinSprite ? cast(sprite, FunkinSprite) : null;
 
 		if(funkinSprite != null) {
@@ -929,10 +862,52 @@ class StageEditor extends UIState {
 				corner.put();
 			}
 		}
+	}
+
+	function calcSpriteBounds(sprite:FlxSprite) {
+		var oldWidth = sprite.width;
+		var oldHeight = sprite.height;
+		var oldOffset = sprite.offset.clone(FlxPoint.weak());
+		var oldOrigin = sprite.origin.clone(FlxPoint.weak());
+		sprite.updateHitbox();
+		sprite.offset.copyFrom(oldOffset);
+		sprite.origin.copyFrom(oldOrigin);
+
+		var corners = sprite.getMatrixPosition([
+			// corners
+			FlxPoint.get(0, 0),
+			FlxPoint.get(1, 0),
+			FlxPoint.get(0, 1),
+			FlxPoint.get(1, 1),
+			// edges
+			FlxPoint.get(0, 0.5),
+			FlxPoint.get(1, 0.5),
+			FlxPoint.get(0.5, 1),
+			FlxPoint.get(0.5, 0),
+			// center
+			//FlxPoint.get(0.5, 0.5)
+		], sprite.camera, sprite.frameWidth, sprite.frameHeight);
+
+		//Logs.trace("Guide at " + corners[0].x + ", " + corners[0].y + " sprite at " + sprite.x + ", " + sprite.y);
+
+		if(sprite is FunkinSprite) {
+			var sprite:FunkinSprite = cast sprite;
+			var maxX = Math.max(Math.max(corners[0].x, corners[1].x), Math.max(corners[2].x, corners[3].x));
+			var maxY = Math.max(Math.max(corners[0].y, corners[1].y), Math.max(corners[2].y, corners[3].y));
+			var minX = Math.min(Math.min(corners[0].x, corners[1].x), Math.min(corners[2].x, corners[3].x));
+			var minY = Math.min(Math.min(corners[0].y, corners[1].y), Math.min(corners[2].y, corners[3].y));
+
+			if(!sprite.extra.exists(exID("bounds"))) {
+				sprite.extra.set(exID("bounds"), new FlxRect());
+			}
+			cast(sprite.extra.get(exID("bounds")), FlxRect).set(minX, minY, maxX - minX, maxY - minY);
+		}
 
 		// reset hitbox to old values
 		sprite.width = oldWidth;
 		sprite.height = oldHeight;
+
+		return corners;
 	}
 
 	var edges:Array<StageEditorEdge> = [

@@ -8,6 +8,7 @@
  */
 
 import funkin.editors.stage.StageEditor;
+import funkin.editors.ui.UIWarningSubstate;
 import funkin.backend.utils.WindowUtils;
 import openfl.Lib;
 
@@ -27,16 +28,45 @@ function tryUpdateHitbox(sprite) {
 	return false;
 }
 
+var allowClose = false;
 function create() {
 	WindowUtils.preventClosing = true;
 	WindowUtils.resetClosing();
 	WindowUtils.onClosing = function() {
-		if(!FlxG.keys.pressed.ALT) {
+		if(!allowClose)
 			Lib.application.window.onClose.cancel();
-			FlxG.switchState(new StageEditor(StageEditor.__stage));
-			trace("you dont need to close doofus goofus");
-		}
+
+		var substate;
+		substate = new UIWarningSubstate("nuh uh", "you dont need to close goofus doofus", [
+			{
+				label: "Actually Exit",
+				onClick: function(t) {
+					allowClose = true;
+					Lib.application.window.close();
+				}
+			},
+			{
+				label: "Reload State",
+				onClick: function(t) {
+					FlxG.switchState(new StageEditor(StageEditor.__stage));
+				}
+			},
+			{
+				label: "oh whoops",
+				onClick: function(t) {
+					substate.close();
+				}
+			}
+		]);
+	
+		openSubState(substate);
 	}
+}
+
+function destroy() {
+	WindowUtils.preventClosing = false;
+	WindowUtils.resetClosing();
+	WindowUtils.onClosing = null;
 }
 
 function update() {

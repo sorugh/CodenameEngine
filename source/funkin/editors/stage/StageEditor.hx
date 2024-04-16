@@ -54,6 +54,9 @@ class StageEditor extends UIState {
 	public var showOutlines:Bool = true;
 	public var showCharacters:Bool = true;
 
+	public static inline var SPRITE_WINDOW_WIDTH:Int = 400;
+	public static inline var SPRITE_WINDOW_BUTTON_HEIGHT:Int = 64;
+
 	public var undos:UndoList<StageChange> = new UndoList<StageChange>();
 
 	public inline static function exID(id:String) {
@@ -242,14 +245,16 @@ class StageEditor extends UIState {
 		topMenuSpr = new UITopMenu(topMenu);
 		topMenuSpr.cameras = uiGroup.cameras = [uiCamera];
 
-		final margin = 22;
-		final width = 470;
+		final margin = 0;//22;
+		final width = SPRITE_WINDOW_WIDTH;
 		final TOP_MENU_HEIGHT = 25;
-		var buttonSize:FlxPoint = FlxPoint.get(width-margin*2, 32);
+		var buttonSize:FlxPoint = FlxPoint.get(width-margin*2, SPRITE_WINDOW_BUTTON_HEIGHT);
 		stageSpritesWindow = new UIButtonList<StageElementButton>(Std.int(FlxG.width - width), TOP_MENU_HEIGHT, width, Std.int(FlxG.height - TOP_MENU_HEIGHT), "Stage Sprites", buttonSize);
 		stageSpritesWindow.collapsable = true;
+		stageSpritesWindow.topAlpha = 0.9;
 		stageSpritesWindow.middleAlpha = 0.5;
 		stageSpritesWindow.bottomAlpha = 0.5;
+		stageSpritesWindow.buttonSpacing = 0;
 		stageSpritesWindow.addButton.callback = () -> {
 			// TODO: implement this
 		}

@@ -13,7 +13,7 @@ class StageCharacterButton extends StageElementButton {
 		this.char = charPos.extra.get(StageEditor.exID("char"));
 		super(x,y, xml);
 
-		color = 0xffa5c4ff;
+		color = 0xff7aa8ff;
 
 		updateInfo(charPos);
 	}

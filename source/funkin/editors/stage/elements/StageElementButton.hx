@@ -21,13 +21,25 @@ class StageElementButton extends UIButton {
 
 	public var selected:Bool = false;
 
+	public var tagColor:UISliceSprite;
+
 	public function new(x:Float,y:Float, xml:Access) {
 		this.xml = xml;
 		super(x,y, getInfoText(), function () {
 			onSelect();
 			//CharacterEditor.instance.playAnimation(this.sprite.name);
-		}, 282);
+		}, StageEditor.SPRITE_WINDOW_WIDTH, StageEditor.SPRITE_WINDOW_BUTTON_HEIGHT);
 		autoAlpha = false;
+
+		tagColor = new UISliceSprite(x, y, 10, StageEditor.SPRITE_WINDOW_BUTTON_HEIGHT, 'editors/ui/button');
+		tagColor.alpha = 1; // Make entire sprite transparent
+		tagColor.selectable = false;
+		tagColor.active = false;
+		//members.push(tagColor);
+
+		topAlpha = middleAlpha = bottomAlpha = 0.7;
+
+		field.alignment = LEFT;
 
 		ghostButton = new UIButton(x+282+17, y, "", function () {
 			onGhostClick();
@@ -77,6 +89,9 @@ class StageElementButton extends UIButton {
 		hovered = !deleteButton.hovered;
 		updatePos();
 		super.update(elapsed);
+		field.x += 12;
+
+		tagColor.color = color;
 
 		if(selected != _lastSelected) {
 			_lastSelected = selected;
@@ -104,12 +119,23 @@ class StageElementButton extends UIButton {
 
 	public function updatePos() {
 		// buttons
-		deleteButton.x = (editButton.x = (ghostButton.x = (x+282+17))+32+17)+32+17;
-		deleteButton.y = editButton.y = ghostButton.y = y;
+		var spacing = 8;
+		var buttonY = y + (bHeight - 32) / 2;
+		deleteButton.x = bWidth - deleteButton.bWidth - spacing;
+		deleteButton.y = buttonY;
+		editButton.x = deleteButton.x - editButton.bWidth - spacing;
+		editButton.y = buttonY;
+		ghostButton.x = editButton.x - ghostButton.bWidth - spacing;
+		ghostButton.y = buttonY;
+		//deleteButton.x = (editButton.x = (ghostButton.x = (x+282+17))+32+17)+32+17;
+		//deleteButton.y = editButton.y = ghostButton.y = y;
 		// icons
 		ghostIcon.x = ghostButton.x + 8; ghostIcon.y = ghostButton.y + 8;
 		editIcon.x = editButton.x + 8; editIcon.y = editButton.y + 8;
 		deleteIcon.x = deleteButton.x + (15/2); deleteIcon.y = deleteButton.y + 8;
+
+		tagColor.x = x;// + bWidth - tagColor.bWidth;
+		tagColor.y = y;
 	}
 
 	public function getSprite():FunkinSprite {
@@ -143,6 +169,11 @@ class StageElementButton extends UIButton {
 	public function getInfoText():String {
 		var pos = getPos();
 		var text = '${getName()} (${CoolUtil.quantize(pos.x, 100)}, ${CoolUtil.quantize(pos.y, 100)})';
+		var sprite = getSprite();
+		if(sprite != null) {
+			text += '\nScale: (${CoolUtil.quantize(sprite.scale.x, 100)}, ${CoolUtil.quantize(sprite.scale.y, 100)})';
+			text += '\nScroll: (${CoolUtil.quantize(sprite.scrollFactor.x, 100)}, ${CoolUtil.quantize(sprite.scrollFactor.y, 100)})';
+		}
 		pos.put();
 		return text;
 	}

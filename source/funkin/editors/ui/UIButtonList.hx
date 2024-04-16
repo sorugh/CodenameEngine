@@ -95,7 +95,8 @@ class UIButtonList<T:UIButton> extends UIWindow {
 				curMovingInterval = 0;
 			}
 		}
-		addIcon.x = addButton.x + addButton.bWidth / 2 - addIcon.width / 2; addIcon.y = addButton.y + addButton.bHeight / 2 - addIcon.height / 2;
+		addIcon.x = addButton.x + addButton.bWidth / 2 - addIcon.width / 2;
+		addIcon.y = addButton.y + addButton.bHeight / 2 - addIcon.height / 2;
 	}
 	var nextscrollY:Float = 0;
 	public override function update(elapsed:Float) {

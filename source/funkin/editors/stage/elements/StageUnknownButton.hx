@@ -18,11 +18,11 @@ class StageUnknownButton extends StageElementButton {
 
 		color = 0xff000000;
 
-		ghostButton.exists = false;
-		members.remove(ghostButton);
+		visibleButton.exists = false;
+		members.remove(visibleButton);
 
-		ghostIcon.exists = false;
-		members.remove(ghostIcon);
+		visibleIcon.exists = false;
+		members.remove(visibleIcon);
 
 		updateInfo();
 	}

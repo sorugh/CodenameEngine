@@ -11,8 +11,8 @@ class StageElementButton extends UIButton {
 	public var editButton:UIButton;
 	public var editIcon:FlxSprite;
 
-	public var ghostButton:UIButton;
-	public var ghostIcon:FlxSprite;
+	public var visibleButton:UIButton;
+	public var visibleIcon:FlxSprite;
 
 	public var deleteButton:UIButton;
 	public var deleteIcon:FlxSprite;
@@ -41,22 +41,22 @@ class StageElementButton extends UIButton {
 
 		field.alignment = LEFT;
 
-		ghostButton = new UIButton(x+282+17, y, "", function () {
+		visibleButton = new UIButton(x+282+17, y, "", function () {
 			onGhostClick();
 			//CharacterEditor.instance.ghostAnim(this.anim);
 		}, 32);
-		ghostButton.autoAlpha = false;
-		members.push(ghostButton);
+		visibleButton.autoAlpha = false;
+		members.push(visibleButton);
 
-		ghostIcon = new FlxSprite(ghostButton.x + 8, ghostButton.y + 8).loadGraphic(Paths.image('editors/character/ghost-button'), true, 16, 16);
-		ghostIcon.animation.add("alive", [0]);
-		ghostIcon.animation.add("dead", [1]);
-		ghostIcon.animation.play("dead"); ghostIcon.alpha = 0.5;
-		ghostIcon.antialiasing = false;
-		ghostIcon.updateHitbox();
-		members.push(ghostIcon);
+		visibleIcon = new FlxSprite(visibleButton.x + 8, visibleButton.y + 8).loadGraphic(Paths.image('editors/stage/visible-icon'), true, 16, 16);
+		visibleIcon.animation.add("visible", [0]);
+		visibleIcon.animation.add("invisible", [1]);
+		visibleIcon.animation.play("visible");
+		visibleIcon.antialiasing = false;
+		visibleIcon.updateHitbox();
+		members.push(visibleIcon);
 
-		editButton = new UIButton(ghostButton.x+32+17, y, "", function () {
+		editButton = new UIButton(visibleButton.x+32+17, y, "", function () {
 			onEdit();
 		}, 32);
 		editButton.frames = Paths.getFrames("editors/ui/grayscale-button");
@@ -83,8 +83,8 @@ class StageElementButton extends UIButton {
 	var _lastSelected:Bool = false;
 
 	public override function update(elapsed:Float) {
-		editButton.selectable = ghostButton.selectable = deleteButton.selectable = selectable;
-		editButton.shouldPress = ghostButton.shouldPress = deleteButton.shouldPress = shouldPress;
+		editButton.selectable = visibleButton.selectable = deleteButton.selectable = selectable;
+		editButton.shouldPress = visibleButton.shouldPress = deleteButton.shouldPress = shouldPress;
 
 		hovered = !deleteButton.hovered;
 		updatePos();
@@ -125,8 +125,8 @@ class StageElementButton extends UIButton {
 	public function updateInfo() {
 		field.text = getInfoText();
 
-		ghostIcon.animation.play(!isHidden ? "alive" : "dead");
-		ghostIcon.alpha = !isHidden ? 1 : 0.5;
+		visibleIcon.animation.play(isHidden ? "invisible" : "visible");
+		//visibleIcon.alpha = !isHidden ? 1 : 0.5;
 	}
 
 	public function updatePos() {
@@ -137,12 +137,12 @@ class StageElementButton extends UIButton {
 		deleteButton.y = buttonY;
 		editButton.x = deleteButton.x - editButton.bWidth - spacing;
 		editButton.y = buttonY;
-		ghostButton.x = editButton.x - ghostButton.bWidth - spacing;
-		ghostButton.y = buttonY;
-		//deleteButton.x = (editButton.x = (ghostButton.x = (x+282+17))+32+17)+32+17;
-		//deleteButton.y = editButton.y = ghostButton.y = y;
+		visibleButton.x = editButton.x - visibleButton.bWidth - spacing;
+		visibleButton.y = buttonY;
+		//deleteButton.x = (editButton.x = (visibleButton.x = (x+282+17))+32+17)+32+17;
+		//deleteButton.y = editButton.y = visibleButton.y = y;
 		// icons
-		ghostIcon.x = ghostButton.x + 8; ghostIcon.y = ghostButton.y + 8;
+		visibleIcon.x = visibleButton.x + 8; visibleIcon.y = visibleButton.y + 8;
 		editIcon.x = editButton.x + 8; editIcon.y = editButton.y + 8;
 		deleteIcon.x = deleteButton.x + (15/2); deleteIcon.y = deleteButton.y + 8;
 

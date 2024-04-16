@@ -416,20 +416,21 @@ class StageEditor extends UIState {
 			if (mouseMode == NONE) {
 				if (FlxG.mouse.pressed) {
 					var pos = [FlxG.mouse.deltaScreenX, FlxG.mouse.deltaScreenY];
-					movedTillRel.x += Math.abs(pos[0]); movedTillRel.y += Math.abs(pos[1]);
+					movedTillRel.x += pos[0]; movedTillRel.y += pos[1];
 					nextScroll.set(nextScroll.x - pos[0], nextScroll.y - pos[1]);
 					currentCursor = HAND;
 				}
 
 				if (FlxG.mouse.justReleased) {
-					if (movedTillRel.x < 16 && movedTillRel.y < 16) {
+					if (Math.abs(movedTillRel.x) < 16 && Math.abs(movedTillRel.y) < 16) {
+						var point = FlxG.mouse.getWorldPosition(stageCamera, _point);
 						var sprites = getRealSprites();
 						for (i in 0...sprites.length) {
 							var sprite = sprites[sprites.length - i - 1];
 							if(sprite.animateAtlas != null) continue;
 
 							calcSpriteBounds(sprite);
-							if (cast(sprite.extra.get(exID("bounds")), FlxRect).containsPoint(FlxG.mouse.getWorldPosition(stageCamera, _point))) {
+							if (cast(sprite.extra.get(exID("bounds")), FlxRect).containsPoint(point)) {
 								selectSprite(sprite); break;
 							}
 						}

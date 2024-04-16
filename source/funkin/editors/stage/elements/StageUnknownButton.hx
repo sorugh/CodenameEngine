@@ -84,7 +84,7 @@ class StageUnknownEditScreen extends UISoftcodedWindow {
 
 	public function new(button:StageUnknownButton) {
 		this.button = button;
-		super("layouts/stage/unknownEditScreen.xml", [
+		super("layouts/stage/unknownEditScreen", [
 			"stage" => StageEditor.instance.stage,
 			"button" => button,
 			"xml" => button.xml,

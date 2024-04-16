@@ -103,7 +103,7 @@ class UISoftcodedWindow extends UISubstateWindow {
 	}
 
 	public override function create() {
-		var layout = new Access(Xml.parse(Assets.getText('assets/editors/' + xmlPath)).firstElement());
+		var layout = new Access(Xml.parse(Assets.getText(Paths.xml("editors/" + xmlPath))).firstElement());
 
 		for(k=>e in Script.getDefaultVariables()) {
 			set(k, e);

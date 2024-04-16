@@ -73,7 +73,7 @@ class StageSpriteEditScreen extends UISoftcodedWindow {
 	public function new(button:StageSpriteButton) {
 		this.button = button;
 		this.sprite = button.getSprite();
-		super("layouts/stage/spriteEditScreen.xml", [
+		super("layouts/stage/spriteEditScreen", [
 			"stage" => StageEditor.instance.stage,
 			"sprite" => sprite,
 			"button" => button,

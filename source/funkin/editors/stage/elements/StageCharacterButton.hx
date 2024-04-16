@@ -79,7 +79,7 @@ class StageCharacterEditScreen extends UISoftcodedWindow {
 		this.button = button;
 		this.char = button.char;
 		this.charPos = button.charPos;
-		super("layouts/stage/characterEditScreen.xml", [
+		super("layouts/stage/characterEditScreen", [
 			"stage" => StageEditor.instance.stage,
 			"char" => char,
 			"charPos" => charPos,

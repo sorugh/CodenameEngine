@@ -248,6 +248,12 @@ class StageEditor extends UIState {
 		stageSpritesWindow.middleAlpha = 0.5;
 		stageSpritesWindow.bottomAlpha = 0.5;
 		stageSpritesWindow.buttonSpacing = 0;
+		stageSpritesWindow.dragCallback = (button, oldID, newID) -> {
+			var sprite:FunkinSprite = button.getSprite();
+			var idx = members.indexOf(sprite);
+			members.splice(idx, 1);
+			members.insert(newID, sprite);
+		}
 		stageSpritesWindow.addButton.callback = () -> {
 			// TODO: implement this
 		}

@@ -105,14 +105,12 @@ class UIState extends MusicBeatState {
 
 		FlxG.sound.keysAllowed = currentFocus != null ? !(currentFocus is UITextBox) : true;
 
-		if (hoveredSprite != null) {
+		if (hoveredSprite != null && hoveredSprite.cursor != null) {
 			NativeAPI.setCursorIcon(hoveredSprite.cursor);
-			//Mouse.cursor = hoveredSprite.cursor;
-			hoveredSprite = null;
 		} else {
 			NativeAPI.setCursorIcon(currentCursor);
-			//Mouse.cursor = currentCursor;
 		}
+		hoveredSprite = null;
 	}
 
 	public override function destroy() {

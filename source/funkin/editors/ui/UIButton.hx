@@ -38,7 +38,11 @@ class UIButton extends UISliceSprite {
 	}
 
 	public override function draw() {
-		framesOffset = hovered ? (pressed ? 18 : 9) : 0;
+		setFrameOffset();
 		super.draw();
+	}
+
+	public function setFrameOffset() {
+		framesOffset = hovered ? (pressed ? 18 : 9) : 0;
 	}
 }

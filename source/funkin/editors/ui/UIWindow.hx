@@ -31,6 +31,10 @@ class UIWindow extends UISliceSprite {
 					drawMiddle = !drawMiddle;
 					drawBottom = !drawBottom;
 				}
+			} else {
+				if(!content.exists) {
+					cursor = null;
+				}
 			}
 		}
 

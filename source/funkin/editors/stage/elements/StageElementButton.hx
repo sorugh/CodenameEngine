@@ -92,17 +92,29 @@ class StageElementButton extends UIButton {
 		field.x += 12;
 
 		tagColor.color = color;
+	}
 
-		if(selected != _lastSelected) {
-			_lastSelected = selected;
+	//private var _lastHovered:Bool = false;
+
+	public override function draw() {
+		//if(_lastHovered != (_lastHovered = hovered && !pressed)) {
+		if(_lastSelected != (_lastSelected = selected)) {
 			updateColorTransform();
 		}
+		super.draw();
 	}
+
+	/*public override function setFrameOffset() {
+		var _frameOffset = 0;
+		if(selected) _frameOffset = 9;
+		if(hovered && pressed) _frameOffset = 18;
+		framesOffset = _frameOffset;
+	}*/
 
 	public override function updateColorTransform() {
 		super.updateColorTransform();
 
-		if (selected) {
+		if(selected) {
 			useColorTransform = true;
 			colorTransform.setOffsets(70, 70, 70, 0);
 		} else {

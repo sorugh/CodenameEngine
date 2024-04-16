@@ -43,6 +43,9 @@ class UISoftcodedWindow extends UISubstateWindow {
 	function get(name:String):Dynamic {
 		return interp.variables.get(name);
 	}
+	function varExists(name:String):Bool {
+		return interp.variables.exists(name);
+	}
 
 	function execString(input:String):String {
 		if(input == null) return null;
@@ -116,6 +119,10 @@ class UISoftcodedWindow extends UISubstateWindow {
 		}
 		set("last", null);
 
+		if(varExists("winTitle")) winTitle = get("winTitle");
+		if(varExists("winWidth")) winWidth = get("winWidth");
+		if(varExists("winHeight")) winHeight = get("winHeight");
+
 		winTitle = execString(layout.getAtt("title").getDefault(winTitle));
 		winWidth = Std.parseInt(layout.getAtt("width")).getDefault(winWidth);
 		winHeight = Std.parseInt(layout.getAtt("height")).getDefault(winHeight);
@@ -175,11 +182,11 @@ class UISoftcodedWindow extends UISubstateWindow {
 						addLabelOn(textBox, label);
 						textBox;
 					case "title":
-						cast add(new UIText(x, y, 0, execString(el.getAtt("text")), execAtt(el, "size", 28)));
+						cast add(new UIText(x, y, execAtt(el, "width", 0), execString(el.getAtt("text")), execAtt(el, "size", 28)));
 					case "label":
-						cast add(new UIText(x, y - 24, 0, execString(el.getAtt("text")), execAtt(el, "size", 15)));
+						cast add(new UIText(x, y - 24, execAtt(el, "width", 0), execString(el.getAtt("text")), execAtt(el, "size", 15)));
 					case "text":
-						cast add(new UIText(x, y, 0, execString(el.getAtt("text")), execAtt(el, "size", 15)));
+						cast add(new UIText(x, y, execAtt(el, "width", 0), execString(el.getAtt("text")), execAtt(el, "size", 15)));
 					case "stepper":
 						// x:Float, y:Float, value:Float = 0, step:Float = 1, precision:Int = 0, ?min:Float, ?max:Float, w:Int = 180, h:Int = 32
 						var stepper = new UINumericStepper(
@@ -244,22 +251,28 @@ class UISoftcodedWindow extends UISubstateWindow {
 
 		addLayout(getArr(layout.elements));
 
-		if(get("hasSaveButtons")) {
+		if(get("hasSaveButton")) {
 			saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight - 20, "Save & Close", function() {
 				saveData();
 				close();
 			}, 125);
 			saveButton.x -= saveButton.bWidth;
 			saveButton.y -= saveButton.bHeight;
+			add(saveButton);
+		}
 
-			closeButton = new UIButton(saveButton.x - 20, saveButton.y, "Close", function() {
+		if(get("hasCloseButton")) {
+			var x = saveButton != null ? saveButton.x - 20 : windowSpr.x + windowSpr.bWidth - 20;
+			var y = saveButton != null ? saveButton.y : windowSpr.y + windowSpr.bHeight - 20;
+			closeButton = new UIButton(x, y, "Close", function() {
 				close();
 			}, 125);
-			closeButton.color = 0xFFFF0000;
+			if(saveButton != null)
+				closeButton.color = 0xFFFF0000;
 			closeButton.x -= closeButton.bWidth;
-			//closeButton.y -= closeButton.bHeight;
+			if(saveButton == null)
+				closeButton.y -= closeButton.bHeight;
 			add(closeButton);
-			add(saveButton);
 		}
 	}
 

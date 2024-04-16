@@ -131,26 +131,11 @@ class Stage extends FlxBasic implements IBeatReceiver {
 						stageSprites.set(spr.name, spr);
 						addSprite(spr);
 					case "boyfriend" | "bf" | "player":
-						addCharPos("boyfriend", node, {
-							x: 770,
-							y: 100,
-							scroll: 1,
-							flip: true
-						});
+						addCharPos("boyfriend", node, getDefaultPos("boyfriend"));
 					case "girlfriend" | "gf":
-						addCharPos("girlfriend", node, {
-							x: 400,
-							y: 130,
-							scroll: 0.95,
-							flip: false
-						});
+						addCharPos("girlfriend", node, getDefaultPos("girlfriend"));
 					case "dad" | "opponent":
-						addCharPos("dad", node, {
-							x: 100,
-							y: 100,
-							scroll: 1,
-							flip: false
-						});
+						addCharPos("dad", node, getDefaultPos("dad"));
 					case "character" | "char":
 						if (!node.has.name) continue;
 						addCharPos(node.att.name, node);

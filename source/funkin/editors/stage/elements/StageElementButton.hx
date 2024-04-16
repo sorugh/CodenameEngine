@@ -154,6 +154,10 @@ class StageElementButton extends UIButton {
 		return null;
 	}
 
+	public function canRender() {
+		return true;
+	}
+
 	public function getName():String {
 		return "UNKNOWN";
 	}

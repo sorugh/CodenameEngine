@@ -19,11 +19,6 @@ class StageCharacterButton extends StageElementButton {
 	}
 
 	public override function update(elapsed:Float) {
-		editButton.selectable = ghostButton.selectable = deleteButton.selectable = selectable;
-		editButton.shouldPress = ghostButton.shouldPress = deleteButton.shouldPress = shouldPress;
-
-		hovered = !deleteButton.hovered;
-		updatePos();
 		super.update(elapsed);
 	}
 
@@ -83,6 +78,7 @@ class StageCharacterEditScreen extends UISoftcodedWindow {
 			"char" => char,
 			"charPos" => charPos,
 			"button" => button,
+			"xml" => button.xml,
 			"exID" => StageEditor.exID,
 			"getEx" => function(name:String):Dynamic {
 				return char.extra.get(StageEditor.exID(name));

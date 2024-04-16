@@ -77,6 +77,7 @@ class StageSpriteEditScreen extends UISoftcodedWindow {
 			"stage" => StageEditor.instance.stage,
 			"sprite" => sprite,
 			"button" => button,
+			"xml" => button.xml,
 			"exID" => StageEditor.exID,
 			"getEx" => function(name:String):Dynamic {
 				return sprite.extra.get(StageEditor.exID(name));

@@ -248,6 +248,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 			charPos.skewX = Std.parseFloat(node.getAtt("skewx")).getDefault(charPos.skewX);
 			charPos.skewY = Std.parseFloat(node.getAtt("skewy")).getDefault(charPos.skewY);
 			charPos.alpha = Std.parseFloat(node.getAtt("alpha")).getDefault(charPos.alpha);
+			charPos.angle = Std.parseFloat(node.getAtt("angle")).getDefault(charPos.angle);
 			charPos.flipX = (node.has.flip || node.has.flipX) ? (node.getAtt("flip") == "true" || node.getAtt("flipX") == "true") : charPos.flipX;
 			charPos.zoomFactor = Std.parseFloat(node.getAtt("zoomfactor")).getDefault(charPos.zoomFactor);
 
@@ -364,6 +365,7 @@ class StageCharPos extends FlxObject {
 		char.cameraOffset += FlxPoint.weak(camxoffset, camyoffset);
 		char.skew.x += skewX; char.skew.y += skewY;
 		char.alpha *= alpha;
+		char.angle += angle;
 		char.zoomFactor *= zoomFactor;
 	}
 
@@ -374,7 +376,8 @@ class StageCharPos extends FlxObject {
 			scaleX: char.scale.x, scaleY: char.scale.y,
 			camxoffset: char.cameraOffset.x, camyoffset: char.cameraOffset.y,
 			skewX: char.skew.x, skewY: char.skew.y,
-			alpha: char.alpha, zoomFactor: char.zoomFactor
+			alpha: char.alpha, zoomFactor: char.zoomFactor,
+			angle: char.angle
 		}
 	}
 
@@ -390,7 +393,7 @@ class StageCharPos extends FlxObject {
 				case "camyoffset": char.cameraOffset.y = oldInfo.camyoffset;
 				case "skewX": char.skew.x = oldInfo.skewX;
 				case "skewY": char.skew.y = oldInfo.skewY;
-				default: Reflect.setField(char, field, Reflect.field(oldInfo, field));
+				default: Reflect.setProperty(char, field, Reflect.field(oldInfo, field));
 			}
 		}
 		oldInfo = null;
@@ -416,4 +419,5 @@ typedef OldCharInfo = {
 	var skewY:Float;
 	var alpha:Float;
 	var zoomFactor:Float;
+	var angle:Float;
 }

@@ -1,0 +1,39 @@
+<window width="310" height="570" title="Editing XML <${button.getName()} />">
+	<set name="XOFFSET" value="30" />
+	<set name="YOFFSET" value="40" />
+	<set name="TO" value="64" />
+
+	<exec>
+		function col(c:Int) {
+			return 20 + (150 + XOFFSET) * c;
+		}
+	</exec>
+
+	<title name="title" x="20" y="30 + 16" text="Xml Data" />
+
+	<section>
+		<set name="curY" value="title.y + TO" />
+
+		<textbox name="nodeNameTextBox" label="Element Name" value="button.getName()"   x="col(0)" y="curY" width="280" height="32" />
+	</section>
+	<section>
+		<set name="curY" value="nodeNameTextBox.y + nodeNameTextBox.bHeight + YOFFSET - 20" />
+
+		<radio for="memoryCheck" name="highMemoryRadio" text="High Memory Only" value="button.highMemory" x="col(0)" y="curY" />
+		<radio for="memoryCheck" name="lowMemoryRadio" text="Low Memory Only" value="button.lowMemory" x="col(0)" y="last.y + last.check.height + YOFFSET - 30" />
+	</section>
+
+	<section>
+		<set name="curY" value="lowMemoryRadio.y + lowMemoryRadio.check.height + YOFFSET - 20" />
+
+		<!-- TODO: attribute button list -->
+	</section>
+
+	<exec>
+		function onSave() {
+			button.xml.nodeName = nodeNameTextBox.label.text;
+			button.highMemory = highMemoryRadio.checked;
+			button.lowMemory = lowMemoryRadio.checked;
+		}
+	</exec>
+</window>

@@ -213,6 +213,7 @@ class StageEditor extends UIState {
 		stage.onNodeLoaded = function(node:Access, sprite:Dynamic):Dynamic {
 			var parent = new Access(node.x.parent);
 			var name = "";
+			trace(node, sprite);
 			if(sprite is FlxSprite) {
 				//sprite.forceIsOnScreen = true; // hack
 			}
@@ -339,6 +340,9 @@ class StageEditor extends UIState {
 					var button = new StageCharacterButton(0,0, charPos, xml);
 					char.extra.set(exID("button"), button);
 					charPos.extra.set(exID("button"), button);
+					stageSpritesWindow.add(button);
+				} else if(sprite == null) {
+					var button = new StageUnknownButton(0,0, xml);
 					stageSpritesWindow.add(button);
 				}
 			}
@@ -486,7 +490,7 @@ class StageEditor extends UIState {
 	function _file_save(_) {
 		#if sys
 		CoolUtil.safeSaveFile(
-			'${Paths.getAssetsRoot()}/data/stages/${stage.stageName}.xml',
+			'${Paths.getAssetsRoot()}/data/stages/${__stage}.xml',
 			buildStage()
 		);
 		undos.save();
@@ -497,7 +501,7 @@ class StageEditor extends UIState {
 
 	function _file_saveas(_) {
 		openSubState(new SaveSubstate(buildStage(), {
-			defaultSaveFile: '${stage.stageName}.xml'
+			defaultSaveFile: '${__stage}.xml'
 		}));
 		undos.save();
 	}
@@ -557,6 +561,7 @@ class StageEditor extends UIState {
 				saveToXml(spriteXML, "skewx", sprite.skew.x, 0);
 				saveToXml(spriteXML, "skewy", sprite.skew.y, 0);
 				saveToXml(spriteXML, "alpha", sprite.alpha, 1);
+				saveToXml(spriteXML, "angle", sprite.angle, 0);
 				//saveToXml(spriteXML, "graphicSize", sprite.width, sprite.width);
 				//saveToXml(spriteXML, "graphicSizex", sprite.height, sprite.height);
 				//saveToXml(spriteXML, "graphicSizey", sprite.height, sprite.height);
@@ -577,7 +582,6 @@ class StageEditor extends UIState {
 				var button:StageCharacterButton = cast button;
 				var charPos:StageCharPos = button.charPos;
 				var char:Character = cast charPos.extra.get(exID("char"));
-				sprite = button.getSprite();
 				var node:Access = cast charPos.extra.get(exID("node"));
 				var nodeName = switch(charPos.name) {
 					case "boyfriend": "boyfriend";
@@ -598,12 +602,17 @@ class StageEditor extends UIState {
 				saveToXml(charXML, "spacingx", charPos.charSpacingX, 20);
 				saveToXml(charXML, "spacingy", charPos.charSpacingY, 0);
 				saveToXml(charXML, "alpha", charPos.alpha, 1);
+				saveToXml(charXML, "angle", charPos.angle, 0);
 				saveToXml(charXML, "zoomfactor", charPos.zoomFactor, 1);
 				saveToXml(charXML, "flipX", charPos.flipX, defaultPos.flip);
 				savePointToXml(charXML, "scroll", charPos.scrollFactor, defaultPos.scroll);
 				savePointToXml(charXML, "scale", charPos.scale, 1);
 				newNode = charXML;
-			} else {
+			} else if(button is StageUnknownButton) {
+				var button:StageUnknownButton = cast button;
+				newNode = button.xml.x;
+			}
+			else {
 				Logs.trace("Unknown Stage Type : " + Type.getClassName(Type.getClass(button)));
 				Logs.trace("> Sprite : " + Type.getClassName(Type.getClass(sprite)));
 			}
@@ -714,9 +723,12 @@ class StageEditor extends UIState {
 	function getSprites() {
 		return stageSpritesWindow.buttons.members.map((o) -> o.getSprite()).filter((o) -> o != null);
 	}
+	function getRealSprites() {
+		return stageSpritesWindow.buttons.members.filter(o -> o.canRender()).map((o) -> o.getSprite()).filter((o) -> o != null);
+	}
 
 	function updateSelection() {
-		var sprites = getSprites();
+		var sprites = getRealSprites();
 		// Unselect all
 		for(sprite in sprites) {
 			if(sprite is FunkinSprite) {
@@ -738,7 +750,7 @@ class StageEditor extends UIState {
 
 	function _select_all(_, checkSelection:Bool = true) {
 		_select_deselect(null, false);
-		var sprites = getSprites();
+		var sprites = getRealSprites();
 		selection = new Selection(sprites);
 		if(checkSelection) updateSelection();
 	}

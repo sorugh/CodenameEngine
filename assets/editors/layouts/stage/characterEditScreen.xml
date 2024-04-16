@@ -49,7 +49,9 @@
 		<set name="curY" value="camxStepper.y + camxStepper.bHeight + YOFFSET" />
 
 		<stepper name="alphaStepper" label="Alpha" value="charPos.alpha" x="col(0)" y="curY" precision="2" step="0.01" width="100" />
-		<stepper name="zoomFactorStepper" label="Zoom Factor" value="charPos.zoomFactor" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="angleStepper" label="Angle" value="charPos.angle" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+
+		<stepper name="zoomFactorStepper" label="Zoom Factor" value="charPos.zoomFactor" x="col(1)" y="curY" precision="2" step="0.01" width="100" />
 	</section>
 
 	<section>
@@ -75,6 +77,7 @@
 			if(previewSprite == null) return;
 			previewSprite.skew.x = skewXStepper.value;
 			previewSprite.skew.y = skewYStepper.value;
+			previewSprite.angle = angleStepper.value;
 			previewSprite.antialiasing = char.antialiasing;
 			var ratio = char.frameWidth / char.frameHeight;
 			previewSprite.setGraphicSize(145 * scaleXStepper.value * ratio, 145 * scaleYStepper.value);
@@ -103,6 +106,7 @@
 			charPos.charSpacingY = spacingYStepper.value;
 			charPos.flipX = flipXCheckbox.checked;
 			charPos.zoomFactor = zoomFactorStepper.value;
+			charPos.angle = angleStepper.value;
 
 			charPos.revertCharacter(char);
 			charPos.prepareCharacter(char, charPos._id);

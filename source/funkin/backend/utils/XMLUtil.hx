@@ -154,6 +154,8 @@ class XMLUtil {
 			spr.skipNegativeBeats = node.att.playOnCountdown == "true";
 		if (node.has.beatInterval)
 			spr.beatInterval = Std.parseInt(node.att.beatInterval);
+		if (node.has.interval)
+			spr.beatInterval = Std.parseInt(node.att.interval);
 		if (node.has.beatOffset)
 			spr.beatOffset = Std.parseInt(node.att.beatOffset);
 

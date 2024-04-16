@@ -184,32 +184,46 @@ class Stage extends FlxBasic implements IBeatReceiver {
 		}
 
 		if (characterPoses["girlfriend"] == null)
-			addCharPos("girlfriend", null, {
-				x: 400,
-				y: 130,
-				scroll: 0.95,
-				flip: false
-			});
+			addCharPos("girlfriend", null, getDefaultPos("girlfriend"));
 
 		if (characterPoses["dad"] == null)
-			addCharPos("dad", null, {
-				x: 100,
-				y: 100,
-				scroll: 1,
-				flip: false
-			});
+			addCharPos("dad", null, getDefaultPos("dad"));
 
 		if (characterPoses["boyfriend"] == null)
-			addCharPos("boyfriend", null, {
-				x: 770,
-				y: 100,
-				scroll: 1,
-				flip: true
-			});
+			addCharPos("boyfriend", null, getDefaultPos("boyfriend"));
 
 		if (PlayState.instance != state) return;
 		for(k=>e in stageSprites) {
 			stageScript.set(k, e);
+		}
+	}
+
+	public static function getDefaultPos(name:String):StageCharPosInfo {
+		return switch(name) {
+			case "boyfriend" | "bf" | "player": {
+				x: 770,
+				y: 100,
+				scroll: 1,
+				flip: true
+			};
+			case "girlfriend" | "gf": {
+				x: 400,
+				y: 130,
+				scroll: 0.95,
+				flip: false
+			};
+			case "dad" | "opponent": {
+				x: 100,
+				y: 100,
+				scroll: 1,
+				flip: false
+			};
+			default: {
+				x: 0,
+				y: 0,
+				scroll: 1,
+				flip: false
+			};
 		}
 	}
 
@@ -227,6 +241,8 @@ class Stage extends FlxBasic implements IBeatReceiver {
 		if (node != null) {
 			charPos.x = Std.parseFloat(node.getAtt("x")).getDefault(charPos.x);
 			charPos.y = Std.parseFloat(node.getAtt("y")).getDefault(charPos.y);
+			charPos.charSpacingX = Std.parseFloat(node.getAtt("spacingx")).getDefault(charPos.charSpacingX);
+			charPos.charSpacingY = Std.parseFloat(node.getAtt("spacingy")).getDefault(charPos.charSpacingY);
 			charPos.camxoffset = Std.parseFloat(node.getAtt("camxoffset")).getDefault(charPos.camxoffset);
 			charPos.camyoffset = Std.parseFloat(node.getAtt("camyoffset")).getDefault(charPos.camyoffset);
 			charPos.skewX = Std.parseFloat(node.getAtt("skewx")).getDefault(charPos.skewX);
@@ -234,21 +250,30 @@ class Stage extends FlxBasic implements IBeatReceiver {
 			charPos.alpha = Std.parseFloat(node.getAtt("alpha")).getDefault(charPos.alpha);
 			charPos.flipX = (node.has.flip || node.has.flipX) ? (node.getAtt("flip") == "true" || node.getAtt("flipX") == "true") : charPos.flipX;
 
-			var scale = Std.parseFloat(node.getAtt("scale")).getDefault(charPos.scale.x);
-			charPos.scale.set(scale, scale);
+			if (node.has.scale) {
+				var scale:Null<Float> = Std.parseFloat(node.att.scale);
+				if (scale.isNotNull()) charPos.scale.set(scale, scale);
+			}
+			if (node.has.scalex) {
+				var scale:Null<Float> = Std.parseFloat(node.att.scalex);
+				if (scale.isNotNull()) charPos.scale.x = scale;
+			}
+			if (node.has.scaley) {
+				var scale:Null<Float> = Std.parseFloat(node.att.scaley);
+				if (scale.isNotNull()) charPos.scale.y = scale;
+			}
 
 			if (node.has.scroll) {
 				var scroll:Null<Float> = Std.parseFloat(node.att.scroll);
 				if (scroll != null) charPos.scrollFactor.set(scroll, scroll);
-			} else {
-				if (node.has.scrollx) {
-					var scroll:Null<Float> = Std.parseFloat(node.att.scrollx);
-					if (scroll != null) charPos.scrollFactor.x = scroll;
-				}
-				if (node.has.scrolly) {
-					var scroll:Null<Float> = Std.parseFloat(node.att.scrolly);
-					if (scroll != null) charPos.scrollFactor.y = scroll;
-				}
+			}
+			if (node.has.scrollx) {
+				var scroll:Null<Float> = Std.parseFloat(node.att.scrollx);
+				if (scroll != null) charPos.scrollFactor.x = scroll;
+			}
+			if (node.has.scrolly) {
+				var scroll:Null<Float> = Std.parseFloat(node.att.scrolly);
+				if (scroll != null) charPos.scrollFactor.y = scroll;
 			}
 		}
 

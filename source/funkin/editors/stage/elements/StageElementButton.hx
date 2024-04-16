@@ -124,7 +124,7 @@ class StageElementButton extends UIButton {
 		field.text = getInfoText();
 
 		visibilityIcon.animation.play(isHidden ? "invisible" : "visible");
-		//visibilityIcon.alpha = !isHidden ? 1 : 0.5;
+		visibilityIcon.alpha = !isHidden ? 1 : 0.5;
 	}
 
 	public function updatePos() {

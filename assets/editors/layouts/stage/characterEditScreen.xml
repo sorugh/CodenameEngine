@@ -37,12 +37,12 @@
 		<stepper name="camxStepper" label="Cam X" value="charPos.camxoffset" x="col(0)" y="curY" step="1" width="100" />
 		<stepper name="camyStepper" label="Cam Y" value="charPos.camyoffset" x="last.x + last.bWidth + XOFFSET - 20" y="curY" step="1" width="100" />
 
-		<stepper name="skewXStepper" label="Skew X" value="charPos.skewX" x="col(1)" y="curY" precision="2" step="0.01" width="100" />
-		<stepper name="skewYStepper" label="Skew Y" value="charPos.skewY" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
-
-		<label name="spacingLabel" text="Spacing (X, Y)" x="col(2)" y="curY" size="15" />
-		<stepper name="spacingXStepper" value="charPos.charSpacingX" x="col(2)" y="curY" precision="2" step="0.01" width="100" />
+		<label name="spacingLabel" text="Spacing (X, Y)" x="col(1)" y="curY" size="15" />
+		<stepper name="spacingXStepper" value="charPos.charSpacingX" x="col(1)" y="curY" precision="2" step="0.01" width="100" />
 		<stepper name="spacingYStepper" value="charPos.charSpacingY" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+
+		<stepper name="skewXStepper" label="Skew X" value="charPos.skewX" x="col(2)" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="skewYStepper" label="Skew Y" value="charPos.skewY" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
 	</section>
 
 	<section>

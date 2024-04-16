@@ -100,6 +100,42 @@ class StageEditor extends UIState {
 					}
 				]
 			},
+			/*{
+				label: "Edit",
+				childs: [
+					{
+						label: "Undo",
+						keybind: [CONTROL, Z],
+						onSelect: _edit_undo,
+					},
+					{
+						label: "Redo",
+						keybind: [CONTROL, SHIFT, Z],
+						onSelect: _edit_redo,
+					},
+					null,
+				]
+			},*/
+			{
+				label: "Select",
+				childs: [
+					{
+						label: "All",
+						keybind: [CONTROL, A],
+						onSelect: (_) -> _select_all(_),
+					},
+					{
+						label: "Deselect",
+						keybind: [CONTROL, D],
+						onSelect: (_) -> _select_deselect(_),
+					},
+					{
+						label: "Inverse",
+						keybind: [CONTROL, SHIFT, I],
+						onSelect: (_) -> _select_inverse(_),
+					},
+				]
+			},
 			{
 				label: "View",
 				childs: [
@@ -381,9 +417,12 @@ class StageEditor extends UIState {
 				}
 			}*/
 
-			for(sprite in selection) {
-				if(sprite is FunkinSprite) {
-					handleSelection(cast sprite);
+			// TODO: make this work with multiple selections
+			if(selection.length == 1) {
+				for(sprite in selection) {
+					if(sprite is FunkinSprite) {
+						handleSelection(cast sprite);
+					}
 				}
 			}
 
@@ -408,25 +447,6 @@ class StageEditor extends UIState {
 
 		WindowUtils.prefix = undos.unsaved ? "* " : "";
 		SaveWarning.showWarning = undos.unsaved;
-	}
-
-	public function selectSprite(_sprite:FunkinSprite) {
-		selection = new Selection([]);
-		var sprites = stageSpritesWindow.buttons.members.map((o) -> o.getSprite()).filter((o) -> o != null);// && o.animateAtlas == null);
-		for(sprite in sprites) {
-			if(sprite is FunkinSprite) {
-				var sprite:FunkinSprite = cast sprite;
-				sprite.extra.set(exID("selected"), false);
-				sprite.extra.get(exID("button")).selected = false;
-			}
-		}
-		if(_sprite is FunkinSprite) {
-			var sprite:FunkinSprite = cast _sprite;
-			sprite.extra.set(exID("selected"), true);
-			sprite.extra.get(exID("button")).selected = true;
-			selection = new Selection([sprite]);
-			Logs.trace("Selected " + sprite.name);
-		}
 	}
 
 	// TOP MENU OPTIONS
@@ -540,6 +560,62 @@ class StageEditor extends UIState {
 
 		if (addtoUndo)
 			undos.addToUndo(CEditInfo(oldInfo, newInfo));*/
+	}
+
+	public function selectSprite(_sprite:FunkinSprite) {
+		_select_deselect(null, false);
+
+		if(_sprite is FunkinSprite) {
+			selection = new Selection([cast _sprite]);
+		}
+		updateSelection();
+	}
+
+	function getSprites() {
+		return stageSpritesWindow.buttons.members.map((o) -> o.getSprite()).filter((o) -> o != null);
+	}
+
+	function updateSelection() {
+		var sprites = getSprites();
+		// Unselect all
+		for(sprite in sprites) {
+			if(sprite is FunkinSprite) {
+				var sprite:FunkinSprite = cast sprite;
+				sprite.extra.set(exID("selected"), false);
+				sprite.extra.get(exID("button")).selected = false;
+			}
+		}
+		// Mark selected as selected
+		for(sprite in selection) {
+			if(sprite is FunkinSprite) {
+				var sprite:FunkinSprite = cast sprite;
+				sprite.extra.set(exID("selected"), true);
+				sprite.extra.get(exID("button")).selected = true;
+				Logs.trace("Selected " + sprite.name);
+			}
+		}
+	}
+
+	function _select_all(_, checkSelection:Bool = true) {
+		_select_deselect(null, false);
+		var sprites = getSprites();
+		selection = new Selection(sprites);
+		if(checkSelection) updateSelection();
+	}
+
+	function _select_deselect(_, checkSelection:Bool = true) {
+		var sprites = getSprites();// && o.animateAtlas == null);
+		selection = new Selection();
+		if(checkSelection) updateSelection();
+	}
+
+	function _select_inverse(_, checkSelection:Bool = true) {
+		var oldSelection = selection;
+		_select_all(null, false);
+		for(sprite in oldSelection) {
+			selection.remove(sprite);
+		}
+		if(checkSelection) updateSelection();
 	}
 
 	var zoom(default, set):Float = 0;

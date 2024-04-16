@@ -100,6 +100,42 @@ class StageEditor extends UIState {
 					}
 				]
 			},
+			/*{
+				label: "Edit",
+				childs: [
+					{
+						label: "Undo",
+						keybind: [CONTROL, Z],
+						onSelect: _edit_undo,
+					},
+					{
+						label: "Redo",
+						keybind: [CONTROL, SHIFT, Z],
+						onSelect: _edit_redo,
+					},
+					null,
+				]
+			},*/
+			{
+				label: "Select",
+				childs: [
+					{
+						label: "All",
+						keybind: [CONTROL, A],
+						onSelect: (_) -> _select_all(_),
+					},
+					{
+						label: "Deselect",
+						keybind: [CONTROL, D],
+						onSelect: (_) -> _select_deselect(_),
+					},
+					{
+						label: "Inverse",
+						keybind: [CONTROL, SHIFT, I],
+						onSelect: (_) -> _select_inverse(_),
+					},
+				]
+			},
 			{
 				label: "View",
 				childs: [
@@ -220,6 +256,7 @@ class StageEditor extends UIState {
 				char.alpha = 0.5;
 				char.extra.set(exID("node"), node);
 				char.extra.set(exID("pos"), charPos);
+				charPos.extra.set(exID("node"), node);
 				charPos.extra.set(exID("char"), char);
 				chars.push(char);
 			}
@@ -233,7 +270,7 @@ class StageEditor extends UIState {
 
 		for(char in chars) {
 			var charPos = char.extra.get(exID("pos"));
-			var node = char.extra.get(exID("node"));
+			var node:Access = cast char.extra.get(exID("node"));
 
 			stage.applyCharStuff(char, charPos.name, 0);
 			charMap[charPos.name] = char;
@@ -401,9 +438,12 @@ class StageEditor extends UIState {
 				}
 			}*/
 
-			for(sprite in selection) {
-				if(sprite is FunkinSprite) {
-					handleSelection(cast sprite);
+			// TODO: make this work with multiple selections
+			if(selection.length == 1) {
+				for(sprite in selection) {
+					if(sprite is FunkinSprite) {
+						handleSelection(cast sprite);
+					}
 				}
 			}
 
@@ -428,25 +468,6 @@ class StageEditor extends UIState {
 
 		WindowUtils.prefix = undos.unsaved ? "* " : "";
 		SaveWarning.showWarning = undos.unsaved;
-	}
-
-	public function selectSprite(_sprite:FunkinSprite) {
-		selection = new Selection([]);
-		var sprites = stageSpritesWindow.buttons.members.map((o) -> o.getSprite()).filter((o) -> o != null);// && o.animateAtlas == null);
-		for(sprite in sprites) {
-			if(sprite is FunkinSprite) {
-				var sprite:FunkinSprite = cast sprite;
-				sprite.extra.set(exID("selected"), false);
-				sprite.extra.get(exID("button")).selected = false;
-			}
-		}
-		if(_sprite is FunkinSprite) {
-			var sprite:FunkinSprite = cast _sprite;
-			sprite.extra.set(exID("selected"), true);
-			sprite.extra.get(exID("button")).selected = true;
-			selection = new Selection([sprite]);
-			Logs.trace("Selected " + sprite.name);
-		}
 	}
 
 	// TOP MENU OPTIONS
@@ -478,26 +499,119 @@ class StageEditor extends UIState {
 		undos.save();
 	}
 
-	function buildStage():String {
-		/*if (character.isPlayer != character.playerOffsets) {
-			character.switchOffset('singLEFT', 'singRIGHT');
-			character.switchOffset('singLEFTmiss', 'singRIGHTmiss');
+	function saveToXml(xml:Xml, name:String, value:Dynamic, ?defaultValue:Dynamic) {
+		if(value == null || value == defaultValue) return xml;
+		xml.set(name, Std.string(value));
+		return xml;
+	}
+	function savePointToXml(xml:Xml, name:String, point:FlxPoint, ?defaultValueX:Float, ?defaultValueY:Float) {
+		if (point == null) return xml;
+		if(point.x == point.y) {
+			saveToXml(xml, name, point.x, defaultValueX);
+		} else {
+			saveToXml(xml, name + "x", point.x, defaultValueX);
+			saveToXml(xml, name + "y", point.y, defaultValueY);
 		}
-		var charXML:Xml = character.buildXML([
-			for (button in characterAnimsWindow.buttons.members)
-				button.anim
-		]);
+		return xml;
+	}
+
+	function getBoolOfNode(node:Access, name:String) {
+		var xml:Xml = cast node;
+
+		return xml.exists(name) && xml.get(name) == "true";
+	}
+
+	function buildStage():String {
+		var xml = Xml.createElement("stage");
+		saveToXml(xml, "zoom", stage.defaultZoom, 1.05);
+		saveToXml(xml, "name", stage.stageName);
+		saveToXml(xml, "folder", stage.spritesParentFolder);
+		saveToXml(xml, "startCamPosX", stage.startCam.x, 0);
+		saveToXml(xml, "startCamPosY", stage.startCam.y, 0);
+
+		for(sprite in getSprites()) {
+			var button:StageElementButton = sprite.extra.get(exID("button"));
+			if(button is StageSolidButton) {
+				var button:StageSolidButton = cast button;
+				var sprite:FunkinSprite = button.getSprite();
+				var node:Access = cast sprite.extra.get(exID("node"));
+				Logs.trace("SOLID / BOX isnt implemented yet!");
+			} else if(button is StageSpriteButton) {
+				var button:StageSpriteButton = cast button;
+				var sprite:FunkinSprite = button.getSprite();
+				var node:Access = cast sprite.extra.get(exID("node"));
+				var spriteXML = Xml.createElement("sprite");
+				saveToXml(spriteXML, "name", sprite.name);
+				saveToXml(spriteXML, "x", sprite.x, 0);
+				saveToXml(spriteXML, "y", sprite.y, 0);
+				saveToXml(spriteXML, "sprite", sprite.extra.get(exID("imageFile")));
+				savePointToXml(spriteXML, "scale", sprite.scale, 1, 1);
+				savePointToXml(spriteXML, "scroll", sprite.scrollFactor, 0, 0);
+				saveToXml(spriteXML, "skewx", sprite.skew.x, 0);
+				saveToXml(spriteXML, "skewy", sprite.skew.y, 0);
+				saveToXml(spriteXML, "alpha", sprite.alpha, 1);
+				//saveToXml(spriteXML, "graphicSize", sprite.width, sprite.width);
+				//saveToXml(spriteXML, "graphicSizex", sprite.height, sprite.height);
+				//saveToXml(spriteXML, "graphicSizey", sprite.height, sprite.height);
+				saveToXml(spriteXML, "zoomfactor", sprite.zoomFactor, 1);
+				saveToXml(spriteXML, "updateHitbox", getBoolOfNode(node, "updateHitbox"), false);
+				saveToXml(spriteXML, "antialiasing", sprite.antialiasing, true);
+				//saveToXml(spriteXML, "width", sprite.width);
+				//saveToXml(spriteXML, "height", sprite.height);
+				saveToXml(spriteXML, "playOnCountdown", getBoolOfNode(node, "playOnCountdown"), false);
+				saveToXml(spriteXML, "interval", node.getAtt("beatInterval"), 2);
+				saveToXml(spriteXML, "interval", node.getAtt("interval"), 2);
+				saveToXml(spriteXML, "beatOffset", node.getAtt("beatOffset"), 0);
+				saveToXml(spriteXML, "type", sprite.spriteAnimType, LOOP);
+				saveToXml(spriteXML, "color", sprite.color.toWebString(), "#FFFFFF");
+				//saveToXml(spriteXML, "flipX", sprite.flipX, false);
+				xml.addChild(spriteXML);
+			} else if(button is StageCharacterButton) {
+				var button:StageCharacterButton = cast button;
+				var charPos:StageCharPos = button.charPos;
+				var char:Character = cast charPos.extra.get(exID("char"));
+				var node:Access = cast charPos.extra.get(exID("node"));
+				var nodeName = switch(charPos.name) {
+					case "boyfriend": "boyfriend";
+					case "dad": "dad";
+					case "girlfriend": "girlfriend";
+					default: "character";
+				}
+				var defaultPos = Stage.getDefaultPos(charPos.name);
+				var charXML:Xml = Xml.createElement(nodeName);
+				if(nodeName == "character")
+					saveToXml(charXML, "name", char.curCharacter);
+				saveToXml(charXML, "x", charPos.x, defaultPos.x);
+				saveToXml(charXML, "y", charPos.y, defaultPos.y);
+				saveToXml(charXML, "camxoffset", charPos.camxoffset, 0);
+				saveToXml(charXML, "camyoffset", charPos.camyoffset, 0);
+				saveToXml(charXML, "skewx", charPos.skewX, 0);
+				saveToXml(charXML, "skewy", charPos.skewY, 0);
+				saveToXml(charXML, "spacingx", charPos.charSpacingX, 20);
+				saveToXml(charXML, "spacingy", charPos.charSpacingY, 0);
+				saveToXml(charXML, "alpha", charPos.alpha, 1);
+				saveToXml(charXML, "flipX", charPos.flipX, defaultPos.flip);
+				savePointToXml(charXML, "scroll", charPos.scrollFactor, defaultPos.scroll, defaultPos.scroll);
+				savePointToXml(charXML, "scale", charPos.scale, 1, 1);
+				xml.addChild(charXML);
+			} else {
+				Logs.trace("Unknown Stage Type : " + Type.getClassName(Type.getClass(button)));
+				Logs.trace("> Sprite : " + Type.getClassName(Type.getClass(sprite)));
+			}
+		}
 
 		// clean
-		if (charXML.exists("gameOverChar") && character.gameOverCharacter == "bf-dead") charXML.remove("gameOverChar");
-		if (charXML.exists("camx") && character.cameraOffset.x == 0) charXML.remove("camx");
-		if (charXML.exists("camy") &&  character.cameraOffset.y == 0) charXML.remove("camy");
-		if (charXML.exists("holdTime") && character.holdTime == 4) charXML.remove("holdTime");
-		if (charXML.exists("flipX") && !character.flipX) charXML.remove("flipX");
-		if (charXML.exists("scale") && character.scale.x == 1) charXML.remove("scale");
-		if (charXML.exists("antialiasing") && character.antialiasing) charXML.remove("antialiasing");*/
+		//if (charXML.exists("gameOverChar") && character.gameOverCharacter == "bf-dead") charXML.remove("gameOverChar");
+		//if (charXML.exists("camx") && character.cameraOffset.x == 0) charXML.remove("camx");
+		//if (charXML.exists("camy") &&  character.cameraOffset.y == 0) charXML.remove("camy");
+		//if (charXML.exists("holdTime") && character.holdTime == 4) charXML.remove("holdTime");
+		//if (charXML.exists("flipX") && !character.flipX) charXML.remove("flipX");
+		//if (charXML.exists("scale") && character.scale.x == 1) charXML.remove("scale");
+		//if (charXML.exists("antialiasing") && character.antialiasing) charXML.remove("antialiasing");*/
 
-		return "<!DOCTYPE codename-engine-stage>\n";// + Printer.print(charXML, true);
+		Logs.trace(Printer.print(xml, true));
+
+		return "<!DOCTYPE codename-engine-stage>\n" + Printer.print(xml, true);
 	}
 
 	/*function _edit_undo(_) {
@@ -560,6 +674,65 @@ class StageEditor extends UIState {
 
 		if (addtoUndo)
 			undos.addToUndo(CEditInfo(oldInfo, newInfo));*/
+	}
+
+	public function selectSprite(_sprite:FunkinSprite) {
+		if(!UIUtil.getKeyState(CONTROL, PRESSED))
+			_select_deselect(null, false);
+
+		if(_sprite is FunkinSprite) {
+			if(selection.contains(_sprite))
+				selection.remove(_sprite);
+			else
+				selection.push(_sprite);
+		}
+		updateSelection();
+	}
+
+	function getSprites() {
+		return stageSpritesWindow.buttons.members.map((o) -> o.getSprite()).filter((o) -> o != null);
+	}
+
+	function updateSelection() {
+		var sprites = getSprites();
+		// Unselect all
+		for(sprite in sprites) {
+			if(sprite is FunkinSprite) {
+				var sprite:FunkinSprite = cast sprite;
+				sprite.extra.set(exID("selected"), false);
+				sprite.extra.get(exID("button")).selected = false;
+			}
+		}
+		// Mark selected as selected
+		for(sprite in selection) {
+			if(sprite is FunkinSprite) {
+				var sprite:FunkinSprite = cast sprite;
+				sprite.extra.set(exID("selected"), true);
+				sprite.extra.get(exID("button")).selected = true;
+				Logs.trace("Selected " + sprite.name);
+			}
+		}
+	}
+
+	function _select_all(_, checkSelection:Bool = true) {
+		_select_deselect(null, false);
+		var sprites = getSprites();
+		selection = new Selection(sprites);
+		if(checkSelection) updateSelection();
+	}
+
+	function _select_deselect(_, checkSelection:Bool = true) {
+		selection = new Selection();
+		if(checkSelection) updateSelection();
+	}
+
+	function _select_inverse(_, checkSelection:Bool = true) {
+		var oldSelection = selection;
+		_select_all(null, false);
+		for(sprite in oldSelection) {
+			selection.remove(sprite);
+		}
+		if(checkSelection) updateSelection();
 	}
 
 	var zoom(default, set):Float = 0;

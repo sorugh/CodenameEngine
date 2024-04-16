@@ -1,5 +1,6 @@
 package funkin.editors.ui;
 
+import flixel.input.FlxInput.FlxInputState;
 import flixel.input.keyboard.FlxKey;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
 
@@ -12,6 +13,19 @@ class UIUtil {
 
 	public static function contextMenuOpened(contextMenu:UIContextMenu) {
 		return contextMenu != null && UIState.state.curContextMenu == contextMenu;
+	}
+
+	@:noUsing public static function fixKey(key:FlxKey):FlxKey {
+		return switch(key) {
+			#if mac
+			case CONTROL: WINDOWS; // Remap control to the meta key
+			#end
+			default: key;
+		}
+	}
+
+	public static function getKeyState(key:FlxKey, Status:FlxInputState):Bool {
+		return FlxG.keys.checkStatus(fixKey(key), Status);
 	}
 
 	/**
@@ -41,14 +55,7 @@ class UIUtil {
 						var shouldPress = Std.int(key) > 0;
 						if(!shouldPress) key = -key;
 
-						var k = switch(key) {
-							#if mac
-							case CONTROL:
-								WINDOWS;
-							#end
-							default:
-								key;
-						}
+						var k = fixKey(key);
 						if (FlxG.keys.checkStatus(k, shouldPress ? JUST_PRESSED : JUST_RELEASED)) {
 							justPressed = true;
 						} else if (!FlxG.keys.checkStatus(k, shouldPress ? PRESSED : RELEASED)) {

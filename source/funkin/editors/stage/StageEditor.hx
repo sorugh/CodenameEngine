@@ -563,10 +563,14 @@ class StageEditor extends UIState {
 	}
 
 	public function selectSprite(_sprite:FunkinSprite) {
-		_select_deselect(null, false);
+		if(!UIUtil.getKeyState(CONTROL, PRESSED))
+			_select_deselect(null, false);
 
 		if(_sprite is FunkinSprite) {
-			selection = new Selection([cast _sprite]);
+			if(selection.contains(_sprite))
+				selection.remove(_sprite);
+			else
+				selection.push(_sprite);
 		}
 		updateSelection();
 	}
@@ -604,7 +608,6 @@ class StageEditor extends UIState {
 	}
 
 	function _select_deselect(_, checkSelection:Bool = true) {
-		var sprites = getSprites();// && o.animateAtlas == null);
 		selection = new Selection();
 		if(checkSelection) updateSelection();
 	}

@@ -1,8 +1,9 @@
 package funkin.editors.stage.elements;
 
-import haxe.xml.Access;
-import funkin.editors.stage.StageSpriteEditScreen;
 import flixel.util.FlxColor;
+import funkin.editors.stage.elements.StageElementButton;
+import funkin.editors.ui.UISoftcodedWindow;
+import haxe.xml.Access;
 
 class StageSpriteButton extends StageElementButton {
 	public var sprite:FunkinSprite;
@@ -13,20 +14,16 @@ class StageSpriteButton extends StageElementButton {
 
 		//color = 0xFFD9FF50;
 
-		updateInfo(sprite);
+		updateInfo();
 	}
 
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
 	}
 
-	public override function updateInfo(sprite:Dynamic) {
-		if(sprite is FunkinSprite) {
-			var sprite:FunkinSprite = cast sprite;
-			this.sprite = sprite;
-			sprite.visible = !isHidden;
-		}
-		super.updateInfo(sprite);
+	public override function updateInfo() {
+		sprite.visible = !isHidden;
+		super.updateInfo();
 	}
 
 	public override function getSprite():FunkinSprite {
@@ -39,11 +36,10 @@ class StageSpriteButton extends StageElementButton {
 
 	public override function onGhostClick() {
 		isHidden = !isHidden;
-		updateInfo(this.sprite);
+		updateInfo();
 	}
 
 	public override function onEdit() {
-		// TODO: implement
 		FlxG.state.openSubState(new StageSpriteEditScreen(this));
 	}
 
@@ -65,5 +61,47 @@ class StageSpriteButton extends StageElementButton {
 
 	public override function updatePos() {
 		super.updatePos();
+	}
+}
+
+class StageSpriteEditScreen extends UISoftcodedWindow {
+	public var newSprite:Bool = false;
+	public var button:StageSpriteButton;
+	public var sprite:FunkinSprite;
+	var isSaving:Bool = false;
+
+	public function new(button:StageSpriteButton) {
+		this.button = button;
+		this.sprite = button.getSprite();
+		super("layouts/stage/spriteEditScreen.xml", [
+			"stage" => StageEditor.instance.stage,
+			"sprite" => sprite,
+			"button" => button,
+			"exID" => StageEditor.exID,
+			"getEx" => function(name:String):Dynamic {
+				return sprite.extra.get(StageEditor.exID(name));
+			},
+			"setEx" => function(name:String, value:Dynamic) {
+				sprite.extra.set(StageEditor.exID(name), value);
+			},
+		]);
+	}
+
+	public override function create() {
+		super.create();
+	}
+
+	public override function saveData() {
+		isSaving = true;
+		super.saveData();
+		button.updateInfo();
+	}
+
+	public override function close() {
+		if (!isSaving && newSprite) {
+			button.onDelete();
+			trace("deleting sprite");
+		}
+		super.close();
 	}
 }

@@ -249,6 +249,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 			charPos.skewY = Std.parseFloat(node.getAtt("skewy")).getDefault(charPos.skewY);
 			charPos.alpha = Std.parseFloat(node.getAtt("alpha")).getDefault(charPos.alpha);
 			charPos.flipX = (node.has.flip || node.has.flipX) ? (node.getAtt("flip") == "true" || node.getAtt("flipX") == "true") : charPos.flipX;
+			charPos.zoomFactor = Std.parseFloat(node.getAtt("zoomfactor")).getDefault(charPos.zoomFactor);
 
 			if (node.has.scale) {
 				var scale:Null<Float> = Std.parseFloat(node.att.scale);
@@ -337,6 +338,7 @@ class StageCharPos extends FlxObject {
 	public var alpha:Float = 1;
 	public var flipX:Bool = false;
 	public var scale:FlxPoint = FlxPoint.get(1, 1);
+	public var zoomFactor:Float = 1;
 
 	public function new() {
 		super();
@@ -349,13 +351,49 @@ class StageCharPos extends FlxObject {
 		super.destroy();
 	}
 
+	private var _id:Float = -1;
+
+	private var oldInfo:OldCharInfo = null;
+
 	public function prepareCharacter(char:Character, id:Float = 0) {
+		_id = id;
+		oldInfo = getOldInfo(char);
 		char.setPosition(x + (id * charSpacingX), y + (id * charSpacingY));
 		char.scrollFactor.set(scrollFactor.x, scrollFactor.y);
 		char.scale.x *= scale.x; char.scale.y *= scale.y;
 		char.cameraOffset += FlxPoint.weak(camxoffset, camyoffset);
 		char.skew.x += skewX; char.skew.y += skewY;
 		char.alpha *= alpha;
+		char.zoomFactor *= zoomFactor;
+	}
+
+	public function getOldInfo(char:Character) {
+		return {
+			x: char.x, y: char.y,
+			scrollX: char.scrollFactor.x, scrollY: char.scrollFactor.y,
+			scaleX: char.scale.x, scaleY: char.scale.y,
+			camxoffset: char.cameraOffset.x, camyoffset: char.cameraOffset.y,
+			skewX: char.skew.x, skewY: char.skew.y,
+			alpha: char.alpha, zoomFactor: char.zoomFactor
+		}
+	}
+
+	public function revertCharacter(char:Character) {
+		if(oldInfo == null) return;
+		for(field in Reflect.fields(oldInfo)) {
+			switch(field) {
+				case "scrollX": char.scrollFactor.x = oldInfo.scrollX;
+				case "scrollY": char.scrollFactor.y = oldInfo.scrollY;
+				case "scaleX": char.scale.x = oldInfo.scaleX;
+				case "scaleY": char.scale.y = oldInfo.scaleY;
+				case "camxoffset": char.cameraOffset.x = oldInfo.camxoffset;
+				case "camyoffset": char.cameraOffset.y = oldInfo.camyoffset;
+				case "skewX": char.skew.x = oldInfo.skewX;
+				case "skewY": char.skew.y = oldInfo.skewY;
+				default: Reflect.setField(char, field, Reflect.field(oldInfo, field));
+			}
+		}
+		oldInfo = null;
 	}
 }
 typedef StageCharPosInfo = {
@@ -363,4 +401,19 @@ typedef StageCharPosInfo = {
 	var y:Float;
 	var flip:Bool;
 	var scroll:Float;
+}
+
+typedef OldCharInfo = {
+	var x:Float;
+	var y:Float;
+	var scrollX:Float;
+	var scrollY:Float;
+	var scaleX:Float;
+	var scaleY:Float;
+	var camxoffset:Float;
+	var camyoffset:Float;
+	var skewX:Float;
+	var skewY:Float;
+	var alpha:Float;
+	var zoomFactor:Float;
 }

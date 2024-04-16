@@ -1,65 +1,74 @@
-<window width="1056" height="520" title="Editing Sprite">
+<window width="1056" height="520" title="Editing Sprite ${button.getName()}">
 	<set name="XOFFSET" value="50" />
 	<set name="YOFFSET" value="40" />
 	<set name="TO" value="64" />
 
 	<exec>
-		previewSprite =  new FunkinSprite(50, self.winHeight - 100);
-		previewSprite.frame = sprite.frame;
+		function col(c:Int) {
+			return 20 + (200 + XOFFSET) * c;
+		}
 
-		self.add(previewSprite);
+		if(sprite.animateAtlas == null) {
+			previewSprite =  new FunkinSprite(50, self.winHeight - 100);
+			previewSprite.frame = sprite.frame;
+
+			self.add(previewSprite);
+		}
 	</exec>
 
 	<title name="title" x="20" y="30 + 16" text="Sprite Data" />
 
 	<set name="curY" value="title.y + TO" /> <!-- ROW 1 -->
 
-	<textbox name="nameTextBox" label="Name Identifier" text="${data.getName()}"   x="20" y="curY" width="200" height="32" />
-	<textbox name="spriteTextBox" label="Image File (${stage.spritesParentFolder})" text="${getEx('imageFile')}"   x="last.x + last.bWidth + XOFFSET" y="curY" width="200" height="32" />
+	<textbox name="nameTextBox" label="Name Identifier" value="button.getName()"   x="col(0)" y="curY" width="200" height="32" />
+	<textbox name="spriteTextBox" label="Image File (${stage.spritesParentFolder})" value="getEx('imageFile')"   x="last.x + last.bWidth + XOFFSET" y="curY" width="200" height="32" />
 
 	<set name="curY" value="nameTextBox.y + nameTextBox.bHeight + YOFFSET" /> <!-- ROW 2 -->
 
-	<stepper name="xStepper" label="X" value="sprite.x" x="20" y="curY" step="1" width="100" />
+	<stepper name="xStepper" label="X" value="sprite.x" x="col(0)" y="curY" step="1" width="100" />
 	<stepper name="yStepper" label="Y" value="sprite.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" step="1" width="100" />
 
 	<stepper name="scrollXStepper" label="Scroll X" value="sprite.scrollFactor.x" x="spriteTextBox.x" y="curY" precision="2" step="0.01" width="100" />
 	<stepper name="scrollYStepper" label="Scroll Y" value="sprite.scrollFactor.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
 
-	<stepper name="scaleXStepper" label="Scale X" value="sprite.scale.x" x="20 + (200 + XOFFSET) * 2" y="curY" precision="2" step="0.01" width="100" />
+	<stepper name="scaleXStepper" label="Scale X" value="sprite.scale.x" x="col(2)" y="curY" precision="2" step="0.01" width="100" />
 	<stepper name="scaleYStepper" label="Scale Y" value="sprite.scale.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
 
 	<set name="curY" value="xStepper.y + xStepper.bHeight + YOFFSET" /> <!-- ROW 3 -->
 
-	<stepper name="angleStepper" label="Angle" value="sprite.angle" x="20 + (200 + XOFFSET) * 0" y="curY" precision="2" step="0.01" width="100" />
+	<stepper name="angleStepper" label="Angle" value="sprite.angle" x="col(0)" y="curY" precision="2" step="0.01" width="100" />
 	<stepper name="zoomFactorStepper" label="Zoom Factor" value="sprite.zoomFactor" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
 
-	<stepper name="skewXStepper" label="Skew X" value="sprite.skew.x" x="20 + (200 + XOFFSET) * 2" y="curY" precision="2" step="0.01" width="100" />
-	<stepper name="skewYStepper" label="Skew Y" value="sprite.skew.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
-
 	<!-- TODO: Simplify this -->
-	<dropdown name="animType" label="Animation Type" value="sprite.spriteAnimType" x="20 + (200 + XOFFSET) * 1" y="curY" width="150" height="32">
+	<dropdown name="animType" label="Animation Type" value="sprite.spriteAnimType" x="col(1)" y="curY" width="150" height="32">
 		<item label="NONE" value="0" />
 		<item label="BEAT" value="1" />
 		<item label="LOOP" value="2" />
 	</dropdown>
 
+	<stepper name="skewXStepper" label="Skew X" value="sprite.skew.x" x="col(2)" y="curY" precision="2" step="0.01" width="100" />
+	<stepper name="skewYStepper" label="Skew Y" value="sprite.skew.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+
 	<!-- ROW 4 -->
 	<set name="curY" value="angleStepper.y + angleStepper.bHeight + YOFFSET" />
 
-	<checkbox name="antialiasingCheckbox" text="Antialiasing" value="sprite.antialiasing" x="20 + (200 + XOFFSET) * 0" y="curY" />
-	<radio for="memoryCheck" name="highMemoryRadio" text="High Memory Only" value="getEx('highMemory')" x="20 + (200 + XOFFSET) * 1" y="curY" />
-	<radio for="memoryCheck" name="lowMemoryRadio" text="Low Memory Only" value="getEx('lowMemory')" x="20 + (200 + XOFFSET) * 2" y="curY" />
+	<checkbox name="antialiasingCheckbox" text="Antialiasing" value="sprite.antialiasing" x="col(0)" y="curY" />
+	<radio for="memoryCheck" name="highMemoryRadio" text="High Memory Only" value="getEx('highMemory')" x="col(1)" y="curY" />
+	<radio for="memoryCheck" name="lowMemoryRadio" text="Low Memory Only" value="getEx('lowMemory')" x="col(2)" y="curY" />
 
 	<!-- TODO: Animation list -->
 
 
 	<!-- Preview Transform -->
 
-	<title name="previewTitle" x="20" y="self.winHeight - 150" text="Preview Transform:" size="14" />
+	<section if="previewSprite != null">
+		<title name="previewTitle" x="20" y="self.winHeight - 150" text="Preview Transform:" size="15" />
+    </section>
 
 	<exec>
 		function onUpdate() {
-			previewSprite.color = 0xFFFFFFFF;
+			if(previewSprite == null) return;
+			previewSprite.color = 0xFFFFFFFF; // TODO: Color Wheel
 			previewSprite.skew.x = skewXStepper.value;
 			previewSprite.skew.y = skewYStepper.value;
 			previewSprite.angle = angleStepper.value;
@@ -85,34 +94,34 @@
 			sprite.angle = angleStepper.value;
 
 			function saveXY(obj:Dynamic, name:String, x:UINumericStepper, y:UINumericStepper) {
-				data.xml.remove(name + "");
-				data.xml.remove(name + "x");
-				data.xml.remove(name + "y");
+				button.xml.remove(name + "");
+				button.xml.remove(name + "x");
+				button.xml.remove(name + "y");
 
 				obj.x = x.value;
 				obj.y = y.value;
 
 				if(x.value == y.value)
-					data.xml.set(name, x.value);
+					button.xml.set(name, x.value);
 				else {
-					data.xml.set(name + "x", x.value);
-					data.xml.set(name + "y", y.value);
+					button.xml.set(name + "x", x.value);
+					button.xml.set(name + "y", y.value);
 				}
 			}
 
-			data.xml.set("name", nameTextBox.label.text);
-			data.xml.set("sprite", spriteTextBox.label.text);
-			data.xml.set("x", xStepper.value);
-			data.xml.set("y", yStepper.value);
-			data.xml.set("zoom", zoomFactorStepper.value);
-			data.xml.set("type", animType.key);
-			data.xml.set("antialiasing", antialiasingCheckbox.checked);
-			data.xml.set("angle", angleStepper.value);
+			button.xml.set("name", nameTextBox.label.text);
+			button.xml.set("sprite", spriteTextBox.label.text);
+			button.xml.set("x", xStepper.value);
+			button.xml.set("y", yStepper.value);
+			button.xml.set("zoom", zoomFactorStepper.value);
+			button.xml.set("type", animType.key);
+			button.xml.set("antialiasing", antialiasingCheckbox.checked);
+			button.xml.set("angle", angleStepper.value);
 
 			saveXY(sprite.scrollFactor, "scroll", scrollXStepper, scrollYStepper);
 			saveXY(sprite.scale, "scale", scaleXStepper, scaleYStepper);
 			saveXY(sprite.skew, "skew", skewXStepper, skewYStepper);
-			XMLUtil.loadSpriteFromXML(sprite, data.xml, stage.spritesParentFolder);
+			XMLUtil.loadSpriteFromXML(sprite, button.xml, stage.spritesParentFolder);
 		}
 	</exec>
 </window>

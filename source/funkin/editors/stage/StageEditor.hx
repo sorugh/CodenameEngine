@@ -1,6 +1,5 @@
 package funkin.editors.stage;
 
-import lime.ui.MouseCursor;
 import flixel.math.FlxAngle;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
@@ -9,11 +8,13 @@ import flixel.util.FlxSort;
 import funkin.backend.system.framerate.Framerate;
 import funkin.backend.utils.XMLUtil.AnimData;
 import funkin.editors.stage.elements.*;
+import funkin.editors.stage.elements.StageSpriteButton.StageSpriteEditScreen;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
 import funkin.game.Character;
 import funkin.game.Stage;
 import haxe.xml.Access;
 import haxe.xml.Printer;
+import lime.ui.MouseCursor;
 import openfl.ui.Mouse;
 
 using funkin.backend.utils.MatrixUtil;
@@ -78,11 +79,6 @@ class StageEditor extends UIState {
 			{
 				label: "File",
 				childs: [
-					{
-						label: "New",
-						onSelect: _file_new,
-					},
-					null,
 					{
 						label: "Save",
 						keybind: [CONTROL, S],
@@ -215,6 +211,7 @@ class StageEditor extends UIState {
 			}
 		}
 		stage.onNodeLoaded = function(node:Access, sprite:Dynamic):Dynamic {
+			var parent = new Access(node.x.parent);
 			var name = "";
 			if(sprite is FlxSprite) {
 				//sprite.forceIsOnScreen = true; // hack
@@ -225,7 +222,6 @@ class StageEditor extends UIState {
 				sprite.extra.set(exID("node"), node);
 				sprite.extra.set(exID("type"), node.name);
 				sprite.extra.set(exID("imageFile"), '${node.getAtt("sprite").getDefault(sprite.name)}');
-				var parent = new Access(node.x.parent);
 				sprite.extra.set(exID("parentNode"), parent);
 				sprite.extra.set(exID("highMemory"), parent.name == "highMemory");
 				sprite.extra.set(exID("lowMemory"), parent.name == "lowMemory");
@@ -254,10 +250,17 @@ class StageEditor extends UIState {
 				// Add it to the stage
 				char.visible = true;
 				char.alpha = 0.5;
-				char.extra.set(exID("node"), node);
-				char.extra.set(exID("pos"), charPos);
-				charPos.extra.set(exID("node"), node);
-				charPos.extra.set(exID("char"), char);
+				function setEx(name:String, value:Dynamic) {
+					char.extra.set(exID(name), value);
+					charPos.extra.set(exID(name), value);
+				}
+				setEx("node", node);
+				setEx("pos", charPos);
+				setEx("char", char);
+
+				setEx("parentNode", parent);
+				setEx("highMemory", parent.name == "highMemory");
+				setEx("lowMemory", parent.name == "lowMemory");
 				chars.push(char);
 			}
 			order.push(sprite);
@@ -307,12 +310,12 @@ class StageEditor extends UIState {
 			sprite.extra.set(exID("node"), node);
 			sprite.extra.set(exID("type"), node.name);
 			sprite.extra.set(exID("imageFile"), '');
-			sprite.extra.set(exID("parentNode"), stage.stageXML.x);
+			sprite.extra.set(exID("parentNode"), new Access(node.x.parent));
 			sprite.extra.set(exID("highMemory"), false);
 			sprite.extra.set(exID("lowMemory"), false);
 			xmlMap.set(sprite, node);
 
-			var button:StageElementButton = new StageSpriteButton(0, 0, sprite, node);
+			var button:StageSpriteButton = new StageSpriteButton(0, 0, sprite, node);
 			sprite.extra.set(exID("button"), button);
 			stageSpritesWindow.add(button);
 
@@ -477,9 +480,6 @@ class StageEditor extends UIState {
 		else FlxG.switchState(new StageSelection());
 	}
 
-	function _file_new(_) {
-	}
-
 	function _file_save(_) {
 		#if sys
 		CoolUtil.safeSaveFile(
@@ -506,6 +506,7 @@ class StageEditor extends UIState {
 	}
 	function savePointToXml(xml:Xml, name:String, point:FlxPoint, ?defaultValueX:Float, ?defaultValueY:Float) {
 		if (point == null) return xml;
+		if(defaultValueY == null) defaultValueY = defaultValueX;
 		if(point.x == point.y) {
 			saveToXml(xml, name, point.x, defaultValueX);
 		} else {
@@ -545,8 +546,8 @@ class StageEditor extends UIState {
 				saveToXml(spriteXML, "x", sprite.x, 0);
 				saveToXml(spriteXML, "y", sprite.y, 0);
 				saveToXml(spriteXML, "sprite", sprite.extra.get(exID("imageFile")));
-				savePointToXml(spriteXML, "scale", sprite.scale, 1, 1);
-				savePointToXml(spriteXML, "scroll", sprite.scrollFactor, 0, 0);
+				savePointToXml(spriteXML, "scale", sprite.scale, 1);
+				savePointToXml(spriteXML, "scroll", sprite.scrollFactor, 0);
 				saveToXml(spriteXML, "skewx", sprite.skew.x, 0);
 				saveToXml(spriteXML, "skewy", sprite.skew.y, 0);
 				saveToXml(spriteXML, "alpha", sprite.alpha, 1);
@@ -590,9 +591,10 @@ class StageEditor extends UIState {
 				saveToXml(charXML, "spacingx", charPos.charSpacingX, 20);
 				saveToXml(charXML, "spacingy", charPos.charSpacingY, 0);
 				saveToXml(charXML, "alpha", charPos.alpha, 1);
+				saveToXml(charXML, "zoomfactor", charPos.zoomFactor, 1);
 				saveToXml(charXML, "flipX", charPos.flipX, defaultPos.flip);
-				savePointToXml(charXML, "scroll", charPos.scrollFactor, defaultPos.scroll, defaultPos.scroll);
-				savePointToXml(charXML, "scale", charPos.scale, 1, 1);
+				savePointToXml(charXML, "scroll", charPos.scrollFactor, defaultPos.scroll);
+				savePointToXml(charXML, "scale", charPos.scale, 1);
 				xml.addChild(charXML);
 			} else {
 				Logs.trace("Unknown Stage Type : " + Type.getClassName(Type.getClass(button)));
@@ -791,7 +793,7 @@ class StageEditor extends UIState {
 		for(char in chars) {
 			var button:StageCharacterButton = char.extra.get(exID("button"));
 			button.isHidden = !showCharacters;
-			button.updateInfo(button.charPos);
+			button.updateInfo();
 		}
 	}
 	#end
@@ -972,7 +974,7 @@ class StageEditor extends UIState {
 		// todo: make this origin based
 		relative.rotateByDegrees(sprite.angle);
 		call(mouseMode.toString(), [sprite, relative]);
-		cast(sprite.extra.get(exID("button")), StageElementButton).updateInfo(sprite);
+		cast(sprite.extra.get(exID("button")), StageElementButton).updateInfo();
 		relative.put();
 	}
 

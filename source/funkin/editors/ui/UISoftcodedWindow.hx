@@ -71,7 +71,7 @@ class UISoftcodedWindow extends UISubstateWindow {
 		return CoolUtil.getDefault(exec(code), defaultValue);
 	}
 
-	function execAtt(el:Access, key:String, defaultValue:Dynamic):Dynamic {
+	function execAtt(el:Access, key:String, ?defaultValue:Dynamic):Dynamic {
 		return execDefault(el.getAtt(key), defaultValue);
 	}
 
@@ -101,9 +101,6 @@ class UISoftcodedWindow extends UISubstateWindow {
 
 	public override function create() {
 		var layout = new Access(Xml.parse(Assets.getText('assets/editors/' + xmlPath)).firstElement());
-		winTitle = layout.getAtt("title").getDefault(winTitle);
-		winWidth = Std.parseInt(layout.getAtt("width")).getDefault(winWidth);
-		winHeight = Std.parseInt(layout.getAtt("height")).getDefault(winHeight);
 
 		for(k=>e in Script.getDefaultVariables()) {
 			set(k, e);
@@ -119,109 +116,133 @@ class UISoftcodedWindow extends UISubstateWindow {
 		}
 		set("last", null);
 
+		winTitle = execString(layout.getAtt("title").getDefault(winTitle));
+		winWidth = Std.parseInt(layout.getAtt("width")).getDefault(winWidth);
+		winHeight = Std.parseInt(layout.getAtt("height")).getDefault(winHeight);
+
 		super.create();
 
 		function addLabelOn(ui:UISprite, text:String)
 			add(new UIText(ui.x, ui.y - 24, 0, text));
 
-		for(el in layout.elements) {
-			var type = el.name;
-			//var type:String = el.getAtt("type");
-			var name:String = execString(el.getAtt("name"));
-			var label:String = execString(el.getAtt("label"));
-			var text:String = execString(el.getAtt("text"));
-			var x:Float = execAtt(el, "x", 0);
-			var y:Float = execAtt(el, "y", 0);
-			var width:Null<Int> = exec(el.getAtt("width"));
-			var height:Null<Int> = exec(el.getAtt("height"));
-			var size:Int = execAtt(el, "size", 28);
-
-			trace(type, name, label, text, x, y, width, height, size);
-
-			var sprite:FlxSprite = switch(type) {
-				case "set":
-					set(execString(el.getAtt("name")), exec(el.getAtt("value")));
-					continue;
-				case "image":
-					var spr = XMLUtil.createSpriteFromXML(el, "", LOOP);
-					cast add(spr);
-				case "solid":
-					var spr = new FunkinSprite(x, y).makeSolid(
-						execAtt(el, "width", 100),
-						execAtt(el, "height", 100),
-						execAtt(el, "color", 0xFFFFFFFF)
-					);
-					cast add(spr);
-				case "exec":
-					exec(el.innerData);
-					continue;
-				case "textbox":
-					var textBox = new UITextBox(x, y, text, width, height, execAtt(el, "multiline", false));//(el.getAtt("multiline").getDefault("false") == "true"));
-					add(textBox);
-					addLabelOn(textBox, label);
-					textBox;
-				case "title":
-					cast add(new UIText(x, y, 0, text, size));
-				case "stepper":
-					// x:Float, y:Float, value:Float = 0, step:Float = 1, precision:Int = 0, ?min:Float, ?max:Float, w:Int = 180, h:Int = 32
-					var stepper = new UINumericStepper(
-						x,
-						y,
-						execAtt(el, "value", 0),
-						execAtt(el, "step", 1),
-						execAtt(el, "precision", 0),
-						execAtt(el, "min", null),
-						execAtt(el, "max", null),
-						width,
-						height
-					);
-					add(stepper);
-					addLabelOn(stepper, label);
-					stepper;
-				case "checkbox":
-					var checkbox = new UICheckbox(x, y, text, execAtt(el, "value", false));
-					add(checkbox);
-					addLabelOn(checkbox, label);
-					checkbox;
-				case "radio":
-					var radio = new UIRadioButton(x, y, text, execAtt(el, "value", false), execString(el.getAtt("for")));
-					radio.parent = this;
-					add(radio);
-					addLabelOn(radio, label);
-					radio;
-				case "slider":
-					var slider = new UISlider(x, y, width, execAtt(el, "value", 0), execAtt(el, "segments", []), execAtt(el, "centered", false));
-					add(slider);
-					addLabelOn(slider, label);
-					slider;
-				case "dropdown":
-					var items:Array<DropDownItem> = [];
-					for(i=>node in el.nodes.item)
-						items.push({label: execString(node.getAtt("label")), value: execAtt(node, "value", i)});
-					var curValue = execAtt(el, "value", null);
-					var index = UIDropDown.indexOfItemValue(items, curValue);
-					if (index == -1) index = 0;
-
-					var dropdown = new UIDropDown(x, y, width, height, items, index);
-					add(dropdown);
-					addLabelOn(dropdown, label);
-					dropdown;
-				// UIColorwheel
-				// UIAudioPlayer
-				// UIButtonList
-				// UIFileExplorer
-				// UIAutoCompleteTextbox
-				default: {
-					Logs.trace("Unknown element type: " + type, ERROR, RED);
-					Logs.trace("Skipping element: " + el.x.toString(), ERROR, RED);
-					continue;
-				}
-			}
-
-			set("last", sprite);
-			if(name != null) set(name, sprite);
-			if(sprite is UISprite) elementMap.set(name, cast sprite);
+		function getArr(i:Iterator<Access>) {
+			return [for(e in i) e];
 		}
+
+		function addLayout(elements:Array<Access>) {
+			for(el in elements) {
+				var type = el.name;
+
+				switch(type) {
+					case "section":
+						if(execAtt(el, "if", true) != true)
+							continue;
+						if(execAtt(el, "unless", false) != false)
+							continue;
+						addLayout(getArr(el.elements));
+						continue;
+					case "set":
+						set(execString(el.getAtt("name")), execAtt(el, "value"));
+						continue;
+					case "exec":
+						exec(el.innerData);
+						continue;
+				}
+
+				var name:String = execString(el.getAtt("name"));
+				var label:String = execString(el.getAtt("label"));
+				var x:Float = execAtt(el, "x", 0);
+				var y:Float = execAtt(el, "y", 0);
+
+				var sprite:FlxSprite = switch(type) {
+					case "image":
+						var spr = XMLUtil.createSpriteFromXML(el, "", LOOP);
+						spr.x = x;
+						spr.y = y;
+						cast add(spr);
+					case "solid":
+						var spr = new FunkinSprite(x, y).makeSolid(
+							execAtt(el, "width", 100),
+							execAtt(el, "height", 100),
+							execAtt(el, "color", 0xFFFFFFFF)
+						);
+						cast add(spr);
+					case "textbox":
+						var text:String = execString(el.getAtt("text"));
+						text = Std.string(execAtt(el, "value", text));
+						var textBox = new UITextBox(x, y, text, execAtt(el, "width"), execAtt(el, "height"), execAtt(el, "multiline", false));//(el.getAtt("multiline").getDefault("false") == "true"));
+						add(textBox);
+						addLabelOn(textBox, label);
+						textBox;
+					case "title":
+						cast add(new UIText(x, y, 0, execString(el.getAtt("text")), execAtt(el, "size", 28)));
+					case "label":
+						cast add(new UIText(x, y - 24, 0, execString(el.getAtt("text")), execAtt(el, "size", 15)));
+					case "text":
+						cast add(new UIText(x, y, 0, execString(el.getAtt("text")), execAtt(el, "size", 15)));
+					case "stepper":
+						// x:Float, y:Float, value:Float = 0, step:Float = 1, precision:Int = 0, ?min:Float, ?max:Float, w:Int = 180, h:Int = 32
+						var stepper = new UINumericStepper(
+							x,
+							y,
+							execAtt(el, "value", 0),
+							execAtt(el, "step", 1),
+							execAtt(el, "precision", 0),
+							execAtt(el, "min"),
+							execAtt(el, "max"),
+							execAtt(el, "width"),
+							execAtt(el, "height")
+						);
+						add(stepper);
+						addLabelOn(stepper, label);
+						stepper;
+					case "checkbox":
+						var checkbox = new UICheckbox(x, y, execString(el.getAtt("text")), execAtt(el, "value", false));
+						add(checkbox);
+						addLabelOn(checkbox, label);
+						checkbox;
+					case "radio":
+						var radio = new UIRadioButton(x, y, execString(el.getAtt("text")), execAtt(el, "value", false), execString(el.getAtt("for")));
+						radio.parent = this;
+						add(radio);
+						addLabelOn(radio, label);
+						radio;
+					case "slider":
+						var slider = new UISlider(x, y, execAtt(el, "width"), execAtt(el, "value", 0), execAtt(el, "segments", []), execAtt(el, "centered", false));
+						add(slider);
+						addLabelOn(slider, label);
+						slider;
+					case "dropdown":
+						var items:Array<DropDownItem> = [];
+						for(i=>node in el.nodes.item)
+							items.push({label: execString(node.getAtt("label")), value: execAtt(node, "value", i)});
+						var curValue = execAtt(el, "value");
+						var index = UIDropDown.indexOfItemValue(items, curValue);
+						if (index == -1) index = 0;
+
+						var dropdown = new UIDropDown(x, y, execAtt(el, "width"), execAtt(el, "height"), items, index);
+						add(dropdown);
+						addLabelOn(dropdown, label);
+						dropdown;
+					// UIColorwheel
+					// UIAudioPlayer
+					// UIButtonList
+					// UIFileExplorer
+					// UIAutoCompleteTextbox
+					default: {
+						Logs.trace("Unknown element type: " + type, ERROR, RED);
+						Logs.trace("Skipping element: " + el.x.toString(), ERROR, RED);
+						continue;
+					}
+				}
+
+				set("last", sprite);
+				if(name != null) set(name, sprite);
+				if(sprite is UISprite) elementMap.set(name, cast sprite);
+			}
+		}
+
+		addLayout(getArr(layout.elements));
 
 		if(get("hasSaveButtons")) {
 			saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight - 20, "Save & Close", function() {

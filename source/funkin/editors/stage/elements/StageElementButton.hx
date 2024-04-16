@@ -122,7 +122,7 @@ class StageElementButton extends UIButton {
 		}
 	}
 
-	public function updateInfo(sprite:Dynamic) {
+	public function updateInfo() {
 		field.text = getInfoText();
 
 		ghostIcon.animation.play(!isHidden ? "alive" : "dead");

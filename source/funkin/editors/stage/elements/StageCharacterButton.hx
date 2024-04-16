@@ -15,7 +15,7 @@ class StageCharacterButton extends StageElementButton {
 
 		color = 0xff7aa8ff;
 
-		updateInfo(charPos);
+		updateInfo();
 	}
 
 	public override function update(elapsed:Float) {
@@ -27,13 +27,10 @@ class StageCharacterButton extends StageElementButton {
 		super.update(elapsed);
 	}
 
-	public override function updateInfo(charPos:Dynamic) {
-		if(charPos is StageCharPos) {
-			var charPos:StageCharPos = cast charPos;
-			this.charPos = charPos;
-			char.visible = !isHidden;
-		}
-		super.updateInfo(charPos);
+	public override function updateInfo() {
+		char.visible = !isHidden;
+		char.alpha = 0.5 * charPos.alpha;
+		super.updateInfo();
 	}
 
 	public override function getSprite():FunkinSprite {
@@ -46,13 +43,17 @@ class StageCharacterButton extends StageElementButton {
 	}
 
 	public override function onEdit() {
-		UIState.state.displayNotification(new UIBaseNotification("Editing a character isnt implemented yet!", 2, BOTTOM_LEFT));
-		CoolUtil.playMenuSFX(WARNING, 0.45);
+		FlxG.state.openSubState(new StageCharacterEditScreen(this));
 	}
+
+	//public override function onEdit() {
+	//	UIState.state.displayNotification(new UIBaseNotification("Editing a character isnt implemented yet!", 2, BOTTOM_LEFT));
+	//	CoolUtil.playMenuSFX(WARNING, 0.45);
+	//}
 
 	public override function onGhostClick() {
 		isHidden = !isHidden;
-		updateInfo(this.charPos);
+		updateInfo();
 	}
 
 	public override function getName():String {
@@ -65,5 +66,39 @@ class StageCharacterButton extends StageElementButton {
 
 	public override function updatePos() {
 		super.updatePos();
+	}
+}
+
+class StageCharacterEditScreen extends UISoftcodedWindow {
+	public var button:StageCharacterButton;
+	public var char:Character;
+	public var charPos:StageCharPos;
+
+	public function new(button:StageCharacterButton) {
+		this.button = button;
+		this.char = button.char;
+		this.charPos = button.charPos;
+		super("layouts/stage/characterEditScreen.xml", [
+			"stage" => StageEditor.instance.stage,
+			"char" => char,
+			"charPos" => charPos,
+			"button" => button,
+			"exID" => StageEditor.exID,
+			"getEx" => function(name:String):Dynamic {
+				return char.extra.get(StageEditor.exID(name));
+			},
+			"setEx" => function(name:String, value:Dynamic) {
+				char.extra.set(StageEditor.exID(name), value);
+			},
+		]);
+	}
+
+	public override function create() {
+		super.create();
+	}
+
+	public override function saveData() {
+		super.saveData();
+		button.updateInfo();
 	}
 }

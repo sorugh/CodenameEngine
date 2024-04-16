@@ -261,7 +261,27 @@ class StageEditor extends UIState {
 			members.insert(newID, sprite);
 		}
 		stageSpritesWindow.addButton.callback = () -> {
-			// TODO: implement this
+			var node:Access = new Access(Xml.createElement("sprite"));
+			stage.stageXML.x.addChild(node.x);
+			node.att.name = "sprite_" + stageSpritesWindow.buttons.length;
+
+			var sprite:FunkinSprite = new FunkinSprite();
+			add(sprite);
+			sprite.extra.set(exID("node"), node);
+			sprite.extra.set(exID("type"), node.name);
+			sprite.extra.set(exID("imageFile"), '');
+			sprite.extra.set(exID("parentNode"), stage.stageXML.x);
+			sprite.extra.set(exID("highMemory"), false);
+			sprite.extra.set(exID("lowMemory"), false);
+			xmlMap.set(sprite, node);
+
+			var button:StageElementButton = new StageSpriteButton(0, 0, sprite, node);
+			sprite.extra.set(exID("button"), button);
+			stageSpritesWindow.add(button);
+
+			var substate = new StageSpriteEditScreen(button);
+			substate.newSprite = true;
+			openSubState(substate);
 		}
 		for (i=>sprite in order) {
 			var xml = xmlMap.get(sprite);

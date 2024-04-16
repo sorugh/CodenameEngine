@@ -48,7 +48,7 @@ class UIButtonList<T:UIButton> extends UIWindow {
 	}
 
 	public inline function add(button:T) {
-		button.ID = buttons.members.length-1;
+		button.ID = buttons.members.length;
 		buttons.add(button);
 		curMovingInterval = 0;
 		nextscrollY += button.bHeight;

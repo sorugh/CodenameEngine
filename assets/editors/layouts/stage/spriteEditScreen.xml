@@ -76,12 +76,12 @@
 			setEx("highMemory", highMemoryRadio.checked);
 			setEx("lowMemory", lowMemoryRadio.checked);
 
-			sprite.x = xStepper.value;
-			sprite.y = yStepper.value;
-			sprite.zoomFactor = zoomFactorStepper.value;
-			sprite.antialiasing = antialiasingCheckbox.checked;
+			//sprite.x = xStepper.value;
+			//sprite.y = yStepper.value;
+			//sprite.zoomFactor = zoomFactorStepper.value;
+			//sprite.antialiasing = antialiasingCheckbox.checked;
 			//sprite.color = colorWheel.color;
-			sprite.spriteAnimType = animType.value;
+			//sprite.spriteAnimType = animType.value;
 			sprite.angle = angleStepper.value;
 
 			function saveXY(obj:Dynamic, name:String, x:UINumericStepper, y:UINumericStepper) {
@@ -112,6 +112,7 @@
 			saveXY(sprite.scrollFactor, "scroll", scrollXStepper, scrollYStepper);
 			saveXY(sprite.scale, "scale", scaleXStepper, scaleYStepper);
 			saveXY(sprite.skew, "skew", skewXStepper, skewYStepper);
+			XMLUtil.loadSpriteFromXML(sprite, data.xml, stage.spritesParentFolder);
 		}
 	</exec>
 </window>

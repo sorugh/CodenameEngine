@@ -7,8 +7,10 @@ using StringTools;
 
 
 class StageSpriteEditScreen extends UISoftcodedWindow {
+	public var newSprite:Bool = false;
 	public var data:StageElementButton;
 	public var sprite:FunkinSprite;
+	var isSaving:Bool = false;
 
 	public function new(data:StageElementButton) {
 		this.data = data;
@@ -32,7 +34,16 @@ class StageSpriteEditScreen extends UISoftcodedWindow {
 	}
 
 	public override function saveData() {
+		isSaving = true;
 		super.saveData();
 		data.updateInfo(sprite);
+	}
+
+	public override function close() {
+		if (!isSaving && newSprite) {
+			data.onDelete();
+			trace("deleting sprite");
+		}
+		super.close();
 	}
 }

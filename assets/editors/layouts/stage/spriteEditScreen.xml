@@ -47,6 +47,8 @@
 	<set name="curY" value="angleStepper.y + angleStepper.bHeight + YOFFSET" />
 
 	<checkbox name="antialiasingCheckbox" text="Antialiasing" value="sprite.antialiasing" x="20 + (200 + XOFFSET) * 0" y="curY" />
+	<radio for="memoryCheck" name="highMemoryRadio" text="High Memory Only" value="getEx('highMemory')" x="20 + (200 + XOFFSET) * 1" y="curY" />
+	<radio for="memoryCheck" name="lowMemoryRadio" text="Low Memory Only" value="getEx('lowMemory')" x="20 + (200 + XOFFSET) * 2" y="curY" />
 
 	<!-- TODO: Animation list -->
 
@@ -69,7 +71,10 @@
 
 		function onSave() {
 			sprite.name = nameTextBox.label.text;
-			sprite.extra.set(exID("imageFile"), spriteTextBox.label.text);
+			setEx("imageFile", spriteTextBox.label.text);
+
+			setEx("highMemory", highMemoryRadio.checked);
+			setEx("lowMemory", lowMemoryRadio.checked);
 
 			sprite.x = xStepper.value;
 			sprite.y = yStepper.value;

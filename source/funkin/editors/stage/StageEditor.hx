@@ -187,6 +187,10 @@ class StageEditor extends UIState {
 				sprite.extra.set(exID("node"), node);
 				sprite.extra.set(exID("type"), node.name);
 				sprite.extra.set(exID("imageFile"), '${node.getAtt("sprite").getDefault(sprite.name)}');
+				var parent = new Access(node.x.parent);
+				sprite.extra.set(exID("parentNode"), parent);
+				sprite.extra.set(exID("highMemory"), parent.name == "highMemory");
+				sprite.extra.set(exID("lowMemory"), parent.name == "lowMemory");
 				//sprite.active = false;
 			}
 			if(sprite is StageCharPos) {

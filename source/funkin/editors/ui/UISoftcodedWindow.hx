@@ -45,6 +45,7 @@ class UISoftcodedWindow extends UISubstateWindow {
 	}
 
 	function execString(input:String):String {
+		if(input == null) return null;
 		if(input.indexOf("${") == -1) return input;
 		var text = "";
 		while(input.length > 0) {
@@ -109,6 +110,10 @@ class UISoftcodedWindow extends UISubstateWindow {
 		}
 		set("self", this);
 		set("hasSaveButtons", true);
+		set("getRadioButtons", function(forID:String) {
+			var radios:Array<UIRadioButton> = cast members.filter((o) -> o is UIRadioButton);
+			return cast radios.filter((o) -> o.forID == forID);
+		});
 		for(k=>v in customVariables) {
 			set(k, v);
 		}
@@ -178,6 +183,12 @@ class UISoftcodedWindow extends UISubstateWindow {
 					add(checkbox);
 					addLabelOn(checkbox, label);
 					checkbox;
+				case "radio":
+					var radio = new UIRadioButton(x, y, text, execAtt(el, "value", false), execString(el.getAtt("for")));
+					radio.parent = this;
+					add(radio);
+					addLabelOn(radio, label);
+					radio;
 				case "slider":
 					var slider = new UISlider(x, y, width, execAtt(el, "value", 0), execAtt(el, "segments", []), execAtt(el, "centered", false));
 					add(slider);

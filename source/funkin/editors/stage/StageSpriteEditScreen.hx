@@ -20,7 +20,10 @@ class StageSpriteEditScreen extends UISoftcodedWindow {
 			"exID" => StageEditor.exID,
 			"getEx" => function(name:String):Dynamic {
 				return sprite.extra.get(StageEditor.exID(name));
-			}
+			},
+			"setEx" => function(name:String, value:Dynamic) {
+				sprite.extra.set(StageEditor.exID(name), value);
+			},
 		]);
 	}
 

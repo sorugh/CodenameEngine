@@ -273,7 +273,7 @@ class StageEditor extends UIState {
 
 		for(char in chars) {
 			var charPos = char.extra.get(exID("pos"));
-			var node:Access = cast char.extra.get(exID("node"));
+			//var node:Access = cast char.extra.get(exID("node"));
 
 			stage.applyCharStuff(char, charPos.name, 0);
 			charMap[charPos.name] = char;
@@ -327,15 +327,18 @@ class StageEditor extends UIState {
 			var xml = xmlMap.get(sprite);
 			if(xml != null) {
 				if(sprite is FunkinSprite) {
+					var sprite:FunkinSprite = cast sprite;
 					var type = sprite.extra.get(exID("type"));
 					var button:StageElementButton = (type == "box" || type == "solid") ? new StageSolidButton(0,0, sprite, xml) : new StageSpriteButton(0,0, sprite, xml);
 					sprite.extra.set(exID("button"), button);
 					stageSpritesWindow.add(button);
 				}
 				else if(sprite is StageCharPos) {
-					var char = charMap[sprite.name];
-					var button = new StageCharacterButton(0,0, sprite, xml);
+					var charPos:StageCharPos = cast sprite;
+					var char = charMap[charPos.name];
+					var button = new StageCharacterButton(0,0, charPos, xml);
 					char.extra.set(exID("button"), button);
+					charPos.extra.set(exID("button"), button);
 					stageSpritesWindow.add(button);
 				}
 			}
@@ -530,16 +533,19 @@ class StageEditor extends UIState {
 		saveToXml(xml, "startCamPosX", stage.startCam.x, 0);
 		saveToXml(xml, "startCamPosY", stage.startCam.y, 0);
 
+		var group:Xml = null;
+		var curGroup:String = null;
+
 		for(sprite in getSprites()) {
 			var button:StageElementButton = sprite.extra.get(exID("button"));
+			var newNode:Xml = null;
+			var sprite:FunkinSprite = button.getSprite();
 			if(button is StageSolidButton) {
 				var button:StageSolidButton = cast button;
-				var sprite:FunkinSprite = button.getSprite();
 				var node:Access = cast sprite.extra.get(exID("node"));
 				Logs.trace("SOLID / BOX isnt implemented yet!");
 			} else if(button is StageSpriteButton) {
 				var button:StageSpriteButton = cast button;
-				var sprite:FunkinSprite = button.getSprite();
 				var node:Access = cast sprite.extra.get(exID("node"));
 				var spriteXML = Xml.createElement("sprite");
 				saveToXml(spriteXML, "name", sprite.name);
@@ -566,11 +572,12 @@ class StageEditor extends UIState {
 				saveToXml(spriteXML, "type", sprite.spriteAnimType, LOOP);
 				saveToXml(spriteXML, "color", sprite.color.toWebString(), "#FFFFFF");
 				//saveToXml(spriteXML, "flipX", sprite.flipX, false);
-				xml.addChild(spriteXML);
+				newNode = spriteXML;
 			} else if(button is StageCharacterButton) {
 				var button:StageCharacterButton = cast button;
 				var charPos:StageCharPos = button.charPos;
 				var char:Character = cast charPos.extra.get(exID("char"));
+				sprite = button.getSprite();
 				var node:Access = cast charPos.extra.get(exID("node"));
 				var nodeName = switch(charPos.name) {
 					case "boyfriend": "boyfriend";
@@ -595,21 +602,34 @@ class StageEditor extends UIState {
 				saveToXml(charXML, "flipX", charPos.flipX, defaultPos.flip);
 				savePointToXml(charXML, "scroll", charPos.scrollFactor, defaultPos.scroll);
 				savePointToXml(charXML, "scale", charPos.scale, 1);
-				xml.addChild(charXML);
+				newNode = charXML;
 			} else {
 				Logs.trace("Unknown Stage Type : " + Type.getClassName(Type.getClass(button)));
 				Logs.trace("> Sprite : " + Type.getClassName(Type.getClass(sprite)));
 			}
-		}
 
-		// clean
-		//if (charXML.exists("gameOverChar") && character.gameOverCharacter == "bf-dead") charXML.remove("gameOverChar");
-		//if (charXML.exists("camx") && character.cameraOffset.x == 0) charXML.remove("camx");
-		//if (charXML.exists("camy") &&  character.cameraOffset.y == 0) charXML.remove("camy");
-		//if (charXML.exists("holdTime") && character.holdTime == 4) charXML.remove("holdTime");
-		//if (charXML.exists("flipX") && !character.flipX) charXML.remove("flipX");
-		//if (charXML.exists("scale") && character.scale.x == 1) charXML.remove("scale");
-		//if (charXML.exists("antialiasing") && character.antialiasing) charXML.remove("antialiasing");*/
+			if(newNode != null && sprite != null) {
+				var isLowMemory = sprite.extra.get(exID("lowMemory")) == true;
+				var isHighMemory = sprite.extra.get(exID("highMemory")) == true;
+				/* // Only if this compiled :sob:
+				var groupName:String = null;
+				if ((groupName = isLowMemory ? "low-memory" : isHighMemory ? "high-memory" : null) != null) {
+					var a = group != null && groupName != curGroup && ((group = cast xml.addChild(group)) != null);
+					(group = (group == null ? Xml.createElement(curGroup = groupName) : group)).addChild(newNode);
+				}else xml.addChild(newNode);
+				*/
+
+				var groupName = isLowMemory ? "low-memory" : isHighMemory ? "high-memory" : null;
+				if(group != null && groupName != curGroup) {
+					xml.addChild(group);
+					group = null;
+				}
+				if(groupName != null)
+					(group = (group == null ? Xml.createElement(curGroup = groupName) : group)).addChild(newNode);
+				else
+					xml.addChild(newNode);
+			}
+		}
 
 		Logs.trace(Printer.print(xml, true));
 

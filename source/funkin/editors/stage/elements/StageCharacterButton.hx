@@ -89,6 +89,7 @@ class StageCharacterEditScreen extends UISoftcodedWindow {
 			},
 			"setEx" => function(name:String, value:Dynamic) {
 				char.extra.set(StageEditor.exID(name), value);
+				charPos.extra.set(StageEditor.exID(name), value);
 			},
 		]);
 	}

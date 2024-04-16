@@ -25,6 +25,8 @@ class StageCharacterButton extends StageElementButton {
 	public override function updateInfo() {
 		char.visible = !isHidden;
 		char.alpha = 0.5 * charPos.alpha;
+		charPos.scale.x = char.scale.x;
+		charPos.scale.y = char.scale.y;
 		super.updateInfo();
 	}
 

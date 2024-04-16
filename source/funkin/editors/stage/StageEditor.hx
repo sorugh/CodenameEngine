@@ -197,6 +197,7 @@ class StageEditor extends UIState {
 
 		// Load from xml
 		var order:Array<Dynamic> = [];
+		var orderNodes:Array<Access> = [];
 		stage = new Stage(__stage, this, false);
 		stage.onXMLLoaded = function(xml:Access, elems:Array<Access>) {
 			return elems;
@@ -212,14 +213,14 @@ class StageEditor extends UIState {
 		}
 		stage.onNodeLoaded = function(node:Access, sprite:Dynamic):Dynamic {
 			var parent = new Access(node.x.parent);
-			var name = "";
+			//var name = "";
 			trace(node, sprite);
 			if(sprite is FlxSprite) {
 				//sprite.forceIsOnScreen = true; // hack
 			}
 			if(sprite is FunkinSprite) {
 				var sprite:FunkinSprite = cast sprite;
-				name = sprite.name;
+				//name = sprite.name;
 				sprite.extra.set(exID("node"), node);
 				sprite.extra.set(exID("type"), node.name);
 				sprite.extra.set(exID("imageFile"), '${node.getAtt("sprite").getDefault(sprite.name)}');
@@ -236,7 +237,7 @@ class StageEditor extends UIState {
 					case "girlfriend": "gf";
 					default: charPos.name;
 				}
-				name = charPos.name;
+				//name = charPos.name;
 				var char = new Character(0,0, charName, stage.isCharFlipped(charPos.name, charName == "bf"), true);
 				char.debugMode = true;
 				// Play first anim, and make it the last frame
@@ -265,6 +266,7 @@ class StageEditor extends UIState {
 				chars.push(char);
 			}
 			order.push(sprite);
+			orderNodes.push(node);
 			xmlMap.set(sprite, node);
 
 			return sprite;
@@ -325,7 +327,7 @@ class StageEditor extends UIState {
 			openSubState(substate);
 		}
 		for (i=>sprite in order) {
-			var xml = xmlMap.get(sprite);
+			var xml = (sprite != null) ? xmlMap.get(sprite) : orderNodes[i];
 			if(xml != null) {
 				if(sprite is FunkinSprite) {
 					var sprite:FunkinSprite = cast sprite;
@@ -951,7 +953,8 @@ class StageEditor extends UIState {
 	}
 
 	function handleSelection(sprite:FunkinSprite) {
-		var buttonBoxes = sprite.extra.get(exID("buttonBoxes"));
+		if(!sprite.extra.exists(exID("buttonBoxes"))) return;
+		var buttonBoxes:Array<FlxPoint> = cast sprite.extra.get(exID("buttonBoxes"));
 
 		dotCheckSize = dot.frameWidth / 0.7/stageCamera.zoom; // basically adjust it to the zoom.
 

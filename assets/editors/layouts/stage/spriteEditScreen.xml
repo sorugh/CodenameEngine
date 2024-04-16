@@ -18,45 +18,52 @@
 
 	<title name="title" x="20" y="30 + 16" text="Sprite Data" />
 
-	<set name="curY" value="title.y + TO" /> <!-- ROW 1 -->
+	<section> <!-- ROW 1 -->
+		<set name="curY" value="title.y + TO" />
 
-	<textbox name="nameTextBox" label="Name Identifier" value="button.getName()"   x="col(0)" y="curY" width="200" height="32" />
-	<textbox name="spriteTextBox" label="Image File (${stage.spritesParentFolder})" value="getEx('imageFile')"   x="last.x + last.bWidth + XOFFSET" y="curY" width="200" height="32" />
+		<textbox name="nameTextBox" label="Name Identifier" value="button.getName()"   x="col(0)" y="curY" width="200" height="32" />
+		<textbox name="spriteTextBox" label="Image File (${stage.spritesParentFolder})" value="getEx('imageFile')"   x="last.x + last.bWidth + XOFFSET" y="curY" width="200" height="32" />
+	</section>
 
-	<set name="curY" value="nameTextBox.y + nameTextBox.bHeight + YOFFSET" /> <!-- ROW 2 -->
+	<section> <!-- ROW 2 -->
+		<set name="curY" value="nameTextBox.y + nameTextBox.bHeight + YOFFSET" />
 
-	<stepper name="xStepper" label="X" value="sprite.x" x="col(0)" y="curY" step="1" width="100" />
-	<stepper name="yStepper" label="Y" value="sprite.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" step="1" width="100" />
+		<stepper name="xStepper" label="X" value="sprite.x" x="col(0)" y="curY" step="1" width="100" />
+		<stepper name="yStepper" label="Y" value="sprite.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" step="1" width="100" />
 
-	<stepper name="scrollXStepper" label="Scroll X" value="sprite.scrollFactor.x" x="spriteTextBox.x" y="curY" precision="2" step="0.01" width="100" />
-	<stepper name="scrollYStepper" label="Scroll Y" value="sprite.scrollFactor.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="scrollXStepper" label="Scroll X" value="sprite.scrollFactor.x" x="spriteTextBox.x" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="scrollYStepper" label="Scroll Y" value="sprite.scrollFactor.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
 
-	<stepper name="scaleXStepper" label="Scale X" value="sprite.scale.x" x="col(2)" y="curY" precision="2" step="0.01" width="100" />
-	<stepper name="scaleYStepper" label="Scale Y" value="sprite.scale.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="scaleXStepper" label="Scale X" value="sprite.scale.x" x="col(2)" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="scaleYStepper" label="Scale Y" value="sprite.scale.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+	</section>
 
-	<set name="curY" value="xStepper.y + xStepper.bHeight + YOFFSET" /> <!-- ROW 3 -->
+	<section> <!-- ROW 3 -->
+		<set name="curY" value="xStepper.y + xStepper.bHeight + YOFFSET" />
 
-	<stepper name="angleStepper" label="Angle" value="sprite.angle" x="col(0)" y="curY" precision="2" step="0.01" width="100" />
-	<stepper name="zoomFactorStepper" label="Zoom Factor" value="sprite.zoomFactor" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="angleStepper" label="Angle" value="sprite.angle" x="col(0)" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="zoomFactorStepper" label="Zoom Factor" value="sprite.zoomFactor" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
 
-	<!-- TODO: Simplify this -->
-	<dropdown name="animType" label="Animation Type" value="sprite.spriteAnimType" x="col(1)" y="curY" width="150" height="32">
-		<item label="NONE" value="0" />
-		<item label="BEAT" value="1" />
-		<item label="LOOP" value="2" />
-	</dropdown>
+		<!-- TODO: Simplify this -->
+		<dropdown name="animType" label="Animation Type" value="sprite.spriteAnimType" x="col(1)" y="curY" width="150" height="32">
+			<item label="NONE" value="0" />
+			<item label="BEAT" value="1" />
+			<item label="LOOP" value="2" />
+		</dropdown>
 
-	<stepper name="skewXStepper" label="Skew X" value="sprite.skew.x" x="col(2)" y="curY" precision="2" step="0.01" width="100" />
-	<stepper name="skewYStepper" label="Skew Y" value="sprite.skew.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="skewXStepper" label="Skew X" value="sprite.skew.x" x="col(2)" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="skewYStepper" label="Skew Y" value="sprite.skew.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+	</section>
 
-	<!-- ROW 4 -->
-	<set name="curY" value="angleStepper.y + angleStepper.bHeight + YOFFSET" />
+	<section> <!-- ROW 4 -->
+		<set name="curY" value="angleStepper.y + angleStepper.bHeight + YOFFSET" />
 
-	<checkbox name="antialiasingCheckbox" text="Antialiasing" value="sprite.antialiasing" x="col(0)" y="curY" />
-	<radio for="memoryCheck" name="highMemoryRadio" text="High Memory Only" value="getEx('highMemory')" x="col(1)" y="curY" />
-	<radio for="memoryCheck" name="lowMemoryRadio" text="Low Memory Only" value="getEx('lowMemory')" x="col(2)" y="curY" />
+		<checkbox name="antialiasingCheckbox" text="Antialiasing" value="sprite.antialiasing" x="col(0)" y="curY" />
+		<radio for="memoryCheck" name="highMemoryRadio" text="High Memory Only" value="getEx('highMemory')" x="col(1)" y="curY" />
+		<radio for="memoryCheck" name="lowMemoryRadio" text="Low Memory Only" value="getEx('lowMemory')" x="col(2)" y="curY" />
 
-	<!-- TODO: Animation list -->
+		<!-- TODO: Animation list -->
+	</section>
 
 
 	<!-- Preview Transform -->

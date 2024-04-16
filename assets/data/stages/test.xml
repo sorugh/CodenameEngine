@@ -7,4 +7,6 @@
 	<box name="box" 				x="0" y="0" width="200" height="200" color="0xFF0000" />
 	<solid name="box2" 				x="0" y="300" width="200" height="200" color="0x00FF00" />
 	<unknown-sprite />
+
+	<unknown-sprite-1-attr name="test" />
 </stage>

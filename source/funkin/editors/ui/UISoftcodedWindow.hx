@@ -109,7 +109,8 @@ class UISoftcodedWindow extends UISubstateWindow {
 			set(k, e);
 		}
 		set("self", this);
-		set("hasSaveButtons", true);
+		set("hasSaveButton", true);
+		set("hasCloseButton", true);
 		set("getRadioButtons", function(forID:String) {
 			var radios:Array<UIRadioButton> = cast members.filter((o) -> o is UIRadioButton);
 			return cast radios.filter((o) -> o.forID == forID);
@@ -231,6 +232,36 @@ class UISoftcodedWindow extends UISubstateWindow {
 						add(dropdown);
 						addLabelOn(dropdown, label);
 						dropdown;
+					case "buttonlist":
+						//x:Float, y:Float, width:Int, height:Int, windowName:String, buttonSize:FlxPoint, ?buttonOffset:FlxPoint, ?buttonSpacing:Float
+						var buttonlist = new UIButtonList<UIButton>(
+							x,
+							y,
+							execAtt(el, "width"),
+							execAtt(el, "height"),
+							execString(el.getAtt("title")).getDefault(""),
+							FlxPoint.get(execAtt(el, "buttonSizeX", 0), execAtt(el, "buttonSizeY", 0)),
+							FlxPoint.get(execAtt(el, "buttonOffsetX", 0), execAtt(el, "buttonOffsetY", 0)),
+							execAtt(el, "buttonSpacing")
+						);
+						var old = get("buttonlist");
+						set("buttonlist", buttonlist);
+						var texture = "editors/ui/inputbox";
+						var code = "";
+						for(node in getArr(el.elements)) {
+							switch(node.name) {
+								case "camSpacing": buttonlist.cameraSpacing = execAtt(node, "value", 0);
+								case "texture": texture = execString(node.getAtt("path")).getDefault(texture);
+								case "code": code = node.innerData;
+							}
+						}
+						buttonlist.frames = Paths.getFrames(texture);
+						if(code != "")
+							exec(code);
+						add(buttonlist);
+						addLabelOn(buttonlist, label);
+						set("buttonlist", old);
+						buttonlist;
 					// UIColorwheel
 					// UIAudioPlayer
 					// UIButtonList

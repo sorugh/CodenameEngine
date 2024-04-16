@@ -1,5 +1,6 @@
 package funkin.editors.ui;
 
+import funkin.editors.ui.notifications.UIBaseNotification;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import funkin.backend.system.framerate.Framerate;
@@ -21,6 +22,8 @@ class UIState extends MusicBeatState {
 	public var currentFocus:IUIFocusable = null;
 
 	public var currentCursor:CodeCursor = ARROW;
+
+	public var uiCameras:Array<FlxCamera> = [];
 
 	private var __rect:FlxRect;
 	private var __mousePos:FlxPoint;
@@ -143,5 +146,22 @@ class UIState extends MusicBeatState {
 
 		state.openSubState(curContextMenu = new UIContextMenu(options, callback, x.getDefault(__mousePos.x), y.getDefault(__mousePos.y)));
 		return curContextMenu;
+	}
+
+	public function displayNotification(notification:UIBaseNotification) {
+		notification.cameras = uiCameras;
+		notification.onRemove = (notif) -> {
+			notification.onRemove = null;
+			remove(notif, true);
+		};
+		add(notification);
+		notification.update(0);
+		notification.appearAnimation();
+		// TODO: future tooltips
+		//notification.x = __mousePos.x;
+		//notification.y = __mousePos.y;
+		//notification.alpha = 0;
+		//notification.appearAnimation();
+		//FlxTween.tween(notification, {x: __mousePos.x, y: __mousePos.y, alpha: 1}, .3, {ease: FlxEase.circInOut});
 	}
 }

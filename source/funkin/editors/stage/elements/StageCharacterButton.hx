@@ -41,7 +41,13 @@ class StageCharacterButton extends StageElementButton {
 	}
 
 	public override function onSelect() {
+		UIState.state.displayNotification(new UIBaseNotification("Selecting a character isnt implemented yet!", 2, BOTTOM_LEFT));
+		CoolUtil.playMenuSFX(WARNING, 0.45);
+	}
 
+	public override function onEdit() {
+		UIState.state.displayNotification(new UIBaseNotification("Editing a character isnt implemented yet!", 2, BOTTOM_LEFT));
+		CoolUtil.playMenuSFX(WARNING, 0.45);
 	}
 
 	public override function onGhostClick() {

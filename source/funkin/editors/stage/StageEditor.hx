@@ -41,7 +41,7 @@ class StageEditor extends UIState {
 	public var charMap:Map<String, Character> = [];
 
 	public var stageCamera:FlxCamera;
-	public var guideCamera:FlxCamera;
+	//public var guideCamera:FlxCamera;
 	public var uiCamera:FlxCamera;
 
 	public var selection:Selection = new Selection();
@@ -152,13 +152,15 @@ class StageEditor extends UIState {
 
 		stageCamera = FlxG.camera;
 
-		guideCamera = new FlxCamera();
-		guideCamera.bgColor = 0;
+		//guideCamera = new FlxCamera();
+		//guideCamera.bgColor = 0;
 
 		uiCamera = new FlxCamera();
 		uiCamera.bgColor = 0;
 
-		FlxG.cameras.add(guideCamera, false);
+		uiCameras = [uiCamera];
+
+		//FlxG.cameras.add(guideCamera, false);
 		FlxG.cameras.add(uiCamera, false);
 
 		// Load from xml

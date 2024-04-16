@@ -52,7 +52,7 @@ class StageCharacterButton extends StageElementButton {
 	//	CoolUtil.playMenuSFX(WARNING, 0.45);
 	//}
 
-	public override function onGhostClick() {
+	public override function onVisiblityToggle() {
 		isHidden = !isHidden;
 		updateInfo();
 	}

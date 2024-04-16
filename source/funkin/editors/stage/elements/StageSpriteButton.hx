@@ -34,7 +34,7 @@ class StageSpriteButton extends StageElementButton {
 		StageEditor.instance.selectSprite(sprite);
 	}
 
-	public override function onGhostClick() {
+	public override function onVisiblityToggle() {
 		isHidden = !isHidden;
 		updateInfo();
 	}

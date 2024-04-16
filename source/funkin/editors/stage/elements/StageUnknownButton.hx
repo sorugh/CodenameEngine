@@ -18,11 +18,11 @@ class StageUnknownButton extends StageElementButton {
 
 		color = 0xff000000;
 
-		visibleButton.exists = false;
-		members.remove(visibleButton);
+		visibilityButton.exists = false;
+		members.remove(visibilityButton);
 
-		visibleIcon.exists = false;
-		members.remove(visibleIcon);
+		visibilityIcon.exists = false;
+		members.remove(visibilityIcon);
 
 		updateInfo();
 	}
@@ -59,7 +59,7 @@ class StageUnknownButton extends StageElementButton {
 	//	CoolUtil.playMenuSFX(WARNING, 0.45);
 	//}
 
-	public override function onGhostClick() {
+	public override function onVisiblityToggle() {
 	}
 
 	public override function getName():String {

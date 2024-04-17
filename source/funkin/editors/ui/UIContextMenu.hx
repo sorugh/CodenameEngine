@@ -7,6 +7,7 @@ class UIContextMenu extends MusicBeatSubstate {
 	public var options:Array<UIContextMenuOption>;
 	var x:Float;
 	var y:Float;
+	var w:Int = 100;
 	var contextCam:FlxCamera;
 
 	var bg:UISliceSprite;
@@ -21,11 +22,12 @@ class UIContextMenu extends MusicBeatSubstate {
 		__oobDeletion = false;
 	}
 
-	public function new(options:Array<UIContextMenuOption>, callback:UIContextMenuCallback, x:Float, y:Float) {
+	public function new(options:Array<UIContextMenuOption>, callback:UIContextMenuCallback, x:Float, y:Float, ?w:Int = 100) {
 		super();
 		this.options = options.getDefault([]);
 		this.x = x;
 		this.y = y;
+		this.w = w;
 		this.callback = callback;
 	}
 
@@ -37,7 +39,7 @@ class UIContextMenu extends MusicBeatSubstate {
 		contextCam.scroll.set(0, 7.5);
 		FlxG.cameras.add(contextCam, false);
 
-		bg = new UISliceSprite(x, y, 100, 100, 'editors/ui/context-bg');
+		bg = new UISliceSprite(x, y, w, 100, 'editors/ui/context-bg');
 		bg.cameras = [contextCam];
 		add(bg);
 

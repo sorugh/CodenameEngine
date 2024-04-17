@@ -305,27 +305,32 @@ class StageEditor extends UIState {
 			members.insert(newID, sprite);
 		}
 		stageSpritesWindow.addButton.callback = () -> {
-			var node:Access = new Access(Xml.createElement("sprite"));
-			stage.stageXML.x.addChild(node.x);
-			node.att.name = "sprite_" + stageSpritesWindow.buttons.length;
-
-			var sprite:FunkinSprite = new FunkinSprite();
-			add(sprite);
-			sprite.extra.set(exID("node"), node);
-			sprite.extra.set(exID("type"), node.name);
-			sprite.extra.set(exID("imageFile"), '');
-			sprite.extra.set(exID("parentNode"), new Access(node.x.parent));
-			sprite.extra.set(exID("highMemory"), false);
-			sprite.extra.set(exID("lowMemory"), false);
-			xmlMap.set(sprite, node);
-
-			var button:StageSpriteButton = new StageSpriteButton(0, 0, sprite, node);
-			sprite.extra.set(exID("button"), button);
-			stageSpritesWindow.add(button);
-
-			var substate = new StageSpriteEditScreen(button);
-			substate.newSprite = true;
-			openSubState(substate);
+			var lastDrawCam = stageSpritesWindow.addButton.__lastDrawCameras[0];
+			var screenPos = stageSpritesWindow.addButton.getScreenPosition(null, lastDrawCam == null ? FlxG.camera : lastDrawCam);
+			openContextMenu([
+				{
+					label: "Sprite",
+					onSelect: _sprite_new,
+					color: 0xFF00FF00,
+					icon: 2
+				},
+				{
+					label: "Box",
+					onSelect: function(_) {
+						UIState.state.displayNotification(new UIBaseNotification("Creating a box isnt implemented yet!", 2, BOTTOM_LEFT));
+						CoolUtil.playMenuSFX(WARNING, 0.45);
+					},
+					color: 0xFF00FF00,
+					icon: 2
+				},
+				{
+					label: "Character",
+					onSelect: _character_new,
+					color: 0xFF00FF00,
+					icon: 2
+				}
+			], null, lastDrawCam.x + screenPos.x, lastDrawCam.y + screenPos.y + stageSpritesWindow.addButton.bHeight, stageSpritesWindow.addButton.bWidth);
+			screenPos.put();
 		}
 		for (i=>sprite in order) {
 			var xml = (sprite != null) ? xmlMap.get(sprite) : orderNodes[i];
@@ -476,6 +481,78 @@ class StageEditor extends UIState {
 			defaultSaveFile: '${__stage}.xml'
 		}));
 		undos.save();
+	}
+
+	function _sprite_new(_) {
+		var node:Access = new Access(Xml.createElement("sprite"));
+		stage.stageXML.x.addChild(node.x);
+		node.att.name = "sprite_" + stageSpritesWindow.buttons.length;
+
+		var sprite:FunkinSprite = new FunkinSprite();
+		insert(members.indexOf(stage), sprite);
+		sprite.extra.set(exID("node"), node);
+		sprite.extra.set(exID("type"), node.name);
+		sprite.extra.set(exID("imageFile"), '');
+		sprite.extra.set(exID("parentNode"), stage.stageXML.x);
+		sprite.extra.set(exID("highMemory"), false);
+		sprite.extra.set(exID("lowMemory"), false);
+		xmlMap.set(sprite, node);
+
+		var button:StageSpriteButton = new StageSpriteButton(0, 0, sprite, node);
+		sprite.extra.set(exID("button"), button);
+		stageSpritesWindow.add(button);
+
+		var substate = new StageSpriteEditScreen(button);
+		substate.newSprite = true;
+		openSubState(substate);
+	}
+
+	function _character_new(_) {
+		var node:Access = new Access(Xml.createElement("char"));
+		stage.stageXML.x.addChild(node.x);
+		node.att.name = "character_" + stageSpritesWindow.buttons.length;
+
+		var charPos = new StageCharPos();
+		charPos.visible = charPos.active = false;
+		charPos.name = "character_" + stageSpritesWindow.buttons.length;
+		charPos.extra.set(exID("extraChar"), true);
+		stage.characterPoses[charPos.name] = charPos;
+
+		var char = new Character(0,0, "bf", stage.isCharFlipped(charPos.name, true), true);
+		char.name = "bf";
+		char.debugMode = true;
+		// Play first anim, and make it the last frame
+		var animToPlay = char.getAnimOrder()[0];
+		char.playAnim(animToPlay, true, NONE);
+		var lastIndx = (char.animateAtlas != null) ?
+			char.animateAtlas.anim.length - 1 :
+			char.animation.curAnim.numFrames - 1;
+		char.playAnim(animToPlay, true, NONE, false, lastIndx);
+		char.stopAnimation();
+
+		// Add it to the stage
+		char.visible = true;
+		char.alpha = 0.5;
+		function setEx(name:String, value:Dynamic) {
+			char.extra.set(exID(name), value);
+			charPos.extra.set(exID(name), value);
+		}
+		setEx("node", node);
+		setEx("pos", charPos);
+		setEx("char", char);
+
+		setEx("parentNode", stage.stageXML);
+		setEx("highMemory", false);
+		setEx("lowMemory", false);
+		chars.push(char);
+
+		stage.applyCharStuff(char, charPos.name, 0);
+		charMap[charPos.name] = char;
+
+		var button = new StageCharacterButton(0,0, charPos, node);
+		char.extra.set(exID("button"), button);
+		charPos.extra.set(exID("button"), button);
+		stageSpritesWindow.add(button);
 	}
 
 	function saveToXml(xml:Xml, name:String, value:Dynamic, ?defaultValue:Dynamic) {

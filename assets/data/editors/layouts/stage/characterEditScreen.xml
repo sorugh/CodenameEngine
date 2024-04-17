@@ -52,6 +52,10 @@
 		<stepper name="angleStepper" label="Angle" value="charPos.angle" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
 
 		<stepper name="zoomFactorStepper" label="Zoom Factor" value="charPos.zoomFactor" x="col(1)" y="curY" precision="2" step="0.01" width="100" />
+		
+		<section if="charPos.extra.exists('extraPos')">
+			<textbox name="charName" label="Position Name" value="charPos.name" x="col(2)" y="curY" width="100"/>
+		</section>
 	</section>
 
 	<section>

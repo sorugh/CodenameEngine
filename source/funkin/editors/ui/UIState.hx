@@ -136,7 +136,7 @@ class UIState extends MusicBeatState {
 		}
 	}
 
-	public function openContextMenu(options:Array<UIContextMenuOption>, ?callback:UIContextMenuCallback, ?x:Float, ?y:Float) {
+	public function openContextMenu(options:Array<UIContextMenuOption>, ?callback:UIContextMenuCallback, ?x:Float, ?y:Float, ?w:Int) {
 		var state = FlxG.state;
 		while(state.subState != null && !(state._requestSubStateReset && state._requestedSubState == null))
 			state = state.subState;
@@ -144,7 +144,7 @@ class UIState extends MusicBeatState {
 		state.persistentDraw = true;
 		state.persistentUpdate = true;
 
-		state.openSubState(curContextMenu = new UIContextMenu(options, callback, x.getDefault(__mousePos.x), y.getDefault(__mousePos.y)));
+		state.openSubState(curContextMenu = new UIContextMenu(options, callback, x.getDefault(__mousePos.x), y.getDefault(__mousePos.y), w));
 		return curContextMenu;
 	}
 

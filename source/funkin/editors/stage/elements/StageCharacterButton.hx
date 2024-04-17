@@ -16,6 +16,8 @@ class StageCharacterButton extends StageElementButton {
 
 		color = 0xff7aa8ff;
 
+		hasAdvancedEdit = true;
+
 		updateInfo();
 	}
 

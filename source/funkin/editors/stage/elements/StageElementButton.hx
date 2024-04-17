@@ -18,6 +18,7 @@ class StageElementButton extends UIButton {
 	public var deleteIcon:FlxSprite;
 
 	public var isHidden:Bool = false;
+	public var hasAdvancedEdit:Bool = false;
 
 	public var selected:Bool = false;
 
@@ -62,7 +63,9 @@ class StageElementButton extends UIButton {
 		editButton.autoAlpha = false;
 		members.push(editButton);
 
-		editIcon = new FlxSprite(editButton.x + 8, editButton.y + 8).loadGraphic(Paths.image('editors/character/edit-button'));
+		editIcon = new FlxSprite(editButton.x + 8, editButton.y + 8).loadGraphic(Paths.image('editors/character/edit-button'), true, 16, 16);
+		editIcon.animation.add("edit", [0]);
+		editIcon.animation.add("advanced", [1]);
 		editIcon.antialiasing = false;
 		members.push(editIcon);
 
@@ -76,7 +79,20 @@ class StageElementButton extends UIButton {
 		deleteIcon = new FlxSprite(deleteButton.x + (15/2), deleteButton.y + 8).loadGraphic(Paths.image('editors/delete-button'));
 		deleteIcon.antialiasing = false;
 		members.push(deleteIcon);
+
+		setEditNormal();
 	}
+
+	public function setEditNormal() {
+		editIcon.animation.play("edit");
+		editButton.color = FlxColor.YELLOW;
+	}
+
+	public function setEditAdvanced() {
+		editIcon.animation.play("advanced");
+		editButton.color = 0xFFFF5B0F;
+	}
+
 
 	var _lastSelected:Bool = false;
 
@@ -88,6 +104,14 @@ class StageElementButton extends UIButton {
 		updatePos();
 		super.update(elapsed);
 		field.x += 12;
+
+		if(hasAdvancedEdit) {
+			if(FlxG.keys.pressed.SHIFT) {
+				setEditAdvanced();
+			} else {
+				setEditNormal();
+			}
+		}
 
 		tagColor.color = color;
 	}

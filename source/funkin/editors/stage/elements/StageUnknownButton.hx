@@ -24,6 +24,8 @@ class StageUnknownButton extends StageElementButton {
 		visibilityIcon.exists = false;
 		members.remove(visibilityIcon);
 
+		setEditAdvanced();
+
 		updateInfo();
 	}
 

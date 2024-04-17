@@ -645,6 +645,7 @@ class StageEditor extends UIState {
 				saveToXml(spriteXML, "beatOffset", node.getAtt("beatOffset"), 0);
 				saveToXml(spriteXML, "type", sprite.spriteAnimType, LOOP);
 				saveToXml(spriteXML, "color", sprite.color.toWebString(), "#FFFFFF");
+				// TODO: save custom parameters
 				//saveToXml(spriteXML, "flipX", sprite.flipX, false);
 				newNode = spriteXML;
 			} else if(button is StageCharacterButton) {
@@ -676,6 +677,7 @@ class StageEditor extends UIState {
 				saveToXml(charXML, "flipX", charPos.flipX, defaultPos.flip);
 				savePointToXml(charXML, "scroll", charPos.scrollFactor, defaultPos.scroll);
 				savePointToXml(charXML, "scale", charPos.scale, 1);
+				// TODO: save custom parameters
 				newNode = charXML;
 			} else if(button is StageUnknownButton) {
 				var button:StageUnknownButton = cast button;

@@ -44,7 +44,10 @@ class CharacterAnimButtons extends UIButton {
 		editButton.autoAlpha = false;
 		members.push(editButton);
 
-		editIcon = new FlxSprite(editButton.x + 8, editButton.y + 8).loadGraphic(Paths.image('editors/character/edit-button'));
+		editIcon = new FlxSprite(editButton.x + 8, editButton.y + 8).loadGraphic(Paths.image('editors/character/edit-button'), true, 16, 16);
+		editIcon.animation.add("edit", [0]);
+		editIcon.animation.add("advanced", [1]);
+		editIcon.animation.play("edit");
 		editIcon.antialiasing = false;
 		members.push(editIcon);
 

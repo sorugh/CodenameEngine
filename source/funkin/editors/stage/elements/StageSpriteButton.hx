@@ -14,6 +14,8 @@ class StageSpriteButton extends StageElementButton {
 
 		//color = 0xFFD9FF50;
 
+		hasAdvancedEdit = true;
+
 		updateInfo();
 	}
 

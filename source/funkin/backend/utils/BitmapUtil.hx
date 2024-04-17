@@ -92,10 +92,8 @@ class BitmapUtil {
 		var maxX:Int = limit != null ? Std.int(limit.x) : 0; 
 		var maxY:Int = limit != null ? Std.int(limit.y) : 0;
 		
-		for (y in 0...bitmap.height)
-			for (x in 0...bitmap.width) {
-				if (limit != null && !(x >= limit.x && x <= limit.x + limit.width && y >= limit.y && y <= limit.y + limit.height)) continue;
-					
+		for (y in (limit != null ? Std.int(limit.x) : 0)...(limit != null ? Std.int(limit.height) : bitmap.height))
+			for (x in (limit != null ? Std.int(limit.y) : 0)...(limit != null ? Std.int(limit.width) : bitmap.width)) {
 				if (bitmap.getPixel32(x, y) != 0x00000000) {
 					if (x < minX) minX = x;
 					if (y < minY) minY = y;
@@ -103,7 +101,6 @@ class BitmapUtil {
 					if (y > maxY) maxY = y;
 				}
 			}
-
 
 		return new Rectangle(minX, minY, maxX-minX+1, maxY-minY+1);
 	}

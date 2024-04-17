@@ -105,10 +105,10 @@ class CharacterAnimButton extends UIButton {
 		if (parent.displayAnimsFramesList.exists(anim)) {
 			parent.displayWindowSprite.frame = parent.displayWindowSprite.frames.frames[parent.displayAnimsFramesList.get(anim)];
 
-			parent.displayWindowSprite.scale.x = parent.displayWindowSprite.scale.y = 120/parent.displayWindowSprite.frame.sourceSize.y;
+			parent.displayWindowSprite.scale.x = parent.displayWindowSprite.scale.y = 104/parent.displayWindowSprite.frame.sourceSize.y;
 			parent.displayWindowSprite.updateHitbox();
 			
-			parent.displayWindowSprite.follow(this, 16+(128/2)-((parent.displayWindowSprite.frame.sourceSize.x*parent.displayWindowSprite.scale.x)/2), 12+18+11+4);
+			parent.displayWindowSprite.follow(this, 16+(128/2)-((parent.displayWindowSprite.frame.sourceSize.x*parent.displayWindowSprite.scale.x)/2), 12+18+11+12);
 			parent.displayWindowSprite.draw();
 		}
 	}

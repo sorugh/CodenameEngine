@@ -17,7 +17,7 @@ class SystemInfo extends FramerateCategory {
 
 	static var __formattedSysText:String = "";
 
-	public static inline function init() {
+	public static function init() {
 		#if linux
 		var process = new HiddenProcess("cat", ["/etc/os-release"]);
 		if (process.exitCode() != 0) Logs.trace('Unable to grab OS Label', ERROR, RED);

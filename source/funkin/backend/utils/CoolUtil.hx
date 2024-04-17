@@ -133,10 +133,8 @@ class CoolUtil
 	 * Whenever a value is NaN or not.
 	 * @param v Value
 	 */
-	public static inline function isNaN(v:Dynamic) {
-		if (v is Float || v is Int)
-			return Math.isNaN(cast(v, Float));
-		return false;
+	public static inline function isNaN(v:Dynamic):Bool {
+		return (v is Float) ? Math.isNaN(cast(v, Float)) : false;
 	}
 
 	/**
@@ -185,20 +183,21 @@ class CoolUtil
 		return str;
 	}
 
+	private static var sizeLabels:Array<String> = ["B", "KB", "MB", "GB", "TB"];
+
 	/**
 	 * Returns a string representation of a size, following this format: `1.02 GB`, `134.00 MB`
 	 * @param size Size to convert to string
 	 * @return String Result string representation
 	 */
 	public static function getSizeString(size:Float):String {
-		var labels = ["B", "KB", "MB", "GB", "TB"];
 		var rSize:Float = size;
 		var label:Int = 0;
-		while(rSize > 1024 && label < labels.length-1) {
+		while(rSize > 1024 && label < sizeLabels.length-1) {
 			label++;
 			rSize /= 1024;
 		}
-		return '${Std.int(rSize) + "." + addZeros(Std.string(Std.int((rSize % 1) * 100)), 2)}${labels[label]}';
+		return Std.int(rSize) + "." + addZeros(Std.string(Std.int((rSize % 1) * 100)), 2) + sizeLabels[label];
 	}
 
 	/**

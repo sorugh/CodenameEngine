@@ -74,7 +74,6 @@ class CharacterAnimButton extends UIButton {
 		indicesTextBox = new UITextBox(nameTextBox.x, nameTextBox.y, animData.indices.getDefault([]).join(","), 278, 22, false, true);
 		members.push(indicesTextBox);
 		addLabelOn(indicesTextBox, "Indices (frames)", 12);
-
 	}
 
 	public override function update(elapsed:Float) {

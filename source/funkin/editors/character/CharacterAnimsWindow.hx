@@ -15,6 +15,8 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 		cameraSpacing = 0;
 		frames = Paths.getFrames('editors/ui/inputbox');
 
+		buttonCameras.pixelPerfectRender = true;
+
 		displayWindowSprite = new FlxSprite();
 		displayWindowSprite.loadGraphicFromSprite(character);
 		displayWindowSprite.antialiasing = character.antialiasing;

@@ -1,11 +1,11 @@
 /**
- * THIS FILE IS TEMPORARY UNTIL TRANSFORMS ARE AT A USEABLE STATE.
- * TODO:
- * 		- !!!! MOVE BACK TO SOURCE !!!!
- * 		- Rotation
- * 		- Skewing
- * 		- Angle + Scale (like already at a angle)
- */
+* THIS FILE IS TEMPORARY UNTIL TRANSFORMS ARE AT A USEABLE STATE.
+* TODO:
+* 		- !!!! MOVE BACK TO SOURCE !!!!
+* 		- Rotation
+* 		- Skewing
+* 		- Angle + Scale (like already at a angle)
+*/
 
 import funkin.editors.stage.StageEditor;
 import funkin.editors.ui.UIWarningSubstate;
@@ -77,6 +77,7 @@ function update() {
 }
 
 function genericScale(sprite, relative, doX, doY) {
+
 	var relativeMult = 1 / (FlxMath.lerp(1, stageCamera.zoom, sprite.zoomFactor) / stageCamera.zoom) * (FlxG.keys.pressed.ALT ? 2 : 1);
 	relative.x *= relativeMult;
 	relative.y *= relativeMult;
@@ -118,37 +119,104 @@ function genericOppositeScale(sprite, relative, scaleX, scaleY, repositionX, rep
 	}
 }
 
+var oldSpritePos = FlxPoint.get();
 function SCALE_BOTTOM_RIGHT(sprite, relative) {
+	preRotBullshit(sprite, relative);
 	genericScale(sprite, relative, true, true);
+	postRotBullshit(sprite, relative);
 }
 
+/**
+	ROTATION
+**/
+function preRotBullshit(sprite, relative) {
+	// just remove the other line in source
+	rotateByDegrees(relative, -sprite.angle);
+
+	if (sprite.angle != 0)
+		relative = rotateAround(relative, FlxPoint.weak(0, 0), -sprite.angle);
+	
+	if (FlxG.mouse.justPressed) {
+		oldSpritePos.x = sprite.x;
+		oldSpritePos.y = sprite.y;
+	}
+}
+
+function postRotBullshit(sprite, relative) {
+	if (sprite.angle != 0) {
+		var p = rotateAround(FlxPoint.get(sprite.x, sprite.y), oldSpritePos, sprite.angle);
+		sprite.x = p.x;
+		sprite.y = p.y;
+	}
+}
+import flixel.math.FlxAngle;
+
+function rotateAround(p, origin, angle) {
+	var rel = FlxPoint.get(p.x - origin.x, p.y - origin.y);
+	rotateByDegrees(rel, angle);
+	p.x = origin.x + rel.x;
+	p.y = origin.y + rel.y;
+	return p;
+}
+ function rotateByDegrees(p, angle) {
+	var rads = angle * FlxAngle.TO_RAD;
+	var s:Float = Math.sin(rads);
+	var c:Float = Math.cos(rads);
+	var tempX:Float = p.x;
+
+	p.x = tempX * c - p.y * s;
+	p.y = tempX * s + p.y * c;
+
+	return this;
+ }
+ /**
+	END OF ROTATION
+ **/
+
+
 function SCALE_TOP_RIGHT(sprite, relative) {
+	preRotBullshit(sprite, relative);
 	genericOppositeScale(sprite, relative, true, true, false, true);
+	postRotBullshit(sprite, relative);
 }
 
 function SCALE_TOP_LEFT(sprite, relative) {
+	preRotBullshit(sprite, relative);
 	genericOppositeScale(sprite, relative, true, true, true, true);
+	postRotBullshit(sprite, relative);
 }
 
 function SCALE_BOTTOM_LEFT(sprite, relative) {
+	preRotBullshit(sprite, relative);
 	genericOppositeScale(sprite, relative, true, true, true, false);
+	postRotBullshit(sprite, relative);
 }
 
 function SCALE_LEFT(sprite, relative) {
+	preRotBullshit(sprite, relative);
 	genericOppositeScale(sprite, relative, true, false, true, false);
+	postRotBullshit(sprite, relative);
 }
 
 function SCALE_RIGHT(sprite, relative) {
+	preRotBullshit(sprite, relative);
 	genericScale(sprite, relative, true, false);
+	postRotBullshit(sprite, relative);
 }
 
 function SCALE_TOP(sprite, relative) {
+	preRotBullshit(sprite, relative);
 	genericOppositeScale(sprite, relative, false, true, false, true);
+	postRotBullshit(sprite, relative);
 }
 
 function SCALE_BOTTOM(sprite, relative) {
+	preRotBullshit(sprite, relative);
 	genericScale(sprite, relative, false, true);
+	postRotBullshit(sprite, relative);
 }
+
+
 
 function SKEW_LEFT(sprite, relative) {}
 
@@ -159,4 +227,5 @@ function SKEW_TOP(sprite, relative) {}
 function SKEW_RIGHT(sprite, relative) {}
 
 function ROTATE(sprite, relative) {}
+
 

@@ -96,10 +96,10 @@ class StageEditor extends UIState {
 					}
 				]
 			},
-			/*{
+			{
 				label: "Edit",
 				childs: [
-					{
+					/*{
 						label: "Undo",
 						keybind: [CONTROL, Z],
 						onSelect: _edit_undo,
@@ -109,9 +109,25 @@ class StageEditor extends UIState {
 						keybind: [CONTROL, SHIFT, Z],
 						onSelect: _edit_redo,
 					},
-					null,
+					null,*/
+					{
+						label: "Edit Stage Info",
+						onSelect: (_) -> {
+							openSubState(new UISoftcodedWindow(
+								"layouts/stage/stageInfoScreen",
+								[
+									"winTitle" => "Editing Stage Info",
+									"hasSaveButton" => true,
+									"hasCloseButton" => true,
+									"stage" => stage,
+									"Stage" => Stage,
+									"exID" => exID
+								]
+							));
+						},
+					}
 				]
-			},*/
+			},
 			{
 				label: "Select",
 				childs: [
@@ -586,6 +602,10 @@ class StageEditor extends UIState {
 		saveToXml(xml, "startCamPosX", stage.startCam.x, 0);
 		saveToXml(xml, "startCamPosY", stage.startCam.y, 0);
 
+		for(prop in stage.extra.keys())
+			if(!Stage.DEFAULT_ATTRIBUTES.contains(prop) && !prop.startsWith("stageEditor."))
+				saveToXml(xml, prop, stage.extra.get(prop));
+
 		var group:Xml = null;
 		var curGroup:String = null;
 
@@ -742,11 +762,11 @@ class StageEditor extends UIState {
 		}
 	}*/
 
-	public function editInfoWithUI() {
+	/*public function editInfoWithUI() {
 		FlxG.state.openSubState(new StageInfoScreen(stage, (_) -> {
 			if (_ != null) editInfo(_);
 		}));
-	}
+	}*/
 
 	public function editInfo(newInfo:Xml, addtoUndo:Bool = true) {
 		/*var oldInfo = stage.buildXML();

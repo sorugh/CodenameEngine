@@ -56,6 +56,9 @@
 			button.highMemory = highMemoryRadio.checked;
 			button.lowMemory = lowMemoryRadio.checked;
 
+			for (i in xml.attributes())
+				xml.remove(i);
+
 			for (val in attributesList.buttons.members)
 				xml.set(val.propertyText.label.text, val.valueText.label.text);
 		}

@@ -57,6 +57,8 @@ class Stage extends FlxBasic implements IBeatReceiver {
 		if (autoLoad) loadXml(stageXML);
 	}
 
+	public static var DEFAULT_ATTRIBUTES:Array<String> = ["name", "startCamPosX", "startCamPosY", "zoom", "folder"];
+
 	public function loadXml(xml:Access, forceLoadAll:Bool = false) {
 		if (PlayState.instance == state) {
 			stageScript = Script.create(Paths.script('data/stages/$stageFile'));
@@ -82,6 +84,11 @@ class Stage extends FlxBasic implements IBeatReceiver {
 				spritesParentFolder = xml.att.folder;
 				if (!spritesParentFolder.endsWith("/")) spritesParentFolder += "/";
 			}
+
+			// Load custom attributes
+			for(att in xml.x.attributes())
+				if(!DEFAULT_ATTRIBUTES.contains(att))
+					extra.set(att, xml.x.get(att));
 
 			var elems:Array<Access> = [];
 			// some way to tag that the sprites are from the group

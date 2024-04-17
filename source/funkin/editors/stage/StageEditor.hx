@@ -420,6 +420,8 @@ class StageEditor extends UIState {
 				updateZoom();
 			}
 
+			var prevMode = mouseMode;
+
 			// TODO: make this work with multiple selections
 			if(selection.length == 1) {
 				for(sprite in selection) {
@@ -434,11 +436,12 @@ class StageEditor extends UIState {
 			//	openContextMenu(topMenu[2].childs);
 			//}
 
-			if (mouseMode == NONE) {
+			if (mouseMode == NONE && prevMode == NONE) {
 				if (FlxG.mouse.pressed) {
-					var pos = [FlxG.mouse.deltaScreenX, FlxG.mouse.deltaScreenY];
-					movedTillRel.x += pos[0]; movedTillRel.y += pos[1];
-					nextScroll.set(nextScroll.x - pos[0], nextScroll.y - pos[1]);
+					var x = FlxG.mouse.deltaScreenX;
+					var y = FlxG.mouse.deltaScreenY;
+					movedTillRel.x += x; movedTillRel.y += y;
+					nextScroll.set(nextScroll.x - x, nextScroll.y - y);
 					currentCursor = HAND;
 				}
 

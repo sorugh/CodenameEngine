@@ -1,5 +1,6 @@
 package funkin.editors.stage.elements;
 
+import funkin.editors.stage.StageEditor.StageXMLEditScreen;
 import funkin.game.Character;
 import funkin.game.Stage.StageCharPos;
 import haxe.xml.Access;
@@ -44,7 +45,11 @@ class StageCharacterButton extends StageElementButton {
 	}*/
 
 	public override function onEdit() {
-		FlxG.state.openSubState(new StageCharacterEditScreen(this));
+		if(!FlxG.keys.pressed.SHIFT) {
+			FlxG.state.openSubState(new StageCharacterEditScreen(this));
+		} else {
+			FlxG.state.openSubState(new StageXMLEditScreen(this.xml, updateInfo, "Character"));
+		}
 	}
 
 	//public override function onEdit() {

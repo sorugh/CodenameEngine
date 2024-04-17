@@ -1,7 +1,7 @@
 package funkin.editors.stage.elements;
 
-import haxe.xml.Access;
 import flixel.util.FlxColor;
+import haxe.xml.Access;
 
 class StageSolidButton extends StageSpriteButton {
 

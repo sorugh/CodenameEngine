@@ -1,4 +1,5 @@
 <window width="1056" height="520" title="Editing Sprite ${button.getName()}">
+	<set name="MARGIN" value="20" />
 	<set name="XOFFSET" value="50" />
 	<set name="YOFFSET" value="40" />
 	<set name="TO" value="64" />
@@ -24,7 +25,7 @@
 		<textbox name="nameTextBox" label="Name Identifier" value="button.getName()"   x="col(0)" y="curY" width="200" height="32" />
 		<textbox name="spriteTextBox" value="getEx('imageFile')" x="last.x + last.bWidth + XOFFSET" y="curY" width="200" height="32" />
 		<stepper name="alphaStepper" label="Alpha" value="sprite.alpha" x="spriteTextBox.x + spriteTextBox.bWidth + XOFFSET" y="curY" precision="2" step="0.01" width="100" />
-		<label name="imageFile" text="Image File&#10;In (${stage.spritesParentFolder})" x="spriteTextBox.x" y="spriteTextBox.y - 14" size="15" />
+		<label name="imageFile" text="Image File (WIP: needs reload)&#10;In (${stage.spritesParentFolder})" x="spriteTextBox.x" y="spriteTextBox.y - 14" size="15" />
 	</section>
 
 	<section> <!-- ROW 2 -->
@@ -65,6 +66,44 @@
 		<radio for="memoryCheck" name="lowMemoryRadio" text="Low Memory Only" value="getEx('lowMemory')" x="col(2)" y="curY" />
 
 		<!-- TODO: Animation list -->
+	</section>
+
+	<section> <!-- RIGHT SIDE -->
+		<set name="curY" value="title.y + TO" />
+		<set name="listWidth" value="250" />
+
+		<buttonlist name="animations" label="Animations (TODO)" x="col(3)" y="curY" width="listWidth" height="330" buttonSizeX="listWidth-10" buttonSizeY="35" buttonSpacing="5">
+			<texture path="editors/ui/inputbox" />
+			<camSpacing value="0" />
+
+			<code>
+				buttonlist.addButton.exists = false;
+			</code>
+
+			<!-- <code>
+				import funkin.editors.extra.PropertyButton;
+
+				var buttonList = buttonlist; // important for now, since it gets reset after the code is run
+
+				var width = buttonList.buttonSize.x;
+				var height = buttonList.buttonSize.y;
+
+				buttonList.addButton.callback = function() {
+					buttonList.add(new PropertyButton("newProperty", "valueHere", buttonList, width, height, 150, 220, 25));
+				}
+
+				//var defaultAttribs = Stage.DEFAULT_ATTRIBUTES;
+				//for (i in stage.stageXML.attributes()) {
+				//	trace(i, defaultAttribs);
+				//	if (!defaultAttribs.contains(i))
+				//		buttonList.add(new PropertyButton(i, stage.stageXML.get(i), buttonList, width, height, 150, 220, 25));
+				//}
+				for(key =&gt; val in stage.extra)
+					buttonList.add(new PropertyButton(key, val, buttonList, width, height, 150, 220, 25));
+			</code> -->
+		</buttonlist>
+
+		<text text="Tip: To access custom properties,&#10;hold shift when clicking edit" x="col(2) - 60" y="self.winHeight - 50" size="15" />
 	</section>
 
 

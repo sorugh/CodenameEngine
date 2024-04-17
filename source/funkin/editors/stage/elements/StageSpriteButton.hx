@@ -1,6 +1,6 @@
 package funkin.editors.stage.elements;
 
-import flixel.util.FlxColor;
+import funkin.editors.stage.StageEditor.StageXMLEditScreen;
 import funkin.editors.stage.elements.StageElementButton;
 import funkin.editors.ui.UISoftcodedWindow;
 import haxe.xml.Access;
@@ -40,7 +40,11 @@ class StageSpriteButton extends StageElementButton {
 	}
 
 	public override function onEdit() {
-		FlxG.state.openSubState(new StageSpriteEditScreen(this));
+		if(!FlxG.keys.pressed.SHIFT) {
+			FlxG.state.openSubState(new StageSpriteEditScreen(this));
+		} else {
+			FlxG.state.openSubState(new StageXMLEditScreen(this.xml, updateInfo, "Sprite"));
+		}
 	}
 
 	public override function onDelete() {

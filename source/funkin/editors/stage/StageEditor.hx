@@ -1211,3 +1211,24 @@ enum abstract StageEditorEdge(Int) {
 		}
 	}
 }
+
+class StageXMLEditScreen extends UISoftcodedWindow {
+	public var xml:Access;
+	public var saveCallback:Void->Void;
+
+	public function new(xml:Access, saveCallback:Void->Void, type:String = "Unknown") {
+		this.xml = xml;
+		this.saveCallback = saveCallback;
+		super("layouts/stage/xmlEditScreen", [
+			"stage" => StageEditor.instance.stage,
+			"xml" => xml,
+			"exID" => StageEditor.exID,
+			"type" => type
+		]);
+	}
+
+	override function saveData() {
+		super.saveData();
+		if(saveCallback != null) saveCallback();
+	}
+}

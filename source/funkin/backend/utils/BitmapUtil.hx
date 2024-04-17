@@ -74,21 +74,37 @@ class BitmapUtil {
 	 * @param bitmap The bitmap to be cropped
 	 */
 	public static function crop(bitmap:BitmapData) {
-		var minX:Int = bitmap.width;
-		var minY:Int = bitmap.height;
-		var maxX:Int = 0; var maxY:Int = 0;
+		var bitmapBounds:Rectangle = BitmapUtil.bounds(bitmap);
+		
+		var croppedBitmap:BitmapData = new BitmapData(Std.int(bitmapBounds.width), Std.int(bitmapBounds.height), true, 0x00000000);
+		croppedBitmap.copyPixels(bitmap, bitmapBounds, new Point(0,0));
+		return croppedBitmap;
+	}
+	
+	/**
+	 * Get bounds of non empty pixels in the bitmap
+	 * @param bitmap 
+	 * @return
+	 */
+	public static function bounds(bitmap:BitmapData, ?limit:Rectangle = null):Rectangle {
+		var minX:Int = limit != null ? Std.int(limit.width) : bitmap.width;
+		var minY:Int = limit != null ? Std.int(limit.height) : bitmap.height;
+		var maxX:Int = limit != null ? Std.int(limit.x) : 0; 
+		var maxY:Int = limit != null ? Std.int(limit.y) : 0;
 		
 		for (y in 0...bitmap.height)
-			for (x in 0...bitmap.width)
+			for (x in 0...bitmap.width) {
+				if (limit != null && !(x >= limit.x && x <= limit.x + limit.width && y >= limit.y && y <= limit.y + limit.height)) continue;
+					
 				if (bitmap.getPixel32(x, y) != 0x00000000) {
 					if (x < minX) minX = x;
 					if (y < minY) minY = y;
 					if (x > maxX) maxX = x;
 					if (y > maxY) maxY = y;
 				}
-		
-		var croppedBitmap:BitmapData = new BitmapData(maxX-minX+1, maxY-minY+1, true, 0x00000000);
-		croppedBitmap.copyPixels(bitmap, new Rectangle(minX, minY, croppedBitmap.width, croppedBitmap.height), new Point(0,0));
-		return croppedBitmap;
+			}
+
+
+		return new Rectangle(minX, minY, maxX-minX+1, maxY-minY+1);
 	}
 }

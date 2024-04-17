@@ -1,5 +1,6 @@
 package funkin.editors.character;
 
+import openfl.geom.Rectangle;
 import funkin.backend.utils.XMLUtil.AnimData;
 import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
@@ -41,7 +42,7 @@ class CharacterAnimButton extends UIButton {
 		field.fieldWidth = 0; framesOffset = 9;
 		field.visible = false;
 
-		animationDisplayBG = new UISliceSprite(x+12, y+12+18+12, 128, 128, 'editors/ui/inputbox');
+		animationDisplayBG = new UISliceSprite(x+12, y+12+18+12, 128, 128, 'editors/ui/inputbox-small');
 		members.push(animationDisplayBG);
 
 		nameTextBox = new UITextBox(animationDisplayBG.x+126+16, animationDisplayBG.y, animData.name, 116, 22, false, true);
@@ -102,12 +103,18 @@ class CharacterAnimButton extends UIButton {
 		super.draw();
 
 		if (parent.displayAnimsFramesList.exists(anim)) {
-			parent.displayWindowSprite.frame = parent.displayWindowSprite.frames.frames[parent.displayAnimsFramesList.get(anim)];
+			var displayData:{frame:Int, scale:Float, animBounds:Rectangle} = parent.displayAnimsFramesList.get(anim);
+			parent.displayWindowSprite.frame = parent.displayWindowSprite.frames.frames[displayData.frame];
 
-			parent.displayWindowSprite.scale.x = parent.displayWindowSprite.scale.y = 104/parent.displayWindowSprite.frame.sourceSize.y;
+			parent.displayWindowSprite.scale.x = parent.displayWindowSprite.scale.y = displayData.scale;
 			parent.displayWindowSprite.updateHitbox();
+
+			// parent.displayWindowSprite.origin.set();
 			
-			parent.displayWindowSprite.follow(this, 16+(128/2)-((parent.displayWindowSprite.frame.sourceSize.x*parent.displayWindowSprite.scale.x)/2), 12+18+11+12);
+			parent.displayWindowSprite.follow(
+				this, 16+(128/2)-((parent.displayWindowSprite.frame.sourceSize.x*displayData.scale)/2), 
+				12+18+11+(128/2)-((parent.displayWindowSprite.frame.sourceSize.y*displayData.scale)/2)
+			);
 			parent.displayWindowSprite.draw();
 		}
 	}

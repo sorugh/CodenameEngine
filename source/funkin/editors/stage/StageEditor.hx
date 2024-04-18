@@ -51,6 +51,8 @@ class StageEditor extends UIState {
 	public var clickPoint:FlxPoint = new FlxPoint();
 	public var storedPos:FlxPoint = new FlxPoint();
 	public var storedScale:FlxPoint = new FlxPoint();
+	public var storedSkew:FlxPoint = new FlxPoint();
+	public var storedAngle:Float = 0;
 
 	public var showCharacters:Bool = true;
 
@@ -909,9 +911,19 @@ class StageEditor extends UIState {
 
 		mousePoint = FlxG.mouse.getWorldPosition(stageCamera, mousePoint);
 		if(dot == null) {
-			dot = new FlxSprite().makeGraphic(30, 30, FlxColor.WHITE);
+			dot = new FlxSprite().loadGraphic(Paths.image("editors/stage/selectionDot"), true, 32, 32);
+			dot.antialiasing = true;
+			dot.animation.add("default", [0], 0, false);
+			dot.animation.add("hollow", [1], 0, false);
+			dot.animation.play("default");
+			//dot = new FlxSprite().makeGraphic(30, 30, FlxColor.WHITE);
 			dot.camera = stageCamera;
 			dot.forceIsOnScreen = true;
+
+			line = new FlxSprite().makeGraphic(30, 30, FlxColor.WHITE);
+			line.camera = stageCamera;
+			line.color = lineColor;
+			line.forceIsOnScreen = true;
 		}
 		for(sprite in selection) {
 			if(sprite is FunkinSprite) {
@@ -921,8 +933,9 @@ class StageEditor extends UIState {
 		}
 	}
 
-	var lineColor = 0xFFb794b6;
-	var circleColor = 0xFF99a8f2;
+	var lineColor:FlxColor = 0xFFb794b6;
+	var circleColor:FlxColor = 0xFF99a8f2;
+	var hollowColor:FlxColor = 0xffb2beff;
 
 	function drawGuides(sprite:FlxSprite) {
 		var corners = calcSpriteBounds(sprite);
@@ -943,20 +956,37 @@ class StageEditor extends UIState {
 			funkinSprite.extra.set(exID("buttonBoxes"), buttonBoxes);
 		}
 
-		dot.color = lineColor;
-
 		drawLine(corners[0], corners[1]); // tl - tr
 		drawLine(corners[0], corners[2]); // tl - bl
 		drawLine(corners[1], corners[3]); // tr - br
 		drawLine(corners[2], corners[3]); // bl - br
+
+		drawLine(corners[7], corners[9], 0.3); // tc - ac // top center to angle center
+
 		// cross
 		//drawLine(corners[0], corners[3]); // tl - br
 		//drawLine(corners[1], corners[2]); // tr - bl
 
 		dot.color = circleColor;
 
-		for(corner in corners) {
-			drawDot(corner.x, corner.y);
+		final ANGLE_INDEX = StageEditorEdge.ROTATE_CIRCLE.toInt();
+		final CENTER_INDEX = StageEditorEdge.CENTER_CIRCLE.toInt();
+
+		dot.animation.play("default");
+
+		for(i in 0...corners.length) {
+			var corner = corners[i];
+			if(i != CENTER_INDEX) {
+				if(i == ANGLE_INDEX)  {
+					dot.color = hollowColor;
+					drawDot(corner.x, corner.y);
+					dot.animation.play("hollow");
+					dot.color = circleColor;
+					drawDot(corner.x, corner.y);
+				} else {
+					drawDot(corner.x, corner.y);
+				}
+			}
 			buttonBoxes.push(corner);
 		}
 
@@ -988,7 +1018,9 @@ class StageEditor extends UIState {
 			FlxPoint.get(0.5, 1),
 			FlxPoint.get(0.5, 0),
 			// center
-			//FlxPoint.get(0.5, 0.5)
+			FlxPoint.get(0.5, 0.5),
+			//FlxPoint.get(0.5, -100/sprite.frameHeight) // angle
+			FlxPoint.get(0.5, -0.5) // angle
 		], sprite.camera, sprite.frameWidth, sprite.frameHeight);
 
 		//Logs.trace("Guide at " + corners[0].x + ", " + corners[0].y + " sprite at " + sprite.x + ", " + sprite.y);
@@ -1024,6 +1056,10 @@ class StageEditor extends UIState {
 		MIDDLE_RIGHT, //FlxPoint.get(1, 0.5),
 		BOTTOM_MIDDLE, //FlxPoint.get(0.5, 1),
 		TOP_MIDDLE, //FlxPoint.get(0.5, 0),
+
+		CENTER_CIRCLE, //FlxPoint.get(0.5, -0.5)
+
+		ROTATE_CIRCLE, //FlxPoint.get(0.5, -0.5)
 	];
 
 	function tryUpdateHitbox(sprite:FunkinSprite) {
@@ -1048,12 +1084,15 @@ class StageEditor extends UIState {
 						case BOTTOM_LEFT: SCALE_BOTTOM_LEFT;
 						case BOTTOM_MIDDLE: SCALE_BOTTOM;
 						case BOTTOM_RIGHT: SCALE_BOTTOM_RIGHT;
+						case ROTATE_CIRCLE: ROTATE;
 						default: NONE;
 					}
 					Logs.trace("Clicked Dot: " + mouseMode.toString());
 					mousePoint.copyTo(clickPoint);
 					storedPos.set(sprite.x, sprite.y);
+					storedSkew.set(sprite.skew.x, sprite.skew.y);
 					storedScale.copyFrom(sprite.scale);
+					storedAngle = sprite.angle;
 				}
 			}
 		}
@@ -1075,6 +1114,8 @@ class StageEditor extends UIState {
 					//case TOP_MIDDLE | BOTTOM_MIDDLE: MouseCursor.RESIZE_NS;
 					//case TOP_RIGHT | BOTTOM_LEFT: MouseCursor.RESIZE_NESW;
 					//case MIDDLE_LEFT | MIDDLE_RIGHT: MouseCursor.RESIZE_WE;
+
+					case ROTATE_CIRCLE: FlxG.mouse.pressed ? DRAG : #if mac DRAG_OPEN #else CLICK #end;
 					default: ARROW;
 				}
 				break;
@@ -1085,13 +1126,13 @@ class StageEditor extends UIState {
 		if(mouseMode == NONE) return;
 		var relative = clickPoint.subtractNew(mousePoint);
 		// todo: make this origin based
-		relative.rotateByDegrees(sprite.angle);
+		//relative.rotateByDegrees(sprite.angle);
 		call(mouseMode.toString(), [sprite, relative]);
 		cast(sprite.extra.get(exID("button")), StageElementButton).updateInfo();
 		relative.put();
 	}
 
-	var dotCheckSize:Float = 50;
+	var dotCheckSize:Float = 53;
 
 	function checkDot(point:FlxPoint):Bool {
 		var rect = new FlxRect(point.x - dotCheckSize/2, point.y - dotCheckSize/2, dotCheckSize, dotCheckSize);
@@ -1106,28 +1147,29 @@ class StageEditor extends UIState {
 		dot.draw();
 	}
 
-	function drawLine(point1:FlxPoint, point2:FlxPoint) {
+	function drawLine(point1:FlxPoint, point2:FlxPoint, sizeModify:Float = 1) {
 		var dx:Float = point2.x - point1.x;
 		var dy:Float = point2.y - point1.y;
 
 		var angle:Float = Math.atan2(dy, dx);
 		var distance:Float = Math.sqrt(dx * dx + dy * dy);
 
-		dot.setPosition(point1.x, point1.y);
-		dot.angle = angle * FlxAngle.TO_DEG;
-		dot.origin.set(0, dot.frameHeight / 2);
-		dot.scale.x = distance / dot.frameWidth;
-		dot.scale.y = 0.20/stageCamera.zoom;
-		//dot.x -= dot.width / 2;
-		dot.y -= dot.height / 2;
-		dot.draw();
+		line.setPosition(point1.x, point1.y);
+		line.angle = angle * FlxAngle.TO_DEG;
+		line.origin.set(0, line.frameHeight / 2);
+		line.scale.x = distance / line.frameWidth;
+		line.scale.y = 0.20/stageCamera.zoom * sizeModify;
+		//line.x -= line.width / 2;
+		line.y -= line.height / 2;
+		line.draw();
 		// Reset the angle and scale
-		dot.angle = 0;
-		dot.scale.x = dot.scale.y = 1;
-		dot.updateHitbox();
+		line.angle = 0;
+		line.scale.x = line.scale.y = 1;
+		line.updateHitbox();
 	}
 
 	var dot:FlxSprite = null;
+	var line:FlxSprite = null;
 }
 
 enum StageChange {
@@ -1189,9 +1231,9 @@ enum abstract StageEditorMouseMode(Int) {
 }
 
 enum abstract StageEditorEdge(Int) {
-	var NONE;
+	var NONE = -1;
 
-	var TOP_LEFT;
+	var TOP_LEFT = 0;
 	var TOP_MIDDLE;
 	var TOP_RIGHT;
 	var MIDDLE_LEFT;
@@ -1200,8 +1242,11 @@ enum abstract StageEditorEdge(Int) {
 	var BOTTOM_LEFT;
 	var BOTTOM_MIDDLE;
 	var BOTTOM_RIGHT;
+	var CENTER_CIRCLE;
 
-	function toString():String {
+	var ROTATE_CIRCLE;
+
+	public function toString():String {
 		return switch(cast this) {
 			case NONE: "NONE";
 			case TOP_LEFT: "TOP_LEFT";
@@ -1213,6 +1258,25 @@ enum abstract StageEditorEdge(Int) {
 			case BOTTOM_LEFT: "BOTTOM_LEFT";
 			case BOTTOM_MIDDLE: "BOTTOM_MIDDLE";
 			case BOTTOM_RIGHT: "BOTTOM_RIGHT";
+			case CENTER_CIRCLE: "CENTER_CIRCLE";
+			case ROTATE_CIRCLE: "ROTATE_CIRCLE";
+		}
+	}
+
+	public function toInt():Int {
+		return switch(cast this) {
+			case NONE: -1;
+			case TOP_LEFT: 0;
+			case TOP_MIDDLE: 1;
+			case TOP_RIGHT: 2;
+			case MIDDLE_LEFT: 3;
+
+			case MIDDLE_RIGHT: 4;
+			case BOTTOM_LEFT: 5;
+			case BOTTOM_MIDDLE: 6;
+			case BOTTOM_RIGHT: 7;
+			case CENTER_CIRCLE: 8;
+			case ROTATE_CIRCLE: 9;
 		}
 	}
 }

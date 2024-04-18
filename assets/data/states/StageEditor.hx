@@ -10,6 +10,7 @@
 import funkin.editors.stage.StageEditor;
 import funkin.editors.ui.UIWarningSubstate;
 import funkin.backend.utils.WindowUtils;
+import flixel.math.FlxAngle;
 import openfl.Lib;
 
 var exID = StageEditor.exID;
@@ -130,12 +131,9 @@ function SCALE_BOTTOM_RIGHT(sprite, relative) {
 	ROTATION
 **/
 function preRotBullshit(sprite, relative) {
-	// just remove the other line in source
-	rotateByDegrees(relative, -sprite.angle);
-
 	if (sprite.angle != 0)
 		relative = rotateAround(relative, FlxPoint.weak(0, 0), -sprite.angle);
-	
+
 	if (FlxG.mouse.justPressed) {
 		oldSpritePos.x = sprite.x;
 		oldSpritePos.y = sprite.y;
@@ -149,16 +147,16 @@ function postRotBullshit(sprite, relative) {
 		sprite.y = p.y;
 	}
 }
-import flixel.math.FlxAngle;
 
 function rotateAround(p, origin, angle) {
 	var rel = FlxPoint.get(p.x - origin.x, p.y - origin.y);
 	rotateByDegrees(rel, angle);
 	p.x = origin.x + rel.x;
 	p.y = origin.y + rel.y;
+	rel.put();
 	return p;
 }
- function rotateByDegrees(p, angle) {
+function rotateByDegrees(p, angle) {
 	var rads = angle * FlxAngle.TO_RAD;
 	var s:Float = Math.sin(rads);
 	var c:Float = Math.cos(rads);
@@ -166,9 +164,7 @@ function rotateAround(p, origin, angle) {
 
 	p.x = tempX * c - p.y * s;
 	p.y = tempX * s + p.y * c;
-
-	return this;
- }
+}
  /**
 	END OF ROTATION
  **/
@@ -226,6 +222,28 @@ function SKEW_TOP(sprite, relative) {}
 
 function SKEW_RIGHT(sprite, relative) {}
 
-function ROTATE(sprite, relative) {}
+/*var storedCenter = FlxPoint.get();
+var storedRelative = FlxPoint.get();*/
+
+function ROTATE(sprite, relative) {
+	var buttonBoxes:Array<FlxPoint> = sprite.extra.get(exID("buttonBoxes"));
+	var p:FlxPoint = buttonBoxes[8];
+
+	FlxG.mouse.getWorldPosition(stageCamera, _point);
+
+	var dx:Float = _point.x - p.x;
+	var dy:Float = _point.y - p.y;
+	var angle = FlxAngle.angleFromOrigin(dx, dy, true) + 90;
+	if(FlxG.keys.pressed.SHIFT) angle = Std.int(angle / 45) * 45;
+	sprite.angle = angle;
+
+	//storedCenter.set(p.x, p.y);
+	//storedRelative.set(_point.x, _point.y);
+}
 
 
+/*function postDraw() {
+	if(storedCenter.x != 0 || storedCenter.y != 0) {
+		drawLine(storedCenter, storedRelative, 0.3);
+	}
+}*/

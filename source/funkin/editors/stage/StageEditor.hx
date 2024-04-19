@@ -1073,6 +1073,21 @@ class StageEditor extends UIState {
 		dotCheckSize = dot.frameWidth / 0.7/stageCamera.zoom; // basically adjust it to the zoom.
 
 		if(FlxG.mouse.justPressed) {
+			for (i in StageEditorMouseMode.SKEW_TOP...(StageEditorMouseMode.SKEW_BOTTOM + 1)) {
+				var cappedI1 = Math.max(i - StageEditorMouseMode.SKEW_TOP - 1, 0);
+				var cappedI2 = Math.min(i - StageEditorMouseMode.SKEW_TOP + 1, 3);
+				var point1 = buttonBoxes[Std.int(cappedI1)];
+				var point2 = buttonBoxes[Std.int(cappedI2)];
+				if (checkLine(point1, point2, point2.x - point1.x, point2.y - point1.y)) {
+					mousePoint.copyTo(clickPoint);
+					storedPos.set(sprite.x, sprite.y);
+					storedSkew.copyFrom(sprite.skew);
+					storedScale.copyFrom(sprite.scale);
+					storedAngle = sprite.angle;
+					mouseMode = i;
+				}
+			}
+
 			for(i=>edge in edges) {
 				if(checkDot(buttonBoxes[i])) {
 					mouseMode = switch(edge) {
@@ -1147,6 +1162,28 @@ class StageEditor extends UIState {
 		dot.draw();
 	}
 
+	function checkLine(point1:FlxPoint, point2:FlxPoint, dx:Float, dy:Float) {
+		var leftRegion = Math.min(point1.x, point2.x) - dotCheckSize * 0.2;
+		var rightRegion = Math.max(point1.x, point2.x) + dotCheckSize * 0.2;
+		var topRegion = Math.min(point1.y, point2.y) - dotCheckSize * 0.2;
+		var bottomRegion = Math.max(point1.y, point2.y) + dotCheckSize * 0.2;
+
+		if (dx == 0.0 || dy == 0.0)
+			return (mousePoint.x >= leftRegion && mousePoint.x <= rightRegion)
+				&& (mousePoint.y >= topRegion && mousePoint.y <= bottomRegion);
+
+		var inc = dx * ((mousePoint.y - point1.y) / dy);
+		leftRegion += inc;
+		rightRegion += inc;
+
+		inc = dy * ((mousePoint.x - point1.x) / dx);
+		topRegion += inc;
+		bottomRegion += inc;
+			
+		return (mousePoint.x >= leftRegion && mousePoint.x <= rightRegion)
+			&& (mousePoint.y >= topRegion && mousePoint.y <= bottomRegion);
+	}
+
 	function drawLine(point1:FlxPoint, point2:FlxPoint, sizeModify:Float = 1) {
 		var dx:Float = point2.x - point1.x;
 		var dy:Float = point2.y - point1.y;
@@ -1191,7 +1228,7 @@ enum StageChange {
 	//}
 }
 
-enum abstract StageEditorMouseMode(Int) {
+enum abstract StageEditorMouseMode(Int) from Int to Int {
 	var NONE;
 
 	var SCALE_LEFT;
@@ -1203,10 +1240,10 @@ enum abstract StageEditorMouseMode(Int) {
 	var SCALE_BOTTOM_LEFT;
 	var SCALE_BOTTOM_RIGHT;
 
-	var SKEW_LEFT;
-	var SKEW_BOTTOM;
 	var SKEW_TOP;
+	var SKEW_LEFT;
 	var SKEW_RIGHT;
+	var SKEW_BOTTOM;
 
 	var ROTATE;
 

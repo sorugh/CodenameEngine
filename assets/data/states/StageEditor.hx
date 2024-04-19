@@ -213,12 +213,19 @@ function SCALE_BOTTOM(sprite, relative) {
 }
 
 
+function checkSkew() {
+	return (mouseMode >= 9 && mouseMode <= 12);
+}
 
 function SKEW_LEFT(sprite, relative) {}
 
 function SKEW_BOTTOM(sprite, relative) {}
 
-function SKEW_TOP(sprite, relative) {}
+function SKEW_TOP(sprite, relative) {
+	SCALE_TOP(sprite, relative);
+	// TODO: use the proper math. skew rotates the perpendicular edges like a circle (Ex: skew.x = 45, left & right edges rotate 45 degrees.)
+	sprite.skew.x = storedSkew.x + relative.x * 0.25;
+}
 
 function SKEW_RIGHT(sprite, relative) {}
 

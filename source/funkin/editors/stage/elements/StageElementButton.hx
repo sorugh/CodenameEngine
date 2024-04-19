@@ -76,7 +76,7 @@ class StageElementButton extends UIButton {
 		deleteButton.autoAlpha = false;
 		members.push(deleteButton);
 
-		deleteIcon = new FlxSprite(deleteButton.x + (15/2), deleteButton.y + 8).loadGraphic(Paths.image('editors/delete-button'));
+		deleteIcon = new FlxSprite(deleteButton.x + 8, deleteButton.y + 8).loadGraphic(Paths.image('editors/stage/trash-icon'));
 		deleteIcon.antialiasing = false;
 		members.push(deleteIcon);
 
@@ -166,7 +166,7 @@ class StageElementButton extends UIButton {
 		// icons
 		visibilityIcon.x = visibilityButton.x + 8; visibilityIcon.y = visibilityButton.y + 8;
 		editIcon.x = editButton.x + 8; editIcon.y = editButton.y + 8;
-		deleteIcon.x = deleteButton.x + (15/2); deleteIcon.y = deleteButton.y + 8;
+		deleteIcon.x = deleteButton.x + 8; deleteIcon.y = deleteButton.y + 8;
 
 		tagColor.x = x;// + bWidth - tagColor.bWidth;
 		tagColor.y = y;

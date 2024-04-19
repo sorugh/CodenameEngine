@@ -31,6 +31,8 @@ class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 
 	public var zip:SysZip;
 	public var assets:Map<String, SysZipEntry> = [];
+	public var lowerCaseAssets:Map<String, SysZipEntry> = [];
+	public var nameMap:Map<String, String> = [];
 
 	public function new(zipPath:String, libName:String, ?modName:String) {
 		this.zipPath = zipPath;
@@ -43,8 +45,10 @@ class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 
 		zip = SysZip.openFromFile(zipPath);
 		zip.read();
-		for(entry in zip.entries)
-			assets[entry.fileName.toLowerCase()] = entry;
+		for(entry in zip.entries) {
+			lowerCaseAssets[entry.fileName.toLowerCase()] = assets[entry.fileName.toLowerCase()] = assets[entry.fileName] = entry;
+			nameMap.set(entry.fileName.toLowerCase(), entry.fileName);
+		}
 
 		super();
 	}
@@ -92,6 +96,8 @@ class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 		}
 
 		_parsedAsset = _parsedAsset.toLowerCase();
+		if(nameMap.exists(_parsedAsset))
+			_parsedAsset = nameMap.get(_parsedAsset);
 		return true;
 	}
 
@@ -111,35 +117,45 @@ class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 		return '[ZIP]$zipPath/$_parsedAsset';
 	}
 
+	// TODO: rewrite this to 1 function, like ModsFolderLibrary
 	public function getFiles(folder:String):Array<String> {
-		var content:Array<String> = [];
-
-		if (!folder.endsWith("/")) folder = folder + "/";
+		if (!folder.endsWith("/")) folder += "/";
 		if (!__parseAsset(folder)) return [];
 
+		var content:Array<String> = [];
+
+		var checkPath = _parsedAsset.toLowerCase();
+
 		@:privateAccess
-		for(k=>e in assets) {
-			if (k.toLowerCase().startsWith(_parsedAsset)) {
+		for(k=>e in lowerCaseAssets) {
+			if (k.toLowerCase().startsWith(checkPath)) {
+				if(nameMap.exists(k))
+					k = nameMap.get(k);
 				var fileName = k.substr(_parsedAsset.length);
-				if (!fileName.contains("/"))
-					content.push(fileName);
+				if (!fileName.contains("/") && fileName.length > 0)
+					content.pushOnce(fileName);
 			}
 		}
 		return content;
 	}
 
 	public function getFolders(folder:String):Array<String> {
-		var content:Array<String> = [];
-
-		if (!folder.endsWith("/")) folder = folder + "/";
+		if (!folder.endsWith("/")) folder += "/";
 		if (!__parseAsset(folder)) return [];
 
+		var content:Array<String> = [];
+
+		var checkPath = _parsedAsset.toLowerCase();
+
 		@:privateAccess
-		for(k=>e in assets) {
-			if (k.toLowerCase().startsWith(_parsedAsset)) {
+		for(k=>e in lowerCaseAssets) {
+			if (k.toLowerCase().startsWith(checkPath)) {
+				if(nameMap.exists(k))
+					k = nameMap.get(k);
 				var fileName = k.substr(_parsedAsset.length);
-				if (fileName.contains("/")) {
-					var s = fileName.split("/")[0];
+				var index = fileName.indexOf("/");
+				if (index != -1 && fileName.length > 0) {
+					var s = fileName.substr(0, index);
 					content.pushOnce(s);
 				}
 			}

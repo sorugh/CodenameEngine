@@ -71,6 +71,9 @@ function destroy() {
 }
 
 function update() {
+	if (FlxG.mouse.justPressed)
+		lastRelative.set();
+
 	if(FlxG.keys.justPressed.R) {
 		trace("reloading");
 		FlxG.switchState(new StageEditor(StageEditor.__stage));
@@ -212,19 +215,25 @@ function SCALE_BOTTOM(sprite, relative) {
 	postRotBullshit(sprite, relative);
 }
 
-
-function checkSkew() {
-	return (mouseMode >= 9 && mouseMode <= 12);
-}
+var lastRelative = FlxPoint.get();
 
 function SKEW_LEFT(sprite, relative) {}
 
 function SKEW_BOTTOM(sprite, relative) {}
 
 function SKEW_TOP(sprite, relative) {
-	SCALE_TOP(sprite, relative);
-	// TODO: use the proper math. skew rotates the perpendicular edges like a circle (Ex: skew.x = 45, left & right edges rotate 45 degrees.)
-	sprite.skew.x = storedSkew.x + relative.x * 0.25;
+	if (!FlxG.keys.pressed.SHIFT)
+		SCALE_TOP(sprite, relative);
+
+	var topLeft = sprite.extra.get(exID("buttonBoxes"))[0];
+	var bottomLeft = sprite.extra.get(exID("buttonBoxes"))[2];
+
+	sprite.skew.x = Math.atan2(
+		bottomLeft.x - (topLeft.x + (lastRelative.x - relative.x) * 2),
+		bottomLeft.y - (topLeft.y + (FlxG.keys.pressed.SHIFT ? 0 : relative.y - lastRelative.y))
+	) * FlxAngle.TO_DEG;
+
+	lastRelative.set(relative.x, relative.y);
 }
 
 function SKEW_RIGHT(sprite, relative) {}

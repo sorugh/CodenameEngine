@@ -1134,7 +1134,10 @@ class StageEditor extends UIState {
 					case TOP_MIDDLE: RESIZE_T;
 					case TOP_RIGHT: RESIZE_TR;
 					case MIDDLE_LEFT: RESIZE_L;
-					case CENTER_CIRCLE: #if mac FlxG.mouse.pressed ? DRAG : DRAG_OPEN #else MOVE #end;
+					case CENTER_CIRCLE: 
+						#if (mac) FlxG.mouse.pressed ? DRAG : DRAG_OPEN 
+						#elseif (linux) FlxG.mouse.pressed ? DRAG : CLICK 
+						#else MOVE #end;
 					case MIDDLE_RIGHT: RESIZE_R;
 					case BOTTOM_LEFT: RESIZE_BL;
 					case BOTTOM_MIDDLE: RESIZE_B;

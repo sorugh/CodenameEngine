@@ -229,8 +229,9 @@ function SKEW_LEFT(sprite, relative) {}
 function SKEW_BOTTOM(sprite, relative) {}
 
 function SKEW_TOP(sprite, relative) {
+	preRotBullshit(sprite, relative);
 	if (!FlxG.keys.pressed.SHIFT)
-		SCALE_TOP(sprite, relative);
+		genericOppositeScale(sprite, relative, false, true, false, true);
 
 	var topLeft = sprite.extra.get(exID("buttonBoxes"))[0];
 	var bottomLeft = sprite.extra.get(exID("buttonBoxes"))[2];
@@ -240,10 +241,26 @@ function SKEW_TOP(sprite, relative) {
 		bottomLeft.y - (topLeft.y + (FlxG.keys.pressed.SHIFT ? 0 : relative.y - lastRelative.y))
 	) * FlxAngle.TO_DEG;
 
-	lastRelative.set(relative.x, relative.y);
+	lastRelative.set(relative.x, (FlxG.keys.pressed.SHIFT ? lastRelative.y : relative.y));
+	postRotBullshit(sprite, relative);
 }
 
-function SKEW_RIGHT(sprite, relative) {}
+function SKEW_RIGHT(sprite, relative) {
+	preRotBullshit(sprite, relative);
+	if (!FlxG.keys.pressed.SHIFT)
+		genericScale(sprite, relative, true, false);
+
+	var topLeft = sprite.extra.get(exID("buttonBoxes"))[0];
+	var topRight = sprite.extra.get(exID("buttonBoxes"))[1];
+
+	sprite.skew.y = Math.atan2(
+		topLeft.x - (topRight.x + (FlxG.keys.pressed.SHIFT ? 0 : relative.x - lastRelative.x)),
+		topLeft.y - (topRight.y + (lastRelative.y - relative.y) * 2)
+	) * FlxAngle.TO_DEG;
+
+	lastRelative.set((FlxG.keys.pressed.SHIFT ? lastRelative.x : relative.x), relative.y);
+	postRotBullshit(sprite, relative);
+}
 
 /*var storedCenter = FlxPoint.get();
 var storedRelative = FlxPoint.get();*/

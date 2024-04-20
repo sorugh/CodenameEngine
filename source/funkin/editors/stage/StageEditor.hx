@@ -986,8 +986,15 @@ class StageEditor extends UIState {
 				} else {
 					drawDot(corner.x, corner.y);
 				}
+				buttonBoxes.push(corner);
 			}
-			buttonBoxes.push(corner);
+			else if(sprite.visible){
+				dot.color = circleColor;
+				drawDot(corner.x, corner.y, 0.7);
+				dot.animation.play("hollow");
+				buttonBoxes.push(corner);
+			}
+			
 		}
 
 		if(funkinSprite == null) {
@@ -1099,6 +1106,7 @@ class StageEditor extends UIState {
 						case BOTTOM_LEFT: SCALE_BOTTOM_LEFT;
 						case BOTTOM_MIDDLE: SCALE_BOTTOM;
 						case BOTTOM_RIGHT: SCALE_BOTTOM_RIGHT;
+						case CENTER_CIRCLE: MOVE_CENTER;
 						case ROTATE_CIRCLE: ROTATE;
 						default: NONE;
 					}
@@ -1108,6 +1116,11 @@ class StageEditor extends UIState {
 					storedSkew.set(sprite.skew.x, sprite.skew.y);
 					storedScale.copyFrom(sprite.scale);
 					storedAngle = sprite.angle;
+				}
+				
+				if(mouseMode == MOVE_CENTER){
+					trace(mouseMode);
+					storedPos.set(sprite.x, sprite.y);
 				}
 			}
 		}
@@ -1120,7 +1133,7 @@ class StageEditor extends UIState {
 					case TOP_MIDDLE: RESIZE_T;
 					case TOP_RIGHT: RESIZE_TR;
 					case MIDDLE_LEFT: RESIZE_L;
-					//case MIDDLE_MIDDLE: RESIZE_H;
+					case CENTER_CIRCLE: HAND;
 					case MIDDLE_RIGHT: RESIZE_R;
 					case BOTTOM_LEFT: RESIZE_BL;
 					case BOTTOM_MIDDLE: RESIZE_B;
@@ -1150,13 +1163,16 @@ class StageEditor extends UIState {
 	var dotCheckSize:Float = 53;
 
 	function checkDot(point:FlxPoint):Bool {
-		var rect = new FlxRect(point.x - dotCheckSize/2, point.y - dotCheckSize/2, dotCheckSize, dotCheckSize);
-		return rect.containsPoint(mousePoint);
+		if(point!=null){
+			var rect = new FlxRect(point.x - dotCheckSize/2, point.y - dotCheckSize/2, dotCheckSize, dotCheckSize);
+			return rect.containsPoint(mousePoint);
+		}
+		return false;
 	}
 
-	inline function drawDot(x:Float, y:Float) {
+	inline function drawDot(x:Float, y:Float, ?scale:Float = 1) {
 		dot.setPosition(x, y);
-		dot.scale.set(0.7/stageCamera.zoom, 0.7/stageCamera.zoom);
+		dot.scale.set(0.7/stageCamera.zoom * scale, 0.7/stageCamera.zoom * scale);
 		dot.x -= dot.width / 2;
 		dot.y -= dot.height / 2;
 		dot.draw();
@@ -1240,6 +1256,8 @@ enum abstract StageEditorMouseMode(Int) from Int to Int {
 	var SCALE_BOTTOM_LEFT;
 	var SCALE_BOTTOM_RIGHT;
 
+	var MOVE_CENTER;
+
 	var SKEW_TOP;
 	var SKEW_LEFT;
 	var SKEW_RIGHT;
@@ -1258,6 +1276,7 @@ enum abstract StageEditorMouseMode(Int) from Int to Int {
 			case SCALE_TOP_RIGHT: "SCALE_TOP_RIGHT";
 			case SCALE_BOTTOM_LEFT: "SCALE_BOTTOM_LEFT";
 			case SCALE_BOTTOM_RIGHT: "SCALE_BOTTOM_RIGHT";
+			case MOVE_CENTER: "MOVE_CENTER";
 			case SKEW_LEFT: "SKEW_LEFT";
 			case SKEW_BOTTOM: "SKEW_BOTTOM";
 			case SKEW_TOP: "SKEW_TOP";

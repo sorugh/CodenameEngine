@@ -39,23 +39,24 @@ namespace ExternalMac {
 			case HAND: cursor = [NSCursor closedHandCursor]; break;
 			case IBEAM: cursor = [NSCursor IBeamCursor]; break;
 			//case MOVE: cursor = [NSCursor moveCursor]; break;
+			//case MOVE: cursor = [CursorHelper getCursorForSelector:@selector(_moveCursor) defaultCursor:nil]; break;
 
 			case RESIZE_H: cursor = [NSCursor resizeLeftRightCursor]; break;
 			case RESIZE_V: cursor = [NSCursor resizeUpDownCursor]; break;
 			// TODO: DEFAULTS
-			case RESIZE_TL: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthWestCursor) defaultCursor:[NSCursor arrowCursor]]; break;
-			case RESIZE_TR: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthEastCursor) defaultCursor:[NSCursor arrowCursor]]; break;
-			case RESIZE_BL: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeSouthWestCursor) defaultCursor:[NSCursor arrowCursor]]; break;
-			case RESIZE_BR: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeSouthEastCursor) defaultCursor:[NSCursor arrowCursor]]; break;
-			case RESIZE_T: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthCursor) defaultCursor:[NSCursor arrowCursor]]; break;
-			case RESIZE_B: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeSouthCursor) defaultCursor:[NSCursor arrowCursor]]; break;
-			case RESIZE_L: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeWestCursor) defaultCursor:[NSCursor arrowCursor]]; break;
-			case RESIZE_R: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeEastCursor) defaultCursor:[NSCursor arrowCursor]]; break;
-			case RESIZE_TLBR: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthWestSouthEastCursor) defaultCursor:[NSCursor arrowCursor]]; break;
-			case RESIZE_TRBL: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthEastSouthWestCursor) defaultCursor:[NSCursor arrowCursor]]; break;
+			case RESIZE_TL: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthWestCursor) defaultCursor:nil]; break;
+			case RESIZE_TR: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthEastCursor) defaultCursor:nil]; break;
+			case RESIZE_BL: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeSouthWestCursor) defaultCursor:nil]; break;
+			case RESIZE_BR: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeSouthEastCursor) defaultCursor:nil]; break;
+			case RESIZE_T: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthCursor) defaultCursor:nil]; break;
+			case RESIZE_B: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeSouthCursor) defaultCursor:nil]; break;
+			case RESIZE_L: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeWestCursor) defaultCursor:nil]; break;
+			case RESIZE_R: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeEastCursor) defaultCursor:nil]; break;
+			case RESIZE_TLBR: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthWestSouthEastCursor) defaultCursor:nil]; break;
+			case RESIZE_TRBL: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthEastSouthWestCursor) defaultCursor:nil]; break;
 
-			case WAIT: cursor = [CursorHelper getCursorForSelector:@selector(_waitCursor) defaultCursor:[NSCursor arrowCursor]]; break;
-			case WAIT_ARROW: cursor = [CursorHelper getCursorForSelector:@selector(_waitCursor) defaultCursor:[NSCursor arrowCursor]]; break;
+			case WAIT: cursor = [CursorHelper getCursorForSelector:@selector(_waitCursor) defaultCursor:nil]; break;
+			case WAIT_ARROW: cursor = [CursorHelper getCursorForSelector:@selector(_waitCursor) defaultCursor:nil]; break;
 			case DISABLED: cursor = [NSCursor operationNotAllowedCursor]; break;
 			case DRAG: cursor = [NSCursor closedHandCursor]; break;
 			case DRAG_OPEN: cursor = [NSCursor openHandCursor]; break;

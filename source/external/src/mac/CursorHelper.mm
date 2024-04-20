@@ -11,6 +11,7 @@
     if ([NSCursor respondsToSelector:selector]) {
         cursor = [NSCursor performSelector:selector];
     } else {
+		NSLog(@"CursorHelper: selector %@ not found", NSStringFromSelector(selector));
         cursor = defaultCursor;
     }
     #pragma clang diagnostic pop

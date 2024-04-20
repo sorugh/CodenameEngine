@@ -28,9 +28,14 @@ class StageCharacterButton extends StageElementButton {
 	public override function updateInfo() {
 		char.visible = !isHidden;
 		char.alpha = 0.5 * charPos.alpha;
-		charPos.scale.x = char.scale.x;
-		charPos.scale.y = char.scale.y;
+		var charScale = (char.xml.has.scale ? Std.parseFloat(char.xml.att.scale).getDefault(1) : 1);
+		charPos.scale.x = char.scale.x / charScale;
+		charPos.scale.y = char.scale.y / charScale;
+		charPos.x = char.x;
+		charPos.y = char.y;
+		char.scale.copyFrom(charPos.scale);
 		super.updateInfo();
+		char.scale.scale(charScale);
 	}
 
 	public override function getSprite():FunkinSprite {

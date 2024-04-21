@@ -648,7 +648,8 @@ class StageEditor extends UIState {
 				saveToXml(spriteXML, "interval", node.getAtt("beatInterval"), 2);
 				saveToXml(spriteXML, "interval", node.getAtt("interval"), 2);
 				saveToXml(spriteXML, "beatOffset", node.getAtt("beatOffset"), 0);
-				saveToXml(spriteXML, "type", sprite.spriteAnimType, LOOP);
+				if(sprite.spriteAnimType != LOOP) spriteXML.remove("type");
+					spriteXML.set("type", sprite.spriteAnimType.toString());
 				saveToXml(spriteXML, "color", sprite.color.toWebString(), "#FFFFFF");
 				// TODO: save custom parameters
 				//saveToXml(spriteXML, "flipX", sprite.flipX, false);

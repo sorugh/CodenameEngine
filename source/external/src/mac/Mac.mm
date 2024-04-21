@@ -1,3 +1,4 @@
+#include <unordered_map>
 #import <Cocoa/Cocoa.h>
 #import "CursorHelper.h"
 
@@ -26,55 +27,105 @@
 #define RESIZE_TRBL 22
 #define CUSTOM -1
 
-namespace ExternalMac {
-	bool setCursorIcon(int icon/*, const char *customCursor, float customX, float customY*/) {
+namespace ExternalMac
+{
+	std::unordered_map<std::string, NSCursor *> customCursorCache;
+
+	bool setCursorIcon(int icon, const char *customCursor, float customX, float customY)
+	{
 		NSCursor *cursor = nil;
-		switch(icon) {
-			case ARROW: cursor = [NSCursor arrowCursor]; break;
-			case CLICK: cursor = [NSCursor pointingHandCursor]; break;
-			case CROSSHAIR: cursor = [NSCursor crosshairCursor]; break;
-			case HAND: cursor = [NSCursor closedHandCursor]; break;
-			case IBEAM: cursor = [NSCursor IBeamCursor]; break;
-			//case MOVE: cursor = [NSCursor moveCursor]; break;
-			//case MOVE: cursor = [CursorHelper getCursorForSelector:@selector(_moveCursor) defaultCursor:nil]; break;
 
-			case RESIZE_H: cursor = [NSCursor resizeLeftRightCursor]; break;
-			case RESIZE_V: cursor = [NSCursor resizeUpDownCursor]; break;
-			// TODO: DEFAULTS
-			case RESIZE_TL: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthWestCursor) defaultCursor:nil]; break;
-			case RESIZE_TR: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthEastCursor) defaultCursor:nil]; break;
-			case RESIZE_BL: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeSouthWestCursor) defaultCursor:nil]; break;
-			case RESIZE_BR: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeSouthEastCursor) defaultCursor:nil]; break;
-			case RESIZE_T: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthCursor) defaultCursor:nil]; break;
-			case RESIZE_B: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeSouthCursor) defaultCursor:nil]; break;
-			case RESIZE_L: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeWestCursor) defaultCursor:nil]; break;
-			case RESIZE_R: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeEastCursor) defaultCursor:nil]; break;
-			case RESIZE_TLBR: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthWestSouthEastCursor) defaultCursor:nil]; break;
-			case RESIZE_TRBL: cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthEastSouthWestCursor) defaultCursor:nil]; break;
-
-			case WAIT: cursor = [CursorHelper getCursorForSelector:@selector(_waitCursor) defaultCursor:nil]; break;
-			case WAIT_ARROW: cursor = [CursorHelper getCursorForSelector:@selector(_waitCursor) defaultCursor:nil]; break;
-			case DISABLED: cursor = [NSCursor operationNotAllowedCursor]; break;
-			case DRAG: cursor = [NSCursor closedHandCursor]; break;
-			case DRAG_OPEN: cursor = [NSCursor openHandCursor]; break;
-
-			/*case CUSTOM: {
-				// TODO: CACHING
-				NSString *cursorImageName = [NSString stringWithUTF8String:customCursor];
-				NSImage *tmpImage = [NSImage imageNamed:cursorImageName];
-				NSCursor *pointer = [[NSCursor alloc] initWithImage:tmpImage hotSpot:NSMakePoint(customX, customY)];
-
-				cursor = [NSCursor pointer]
+		switch (icon)
+		{
+			case ARROW:
+				cursor = [NSCursor arrowCursor];
 				break;
-			}*/
-			case CUSTOM: cursor = [NSCursor arrowCursor]; break;
+			case CLICK:
+				cursor = [NSCursor pointingHandCursor];
+				break;
+			case CROSSHAIR:
+				cursor = [NSCursor crosshairCursor];
+				break;
+			case HAND:
+				cursor = [NSCursor closedHandCursor];
+				break;
+			case IBEAM:
+				cursor = [NSCursor IBeamCursor];
+				break;
+			case RESIZE_H:
+				cursor = [NSCursor resizeLeftRightCursor];
+				break;
+			case RESIZE_V:
+				cursor = [NSCursor resizeUpDownCursor];
+				break;
+			// TODO: DEFAULTS
+			case RESIZE_TL:
+				cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthWestCursor)defaultCursor:nil];
+				break;
+			case RESIZE_TR:
+				cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthEastCursor)defaultCursor:nil];
+				break;
+			case RESIZE_BL:
+				cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeSouthWestCursor)defaultCursor:nil];
+				break;
+			case RESIZE_BR:
+				cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeSouthEastCursor)defaultCursor:nil];
+				break;
+			case RESIZE_T:
+				cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthCursor)defaultCursor:nil];
+				break;
+			case RESIZE_B:
+				cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeSouthCursor)defaultCursor:nil];
+				break;
+			case RESIZE_L:
+				cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeWestCursor)defaultCursor:nil];
+				break;
+			case RESIZE_R:
+				cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeEastCursor)defaultCursor:nil];
+				break;
+			case RESIZE_TLBR:
+				cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthWestSouthEastCursor)defaultCursor:nil];
+				break;
+			case RESIZE_TRBL:
+				cursor = [CursorHelper getCursorForSelector:@selector(_windowResizeNorthEastSouthWestCursor)defaultCursor:nil];
+				break;
+			case WAIT:
+				cursor = [CursorHelper getCursorForSelector:@selector(_waitCursor)defaultCursor:nil];
+				break;
+			case WAIT_ARROW:
+				cursor = [CursorHelper getCursorForSelector:@selector(_waitCursor)defaultCursor:nil];
+				break;
+			case DISABLED:
+				cursor = [NSCursor operationNotAllowedCursor];
+				break;
+			case DRAG:
+				cursor = [NSCursor closedHandCursor];
+				break;
+			case DRAG_OPEN:
+				cursor = [NSCursor openHandCursor];
+				break;
+			case CUSTOM:
+				NSString *cursorImageName = [NSString stringWithUTF8String:customCursor];
+
+				if (customCursorCache.find(cursorImageName.UTF8String) != customCursorCache.end())
+					cursor = customCursorCache[cursorImageName.UTF8String];
+				else
+				{
+					NSImage *tmpImage = [NSImage imageNamed:cursorImageName];
+					cursor = [[NSCursor alloc] initWithImage:tmpImage hotSpot:NSMakePoint(customX, customY)];
+					customCursorCache[cursorImageName.UTF8String] = cursor;
+				}
+
+				break;
 		}
 
-		if(cursor != nil) {
+		if (cursor != nil)
+		{
 			[cursor set];
 
 			return true;
 		}
+
 		return false;
 	}
 }

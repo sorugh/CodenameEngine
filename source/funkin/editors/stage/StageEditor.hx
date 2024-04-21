@@ -631,7 +631,7 @@ class StageEditor extends UIState {
 				saveToXml(spriteXML, "y", sprite.y, 0);
 				saveToXml(spriteXML, "sprite", sprite.extra.get(exID("imageFile")));
 				savePointToXml(spriteXML, "scale", sprite.scale, 1);
-				savePointToXml(spriteXML, "scroll", sprite.scrollFactor, 0);
+				savePointToXml(spriteXML, "scroll", sprite.scrollFactor, 1);
 				saveToXml(spriteXML, "skewx", sprite.skew.x, 0);
 				saveToXml(spriteXML, "skewy", sprite.skew.y, 0);
 				saveToXml(spriteXML, "alpha", sprite.alpha, 1);

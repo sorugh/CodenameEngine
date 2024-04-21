@@ -5,7 +5,7 @@
 
 namespace ExternalMac
 {
-	bool setCursorIcon(int icon);
+	bool setCursorIcon(int icon, const char *customCursor, float customX, float customY);
 }
 
 #endif

@@ -28,9 +28,6 @@
 
 namespace ExternalMac {
 	bool setCursorIcon(int icon/*, const char *customCursor, float customX, float customY*/) {
-		#pragma clang diagnostic push
-		#pragma clang diagnostic ignored "-Wundeclared-selector"
-
 		NSCursor *cursor = nil;
 		switch(icon) {
 			case ARROW: cursor = [NSCursor arrowCursor]; break;
@@ -72,8 +69,6 @@ namespace ExternalMac {
 			}*/
 			case CUSTOM: cursor = [NSCursor arrowCursor]; break;
 		}
-
-		#pragma clang diagnostic pop
 
 		if(cursor != nil) {
 			[cursor set];

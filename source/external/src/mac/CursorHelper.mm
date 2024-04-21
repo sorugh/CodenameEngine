@@ -3,17 +3,22 @@
 
 @implementation CursorHelper
 
-+ (NSCursor *)getCursorForSelector:(SEL)selector defaultCursor:(NSCursor *)defaultCursor {
-    NSCursor *cursor = nil;
++ (NSCursor *)getCursorForSelector:(SEL)selector defaultCursor:(NSCursor *)defaultCursor
+{
+	NSCursor *cursor = nil;
 
-    if ([NSCursor respondsToSelector:selector]) {
-        cursor = [NSCursor performSelector:selector];
-    } else {
+	if ([NSCursor respondsToSelector:selector])
+	{
+		cursor = [NSCursor performSelector:selector];
+	}
+	else
+	{
 		NSLog(@"CursorHelper: selector %@ not found", NSStringFromSelector(selector));
-        cursor = defaultCursor;
-    }
+  
+		cursor = defaultCursor;
+	}
 
-    return cursor;
+	return cursor;
 }
 
 @end

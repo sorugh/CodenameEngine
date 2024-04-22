@@ -1,4 +1,5 @@
 #include <unordered_map>
+
 #import <Cocoa/Cocoa.h>
 #import "CursorHelper.h"
 
@@ -29,7 +30,7 @@
 
 namespace ExternalMac
 {
-	std::unordered_map<std::string, NSCursor *> customCursorCache;
+	std::unordered_map<const char *, NSCursor *> customCursorCache;
 
 	bool setCursorIcon(int icon, const char *customCursor, float customX, float customY)
 	{

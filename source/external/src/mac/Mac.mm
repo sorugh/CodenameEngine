@@ -106,16 +106,14 @@ namespace ExternalMac
 				cursor = [NSCursor openHandCursor];
 				break;
 			case CUSTOM:
-				NSString *cursorImageName = [NSString stringWithUTF8String:customCursor];
-
-				if (customCursorCache.find(cursorImageName.UTF8String) != customCursorCache.end())
-					cursor = customCursorCache[cursorImageName.UTF8String];
+				if (customCursorCache.find(customCursor) != customCursorCache.end())
+					cursor = customCursorCache[customCursor];
 				else
 				{
 					NSString *cursorImageName = [NSString stringWithUTF8String:customCursor];
-					NSImage *tmpImage = [NSImage imageNamed:cursorImageName];
+					NSImage *tmpImage = [[NSImage alloc] initWithContentsOfFile:cursorImageName];
 
-					if (tmpImage != nullptr)
+					if (tmpImage != nil)
 					{
 						cursor = [[NSCursor alloc] initWithImage:tmpImage hotSpot:NSMakePoint(customX, customY)];
 						customCursorCache[customCursor] = cursor;

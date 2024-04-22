@@ -112,10 +112,17 @@ namespace ExternalMac
 					cursor = customCursorCache[cursorImageName.UTF8String];
 				else
 				{
+					NSString *cursorImageName = [NSString stringWithUTF8String:customCursor];
 					NSImage *tmpImage = [NSImage imageNamed:cursorImageName];
-					cursor = [[NSCursor alloc] initWithImage:tmpImage hotSpot:NSMakePoint(customX, customY)];
-					customCursorCache[cursorImageName.UTF8String] = cursor;
-					// [tmpImage release];
+
+					if (tmpImage != nullptr)
+					{
+						cursor = [[NSCursor alloc] initWithImage:tmpImage hotSpot:NSMakePoint(customX, customY)];
+						customCursorCache[customCursor] = cursor;
+						// [tmpImage release];
+					}
+					else
+						NSLog(@"Failed to load image %@", cursorImageName);
 				}
 
 				break;

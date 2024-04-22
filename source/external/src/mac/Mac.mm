@@ -114,7 +114,7 @@ namespace ExternalMac
 					NSImage *tmpImage = [NSImage imageNamed:cursorImageName];
 					cursor = [[NSCursor alloc] initWithImage:tmpImage hotSpot:NSMakePoint(customX, customY)];
 					customCursorCache[cursorImageName.UTF8String] = cursor;
-					[tmpImage release];
+					// [tmpImage release];
 				}
 
 				break;

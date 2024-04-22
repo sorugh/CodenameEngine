@@ -117,10 +117,12 @@ namespace ExternalMac
 					{
 						cursor = [[NSCursor alloc] initWithImage:tmpImage hotSpot:NSMakePoint(customX, customY)];
 						customCursorCache[customCursor] = cursor;
-						// [tmpImage release];
+						[tmpImage release];
 					}
 					else
 						NSLog(@"Failed to load image %@", cursorImageName);
+
+					[cursorImageName release];
 				}
 
 				break;

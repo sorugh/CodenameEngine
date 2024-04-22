@@ -226,7 +226,22 @@ var lastRelative = FlxPoint.get();
 
 function SKEW_LEFT(sprite, relative) {}
 
-function SKEW_BOTTOM(sprite, relative) {}
+function SKEW_BOTTOM(sprite, relative) {
+	preRotBullshit(sprite, relative);
+	if (!FlxG.keys.pressed.SHIFT)
+		genericScale(sprite, relative, false, true);
+
+	var topLeft = sprite.extra.get(exID("buttonBoxes"))[0];
+	var bottomLeft = sprite.extra.get(exID("buttonBoxes"))[2];
+
+	sprite.skew.x = Math.atan2(
+		topLeft.x - (bottomLeft.x + (lastRelative.x - relative.x) * 2),
+		topLeft.y - (bottomLeft.y + (FlxG.keys.pressed.SHIFT ? 0 : lastRelative.y - relative.y))
+	) * FlxAngle.TO_DEG;
+
+	lastRelative.set(relative.x, (FlxG.keys.pressed.SHIFT ? lastRelative.y : relative.y));
+	postRotBullshit(sprite, relative);
+}
 
 function SKEW_TOP(sprite, relative) {
 	preRotBullshit(sprite, relative);

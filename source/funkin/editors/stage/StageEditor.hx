@@ -101,7 +101,7 @@ class StageEditor extends UIState {
 			{
 				label: "Edit",
 				childs: [
-					/*{
+					{
 						label: "Undo",
 						keybind: [CONTROL, Z],
 						onSelect: _edit_undo,
@@ -111,7 +111,7 @@ class StageEditor extends UIState {
 						keybind: [CONTROL, SHIFT, Z],
 						onSelect: _edit_redo,
 					},
-					null,*/
+					null,
 					{
 						label: "Edit Stage Info",
 						onSelect: (_) -> {
@@ -416,6 +416,7 @@ class StageEditor extends UIState {
 
 		currentCursor = ARROW;
 
+		mousePoint = FlxG.mouse.getWorldPosition(stageCamera, mousePoint);
 		if ((!stageSpritesWindow.hovered && !stageSpritesWindow.dragging) && !topMenuSpr.hovered) {
 			if (FlxG.mouse.wheel != 0) {
 				zoom += 0.25 * FlxG.mouse.wheel;
@@ -722,31 +723,19 @@ class StageEditor extends UIState {
 		return "<!DOCTYPE codename-engine-stage>\n" + Printer.print(xml, true);
 	}
 
-	/*function _edit_undo(_) {
+	function _edit_undo(_) {
 		var undo = undos.undo();
 		switch(undo) {
 			case null:
 				// do nothing
 			case CEditInfo(oldInfo, newInfo):
-				editInfo(oldInfo, false);
-			case CCreateAnim(animID, animData):
-				deleteAnim(animData.name, false);
-			case CEditAnim(name, oldData, animData):
-				editAnim(name, oldData, false);
-			case CDeleteAnim(animID, animData):
-				createAnim(animData, animID, false);
-			case CChangeOffset(name, change):
-				changeOffset(name, change * -1, false);
-			case CResetOffsets(oldOffsets):
-				for (anim => offsets in oldOffsets) {
-					character.animOffsets.set(anim, offsets.clone());
-					ghosts.setOffsets(anim, offsets.clone());
-				}
-
-				for (charButton in characterAnimsWindow.buttons.members)
-					charButton.updateInfo(charButton.anim, character.getAnimOffset(charButton.anim), ghosts.animGhosts[charButton.anim].visible);
-
-				changeOffset(character.getAnimName(), FlxPoint.get(0, 0), false); // apply da new offsets
+				//editInfo(oldInfo, false);
+			case CTransform(sprite, oldInfo, newInfo):
+				sprite.setPosition(oldInfo.x, oldInfo.y);
+				sprite.scale.set(oldInfo.scaleX, oldInfo.scaleY);
+				sprite.skew.set(oldInfo.skewX, oldInfo.skewY);
+				sprite.angle = oldInfo.angle;
+				cast(sprite.extra.get(exID("button")), StageElementButton).updateInfo();
 		}
 	}
 
@@ -757,18 +746,14 @@ class StageEditor extends UIState {
 				// do nothing
 			case CEditInfo(oldInfo, newInfo):
 				editInfo(newInfo, false);
-			case CCreateAnim(animID, animData):
-				createAnim(animData, animID, false);
-			case CEditAnim(name, oldData, animData):
-				editAnim(oldData.name, animData, false);
-			case CDeleteAnim(animID, animData):
-				deleteAnim(animData.name, false);
-			case CChangeOffset(name, change):
-				changeOffset(name, change, false);
-			case CResetOffsets(oldOffsets):
-				clearOffsets(false);
+			case CTransform(sprite, oldInfo, newInfo):
+				sprite.setPosition(newInfo.x, newInfo.y);
+				sprite.scale.set(newInfo.scaleX, newInfo.scaleY);
+				sprite.skew.set(newInfo.skewX, newInfo.skewY);
+				sprite.angle = newInfo.angle;
+				cast(sprite.extra.get(exID("button")), StageElementButton).updateInfo();
 		}
-	}*/
+	}
 
 	/*public function editInfoWithUI() {
 		FlxG.state.openSubState(new StageInfoScreen(stage, (_) -> {
@@ -910,7 +895,6 @@ class StageEditor extends UIState {
 	override function draw() {
 		super.draw();
 
-		mousePoint = FlxG.mouse.getWorldPosition(stageCamera, mousePoint);
 		if(dot == null) {
 			dot = new FlxSprite().loadGraphic(Paths.image("editors/stage/selectionDot"), true, 32, 32);
 			dot.antialiasing = true;
@@ -1080,6 +1064,7 @@ class StageEditor extends UIState {
 
 		dotCheckSize = dot.frameWidth / 0.7/stageCamera.zoom; // basically adjust it to the zoom.
 
+		var prevMode = mouseMode;
 		if(FlxG.mouse.justPressed) {
 			for (i in StageEditorMouseMode.SKEW_TOP...(StageEditorMouseMode.SKEW_BOTTOM + 1)) {
 				var cappedI1 = Math.max(i - StageEditorMouseMode.SKEW_TOP - 1, 0);
@@ -1156,10 +1141,32 @@ class StageEditor extends UIState {
 		}
 
 		mouseMode = (FlxG.mouse.justReleased) ? NONE : mouseMode;
+
+		if (prevMode == NONE && mouseMode == NONE) return;
+
+		if (prevMode != NONE && mouseMode == NONE) {
+			undos.addToUndo(CTransform(sprite, {
+				x: storedPos.x,
+				y: storedPos.y,
+				scaleX: storedScale.x,
+				scaleY: storedScale.y,
+				skewX: storedSkew.x,
+				skewY: storedSkew.y,
+				angle: storedAngle
+			}, {
+				x: sprite.x,
+				y: sprite.y,
+				scaleX: sprite.scale.x,
+				scaleY: sprite.scale.y,
+				skewX: sprite.skew.x,
+				skewY: sprite.skew.y,
+				angle: sprite.angle
+			}));
+		}
+
 		if(mouseMode == NONE) return;
+
 		var relative = clickPoint.subtractNew(mousePoint);
-		// todo: make this origin based
-		//relative.rotateByDegrees(sprite.angle);
 		call(mouseMode.toString(), [sprite, relative]);
 		cast(sprite.extra.get(exID("button")), StageElementButton).updateInfo();
 		relative.put();
@@ -1230,8 +1237,19 @@ class StageEditor extends UIState {
 	var line:FlxSprite = null;
 }
 
+typedef StageSprInfo = {
+	x:Float,
+	y:Float,
+	scaleX:Float,
+	scaleY:Float,
+	skewX:Float,
+	skewY:Float, // i dont wanna be cloning a bunch of FlxPoints. Theres a pool for a reason.
+	angle:Float
+}
+
 enum StageChange {
 	CEditInfo(oldInfo:Xml, newInfo:Xml);
+	CTransform(sprite:FunkinSprite, oldInfo:StageSprInfo, newInfo:StageSprInfo);
 }
 
 @:forward abstract Selection(Array<FunkinSprite>) from Array<FunkinSprite> to Array<FunkinSprite> {

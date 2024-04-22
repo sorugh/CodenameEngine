@@ -5,7 +5,8 @@ import funkin.backend.utils.NativeAPI.CodeCursor;
 import openfl.ui.Mouse;
 
 @:headerInclude('sys/sysctl.h')
-class Mac {
+class Mac
+{
 	@:functionCode('
 	int mib [] = { CTL_HW, HW_MEMSIZE };
 	int64_t value = 0;
@@ -23,10 +24,10 @@ class Mac {
 
 	public static function setMouseCursorIcon(icon:CodeCursor):Void
 	{
-		final valid:Bool = external.ExternalMac.setCursorIcon(icon.toInt());
-		if(!valid) {
+		final valid:Bool = external.ExternalMac.setCursorIcon(icon.toInt(), null, 0, 0);
+
+		if (!valid)
 			Mouse.cursor = icon.toOpenFL();
-		}
 	}
 }
 #end

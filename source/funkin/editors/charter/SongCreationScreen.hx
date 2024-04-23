@@ -19,7 +19,6 @@ class SongCreationScreen extends UISubstateWindow {
 	public var bpmStepper:UINumericStepper;
 	public var beatsPerMeasureStepper:UINumericStepper;
 	public var stepsPerBeatStepper :UINumericStepper;
-	public var needsVoicesCheckbox:UICheckbox;
 	public var instExplorer:UIFileExplorer;
 	public var voicesExplorer:UIFileExplorer;
 
@@ -82,25 +81,6 @@ class SongCreationScreen extends UISubstateWindow {
 		songDataGroup.add(stepsPerBeatStepper);
 
 		var voicesUIText:UIText = null;
-
-		needsVoicesCheckbox = new UICheckbox(stepsPerBeatStepper.x + 80 + 26, stepsPerBeatStepper.y, "Voices", true);
-		needsVoicesCheckbox.onChecked = function(checked) {
-			if (voicesExplorer == null) return;
-
-			if(!checked) {
-				voicesExplorer.removeFile();
-				voicesExplorer.selectable = voicesExplorer.uploadButton.selectable = false;
-				voicesUIText.text = "Vocal Audio File";
-			} else {
-				voicesExplorer.selectable = voicesExplorer.uploadButton.selectable = true;
-				voicesUIText.applyMarkup(
-					"Vocal Audio File $* Required$",
-					[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
-			}
-		}
-		songDataGroup.add(needsVoicesCheckbox);
-		addLabelOn(needsVoicesCheckbox, "Needs Voices");
-		needsVoicesCheckbox.y += 6; needsVoicesCheckbox.x += 4;
 
 		instExplorer = new UIFileExplorer(songNameTextBox.x, songNameTextBox.y + 32 + 36, null, null, Paths.SOUND_EXT, function (res) {
 			var audioPlayer:UIAudioPlayer = new UIAudioPlayer(instExplorer.x + 8, instExplorer.y + 8, res);
@@ -195,7 +175,7 @@ class SongCreationScreen extends UISubstateWindow {
 
 	public override function update(elapsed:Float) {
 		if (curPage == 0) {
-			if (instExplorer.file != null && (needsVoicesCheckbox.checked ? voicesExplorer.file != null : true))
+			if (instExplorer.file != null)
 				saveButton.selectable = true;
 			else saveButton.selectable = false;
 		} else
@@ -258,7 +238,6 @@ class SongCreationScreen extends UISubstateWindow {
 			bpm: bpmStepper.value,
 			beatsPerMeasure: Std.int(beatsPerMeasureStepper.value),
 			stepsPerBeat: Std.int(stepsPerBeatStepper.value),
-			needsVoices: needsVoicesCheckbox.checked,
 			displayName: displayNameTextBox.label.text,
 			icon: iconTextBox.label.text,
 			color: colorWheel.curColorString,

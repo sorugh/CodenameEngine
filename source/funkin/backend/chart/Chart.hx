@@ -56,7 +56,6 @@ class Chart {
 		data.setFieldDefault("name", songName);
 		data.setFieldDefault("beatsPerMeasure", 4);
 		data.setFieldDefault("stepsPerBeat", 4);
-		data.setFieldDefault("needsVoices", true);
 		data.setFieldDefault("icon", "face");
 		data.setFieldDefault("difficulties", []);
 		data.setFieldDefault("coopAllowed", false);

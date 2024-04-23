@@ -15,7 +15,6 @@ class CharterMetaDataScreen extends UISubstateWindow {
 	public var bpmStepper:UINumericStepper;
 	public var beatsPerMeasureStepper:UINumericStepper;
 	public var stepsPerBeatStepper :UINumericStepper;
-	public var needsVoicesCheckbox:UICheckbox;
 	public var customPropertiesButtonList:UIButtonList<PropertyButton>;
 
 	public var displayNameTextBox:UITextBox;
@@ -64,11 +63,6 @@ class CharterMetaDataScreen extends UISubstateWindow {
 		stepsPerBeatStepper = new UINumericStepper(beatsPerMeasureStepper.x + 30 + 24, beatsPerMeasureStepper.y, metadata.stepsPerBeat, 1, 0, 1, null, 54);
 		add(stepsPerBeatStepper);
 
-		needsVoicesCheckbox = new UICheckbox(stepsPerBeatStepper.x + 80 + 26, stepsPerBeatStepper.y, "Voices", metadata.needsVoices);
-		add(needsVoicesCheckbox);
-		addLabelOn(needsVoicesCheckbox, "Needs Voices");
-		needsVoicesCheckbox.y += 6; needsVoicesCheckbox.x += 4;
-
 		add(title = new UIText(songNameTextBox.x, songNameTextBox.y + 10 + 46, 0, "Menus Data (Freeplay/Story)", 28));
 
 		displayNameTextBox = new UITextBox(title.x, title.y + title.height + 36, metadata.displayName);
@@ -97,7 +91,7 @@ class CharterMetaDataScreen extends UISubstateWindow {
 		add(difficulitesTextBox);
 		addLabelOn(difficulitesTextBox, "Difficulties");
 
-		customPropertiesButtonList = new UIButtonList<PropertyButton>(needsVoicesCheckbox.x + needsVoicesCheckbox.width + 105, songNameTextBox.y, 290, 316, '', FlxPoint.get(280, 35), null, 5);
+		customPropertiesButtonList = new UIButtonList<PropertyButton>(stepsPerBeatStepper.x + 80 + 26 + 105, songNameTextBox.y, 290, 316, '', FlxPoint.get(280, 35), null, 5);
 		customPropertiesButtonList.frames = Paths.getFrames('editors/ui/inputbox');
 		customPropertiesButtonList.cameraSpacing = 0;
 		customPropertiesButtonList.addButton.callback = function() {
@@ -161,7 +155,6 @@ class CharterMetaDataScreen extends UISubstateWindow {
 			bpm: bpmStepper.value,
 			beatsPerMeasure: Std.int(beatsPerMeasureStepper.value),
 			stepsPerBeat: Std.int(stepsPerBeatStepper.value),
-			needsVoices: needsVoicesCheckbox.checked,
 			displayName: displayNameTextBox.label.text,
 			icon: iconTextBox.label.text,
 			color: colorWheel.curColorString,

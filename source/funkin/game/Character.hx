@@ -544,7 +544,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	public static function getList(?mods:Bool = false):Array<String> {
 		return [
 			for (path in Paths.getFolderContent('data/characters/', true, mods ? MODS : BOTH))
-				if (Path.extension(path) == "xml") Path.withoutDirectory(Path.withoutExtension(path))
+				if (Path.extension(path) == "xml") CoolUtil.getFilename(path)
 		];
 	}
 }

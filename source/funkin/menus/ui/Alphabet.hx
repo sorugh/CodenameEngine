@@ -126,12 +126,16 @@ class Alphabet extends FlxSpriteGroup
 		doSplitWords();
 
 		var xPos:Float = 0;
-		for (character in splitWords)
+		var curRow:Int = 0;
+		for (i=>character in splitWords)
 		{
 			if (lastSprite != null)
 				xPos = lastSprite.x + lastSprite.width - x;
 
+			if (xPosResetted && !(xPosResetted = false)) xPos = 0;
+
 			var letter:AlphaCharacter = new AlphaCharacter(xPos, 0);
+			letter.row = curRow;
 			if (isBold)
 				letter.createBold(character);
 			else
@@ -145,6 +149,11 @@ class Alphabet extends FlxSpriteGroup
 			add(letter);
 
 			lastSprite = letter;
+			if (_finalText.fastCodeAt(i) == "\n".code)
+			{
+				xPosResetted = true;
+				curRow += 1;
+			}
 		}
 	}
 
@@ -251,6 +260,8 @@ class AlphaCharacter extends FlxSprite
 		animation.addByPrefix(letter, boldAnims[letter], 24);
 		animation.play(letter);
 		updateHitbox();
+
+		y += row * height;
 	}
 
 	public function createLetter(letter:String):Void

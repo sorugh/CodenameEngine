@@ -15,7 +15,7 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 	public var displayAnimsFramesList:Map<String, {scale:Float, animBounds:Rectangle, frame:Int}> = [];
 
 	public function new(x:Float, y:Float, character:Character) {
-		super(x, y, Std.int(500-16), 419, "", FlxPoint.get(Std.int(500-16-32), 184));
+		super(x, y, Std.int(500-16), 419, "", FlxPoint.get(Std.int(500-16-32), 208));
 
 		cameraSpacing = 0;
 		frames = Paths.getFrames('editors/ui/inputbox');

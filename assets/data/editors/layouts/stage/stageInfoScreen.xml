@@ -6,13 +6,26 @@
 	<set name="storedProps" value="[]" />
 
 	<exec>
+		import haxe.ds.StringMap;
+		var oldInfo = {
+			name: stage.stageName,
+			folder: stage.spritesParentFolder,
+			startCamX: stage.startCam.x,
+			startCamY: stage.startCam.y,
+			zoom: stage.defaultZoom,
+			attrib: new StringMap()
+		};
+
 		function col(c:Int) {
 			return MARGIN + (170 + XOFFSET) * c;
 		}
 
-		for(prop =&gt; val in stage.extra)
-			if(!StringTools.startsWith(prop, "stageEditor."))
+		for(prop =&gt; val in stage.extra) {
+			if(!StringTools.startsWith(prop, "stageEditor.")) {
 				storedProps.push(prop);
+				oldInfo.attrib.set(prop, val);
+			}
+		}
 	</exec>
 
 	<title name="title" x="MARGIN" y="30 + 16" text="Stage Info" />
@@ -78,8 +91,20 @@
 			for(prop in storedProps)
 				stage.extra.remove(prop);
 
-			for(prop in attributesList.buttons.members)
+			var newInfo = {
+				name: stage.stageName,
+				folder: stage.spritesParentFolder,
+				startCamX: stage.startCam.x,
+				startCamY: stage.startCam.y,
+				zoom: stage.defaultZoom,
+				attrib: new StringMap()
+			};
+			for(prop in attributesList.buttons.members) {
 				stage.extra.set(prop.propertyText.label.text, prop.valueText.label.text);
+				newInfo.attrib.set(prop.propertyText.label.text, prop.valueText.label.text);
+			}
+
+			FlxG.state.undos.addToUndo(CEditInfo(oldInfo, newInfo));
 		}
 	</exec>
 </window>

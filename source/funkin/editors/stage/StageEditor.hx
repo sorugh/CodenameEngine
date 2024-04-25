@@ -123,7 +123,8 @@ class StageEditor extends UIState {
 									"hasCloseButton" => true,
 									"stage" => stage,
 									"Stage" => Stage,
-									"exID" => exID
+									"exID" => exID,
+									"CEditInfo" => StageChange.CEditInfo
 								]
 							));
 						},
@@ -729,7 +730,16 @@ class StageEditor extends UIState {
 			case null:
 				// do nothing
 			case CEditInfo(oldInfo, newInfo):
-				//editInfo(oldInfo, false);
+				stage.startCam.x = oldInfo.startCamX;
+				stage.startCam.y = oldInfo.startCamY;
+				stage.defaultZoom = oldInfo.zoom;
+				stage.stageName = oldInfo.name;
+				stage.spritesParentFolder = oldInfo.folder;
+
+				for (attrib in newInfo.attrib.keys())
+					stage.extra.remove(attrib);
+				for (attrib => val in oldInfo.attrib)
+					stage.extra.set(attrib, val);
 			case CTransform(sprite, oldInfo, newInfo):
 				sprite.setPosition(oldInfo.x, oldInfo.y);
 				sprite.scale.set(oldInfo.scaleX, oldInfo.scaleY);
@@ -745,7 +755,16 @@ class StageEditor extends UIState {
 			case null:
 				// do nothing
 			case CEditInfo(oldInfo, newInfo):
-				editInfo(newInfo, false);
+				stage.startCam.x = newInfo.startCamX;
+				stage.startCam.y = newInfo.startCamY;
+				stage.defaultZoom = newInfo.zoom;
+				stage.stageName = newInfo.name;
+				stage.spritesParentFolder = newInfo.folder;
+
+				for (attrib in oldInfo.attrib.keys())
+					stage.extra.remove(attrib);
+				for (attrib => val in newInfo.attrib)
+					stage.extra.set(attrib, val);
 			case CTransform(sprite, oldInfo, newInfo):
 				sprite.setPosition(newInfo.x, newInfo.y);
 				sprite.scale.set(newInfo.scaleX, newInfo.scaleY);
@@ -753,20 +772,6 @@ class StageEditor extends UIState {
 				sprite.angle = newInfo.angle;
 				cast(sprite.extra.get(exID("button")), StageElementButton).updateInfo();
 		}
-	}
-
-	/*public function editInfoWithUI() {
-		FlxG.state.openSubState(new StageInfoScreen(stage, (_) -> {
-			if (_ != null) editInfo(_);
-		}));
-	}*/
-
-	public function editInfo(newInfo:Xml, addtoUndo:Bool = true) {
-		/*var oldInfo = stage.buildXML();
-		stage.applyXML(new Access(newInfo));
-
-		if (addtoUndo)
-			undos.addToUndo(CEditInfo(oldInfo, newInfo));*/
 	}
 
 	public function selectSprite(_sprite:FunkinSprite) {
@@ -1237,6 +1242,15 @@ class StageEditor extends UIState {
 	var line:FlxSprite = null;
 }
 
+typedef StageInfo = {
+	name:String,
+	folder:String,
+	startCamX:Float,
+	startCamY:Float,
+	zoom:Float,
+	attrib:Map<String, String>
+};
+
 typedef StageSprInfo = {
 	x:Float,
 	y:Float,
@@ -1248,7 +1262,7 @@ typedef StageSprInfo = {
 }
 
 enum StageChange {
-	CEditInfo(oldInfo:Xml, newInfo:Xml);
+	CEditInfo(oldInfo:StageInfo, newInfo:StageInfo);
 	CTransform(sprite:FunkinSprite, oldInfo:StageSprInfo, newInfo:StageSprInfo);
 }
 

@@ -224,7 +224,23 @@ function SCALE_BOTTOM(sprite, relative) {
 
 var lastRelative = FlxPoint.get();
 
-function SKEW_LEFT(sprite, relative) {}
+function SKEW_LEFT(sprite, relative) {
+	preRotBullshit(sprite, relative);
+	if (!FlxG.keys.pressed.SHIFT)
+		genericOppositeScale(sprite, relative, true, false, true, false);
+
+	var topLeft = sprite.extra.get(exID("buttonBoxes"))[0];
+	var topRight = sprite.extra.get(exID("buttonBoxes"))[1];
+
+	sprite.y = storedPos.y - relative.y * 0.5;
+	sprite.skew.y = Math.atan2(
+		topRight.y - (topLeft.y + (lastRelative.y - relative.y)),
+		topRight.x - (topLeft.x + (FlxG.keys.pressed.SHIFT ? 0 : relative.x - lastRelative.x))
+	) * FlxAngle.TO_DEG;
+
+	lastRelative.set((FlxG.keys.pressed.SHIFT ? lastRelative.x : relative.x), relative.y);
+	postRotBullshit(sprite, relative);
+}
 
 function SKEW_BOTTOM(sprite, relative) {
 	preRotBullshit(sprite, relative);
@@ -234,8 +250,9 @@ function SKEW_BOTTOM(sprite, relative) {
 	var topLeft = sprite.extra.get(exID("buttonBoxes"))[0];
 	var bottomLeft = sprite.extra.get(exID("buttonBoxes"))[2];
 
+	sprite.x = storedPos.x - relative.x * 0.5;
 	sprite.skew.x = Math.atan2(
-		topLeft.x - (bottomLeft.x + (lastRelative.x - relative.x) * 2),
+		topLeft.x - (bottomLeft.x + (lastRelative.x - relative.x)),
 		topLeft.y - (bottomLeft.y + (FlxG.keys.pressed.SHIFT ? 0 : lastRelative.y - relative.y))
 	) * FlxAngle.TO_DEG;
 
@@ -251,8 +268,9 @@ function SKEW_TOP(sprite, relative) {
 	var topLeft = sprite.extra.get(exID("buttonBoxes"))[0];
 	var bottomLeft = sprite.extra.get(exID("buttonBoxes"))[2];
 
+	sprite.x = storedPos.x - relative.x * 0.5;
 	sprite.skew.x = Math.atan2(
-		bottomLeft.x - (topLeft.x + (lastRelative.x - relative.x) * 2),
+		bottomLeft.x - (topLeft.x + (lastRelative.x - relative.x)),
 		bottomLeft.y - (topLeft.y + (FlxG.keys.pressed.SHIFT ? 0 : relative.y - lastRelative.y))
 	) * FlxAngle.TO_DEG;
 
@@ -268,9 +286,10 @@ function SKEW_RIGHT(sprite, relative) {
 	var topLeft = sprite.extra.get(exID("buttonBoxes"))[0];
 	var topRight = sprite.extra.get(exID("buttonBoxes"))[1];
 
+	sprite.y = storedPos.y - relative.y * 0.5;
 	sprite.skew.y = Math.atan2(
-		topLeft.x - (topRight.x + (FlxG.keys.pressed.SHIFT ? 0 : relative.x - lastRelative.x)),
-		topLeft.y - (topRight.y + (lastRelative.y - relative.y) * 2)
+		topLeft.y - (topRight.y + (lastRelative.y - relative.y)),
+		topLeft.x - (topRight.x + (FlxG.keys.pressed.SHIFT ? 0 : lastRelative.x - relative.x))
 	) * FlxAngle.TO_DEG;
 
 	lastRelative.set((FlxG.keys.pressed.SHIFT ? lastRelative.x : relative.x), relative.y);

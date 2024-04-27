@@ -602,7 +602,7 @@ class Charter extends UIState {
 		var wavesToGenerate:Array<{name:String, sound:FlxSound}> = [
 			{name: "Inst.ogg", sound: FlxG.sound.music},
 		];
-		if (Assets.exists(Paths.voices(__song, __diff))) 
+		if (@:privateAccess vocals._sound != null) //for some reason Assets.exists returns true regardless if the file actually exists
 			wavesToGenerate.push({name: "Voices.ogg", sound: vocals});
 
 		for (strumLine in strumLines)

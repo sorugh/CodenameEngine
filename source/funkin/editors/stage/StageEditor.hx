@@ -53,6 +53,7 @@ class StageEditor extends UIState {
 	public var storedScale:FlxPoint = new FlxPoint();
 	public var storedSkew:FlxPoint = new FlxPoint();
 	public var storedAngle:Float = 0;
+	public var angleOffset:Float = 0;
 
 	public var showCharacters:Bool = true;
 
@@ -1002,6 +1003,7 @@ class StageEditor extends UIState {
 		sprite.updateHitbox();
 		sprite.offset.copyFrom(oldOffset);
 		sprite.origin.copyFrom(oldOrigin);
+		@:privateAccess sprite.updateTrig();
 
 		var corners = sprite.getMatrixPosition([
 			// corners
@@ -1017,8 +1019,13 @@ class StageEditor extends UIState {
 			// center
 			FlxPoint.get(0.5, 0.5),
 			//FlxPoint.get(0.5, -100/sprite.frameHeight) // angle
-			FlxPoint.get(0.5, -0.5) // angle
+			FlxPoint.get(0.5, -0.5), // angle
+			FlxPoint.get(1, 0) // rotate corner
 		], sprite.camera, sprite.frameWidth, sprite.frameHeight);
+		@:privateAccess corners[corners.length - 1].add(
+			dotCheckSize * 0.35 * sprite._cosAngle + dotCheckSize * 0.35 * sprite._sinAngle,
+			-dotCheckSize * 0.35 * sprite._cosAngle + dotCheckSize * 0.35 * sprite._sinAngle
+		);
 
 		//Logs.trace("Guide at " + corners[0].x + ", " + corners[0].y + " sprite at " + sprite.x + ", " + sprite.y);
 
@@ -1057,6 +1064,7 @@ class StageEditor extends UIState {
 		CENTER_CIRCLE, //FlxPoint.get(0.5, -0.5)
 
 		ROTATE_CIRCLE, //FlxPoint.get(0.5, -0.5)
+		ROTATE_CORNER
 	];
 
 	function tryUpdateHitbox(sprite:FunkinSprite) {
@@ -1098,7 +1106,12 @@ class StageEditor extends UIState {
 						case BOTTOM_MIDDLE: SCALE_BOTTOM;
 						case BOTTOM_RIGHT: SCALE_BOTTOM_RIGHT;
 						case CENTER_CIRCLE: MOVE_CENTER;
-						case ROTATE_CIRCLE: ROTATE;
+						case ROTATE_CIRCLE:
+							angleOffset = 90;
+							ROTATE;
+						case ROTATE_CORNER:
+							angleOffset = Math.atan(sprite.height / sprite.width) * FlxAngle.TO_DEG;
+							ROTATE;
 						default: NONE;
 					}
 					Logs.trace("Clicked Dot: " + mouseMode.toString());
@@ -1138,7 +1151,7 @@ class StageEditor extends UIState {
 					//case TOP_RIGHT | BOTTOM_LEFT: MouseCursor.RESIZE_NESW;
 					//case MIDDLE_LEFT | MIDDLE_RIGHT: MouseCursor.RESIZE_WE;
 
-					case ROTATE_CIRCLE: FlxG.mouse.pressed ? DRAG : #if mac DRAG_OPEN #else CLICK #end;
+					case ROTATE_CIRCLE | ROTATE_CORNER: FlxG.mouse.pressed ? DRAG : #if mac DRAG_OPEN #else CLICK #end;
 					default: ARROW;
 				}
 				break;
@@ -1338,6 +1351,7 @@ enum abstract StageEditorEdge(Int) {
 	var CENTER_CIRCLE;
 
 	var ROTATE_CIRCLE;
+	var ROTATE_CORNER;
 
 	public function toString():String {
 		return switch(cast this) {
@@ -1353,6 +1367,7 @@ enum abstract StageEditorEdge(Int) {
 			case BOTTOM_RIGHT: "BOTTOM_RIGHT";
 			case CENTER_CIRCLE: "CENTER_CIRCLE";
 			case ROTATE_CIRCLE: "ROTATE_CIRCLE";
+			case ROTATE_CORNER: "ROTATE_CORNER";
 		}
 	}
 
@@ -1370,6 +1385,7 @@ enum abstract StageEditorEdge(Int) {
 			case BOTTOM_RIGHT: 7;
 			case CENTER_CIRCLE: 8;
 			case ROTATE_CIRCLE: 9;
+			case ROTATE_CORNER: 10;
 		}
 	}
 }

@@ -296,9 +296,6 @@ function SKEW_RIGHT(sprite, relative) {
 	postRotBullshit(sprite, relative);
 }
 
-/*var storedCenter = FlxPoint.get();
-var storedRelative = FlxPoint.get();*/
-
 function ROTATE(sprite, relative) {
 	var buttonBoxes:Array<FlxPoint> = sprite.extra.get(exID("buttonBoxes"));
 	var p:FlxPoint = buttonBoxes[8];
@@ -307,12 +304,9 @@ function ROTATE(sprite, relative) {
 
 	var dx:Float = _point.x - p.x;
 	var dy:Float = _point.y - p.y;
-	var angle = FlxAngle.angleFromOrigin(dx, dy, true) + 90;
+	var angle = FlxAngle.angleFromOrigin(dx, dy, true) + angleOffset;
 	if(FlxG.keys.pressed.SHIFT) angle = Std.int(angle / 45) * 45;
 	sprite.angle = angle;
-
-	//storedCenter.set(p.x, p.y);
-	//storedRelative.set(_point.x, _point.y);
 }
 
 

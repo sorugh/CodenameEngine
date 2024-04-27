@@ -237,26 +237,6 @@ class CharterBackdrop extends FlxTypedGroup<Dynamic> {
 	}
 }
 
-class CharterBackdropDummy extends UISprite {
-	var parent:CharterBackdropGroup;
-	public function new(parent:CharterBackdropGroup) {
-		super();
-		this.parent = parent;
-		cameras = parent.cameras;
-		scrollFactor.set(1, 0);
-	}
-
-	public override function updateButton() {
-		camera.getViewRect(__rect);
-		UIState.state.updateRectButtonHandler(this, __rect, onHovered);
-	}
-
-	public override function draw() {
-		@:privateAccess
-		__lastDrawCameras = cameras.copy();
-	}
-}
-
 class EventBackdrop extends FlxBackdrop {
 	public var eventBeatSeparator:FlxBackdrop;
 	public var eventSecSeparator:FlxBackdrop;

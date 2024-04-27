@@ -14,7 +14,7 @@ class UIButtonList<T:UIButton> extends UIWindow {
 	public var cameraSpacing = 30;
 
 	public var buttonSpacing:Float = 16;
-	public var buttonSize:FlxPoint = FlxPoint.get();
+	public var buttonSize:FlxPoint = null;
 	public var buttonOffset:FlxPoint = FlxPoint.get();
 
 	public var dragging:Bool = false;
@@ -41,14 +41,14 @@ class UIButtonList<T:UIButton> extends UIWindow {
 		addIcon = new FlxSprite(addButton.x + addButton.bHeight / 2, addButton.y + (32/2) - 8).loadGraphic(Paths.image('editors/charter/add-button'));
 		addIcon.antialiasing = false;
 		addButton.members.push(addIcon);
-		members.push(addButton);
+		content.add(addButton);
 
-		members.push(buttons);
+		content.add(buttons);
 		nextscrollY = buttonCameras.scroll.y = -this.buttonSpacing;
 	}
 
 	public inline function add(button:T) {
-		button.ID = buttons.members.length-1;
+		button.ID = buttons.members.length;
 		buttons.add(button);
 		curMovingInterval = 0;
 		nextscrollY += button.bHeight;
@@ -95,7 +95,8 @@ class UIButtonList<T:UIButton> extends UIWindow {
 				curMovingInterval = 0;
 			}
 		}
-		addIcon.x = addButton.x + addButton.bWidth / 2 - addIcon.width / 2; addIcon.y = addButton.y + addButton.bHeight / 2 - addIcon.height / 2;
+		addIcon.x = addButton.x + addButton.bWidth / 2 - addIcon.width / 2;
+		addIcon.y = addButton.y + addButton.bHeight / 2 - addIcon.height / 2;
 	}
 	var nextscrollY:Float = 0;
 	public override function update(elapsed:Float) {

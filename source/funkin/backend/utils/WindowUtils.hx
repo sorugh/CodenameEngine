@@ -28,7 +28,7 @@ class WindowUtils {
 	static var __triedClosing:Bool = false;
 	public static inline function resetClosing() __triedClosing = false;
 
-	public static inline function init() {
+	public static function init() {
 		resetTitle();
 		resetClosing();
 

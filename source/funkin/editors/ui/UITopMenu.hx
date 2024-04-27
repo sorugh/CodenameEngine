@@ -43,7 +43,7 @@ class UITopMenuButton extends UISliceSprite {
 		super(x, y, 0, 23, "editors/ui/menu-item");
 		this.contextMenu = contextMenu;
 		this.parent = parent;
-		cursor = BUTTON;
+		cursor = CLICK;
 
 		this.label = new UIText(4, 0, 0, label);
 		this.label.alignment = CENTER;

@@ -804,7 +804,7 @@ class Charter extends UIState {
 						}
 
 						if (s is CharterNote) cast(s, CharterNote).snappedToStrumline = true;
-						if (s is UISprite) cast(s, UISprite).cursor = BUTTON;
+						if (s is UISprite) cast(s, UISprite).cursor = CLICK;
 					}
 					if (!(verticalChange == 0 && horizontalChange == 0)) {
 						notesGroup.sortNotes(); eventsGroup.sortEvents();
@@ -866,7 +866,7 @@ class Charter extends UIState {
 			case SUSTAIN_DRAG:
 				selectionDragging = FlxG.mouse.pressed;
 				if (selectionDragging) {
-					currentCursor = BUTTON;
+					currentCursor = CLICK;
 					selection.loop(function (n:CharterNote) {
 						var change:Float = Math.max((mousePos.y-(FlxG.keys.pressed.SHIFT ? dragStartPos.y : quantStep(dragStartPos.y))) / 40, -n.susLength);
 						n.tempSusLength = change;

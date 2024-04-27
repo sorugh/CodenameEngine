@@ -45,7 +45,7 @@ class UISlider extends UISprite {
 		makeGraphic(barWidth, 12, 0x00000000, true);
 		this.drawRoundRect(0, 0, barWidth, 12, 8, 6, 0xFFC0C0C0);
 		this.drawRoundRect(1, 1, barWidth-2, 12-2, 8, 5, 0xFF140013);
-		cursor = BUTTON;
+		cursor = CLICK;
 
 		progressbar = new UISprite(centered ? barWidth/2 : 0);
 		progressbar.makeGraphic(barWidth, 8, 0x00000000, true);
@@ -63,7 +63,7 @@ class UISlider extends UISprite {
 			var selectableBar:UISprite = new UISprite(x,y);
 			selectableBar.loadGraphic(Paths.image("editors/ui/slider"));
 			selectableBar.antialiasing = true;
-			selectableBar.cursor = BUTTON;
+			selectableBar.cursor = CLICK;
 			members.push(selectableBar);
 
 			switch (i) {
@@ -74,7 +74,7 @@ class UISlider extends UISprite {
 
 		selectableHitbox = new UISprite(x,y);
 		selectableHitbox.makeSolid(barWidth, 18, -1);
-		selectableHitbox.cursor = BUTTON;
+		selectableHitbox.cursor = CLICK;
 		selectableHitbox.alpha = 0;
 		members.push(selectableHitbox);
 

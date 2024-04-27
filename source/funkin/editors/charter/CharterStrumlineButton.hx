@@ -24,7 +24,7 @@ class CharterStrumlineButton extends UISprite {
 		button.scale.set(0.85,0.85);
 		button.updateHitbox();
 		button.antialiasing = true;
-		button.cursor = BUTTON;
+		button.cursor = CLICK;
 		members.push(button);
 
 		this.text = new UIText(0,0, 160, text);
@@ -58,7 +58,7 @@ class CharterStrumlineButton extends UISprite {
 
 		super.update(elapsed);
 
-		UIState.state.updateSpriteRect(button);
+		button.updateSpriteRect();
 		if(UIState.state.curContextMenu == null && UIState.state.isOverlapping(button, button.__rect)) {
 			buttonScale.set(0.95, 0.95);
 			if (FlxG.mouse.justPressed && onClick != null) {

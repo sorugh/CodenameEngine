@@ -133,10 +133,8 @@ class CoolUtil
 	 * Whenever a value is NaN or not.
 	 * @param v Value
 	 */
-	public static inline function isNaN(v:Dynamic) {
-		if (v is Float || v is Int)
-			return Math.isNaN(cast(v, Float));
-		return false;
+	public static inline function isNaN(v:Dynamic):Bool {
+		return (v is Float) ? Math.isNaN(cast(v, Float)) : false;
 	}
 
 	/**
@@ -185,20 +183,21 @@ class CoolUtil
 		return str;
 	}
 
+	private static var sizeLabels:Array<String> = ["B", "KB", "MB", "GB", "TB"];
+
 	/**
 	 * Returns a string representation of a size, following this format: `1.02 GB`, `134.00 MB`
 	 * @param size Size to convert to string
 	 * @return String Result string representation
 	 */
 	public static function getSizeString(size:Float):String {
-		var labels = ["B", "KB", "MB", "GB", "TB"];
 		var rSize:Float = size;
 		var label:Int = 0;
-		while(rSize > 1024 && label < labels.length-1) {
+		while(rSize > 1024 && label < sizeLabels.length-1) {
 			label++;
 			rSize /= 1024;
 		}
-		return '${Std.int(rSize) + "." + addZeros(Std.string(Std.int((rSize % 1) * 100)), 2)}${labels[label]}';
+		return Std.int(rSize) + "." + addZeros(Std.string(Std.int((rSize % 1) * 100)), 2) + sizeLabels[label];
 	}
 
 	/**
@@ -414,6 +413,21 @@ class CoolUtil
 		var nScale = (fill ? Math.max : Math.min)(sprite.scale.x, sprite.scale.y);
 		if (maxScale > 0 && nScale > maxScale) nScale = maxScale;
 		sprite.scale.set(nScale, nScale);
+	}
+
+	public static function setGraphicSizeFloat(sprite:FlxSprite, Width:Float = 0, Height:Float = 0):Void
+	{
+		if (Width <= 0 && Height <= 0)
+			return;
+
+		var newScaleX:Float = Width / sprite.frameWidth;
+		var newScaleY:Float = Height / sprite.frameHeight;
+		sprite.scale.set(newScaleX, newScaleY);
+
+		if (Width <= 0)
+			sprite.scale.x = newScaleY;
+		else if (Height <= 0)
+			sprite.scale.y = newScaleX;
 	}
 
 	/**
@@ -704,6 +718,16 @@ class CoolUtil
 
 	@:noUsing public static inline function flxeaseFromString(mainEase:String, suffix:String)
 		return Reflect.field(FlxEase, mainEase + (mainEase == "linear" ? "" : suffix));
+
+	/*
+	 * Returns the filename of a path, without the extension.
+	 * @param path Path to get the filename from
+	 * @return Filename
+	 */
+	@:noUsing public static inline function getFilename(file:String) {
+		var file = new haxe.io.Path(file);
+		return file.file;
+	}
 
 	public static function sortAlphabetically(array:Array<String>, ?lowercase:Bool=false) {
 		array.sort(function(a1, a2):Int {

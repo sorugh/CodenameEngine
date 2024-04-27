@@ -76,7 +76,7 @@ class EventsData {
 
 		for (file in Paths.getFolderContent('data/events/', true, BOTH)) {
 			if (Path.extension(file) != "json" && Path.extension(file) != "pack") continue;
-			var eventName:String = Path.withoutExtension(Path.withoutDirectory(file));
+			var eventName:String = CoolUtil.getFilename(file);
 			var fileTxt:String = Assets.getText(file);
 
 			if (Path.extension(file) == "pack") {

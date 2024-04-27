@@ -37,6 +37,7 @@ class SplashGroup extends FlxTypedGroup<FunkinSprite> {
 
 			// immediatly draw once and put image in GPU to prevent freezes
 			// TODO: change to graphics cache
+			@:privateAccess
 			splash.drawComplex(FlxG.camera);
 		} catch(e:Dynamic) {
 			Logs.trace('Couldn\'t parse splash data for "${path}": ${e.toString()}', ERROR);

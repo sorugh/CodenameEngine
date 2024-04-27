@@ -10,19 +10,19 @@ class UICheckbox extends UISprite {
 	public function new(x:Float, y:Float, text:String, checked:Bool = false, w:Int = 0) {
 		super(x, y);
 		loadGraphic(Paths.image('editors/ui/checkbox'), true, 20, 20);
-		for(frame=>name in ["normal", "hover", "pressed", "checkmark"])
+		for(frame=>name in ["normal", "hover", "pressed", "selected"])
 			animation.add(name, [frame], 0, false);
 
 		this.checked = checked;
 
 		field = new UIText(x, y, w, text);
 		check = new FlxSprite().loadGraphicFromSprite(this);
-		check.animation.play("checkmark");
+		check.animation.play("selected");
 
 		members.push(check);
 		members.push(field);
 
-		cursor = BUTTON;
+		cursor = CLICK;
 	}
 
 	public override function update(elapsed:Float) {

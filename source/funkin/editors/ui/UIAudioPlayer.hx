@@ -57,7 +57,7 @@ class UIAudioPlayer extends UIButton {
 		members.push(timeBarPlayer);
 
 		timeBarSpr = cast new UISprite(timeBar.x, timeBar.y).makeSolid(timeBar.barWidth, timeBar.barHeight, 0x00FFFFFF);
-		timeBarSpr.cursor = BUTTON;
+		timeBarSpr.cursor = CLICK;
 		members.push(timeBarSpr);
 
 		volumeBar = new FlxBar(timeBar.x + timeBar.barWidth - 56, y + 6, LEFT_TO_RIGHT, 56, 10, sound, "volume", 0, 1);
@@ -67,7 +67,7 @@ class UIAudioPlayer extends UIButton {
 		members.push(volumeBar);
 
 		volumeBarSpr = cast new UISprite(volumeBar.x, volumeBar.y).makeSolid(volumeBar.barWidth, volumeBar.barHeight, 0x00FFFFFF);
-		volumeBarSpr.cursor = BUTTON;
+		volumeBarSpr.cursor = CLICK;
 		members.push(volumeBarSpr);
 
 		volumeIcon = new FlxSprite(volumeBar.x - 12 - 8, volumeBar.y-1).loadGraphic(Paths.image('editors/ui/audio-icon'));

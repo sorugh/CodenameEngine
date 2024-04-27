@@ -1,8 +1,10 @@
 package funkin.editors.ui;
 
+import funkin.editors.ui.notifications.UIBaseNotification;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import funkin.backend.system.framerate.Framerate;
+import funkin.backend.utils.NativeAPI.CodeCursor;
 import funkin.editors.ui.UIContextMenu.UIContextMenuCallback;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
 import lime.ui.KeyCode;
@@ -19,7 +21,9 @@ class UIState extends MusicBeatState {
 	public var hoveredSprite:UISprite = null;
 	public var currentFocus:IUIFocusable = null;
 
-	public var currentCursor:MouseCursor = ARROW;
+	public var currentCursor:CodeCursor = ARROW;
+
+	public var uiCameras:Array<FlxCamera> = [];
 
 	private var __rect:FlxRect;
 	private var __mousePos:FlxPoint;
@@ -59,28 +63,15 @@ class UIState extends MusicBeatState {
 			currentFocus.onTextEdit(str, start, end);
 	}
 
-	public inline function updateSpriteRect(spr:UISprite) {
-		spr.__rect.x = spr.x;
-		spr.__rect.y = spr.y;
-		spr.__rect.width = spr.width;
-		spr.__rect.height = spr.height;
-	}
-
 	public function updateButtonHandler(spr:UISprite, buttonHandler:Void->Void) {
-		spr.__rect.x = spr.x;
-		spr.__rect.y = spr.y;
-		spr.__rect.width = spr.width;
-		spr.__rect.height = spr.height;
+		spr.updateSpriteRect();
 		updateRectButtonHandler(spr, spr.__rect, buttonHandler);
 	}
 
 	public function isOverlapping(spr:UISprite, rect:FlxRect) {
 		for(camera in spr.__lastDrawCameras) {
 			var pos = FlxG.mouse.getScreenPosition(camera, FlxPoint.get());
-			__rect.x = rect.x;
-			__rect.y = rect.y;
-			__rect.width = rect.width;
-			__rect.height = rect.height;
+			__rect.copyFrom(rect);
 
 			__rect.x -= camera.scroll.x * spr.scrollFactor.x;
 			__rect.y -= camera.scroll.y * spr.scrollFactor.y;
@@ -117,12 +108,12 @@ class UIState extends MusicBeatState {
 
 		FlxG.sound.keysAllowed = currentFocus != null ? !(currentFocus is UITextBox) : true;
 
-		if (hoveredSprite != null) {
-			Mouse.cursor = hoveredSprite.cursor;
-			hoveredSprite = null;
+		if (hoveredSprite != null && hoveredSprite.cursor != null) {
+			NativeAPI.setCursorIcon(hoveredSprite.cursor);
 		} else {
-			Mouse.cursor = currentCursor;
+			NativeAPI.setCursorIcon(currentCursor);
 		}
+		hoveredSprite = null;
 	}
 
 	public override function destroy() {
@@ -145,7 +136,7 @@ class UIState extends MusicBeatState {
 		}
 	}
 
-	public function openContextMenu(options:Array<UIContextMenuOption>, ?callback:UIContextMenuCallback, ?x:Float, ?y:Float) {
+	public function openContextMenu(options:Array<UIContextMenuOption>, ?callback:UIContextMenuCallback, ?x:Float, ?y:Float, ?w:Int) {
 		var state = FlxG.state;
 		while(state.subState != null && !(state._requestSubStateReset && state._requestedSubState == null))
 			state = state.subState;
@@ -153,7 +144,24 @@ class UIState extends MusicBeatState {
 		state.persistentDraw = true;
 		state.persistentUpdate = true;
 
-		state.openSubState(curContextMenu = new UIContextMenu(options, callback, x.getDefault(__mousePos.x), y.getDefault(__mousePos.y)));
+		state.openSubState(curContextMenu = new UIContextMenu(options, callback, x.getDefault(__mousePos.x), y.getDefault(__mousePos.y), w));
 		return curContextMenu;
+	}
+
+	public function displayNotification(notification:UIBaseNotification) {
+		notification.cameras = uiCameras;
+		notification.onRemove = (notif) -> {
+			notification.onRemove = null;
+			remove(notif, true);
+		};
+		add(notification);
+		notification.update(0);
+		notification.appearAnimation();
+		// TODO: future tooltips
+		//notification.x = __mousePos.x;
+		//notification.y = __mousePos.y;
+		//notification.alpha = 0;
+		//notification.appearAnimation();
+		//FlxTween.tween(notification, {x: __mousePos.x, y: __mousePos.y, alpha: 1}, .3, {ease: FlxEase.circInOut});
 	}
 }

@@ -587,7 +587,7 @@ class PlayState extends MusicBeatState
 					for (event in SONG.events) songEvents.pushOnce(event.name);
 
 					for (file in Paths.getFolderContent('data/events/', true, fromMods ? MODS : BOTH)) {
-						var fileName:String = Path.withoutExtension(Path.withoutDirectory(file));
+						var fileName:String = CoolUtil.getFilename(file);
 						if (EventsData.eventsList.contains(fileName) && songEvents.contains(fileName)) {
 							addScript(file);
 						}

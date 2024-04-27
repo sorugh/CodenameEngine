@@ -170,16 +170,17 @@ class PauseSubState extends MusicBeatSubstate
 	}
 	override function destroy()
 	{
-		if(FlxG.cameras.list.contains(camera))
-			FlxG.cameras.remove(camera, true);
+		if(camera != FlxG.camera) {
+			if(FlxG.cameras.list.contains(camera))
+				FlxG.cameras.remove(camera, true);
+		}
 		pauseScript.call("destroy");
 		pauseScript.destroy();
 
-		if (pauseMusic != null)
-			@:privateAccess {
-				FlxG.sound.destroySound(pauseMusic);
-			}
-
+		if(pauseMusic != null) {
+			@:privateAccess
+			FlxG.sound.destroySound(pauseMusic);
+		}
 		super.destroy();
 	}
 

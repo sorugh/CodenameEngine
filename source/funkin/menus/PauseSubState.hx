@@ -170,7 +170,7 @@ class PauseSubState extends MusicBeatSubstate
 	}
 	override function destroy()
 	{
-		if(camera != FlxG.camera) {
+		if(camera != FlxG.camera && _cameras != null) {
 			if(FlxG.cameras.list.contains(camera))
 				FlxG.cameras.remove(camera, true);
 		}

@@ -44,6 +44,4 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 		for (anim in character.getAnimOrder())
 			add(new CharacterAnimButton(0,0, character.animDatas.get(anim), this));
 	}
-
-	
 }

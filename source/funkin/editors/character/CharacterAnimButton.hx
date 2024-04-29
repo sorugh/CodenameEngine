@@ -20,16 +20,15 @@ class CharacterAnimButton extends UIButton {
 	public var indicesTextBox:UITextBox;
 	public var XYComma:UIText;
 
-	public var editButton:FlxSprite;
+	public var editButton:UIButton;
 	public var editIcon:FlxSprite;
-
 
 	public var deleteButton:UIButton;
 	public var deleteIcon:FlxSprite;
 	public var ghostButton:UIButton;
 	public var ghostIcon:FlxSprite;
 
-	public var tempOpenButton:UIButton;
+	public var playIcon:FlxSprite;
 
 	public var labels:Map<UISprite, UIText> = [];
 
@@ -88,15 +87,13 @@ class CharacterAnimButton extends UIButton {
 		members.push(indicesTextBox);
 		addLabelOn(indicesTextBox, "Indices (frames)", 12);
 
-		editIcon = new FlxSprite().loadGraphic(Paths.image('editors/character/edit-button'), true, 16, 16);
-		editIcon.animation.add("open", [0]);
-		editIcon.animation.add("closed", [1]);
-		editIcon.animation.play("closed");
-		editIcon.antialiasing = false;
-		editIcon.updateHitbox();
-		members.push(editIcon);
+		playIcon = new FlxSprite(x-(10+16), y+8).loadGraphic(Paths.image("editors/character/play"));
+		// playIcon.color = 0xFFD60E0E;
+		playIcon.antialiasing = false;
+		members.push(playIcon);
 
 		deleteButton = new UIButton(0, 0, "", null, 28*2,24);
+		deleteButton.frames = Paths.getFrames("editors/ui/grayscale-button");
 		deleteButton.color = 0xFFAC3D3D;
 		members.push(deleteButton);
 
@@ -105,7 +102,18 @@ class CharacterAnimButton extends UIButton {
 		deleteIcon.antialiasing = false;
 		members.push(deleteIcon);
 
-		ghostButton = new UIButton(0, 0, "", null, 28,24);
+		editButton = new UIButton(0, 0, "", null, 28,24);
+		editButton.frames = Paths.getFrames("editors/ui/grayscale-button");
+		editButton.color = 0xFFAFAA12;
+		members.push(editButton);
+
+		editIcon = new FlxSprite().loadGraphic(Paths.image('editors/character/edit-button'));
+		editIcon.color = 0xFFE8E801;
+		editIcon.antialiasing = false;
+		members.push(editIcon);
+
+		ghostButton = new UIButton(0, 0, "", null, 28, 24);
+		ghostButton.frames = Paths.getFrames("editors/ui/grayscale-button");
 		ghostButton.color = 0xFFADADAD;
 		ghostButton.alpha = 0.5;
 		members.push(ghostButton);
@@ -120,13 +128,16 @@ class CharacterAnimButton extends UIButton {
 	}
 
 	public override function update(elapsed:Float) {
-		editIcon.follow(this, 22, 18);
-		field.follow(this, 22+16+8, 17);
+		playIcon.follow(this, 22, 19);
+		field.follow(this, 22+15+8, 16);
 
 		deleteButton.follow(this, (500-16-32)-16-(28*2), 14);
 		deleteIcon.follow(deleteButton, (deleteButton.bWidth/2)-6.5, (deleteButton.bHeight/2)-6);
 
-		ghostButton.follow(this, (500-16-32)-16-(28*2)-16-28, 14);
+		editButton.follow(this, (500-16-32)-16-(28*2)-12-28, 14);
+		editIcon.follow(editButton, (editButton.bWidth/2)-8,  (editButton.bHeight/2)-6);
+
+		ghostButton.follow(this, (500-16-32)-16-(28*2)-12-28-12-28, 14);
 		ghostIcon.follow(ghostButton, (ghostButton.bWidth/2)-8, (ghostButton.bHeight/2)-6);
 
 		animationDisplayBG.follow(this, 16, 8+32+8+2+11);

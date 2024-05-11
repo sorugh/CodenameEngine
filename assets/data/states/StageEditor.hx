@@ -10,6 +10,7 @@
 import funkin.editors.stage.StageEditor;
 import funkin.editors.ui.UIWarningSubstate;
 import funkin.backend.utils.WindowUtils;
+import funkin.backend.utils.MatrixUtil;
 import flixel.math.FlxAngle;
 import openfl.Lib;
 
@@ -135,7 +136,7 @@ function SCALE_BOTTOM_RIGHT(sprite, relative) {
 **/
 function preRotBullshit(sprite, relative) {
 	if (sprite.angle != 0)
-		relative = rotateAround(relative, FlxPoint.weak(0, 0), -sprite.angle);
+		relative = rotateByDegrees(relative, -sprite.angle);
 
 	if (FlxG.mouse.justPressed) {
 		oldSpritePos.x = sprite.x;
@@ -223,77 +224,87 @@ function SCALE_BOTTOM(sprite, relative) {
 }
 
 var lastRelative = FlxPoint.get();
+var skewPoint1 = FlxPoint.get();
+var skewPoint2 = FlxPoint.get();
 
 function SKEW_LEFT(sprite, relative) {
 	preRotBullshit(sprite, relative);
-	if (!FlxG.keys.pressed.SHIFT)
+	if (!FlxG.keys.pressed.SHIFT) {
 		genericOppositeScale(sprite, relative, true, false, true, false);
+		postRotBullshit(sprite, relative);
+	}
 
-	var topLeft = sprite.extra.get(exID("buttonBoxes"))[0];
-	var topRight = sprite.extra.get(exID("buttonBoxes"))[1];
+	skewPoint1.set(0, 0);
+	skewPoint2.set(1, 0);
+	gimmeSkewCorners(sprite, 0, 1);
 
 	sprite.y = storedPos.y - relative.y * 0.5;
 	sprite.skew.y = Math.atan2(
-		topRight.y - (topLeft.y + (lastRelative.y - relative.y)),
-		topRight.x - (topLeft.x + (FlxG.keys.pressed.SHIFT ? 0 : relative.x - lastRelative.x))
+		skewPoint2.y - (skewPoint1.y + (lastRelative.y - relative.y)),
+		skewPoint2.x - (skewPoint1.x + (FlxG.keys.pressed.SHIFT ? 0 : relative.x - lastRelative.x))
 	) * FlxAngle.TO_DEG;
 
 	lastRelative.set((FlxG.keys.pressed.SHIFT ? lastRelative.x : relative.x), relative.y);
-	postRotBullshit(sprite, relative);
 }
 
 function SKEW_BOTTOM(sprite, relative) {
 	preRotBullshit(sprite, relative);
-	if (!FlxG.keys.pressed.SHIFT)
+	if (!FlxG.keys.pressed.SHIFT) {
 		genericScale(sprite, relative, false, true);
+		postRotBullshit(sprite, relative);
+	}
 
-	var topLeft = sprite.extra.get(exID("buttonBoxes"))[0];
-	var bottomLeft = sprite.extra.get(exID("buttonBoxes"))[2];
+	skewPoint1.set(0, 0);
+	skewPoint2.set(0, 1);
+	gimmeSkewCorners(sprite, 0, 2);
 
 	sprite.x = storedPos.x - relative.x * 0.5;
 	sprite.skew.x = Math.atan2(
-		topLeft.x - (bottomLeft.x + (lastRelative.x - relative.x)),
-		topLeft.y - (bottomLeft.y + (FlxG.keys.pressed.SHIFT ? 0 : lastRelative.y - relative.y))
+		(skewPoint1.x + (lastRelative.x - relative.x)) - skewPoint2.x,
+		(skewPoint1.y + (FlxG.keys.pressed.SHIFT ? 0 : lastRelative.y - relative.y)) - skewPoint2.y
 	) * FlxAngle.TO_DEG;
 
 	lastRelative.set(relative.x, (FlxG.keys.pressed.SHIFT ? lastRelative.y : relative.y));
-	postRotBullshit(sprite, relative);
 }
 
 function SKEW_TOP(sprite, relative) {
 	preRotBullshit(sprite, relative);
-	if (!FlxG.keys.pressed.SHIFT)
+	if (!FlxG.keys.pressed.SHIFT) {
 		genericOppositeScale(sprite, relative, false, true, false, true);
+		postRotBullshit(sprite, relative);
+	}
 
-	var topLeft = sprite.extra.get(exID("buttonBoxes"))[0];
-	var bottomLeft = sprite.extra.get(exID("buttonBoxes"))[2];
+	skewPoint1.set(0, 0);
+	skewPoint2.set(0, 1);
+	gimmeSkewCorners(sprite, 0, 2);
 
 	sprite.x = storedPos.x - relative.x * 0.5;
 	sprite.skew.x = Math.atan2(
-		bottomLeft.x - (topLeft.x + (lastRelative.x - relative.x)),
-		bottomLeft.y - (topLeft.y + (FlxG.keys.pressed.SHIFT ? 0 : relative.y - lastRelative.y))
+		skewPoint2.x - (skewPoint1.x + (lastRelative.x - relative.x)),
+		skewPoint2.y - (skewPoint1.y + (FlxG.keys.pressed.SHIFT ? 0 : relative.y - lastRelative.y))
 	) * FlxAngle.TO_DEG;
 
 	lastRelative.set(relative.x, (FlxG.keys.pressed.SHIFT ? lastRelative.y : relative.y));
-	postRotBullshit(sprite, relative);
 }
 
 function SKEW_RIGHT(sprite, relative) {
 	preRotBullshit(sprite, relative);
-	if (!FlxG.keys.pressed.SHIFT)
+	if (!FlxG.keys.pressed.SHIFT) {
 		genericScale(sprite, relative, true, false);
+		postRotBullshit(sprite, relative);
+	}
 
-	var topLeft = sprite.extra.get(exID("buttonBoxes"))[0];
-	var topRight = sprite.extra.get(exID("buttonBoxes"))[1];
+	skewPoint1.set(0, 0);
+	skewPoint2.set(1, 0);
+	gimmeSkewCorners(sprite, 0, 1);
 
 	sprite.y = storedPos.y - relative.y * 0.5;
 	sprite.skew.y = Math.atan2(
-		topLeft.y - (topRight.y + (lastRelative.y - relative.y)),
-		topLeft.x - (topRight.x + (FlxG.keys.pressed.SHIFT ? 0 : lastRelative.x - relative.x))
+		(skewPoint2.y + (lastRelative.y - relative.y)) - skewPoint1.y,
+		(skewPoint2.x + (FlxG.keys.pressed.SHIFT ? 0 : lastRelative.x - relative.x)) - skewPoint1.x
 	) * FlxAngle.TO_DEG;
 
 	lastRelative.set((FlxG.keys.pressed.SHIFT ? lastRelative.x : relative.x), relative.y);
-	postRotBullshit(sprite, relative);
 }
 
 function ROTATE(sprite, relative) {
@@ -315,3 +326,17 @@ function ROTATE(sprite, relative) {
 		drawLine(storedCenter, storedRelative, 0.3);
 	}
 }*/
+
+function gimmeSkewCorners(sprite, index1, index2) {
+	if (sprite.angle == 0) {
+		var corners = sprite.extra.get(exID("buttonBoxes"));
+		skewPoint1.set(corners[index1].x, corners[index1].y);
+		skewPoint2.set(corners[index2].x, corners[index2].y);
+		return;
+	}
+
+	var ogAngle = sprite.angle;
+	sprite.angle = 0;
+	MatrixUtil.getMatrixPosition(sprite, [skewPoint1, skewPoint2], sprite.camera, sprite.frameWidth, sprite.frameHeight);
+	sprite.angle = ogAngle;
+}

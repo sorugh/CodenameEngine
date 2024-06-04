@@ -1,5 +1,6 @@
 package funkin.editors.character;
 
+import flixel.animation.FlxAnimation;
 import flixel.graphics.FlxGraphic;
 import openfl.geom.Rectangle;
 import flixel.graphics.frames.FlxFrame;
@@ -31,17 +32,22 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 		displayWindowSprite.flipX = character.flipX;
 
 		@:privateAccess
-		for (name => anim in displayWindowSprite.animation._animations) {
-			var frameIndex:Int = anim.frames.getDefault([0])[0];
-			var frame:FlxFrame = displayWindowSprite.frames.frames[frameIndex];
-
-			var frameRect:Rectangle = new Rectangle(frame.offset.x, frame.offset.y, frame.sourceSize.x, frame.sourceSize.y);
-			var animBounds:Rectangle = displayWindowGraphic != null ? displayWindowGraphic.bitmap.bounds(frameRect) : frameRect;
-
-			displayAnimsFramesList.set(name, {frame: anim.frames.getDefault([0])[0], scale: 104/animBounds.height, animBounds: animBounds});
-		}
+		for (name => anim in displayWindowSprite.animation._animations) 
+			buildAnimDisplay(name, anim);
 			
 		for (anim in character.getAnimOrder())
 			add(new CharacterAnimButton(0,0, character.animDatas.get(anim), this));
+
+		this.character = character;
+	}
+
+	public function buildAnimDisplay(name:String, anim:FlxAnimation) {
+		var frameIndex:Int = anim.frames.getDefault([0])[0];
+		var frame:FlxFrame = displayWindowSprite.frames.frames[frameIndex];
+
+		var frameRect:Rectangle = new Rectangle(frame.offset.x, frame.offset.y, frame.sourceSize.x, frame.sourceSize.y);
+		var animBounds:Rectangle = displayWindowGraphic != null ? displayWindowGraphic.bitmap.bounds(frameRect) : frameRect;
+
+		displayAnimsFramesList.set(name, {frame: anim.frames.getDefault([0])[0], scale: 104/animBounds.height, animBounds: animBounds});
 	}
 }

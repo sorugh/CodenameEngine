@@ -80,22 +80,31 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		script.call("postCreate");
 	}
 
+	@:noCompletion var __swappedLeftRightAnims:Bool = false;
+	@:noCompletion var __autoInterval:Bool = false;
+
 	public function fixChar(switchAnims:Bool = false, autoInterval:Bool = false) {
 		if ((isDanceLeftDanceRight = hasAnimation("danceLeft") && hasAnimation("danceRight")) && autoInterval)
 			beatInterval = 1;
+		__autoInterval = autoInterval;
 
-		if (isPlayer != playerOffsets && switchAnims) {
-			// character is flipped
-			CoolUtil.switchAnimFrames(animation.getByName('singRIGHT'), animation.getByName('singLEFT'));
-			CoolUtil.switchAnimFrames(animation.getByName('singRIGHTmiss'), animation.getByName('singLEFTmiss'));
-
-			switchOffset('singLEFT', 'singRIGHT');
-			switchOffset('singLEFTmiss', 'singRIGHTmiss');
-		}
+		// character is flipped
+		if (isPlayer != playerOffsets && switchAnims) 
+			swapLeftRightAnimations();
+		
 		frameOffset.set(getAnimOffset(getAnimName()).x, getAnimOffset(getAnimName()).y);
-		if (isPlayer)
-			flipX = !flipX;
+		if (isPlayer) flipX = !flipX;
 		__baseFlipped = flipX;
+	}
+
+	public function swapLeftRightAnimations() {
+		CoolUtil.switchAnimFrames(animation.getByName('singRIGHT'), animation.getByName('singLEFT'));
+		CoolUtil.switchAnimFrames(animation.getByName('singRIGHTmiss'), animation.getByName('singLEFTmiss'));
+
+		switchOffset('singLEFT', 'singRIGHT');
+		switchOffset('singLEFTmiss', 'singRIGHTmiss');
+
+		__swappedLeftRightAnims = true;
 	}
 
 	@:noCompletion var __baseFlipped:Bool = false;

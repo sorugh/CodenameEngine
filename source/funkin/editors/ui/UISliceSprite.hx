@@ -87,8 +87,8 @@ class UISliceSprite extends UISprite {
 	}
 
 	public override function draw() @:privateAccess {
-		var lastPixelPerfect:Bool = cameras[0].pixelPerfectRender;
-		cameras[0].pixelPerfectRender = false;
+		var lastPixelPerfect:Bool = cameras[0] != null ? cameras[0].pixelPerfectRender : false;
+		if (cameras[0] != null) cameras[0].pixelPerfectRender = false;
 		
 		var x:Float = this.x;
 		var y:Float = this.y;
@@ -187,7 +187,7 @@ class UISliceSprite extends UISprite {
 			}
 			alpha = oldAlpha;
 		}
-		cameras[0].pixelPerfectRender = true;
+		if (cameras[0] != null) cameras[0].pixelPerfectRender = lastPixelPerfect;
 
 		setPosition(x, y);
 		super.drawMembers();

@@ -68,11 +68,6 @@ class MainState extends FlxState {
 			betaWarningShown = true;
 		}
 
-		#if sys
-		sys.FileSystem.createDirectory('./.temp/');
-		#if windows
-		try new funkin.backend.utils.native.HiddenProcess("attrib +h .temp")
-		catch(e) Logs.warn('Failed to set hidden attribute on .temp folder');
-		#end #end
+		CoolUtil.safeSetAttribute('./.temp/', HIDDEN);
 	}
 }

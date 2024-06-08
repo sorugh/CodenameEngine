@@ -20,7 +20,6 @@ typedef ChartMetaData = {
 	public var ?displayName:String;
 	public var ?beatsPerMeasure:Float;
 	public var ?stepsPerBeat:Float;
-	public var ?needsVoices:Bool;
 	public var ?icon:String;
 	public var ?color:Dynamic;
 	public var ?difficulties:Array<String>;

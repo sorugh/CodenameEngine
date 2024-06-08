@@ -41,7 +41,6 @@ class FNFLegacyParser {
 		}
 
 		result.meta.bpm = data.bpm;
-		result.meta.needsVoices = data.needsVoices.getDefault(true);
 
 		var camFocusedBF:Bool = false;
 		var altAnims:Bool = false;
@@ -132,7 +131,7 @@ class FNFLegacyParser {
 					if ((swagSection.mustHitSection && strumLine.type == OPPONENT) ||
 						(!swagSection.mustHitSection && strumLine.type == PLAYER))
 						sectionNote[1] += 4;
-					swagSection.sectionNotes.push(note);
+					swagSection.sectionNotes.push(sectionNote); 
 				}
 			}
 
@@ -145,7 +144,6 @@ class FNFLegacyParser {
 			song: chart.meta.name,
 			notes: null,
 			bpm: chart.meta.bpm,
-			needsVoices: chart.meta.needsVoices,
 			speed: chart.scrollSpeed,
 
 			player1: null,
@@ -206,7 +204,6 @@ typedef SwagSong =
 	var song:String;
 	var notes:Array<SwagSection>;
 	var bpm:Float;
-	var needsVoices:Bool;
 	var speed:Float;
 	var ?stage:String;
 	var ?noteTypes:Array<String>;

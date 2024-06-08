@@ -89,7 +89,7 @@ class ModsFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 		return __getFiles(folder, false);
 
 	public function __getFiles(folder:String, folders:Bool = false) {
-		if (!folder.endsWith("/")) folder = folder + "/";
+		if (!folder.endsWith("/")) folder += "/";
 		if (!__parseAsset(folder)) return [];
 		var path = getAssetPath();
 		try {

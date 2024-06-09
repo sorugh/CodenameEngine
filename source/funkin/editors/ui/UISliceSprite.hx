@@ -1,10 +1,13 @@
 package funkin.editors.ui;
 
+import flixel.math.FlxRect;
 import flixel.graphics.frames.FlxFrame;
+import flixel.graphics.tile.FlxGraphicsShader;
+import flixel.graphics.tile.FlxDrawTrianglesItem.DrawData;
 
 class UISliceSprite extends UISprite {
-	public var bWidth:Int = 120;
-	public var bHeight:Int = 20;
+	public var bWidth(default, set):Int = 120;
+	public var bHeight(default, set):Int = 20;
 	public var framesOffset(default, set):Int = 0;
 
 	public var incorporeal:Bool = false;
@@ -14,7 +17,9 @@ class UISliceSprite extends UISprite {
 
 		frames = Paths.getFrames(path);
 		resize(w, h);
+
 		calculateFrames();
+		__genMesh();
 	}
 
 	public override function updateButton() {
@@ -56,14 +61,15 @@ class UISliceSprite extends UISprite {
 
 	override function set_frames(val) {
 		super.set_frames(val);
-		calculateFrames();
+		__framesDirty = true;
+		__meshDirty = true;
 		return val;
 	}
 
 	function set_framesOffset(value:Int) {
 		if(value != framesOffset) {
 			framesOffset = value;
-			calculateFrames();
+			__framesDirty = true;
 		}
 		return value;
 	}
@@ -84,125 +90,226 @@ class UISliceSprite extends UISprite {
 		rightWidth = Std.int(Math.max(topright.frame.width, Math.max(middleright.frame.width, bottomright.frame.width)));
 		topHeight = Std.int(Math.max(topleft.frame.height, Math.max(top.frame.height, topright.frame.height)));
 		bottomHeight = Std.int(Math.max(topleft.frame.height, Math.max(top.frame.height, topright.frame.height)));
+
+		__genUVs();
 	}
 
 	public override function draw() @:privateAccess {
-		var lastPixelPerfect:Bool = cameras[0] != null ? cameras[0].pixelPerfectRender : false;
-		if (cameras[0] != null) cameras[0].pixelPerfectRender = false;
-		
-		var x:Float = this.x;
-		var y:Float = this.y;
+		checkEmptyFrame();
 
-		if (visible && !(bWidth == 0 || bHeight == 0)) {
-			var oldAlpha = alpha;
-			// TOP
-			if (drawTop) {
-				// TOP LEFT
-				if(topAlpha != null) alpha = topAlpha;
-				frame = topleft;
-				setPosition(x, y);
-				__setSize(
-					topleft.frame.width * Math.min(bWidth/(topleft.frame.width*2), 1),
-					topleft.frame.height * Math.min(bHeight/(topleft.frame.height*2), 1)
-				);
-				super.drawSuper();
+		if (alpha == 0 || _frame.type == FlxFrameType.EMPTY)
+			return;
 
-				// TOP
-				if (bWidth > topleft.frame.width + topright.frame.width) {
-					frame = top;
-					setPosition(x + topleft.frame.width, y);
-					__setSize(bWidth - topleft.frame.width - topright.frame.width, top.frame.height * Math.min(bHeight/(top.frame.height*2), 1));
-					super.drawSuper();
-				}
+		if (__framesDirty) calculateFrames();
+		if (__meshDirty) __genMesh();
 
-				// TOP RIGHT
-				setPosition(x + bWidth - (topright.frame.width * Math.min(bWidth/(topright.frame.width*2), 1)), y);
-				frame = topright;
-				__setSize(
-					topright.frame.width * Math.min(bWidth/(topright.frame.width*2), 1),
-					topright.frame.height * Math.min(bHeight/(topright.frame.height*2), 1)
-				);
-				super.drawSuper();
-			}
+		for (camera in cameras)
+		{
+			if (!camera.visible || !camera.exists || !isOnScreen(camera))
+				continue;
 
-			// MIDDLE
-			if (drawMiddle && bHeight > top.frame.height + bottom.frame.height) {
-				if(middleAlpha != null) alpha = middleAlpha;
-				var middleHeight:Float = bHeight - (topleft.frame.height * Math.min(bHeight/(topleft.frame.height*2), 1)) -
-				bottomleft.frame.height * Math.min(bHeight/(bottomleft.frame.height*2), 1);
+			getScreenPosition(_point, camera).subtractPoint(offset);
+			
+			#if !flash
+			camera.drawTriangles(graphic, vertices, indices, uvtData, colors, _point, blend, false, antialiasing, colorTransform, shader);
+			#else
+			camera.drawTriangles(graphic, vertices, indices, uvtData, colors, _point, blend, false, antialiasing);
+			#end
 
-				// MIDDLE LEFT
-				frame = middleleft;
-				setPosition(x, y + top.frame.height);
-				__setSize(middleleft.frame.width * Math.min(bWidth/(middleleft.frame.width*2), 1), middleHeight);
-				super.drawSuper();
-
-				if (bWidth > (middleleft.frame.width * Math.min(bWidth/(middleleft.frame.width*2), 1)) + middleright.frame.width) {
-					// MIDDLE
-					frame = middle;
-					setPosition(x + topleft.frame.width, y + top.frame.height);
-					__setSize(bWidth - middleleft.frame.width - middleright.frame.width, middleHeight);
-					super.drawSuper();
-				}
-
-				// MIDDLE RIGHT
-				frame = middleright;
-				setPosition(x + bWidth - (topright.frame.width * Math.min(bWidth/(topright.frame.width*2), 1)), y + top.frame.height);
-				__setSize(middleright.frame.width * Math.min(bWidth/(middleright.frame.width*2), 1), middleHeight);
-				super.drawSuper();
-			}
-
-			// BOTTOM
-			if (drawBottom) {
-				if(bottomAlpha != null) alpha = bottomAlpha;
-				// BOTTOM LEFT
-				frame = bottomleft;
-				setPosition(x, y + bHeight - (bottomleft.frame.height * Math.min(bHeight/(bottomleft.frame.height*2), 1)));
-				__setSize(
-					bottomleft.frame.width * Math.min(bWidth/(bottomleft.frame.width*2), 1),
-					bottomleft.frame.height * Math.min(bHeight/(bottomleft.frame.height*2), 1)
-				);
-				super.drawSuper();
-
-				if (bWidth > bottomleft.frame.width + bottomright.frame.width) {
-					// BOTTOM
-					frame = bottom;
-					setPosition(x + bottomleft.frame.width, y + bHeight - (bottom.frame.height * Math.min(bHeight/(bottom.frame.height*2), 1)));
-					__setSize(bWidth - bottomleft.frame.width - bottomright.frame.width, bottom.frame.height * Math.min(bHeight/(bottom.frame.height*2), 1));
-					super.drawSuper();
-				}
-
-				// BOTTOM RIGHT
-				frame = bottomright;
-				setPosition(
-					x + bWidth - (bottomright.frame.width * Math.min(bWidth/(bottomright.frame.width*2), 1)),
-					y + bHeight - (bottomright.frame.height * Math.min(bHeight/(bottomright.frame.height*2), 1))
-				);
-				__setSize(
-					bottomright.frame.width * Math.min(bWidth/(bottomright.frame.width*2), 1),
-					bottomright.frame.height * Math.min(bHeight/(bottomright.frame.height*2), 1)
-				);
-				super.drawSuper();
-
-			}
-			alpha = oldAlpha;
+			#if FLX_DEBUG
+			FlxBasic.visibleCount++;
+			#end
 		}
-		if (cameras[0] != null) cameras[0].pixelPerfectRender = lastPixelPerfect;
 
-		setPosition(x, y);
 		super.drawMembers();
+		__lastDrawCameras = cameras.copy();
 	}
 
-	private function __setSize(Width:Float, Height:Float) {
-		var newScaleX:Float = Width / frameWidth;
-		var newScaleY:Float = Height / frameHeight;
-		scale.set(newScaleX, newScaleY);
+	var vertices:DrawData<Float> = new DrawData<Float>();
+	var indices:DrawData<Int> = new DrawData<Int>();
+	var uvtData:DrawData<Float> = new DrawData<Float>();
+	var colors:DrawData<Int> = new DrawData<Int>();
 
-		if (Width <= 0)
-			scale.x = newScaleY;
-		else if (Height <= 0)
-			scale.y = newScaleX;
+	var __framesDirty:Bool = false;
+	var __meshDirty:Bool = false;
 
-		updateHitbox();
+	public function set_bWidth(value:Int):Int {
+		if(value != bWidth) {
+			bWidth = value;
+			__meshDirty = true;
+		}
+		return value;
+	}
+
+	public function set_bHeight(value:Int):Int {
+		if(value != bHeight) {
+			bHeight = value;
+			__meshDirty = true;
+		}
+		return value;
+	}
+
+	private inline function __genMesh() {
+		indices.length = 0;
+		vertices.length = 0;
+
+		// TOP PART
+		if (drawTop) {
+			// TOP LEFT
+			var topLeftWidth:Float = topleft.frame.width * Math.min(bWidth / (topleft.frame.width * 2), 1);
+			var topLeftHeight:Float = topleft.frame.height * Math.min(bHeight / (topleft.frame.height * 2), 1);
+			__genSliceTri(
+				0, 0, 
+				topLeftWidth, topLeftHeight
+			);
+
+			// TOP MIDDLE
+			if (bWidth > topleft.frame.width + topright.frame.width) {
+				var topWidth:Float = bWidth - topleft.frame.width - topright.frame.width;
+				var topHeight:Float = top.frame.height * Math.min(bHeight / (top.frame.height * 2), 1);
+				__genSliceTri(
+					topLeftWidth, 0, 
+					topWidth, topHeight
+				);
+			}
+
+			// TOP RIGHT
+			var topRightWidth:Float = topright.frame.width * Math.min(bWidth/(topright.frame.width*2), 1);
+			var topRightHeight:Float = topright.frame.height * Math.min(bHeight/(topright.frame.height*2), 1);
+			__genSliceTri(
+				bWidth - (topright.frame.width * Math.min(bWidth/(topright.frame.width*2), 1)), 0,
+				topRightWidth, topRightHeight
+			);
+		}
+
+		if (drawMiddle && bHeight > top.frame.height + bottom.frame.height) {
+			var middleHeight:Float = bHeight - (topleft.frame.height * Math.min(bHeight/(topleft.frame.height*2), 1)) -
+			bottomleft.frame.height * Math.min(bHeight/(bottomleft.frame.height*2), 1);
+
+			// MIDDLE LEFT
+			var middleLeftWidth:Float = middleleft.frame.width * Math.min(bWidth/(middleleft.frame.width*2), 1);
+			__genSliceTri(
+				0, top.frame.height,
+				middleLeftWidth, middleHeight
+			);
+
+			// MIDDLE
+			if (bWidth > (middleleft.frame.width * Math.min(bWidth/(middleleft.frame.width*2), 1)) + middleright.frame.width) {
+				var middleWidth:Float = bWidth - middleleft.frame.width - middleright.frame.width;
+				__genSliceTri(
+					topleft.frame.width, top.frame.height,
+					middleWidth, middleHeight
+				);
+			}
+
+			// MIDDLE RIGHT
+			var middleRightWidth:Float = middleright.frame.width * Math.min(bWidth/(middleright.frame.width*2), 1);
+			__genSliceTri(
+				bWidth - (topright.frame.width * Math.min(bWidth/(topright.frame.width*2), 1)), top.frame.height,
+				middleRightWidth, middleHeight
+			);
+		}
+
+		// BOTTOM
+		if (drawBottom) {
+			// BOTTOM LEFT
+			var bottomLeftWidth:Float = bottomleft.frame.width * Math.min(bWidth/(bottomleft.frame.width*2), 1);
+			var bottomLeftHeight:Float = bottomleft.frame.height * Math.min(bHeight/(bottomleft.frame.height*2), 1);
+			__genSliceTri(
+				0, bHeight - (bottomleft.frame.height * Math.min(bHeight/(bottomleft.frame.height*2), 1)),
+				bottomLeftWidth, bottomLeftHeight
+			);
+
+			// BOTTOM MIDDLE
+			if (bWidth > bottomleft.frame.width + bottomright.frame.width) {
+				var bottomMiddleWidth:Float = bWidth - bottomleft.frame.width - bottomright.frame.width;
+				var bottomMiddleHeight:Float = bottom.frame.height * Math.min(bHeight/(bottom.frame.height*2), 1);
+				__genSliceTri(
+					bottomleft.frame.width, bHeight - (bottom.frame.height * Math.min(bHeight/(bottom.frame.height*2), 1)),
+					bottomMiddleWidth, bottomMiddleHeight
+				);
+			}
+
+			// BOTTOM RIGHT
+			var bottomRightWidth:Float = bottomright.frame.width * Math.min(bWidth/(bottomright.frame.width*2), 1);
+			var bottomRightHeight:Float = bottomright.frame.height * Math.min(bHeight/(bottomright.frame.height*2), 1);
+			__genSliceTri(
+				bWidth - (bottomright.frame.width * Math.min(bWidth/(bottomright.frame.width*2), 1)),
+				bHeight - (bottomright.frame.height * Math.min(bHeight/(bottomright.frame.height*2), 1)),
+				bottomRightWidth, bottomRightHeight
+			);
+		}
+
+		__meshDirty = false;
+	}
+
+	private inline function __genUVs() {
+		uvtData.length = 0;
+
+		__genSliceUV(topleft);
+		__genSliceUV(top);
+		__genSliceUV(topright);
+		__genSliceUV(middleleft);
+		__genSliceUV(middle);
+		__genSliceUV(middleright);
+		__genSliceUV(bottomleft);
+		__genSliceUV(bottom);
+		__genSliceUV(bottomright);
+
+		__framesDirty = false;
+	} 
+
+	private inline function __genSliceTri(x:Float, y:Float, width:Float, height:Float) {
+		var indicesOffset:Int = Std.int(vertices.length / 2);
+
+		indices.push(indicesOffset);
+		indices.push(indicesOffset + 1);
+		indices.push(indicesOffset + 2);
+		indices.push(indicesOffset);
+		indices.push(indicesOffset + 2);
+		indices.push(indicesOffset + 3);
+
+		vertices.push(x);
+		vertices.push(y);
+		vertices.push(x + width);
+		vertices.push(y);
+		vertices.push(x + width);
+		vertices.push(y + height);
+		vertices.push(x);
+		vertices.push(y + height);
+	}
+
+	private inline function __genSliceUV(frame:FlxFrame) {
+		uvtData.push(frame.uv.x);
+		uvtData.push(frame.uv.y);
+		uvtData.push(frame.uv.width);
+		uvtData.push(frame.uv.y);
+		uvtData.push(frame.uv.width);
+		uvtData.push(frame.uv.height);
+		uvtData.push(frame.uv.x);
+		uvtData.push(frame.uv.height);
+	}
+
+	@:access(flixel.FlxCamera)
+	override function getBoundingBox(camera:FlxCamera):FlxRect {
+		getScreenPosition(_point, camera);
+
+		_rect.set(_point.x, _point.y, bWidth, bHeight);
+		_rect = camera.transformRect(_rect);
+
+		// if (isPixelPerfectRender(camera))
+		// 	  _rect.floor();
+
+		return _rect;
+	}
+
+	override public function destroy():Void
+	{
+		vertices = null;
+		indices = null;
+		uvtData = null;
+		colors = null;
+
+		super.destroy();
 	}
 }

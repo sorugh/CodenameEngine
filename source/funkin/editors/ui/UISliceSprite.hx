@@ -245,15 +245,26 @@ class UISliceSprite extends UISprite {
 	private inline function __genUVs() {
 		uvtData.length = 0;
 
-		__genSliceUV(topleft);
-		__genSliceUV(top);
-		__genSliceUV(topright);
-		__genSliceUV(middleleft);
-		__genSliceUV(middle);
-		__genSliceUV(middleright);
-		__genSliceUV(bottomleft);
-		__genSliceUV(bottom);
-		__genSliceUV(bottomright);
+		if (drawTop) {
+			__genSliceUV(topleft);
+			if (bWidth > topleft.frame.width + topright.frame.width) 
+				__genSliceUV(top);
+			__genSliceUV(topright);
+		}
+
+		if (drawMiddle && bHeight > top.frame.height + bottom.frame.height) {
+			__genSliceUV(middleleft);
+			if (bWidth > (middleleft.frame.width * Math.min(bWidth/(middleleft.frame.width*2), 1)) + middleright.frame.width)
+				__genSliceUV(middle);
+			__genSliceUV(middleright);
+		}
+
+		if (drawBottom) {
+			__genSliceUV(bottomleft);
+			if (bWidth > bottomleft.frame.width + bottomright.frame.width)
+				__genSliceUV(bottom);
+			__genSliceUV(bottomright);
+		}
 
 		__framesDirty = false;
 	} 

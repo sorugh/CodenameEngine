@@ -79,7 +79,7 @@ class UISlider extends UISprite {
 		members.push(selectableHitbox);
 
 		valueStepper = new UINumericStepper(x - 64 - 64, y, 1, 0.01, 2, segments[0].start, segments[segments.length-1].end, 0, 16);
-		valueStepper.antialiasing = valueStepper.label.antialiasing = true;
+		valueStepper.antialiasing = true;
 		valueStepper.onChange = function (text:String) {
 			@:privateAccess valueStepper.__onChange(text);
 			this.value = valueStepper.value;

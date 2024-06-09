@@ -70,7 +70,6 @@ class StageCharacterButton extends StageElementButton {
 
 		char.destroy();
 		xml.x.parent.removeChild(xml.x);
-		StageEditor.instance.stage.characterPoses.remove(xml.att.name);
 		StageEditor.instance.xmlMap.remove(char);
 		StageEditor.instance.stageSpritesWindow.remove(this);
 	}

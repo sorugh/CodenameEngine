@@ -249,56 +249,8 @@ class StageEditor extends UIState {
 				sprite.extra.set(exID("lowMemory"), parent.name == "lowMemory");
 				//sprite.active = false;
 			}
-			if(sprite is StageCharPos) {
-				var charPos:StageCharPos = cast sprite;
-
-				// TODO: fix default characters not being added
-				var charName = switch(node.name) {
-					case "dad" | "opponent": "dad";
-					case "gf" | "girlfriend": "gf";
-					case "bf" | "boyfriend" | "player": "bf";
-					default: (charPos.flipX) ? "bf" : "dad";
-				}
-				//name = charPos.name;
-				var char = new Character(0,0, charName, charPos.flipX, true);
-				charName = switch(node.name) {
-					case "dad" | "opponent": "NO_DELETE_dad";
-					case "gf" | "girlfriend": "NO_DELETE_girlfriend";
-					case "bf" | "boyfriend" | "player": "NO_DELETE_boyfriend";
-					default: node.att.name;
-				}
-				char.name = charName;
-				char.debugMode = true;
-				// Play first anim, and make it the last frame
-				var animToPlay = char.getAnimOrder()[0];
-				char.playAnim(animToPlay, true, NONE);
-				var lastIndx = (char.animateAtlas != null) ?
-					char.animateAtlas.anim.length - 1 :
-					char.animation.curAnim.numFrames - 1;
-				char.playAnim(animToPlay, true, NONE, false, lastIndx);
-				char.stopAnimation();
-
-				// Add it to the stage
-				char.visible = true;
-				char.alpha = 0.75;
-				char.extra.set(exID("node"), node);
-				char.extra.set(exID("spacingX"), charPos.charSpacingX);
-				char.extra.set(exID("spacingY"), charPos.charSpacingY);
-				char.extra.set(exID("camX"), charPos.camxoffset);
-				char.extra.set(exID("camY"), charPos.camyoffset);
-
-				char.extra.set(exID("parentNode"), parent);
-				char.extra.set(exID("highMemory"), parent.name == "highMemory");
-				char.extra.set(exID("lowMemory"), parent.name == "lowMemory");
-
-				chars.push(char);
-				stage.applyCharStuff(char, charPos.name, 0);
-				charMap[charName] = char;
-
-				remove(charPos, true);
-				charPos.destroy();
-				sprite = char;
-			}
+			if(sprite is StageCharPos)
+				sprite = prepareCharacter(cast sprite, node);
 			order.push(sprite);
 			orderNodes.push(node);
 			xmlMap.set(sprite, node);
@@ -306,6 +258,35 @@ class StageEditor extends UIState {
 			return sprite;
 		}
 		stage.loadXml(stage.stageXML, true);
+
+		if (!charMap.exists("NO_DELETE_girlfriend")) {
+			var xml = Xml.createElement("girlfriend");
+			stage.stageXML.x.addChild(xml);
+			var node = new Access(xml);
+			var sprite = prepareCharacter(stage.characterPoses["girlfriend"], node);
+			order.push(sprite);
+			orderNodes.push(node);
+			xmlMap.set(sprite, node);
+		}
+		if (!charMap.exists("NO_DELETE_dad")) {
+			var xml = Xml.createElement("dad");
+			stage.stageXML.x.addChild(xml);
+			var node = new Access(xml);
+			var sprite = prepareCharacter(stage.characterPoses["dad"], node);
+			order.push(sprite);
+			orderNodes.push(node);
+			xmlMap.set(sprite, node);
+		}
+		if (!charMap.exists("NO_DELETE_boyfriend")) {
+			var xml = Xml.createElement("boyfriend");
+			stage.stageXML.x.addChild(xml);
+			var node = new Access(xml);
+			var sprite = prepareCharacter(stage.characterPoses["boyfriend"], node);
+			order.push(sprite);
+			orderNodes.push(node);
+			xmlMap.set(sprite, node);
+		}
+
 		add(stage);
 
 		setZoom(stage.defaultZoom);
@@ -391,6 +372,56 @@ class StageEditor extends UIState {
 		}
 
 		//DiscordUtil.call("onEditorLoaded", ["Stage Editor", __stage]);
+	}
+
+	function prepareCharacter(charPos:StageCharPos, node:Access):Character {
+		var parent = new Access(node.x.parent);
+
+		var charName = switch(node.name) {
+			case "dad" | "opponent": "dad";
+			case "gf" | "girlfriend": "gf";
+			case "bf" | "boyfriend" | "player": "bf";
+			default: (charPos.flipX) ? "bf" : "dad";
+		}
+
+		var char = new Character(0,0, charName, charPos.flipX, true);
+		charName = switch(node.name) {
+			case "dad" | "opponent": "NO_DELETE_dad";
+			case "gf" | "girlfriend": "NO_DELETE_girlfriend";
+			case "bf" | "boyfriend" | "player": "NO_DELETE_boyfriend";
+			default: node.att.name;
+		}
+		char.name = charName;
+		char.debugMode = true;
+		// Play first anim, and make it the last frame
+		var animToPlay = char.getAnimOrder()[0];
+		char.playAnim(animToPlay, true, NONE);
+		var lastIndx = (char.animateAtlas != null) ?
+			char.animateAtlas.anim.length - 1 :
+			char.animation.curAnim.numFrames - 1;
+		char.playAnim(animToPlay, true, NONE, false, lastIndx);
+		char.stopAnimation();
+
+		// Add it to the stage
+		char.visible = true;
+		char.alpha = 0.75;
+		char.extra.set(exID("node"), node);
+		char.extra.set(exID("spacingX"), charPos.charSpacingX);
+		char.extra.set(exID("spacingY"), charPos.charSpacingY);
+		char.extra.set(exID("camX"), charPos.camxoffset);
+		char.extra.set(exID("camY"), charPos.camyoffset);
+
+		char.extra.set(exID("parentNode"), parent);
+		char.extra.set(exID("highMemory"), parent.name == "highMemory");
+		char.extra.set(exID("lowMemory"), parent.name == "lowMemory");
+
+		chars.push(char);
+		stage.applyCharStuff(char, charPos.name, 0);
+		charMap[charName] = char;
+
+		remove(charPos, true);
+		charPos.destroy();
+		return char;
 	}
 
 	override function destroy() {

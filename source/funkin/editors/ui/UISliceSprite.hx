@@ -97,28 +97,27 @@ class UISliceSprite extends UISprite {
 	public override function draw() @:privateAccess {
 		checkEmptyFrame();
 
-		if (alpha == 0 || _frame.type == FlxFrameType.EMPTY)
-			return;
-
-		if (__framesDirty) calculateFrames();
-		if (__meshDirty) __genMesh();
-
-		for (camera in cameras)
-		{
-			if (!camera.visible || !camera.exists || !isOnScreen(camera))
-				continue;
-
-			getScreenPosition(_point, camera).subtractPoint(offset);
-			
-			#if !flash
-			camera.drawTriangles(graphic, vertices, indices, uvtData, colors, _point, blend, false, antialiasing, colorTransform, shader);
-			#else
-			camera.drawTriangles(graphic, vertices, indices, uvtData, colors, _point, blend, false, antialiasing);
-			#end
-
-			#if FLX_DEBUG
-			FlxBasic.visibleCount++;
-			#end
+		if (alpha == 0 || _frame.type == FlxFrameType.EMPTY) {
+			if (__framesDirty) calculateFrames();
+			if (__meshDirty) __genMesh();
+	
+			for (camera in cameras)
+			{
+				if (!camera.visible || !camera.exists || !isOnScreen(camera))
+					continue;
+	
+				getScreenPosition(_point, camera).subtractPoint(offset);
+				
+				#if !flash
+				camera.drawTriangles(graphic, vertices, indices, uvtData, colors, _point, blend, false, antialiasing, colorTransform, shader);
+				#else
+				camera.drawTriangles(graphic, vertices, indices, uvtData, colors, _point, blend, false, antialiasing);
+				#end
+	
+				#if FLX_DEBUG
+				FlxBasic.visibleCount++;
+				#end
+			}
 		}
 
 		super.drawMembers();

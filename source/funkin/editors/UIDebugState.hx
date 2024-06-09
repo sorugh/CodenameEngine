@@ -101,7 +101,7 @@ class UIDebugState extends UIState {
 		}, 130, 48));
 		add(new UITextBox(10, 220, ""));
 
-		var spliceSprite:UISliceSprite = new UISliceSprite(650, 300, 200, 200, "editors/ui/context-bg-debug");
+		var spliceSprite:UISliceSprite = new UISliceSprite(650, 350, 10, 30, "editors/ui/context-bg");
 		add(spliceSprite);
 	}
 

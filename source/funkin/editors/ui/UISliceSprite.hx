@@ -97,7 +97,7 @@ class UISliceSprite extends UISprite {
 	public override function draw() @:privateAccess {
 		checkEmptyFrame();
 
-		if (alpha == 0 || _frame.type == FlxFrameType.EMPTY) {
+		if (!(alpha == 0 || _frame.type == FlxFrameType.EMPTY)) {
 			if (__framesDirty) calculateFrames();
 			if (__meshDirty) __genMesh();
 	

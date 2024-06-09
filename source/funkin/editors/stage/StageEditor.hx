@@ -251,14 +251,22 @@ class StageEditor extends UIState {
 			}
 			if(sprite is StageCharPos) {
 				var charPos:StageCharPos = cast sprite;
+
 				// TODO: fix default characters not being added
-				var charName = switch(charPos.name) {
-					case "boyfriend": "bf";
-					case "girlfriend": "gf";
-					default: charPos.name;
+				var charName = switch(node.name) {
+					case "dad" | "opponent": "dad";
+					case "gf" | "girlfriend": "gf";
+					case "bf" | "boyfriend" | "player": "bf";
+					default: (charPos.flipX) ? "bf" : "dad";
 				}
 				//name = charPos.name;
-				var char = new Character(0,0, charName, stage.isCharFlipped(charPos.name, charName == "bf"), true);
+				var char = new Character(0,0, charName, charPos.flipX, true);
+				charName = switch(node.name) {
+					case "dad" | "opponent": "NO_DELETE_dad";
+					case "gf" | "girlfriend": "NO_DELETE_girlfriend";
+					case "bf" | "boyfriend" | "player": "NO_DELETE_boyfriend";
+					default: node.att.name;
+				}
 				char.name = charName;
 				char.debugMode = true;
 				// Play first anim, and make it the last frame
@@ -272,19 +280,24 @@ class StageEditor extends UIState {
 
 				// Add it to the stage
 				char.visible = true;
-				char.alpha = 0.5;
-				function setEx(name:String, value:Dynamic) {
-					char.extra.set(exID(name), value);
-					charPos.extra.set(exID(name), value);
-				}
-				setEx("node", node);
-				setEx("pos", charPos);
-				setEx("char", char);
+				char.alpha = 0.75;
+				char.extra.set(exID("node"), node);
+				char.extra.set(exID("spacingX"), charPos.charSpacingX);
+				char.extra.set(exID("spacingY"), charPos.charSpacingY);
+				char.extra.set(exID("camX"), charPos.camxoffset);
+				char.extra.set(exID("camY"), charPos.camyoffset);
 
-				setEx("parentNode", parent);
-				setEx("highMemory", parent.name == "highMemory");
-				setEx("lowMemory", parent.name == "lowMemory");
+				char.extra.set(exID("parentNode"), parent);
+				char.extra.set(exID("highMemory"), parent.name == "highMemory");
+				char.extra.set(exID("lowMemory"), parent.name == "lowMemory");
+
 				chars.push(char);
+				stage.applyCharStuff(char, charPos.name, 0);
+				charMap[charName] = char;
+
+				remove(charPos, true);
+				charPos.destroy();
+				sprite = char;
 			}
 			order.push(sprite);
 			orderNodes.push(node);
@@ -294,14 +307,6 @@ class StageEditor extends UIState {
 		}
 		stage.loadXml(stage.stageXML, true);
 		add(stage);
-
-		for(char in chars) {
-			var charPos = char.extra.get(exID("pos"));
-			//var node:Access = cast char.extra.get(exID("node"));
-
-			stage.applyCharStuff(char, charPos.name, 0);
-			charMap[charPos.name] = char;
-		}
 
 		setZoom(stage.defaultZoom);
 
@@ -319,7 +324,7 @@ class StageEditor extends UIState {
 		stageSpritesWindow.bottomAlpha = 0.5;
 		stageSpritesWindow.buttonSpacing = 0;
 		stageSpritesWindow.dragCallback = (button, oldID, newID) -> {
-			var sprite:FunkinSprite = button.getSprite();
+			var sprite:FlxBasic = (button is StageUnknownButton) ? cast(button, StageUnknownButton).basic : button.getSprite();
 			var idx = members.indexOf(sprite);
 			members.splice(idx, 1);
 			members.insert(newID, sprite);
@@ -354,23 +359,22 @@ class StageEditor extends UIState {
 		}
 		for (i=>sprite in order) {
 			var xml = (sprite != null) ? xmlMap.get(sprite) : orderNodes[i];
-			if(xml != null) {
-				if(sprite is FunkinSprite) {
+			if (xml != null) {
+				if (sprite is Character) {
+					var char:Character = cast sprite;
+					var button = new StageCharacterButton(0,0, char, xml);
+					char.extra.set(exID("button"), button);
+					stageSpritesWindow.add(button);
+				} else if (sprite is FunkinSprite) {
 					var sprite:FunkinSprite = cast sprite;
 					var type = sprite.extra.get(exID("type"));
 					var button:StageElementButton = (type == "box" || type == "solid") ? new StageSolidButton(0,0, sprite, xml) : new StageSpriteButton(0,0, sprite, xml);
 					sprite.extra.set(exID("button"), button);
 					stageSpritesWindow.add(button);
-				}
-				else if(sprite is StageCharPos) {
-					var charPos:StageCharPos = cast sprite;
-					var char = charMap[charPos.name];
-					var button = new StageCharacterButton(0,0, charPos, xml);
-					char.extra.set(exID("button"), button);
-					charPos.extra.set(exID("button"), button);
-					stageSpritesWindow.add(button);
 				} else if(sprite == null) {
-					var button = new StageUnknownButton(0,0, xml);
+					var basic = new FlxBasic(); // prevent awkward layering
+					insert(i, basic);
+					var button = new StageUnknownButton(0,0, basic, xml);
 					stageSpritesWindow.add(button);
 				}
 			}
@@ -510,7 +514,7 @@ class StageEditor extends UIState {
 	function _sprite_new(_) {
 		var node:Access = new Access(Xml.createElement("sprite"));
 		stage.stageXML.x.addChild(node.x);
-		node.att.name = "sprite_" + stageSpritesWindow.buttons.length;
+		node.att.name = "sprite_" + stageSpritesWindow.buttons.members.length;
 
 		var sprite:FunkinSprite = new FunkinSprite();
 		insert(members.indexOf(stage), sprite);
@@ -534,16 +538,10 @@ class StageEditor extends UIState {
 	function _character_new(_) {
 		var node:Access = new Access(Xml.createElement("char"));
 		stage.stageXML.x.addChild(node.x);
-		node.att.name = "character_" + stageSpritesWindow.buttons.length;
+		node.att.name = "character_" + stageSpritesWindow.buttons.members.length;
 
-		var charPos = new StageCharPos();
-		charPos.visible = charPos.active = false;
-		charPos.name = "character_" + stageSpritesWindow.buttons.length;
-		charPos.extra.set(exID("extraChar"), true);
-		stage.characterPoses[charPos.name] = charPos;
-
-		var char = new Character(0,0, "bf", stage.isCharFlipped(charPos.name, true), true);
-		char.name = "bf";
+		var char = new Character(0,0, "bf", false, true);
+		char.name = node.att.name;
 		char.debugMode = true;
 		// Play first anim, and make it the last frame
 		var animToPlay = char.getAnimOrder()[0];
@@ -556,26 +554,25 @@ class StageEditor extends UIState {
 
 		// Add it to the stage
 		char.visible = true;
-		char.alpha = 0.5;
-		function setEx(name:String, value:Dynamic) {
-			char.extra.set(exID(name), value);
-			charPos.extra.set(exID(name), value);
-		}
-		setEx("node", node);
-		setEx("pos", charPos);
-		setEx("char", char);
+		char.alpha = 0.75;
 
-		setEx("parentNode", stage.stageXML);
-		setEx("highMemory", false);
-		setEx("lowMemory", false);
+		char.extra.set(exID("node"), node);
+		char.extra.set(exID("spacingX"), 20);
+		char.extra.set(exID("spacingY"), 0);
+		char.extra.set(exID("camX"), 0);
+		char.extra.set(exID("camY"), 0);
+
+		char.extra.set(exID("parentNode"), stage.stageXML);
+		char.extra.set(exID("highMemory"), false);
+		char.extra.set(exID("lowMemory"), false);
+		xmlMap.set(char, node);
 		chars.push(char);
 
-		stage.applyCharStuff(char, charPos.name, 0);
-		charMap[charPos.name] = char;
+		insert(members.indexOf(stage), char);
+		charMap[node.att.name] = char;
 
-		var button = new StageCharacterButton(0,0, charPos, node);
+		var button = new StageCharacterButton(0,0, char, node);
 		char.extra.set(exID("button"), button);
-		charPos.extra.set(exID("button"), button);
 		stageSpritesWindow.add(button);
 	}
 
@@ -659,33 +656,26 @@ class StageEditor extends UIState {
 				newNode = spriteXML;
 			} else if(button is StageCharacterButton) {
 				var button:StageCharacterButton = cast button;
-				var charPos:StageCharPos = button.charPos;
-				var char:Character = cast charPos.extra.get(exID("char"));
-				var node:Access = cast charPos.extra.get(exID("node"));
-				var nodeName = switch(charPos.name) {
-					case "boyfriend": "boyfriend";
-					case "dad": "dad";
-					case "girlfriend": "girlfriend";
-					default: "character";
-				}
-				var defaultPos = Stage.getDefaultPos(charPos.name);
-				var charXML:Xml = Xml.createElement(nodeName);
-				if(nodeName == "character")
-					saveToXml(charXML, "name", char.curCharacter);
-				saveToXml(charXML, "x", charPos.x, defaultPos.x);
-				saveToXml(charXML, "y", charPos.y, defaultPos.y);
-				saveToXml(charXML, "camxoffset", charPos.camxoffset, 0);
-				saveToXml(charXML, "camyoffset", charPos.camyoffset, 0);
-				saveToXml(charXML, "skewx", charPos.skewX, 0);
-				saveToXml(charXML, "skewy", charPos.skewY, 0);
-				saveToXml(charXML, "spacingx", charPos.charSpacingX, 20);
-				saveToXml(charXML, "spacingy", charPos.charSpacingY, 0);
-				saveToXml(charXML, "alpha", charPos.alpha, 1);
-				saveToXml(charXML, "angle", charPos.angle, 0);
-				saveToXml(charXML, "zoomfactor", charPos.zoomFactor, 1);
-				saveToXml(charXML, "flipX", charPos.flipX, defaultPos.flip);
-				savePointToXml(charXML, "scroll", charPos.scrollFactor, defaultPos.scroll);
-				savePointToXml(charXML, "scale", charPos.scale, 1);
+				var char:Character = button.char;
+				var node:Access = cast char.extra.get(exID("node"));
+				var defaultPos = Stage.getDefaultPos(char.name.replace("NO_DELETE_", ""));
+				var charXML:Xml = Xml.createElement(node.name);
+				if(!char.name.startsWith("NO_DELETE_"))
+					saveToXml(charXML, "name", char.name);
+				saveToXml(charXML, "x", char.x, defaultPos.x);
+				saveToXml(charXML, "y", char.y, defaultPos.y);
+				saveToXml(charXML, "camxoffset", char.extra.get(exID("camX")), 0);
+				saveToXml(charXML, "camyoffset", char.extra.get(exID("camY")), 0);
+				saveToXml(charXML, "skewx", char.skew.x, 0);
+				saveToXml(charXML, "skewy", char.skew.y, 0);
+				saveToXml(charXML, "spacingx", char.extra.get(exID("spacingX")), 20);
+				saveToXml(charXML, "spacingy", char.extra.get(exID("spacingY")), 0);
+				saveToXml(charXML, "alpha", char.alpha / 0.75, 1);
+				saveToXml(charXML, "angle", char.angle, 0);
+				saveToXml(charXML, "zoomfactor", char.zoomFactor, 1);
+				saveToXml(charXML, "flipX", char.isPlayer, defaultPos.flip);
+				savePointToXml(charXML, "scroll", char.scrollFactor, defaultPos.scroll);
+				savePointToXml(charXML, "scale", char.scale.scaleNew(button.charScale), 1);
 				// TODO: save custom parameters
 				newNode = charXML;
 			} else if(button is StageUnknownButton) {
@@ -871,13 +861,13 @@ class StageEditor extends UIState {
 	}
 
 	function _view_focusdad(_) {
-		focusCharacter(charMap["dad"]);
+		focusCharacter(charMap["NO_DELETE_dad"]);
 	}
 	function _view_focusgf(_) {
-		focusCharacter(charMap["girlfriend"]);
+		focusCharacter(charMap["NO_DELETE_girlfriend"]);
 	}
 	function _view_focusbf(_) {
-		focusCharacter(charMap["boyfriend"]);
+		focusCharacter(charMap["NO_DELETE_boyfriend"]);
 	}
 
 	function focusCharacter(char:Character) {

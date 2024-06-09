@@ -21,47 +21,47 @@
 	<section>
 		<set name="curY" value="title.y + TO" />
 
-		<stepper name="xStepper" label="X" value="charPos.x" x="col(0)" y="curY" step="1" width="100" />
-		<stepper name="yStepper" label="Y" value="charPos.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" step="1" width="100" />
+		<stepper name="xStepper" label="X" value="char.x" x="col(0)" y="curY" step="1" width="100" />
+		<stepper name="yStepper" label="Y" value="char.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" step="1" width="100" />
 
-		<stepper name="scrollXStepper" label="Scroll X" value="charPos.scrollFactor.x" x="col(1)" y="curY" precision="2" step="0.01" width="100" />
-		<stepper name="scrollYStepper" label="Scroll Y" value="charPos.scrollFactor.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="scrollXStepper" label="Scroll X" value="char.scrollFactor.x" x="col(1)" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="scrollYStepper" label="Scroll Y" value="char.scrollFactor.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
 
-		<stepper name="scaleXStepper" label="Scale X" value="charPos.scale.x" x="col(2)" y="curY" precision="2" step="0.01" width="100" />
-		<stepper name="scaleYStepper" label="Scale Y" value="charPos.scale.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="scaleXStepper" label="Scale X" value="char.scale.x / charScale" x="col(2)" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="scaleYStepper" label="Scale Y" value="char.scale.y / charScale" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
 	</section>
 
 	<section>
 		<set name="curY" value="xStepper.y + xStepper.bHeight + YOFFSET" />
 
-		<stepper name="camxStepper" label="Cam X" value="charPos.camxoffset" x="col(0)" y="curY" step="1" width="100" />
-		<stepper name="camyStepper" label="Cam Y" value="charPos.camyoffset" x="last.x + last.bWidth + XOFFSET - 20" y="curY" step="1" width="100" />
+		<stepper name="camxStepper" label="Cam X" value="getEx('camX')" x="col(0)" y="curY" step="1" width="100" />
+		<stepper name="camyStepper" label="Cam Y" value="getEx('camY')" x="last.x + last.bWidth + XOFFSET - 20" y="curY" step="1" width="100" />
 
 		<label name="spacingLabel" text="Spacing (X, Y)" x="col(1)" y="curY" size="15" />
-		<stepper name="spacingXStepper" value="charPos.charSpacingX" x="col(1)" y="curY" precision="2" step="0.01" width="100" />
-		<stepper name="spacingYStepper" value="charPos.charSpacingY" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="spacingXStepper" value="getEx('spacingX')" x="col(1)" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="spacingYStepper" value="getEx('spacingY')" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
 
-		<stepper name="skewXStepper" label="Skew X" value="charPos.skewX" x="col(2)" y="curY" precision="2" step="0.01" width="100" />
-		<stepper name="skewYStepper" label="Skew Y" value="charPos.skewY" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="skewXStepper" label="Skew X" value="char.skew.x" x="col(2)" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="skewYStepper" label="Skew Y" value="char.skew.x" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
 	</section>
 
 	<section>
 		<set name="curY" value="camxStepper.y + camxStepper.bHeight + YOFFSET" />
 
-		<stepper name="alphaStepper" label="Alpha" value="charPos.alpha" x="col(0)" y="curY" precision="2" step="0.01" width="100" />
-		<stepper name="angleStepper" label="Angle" value="charPos.angle" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="alphaStepper" label="Alpha" value="char.alpha / 0.75" x="col(0)" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="angleStepper" label="Angle" value="char.angle" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
 
-		<stepper name="zoomFactorStepper" label="Zoom Factor" value="charPos.zoomFactor" x="col(1)" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="zoomFactorStepper" label="Zoom Factor" value="char.zoomFactor" x="col(1)" y="curY" precision="2" step="0.01" width="100" />
 		
-		<section if="charPos.extra.exists('extraPos')">
-			<textbox name="charName" label="Position Name" value="charPos.name" x="col(2)" y="curY" width="100"/>
+		<section if="!StringTools.startsWith(char.name, 'NO_DELETE_')">
+			<textbox name="charName" label="Position Name" value="char.name" x="col(2)" y="curY" width="100"/>
 		</section>
 	</section>
 
 	<section>
 		<set name="curY" value="alphaStepper.y + alphaStepper.bHeight + YOFFSET - 20" />
 
-		<checkbox name="flipXCheckbox" text="Flip X" value="charPos.flipX" x="col(0)" y="curY" />
+		<checkbox name="flipXCheckbox" text="Flip X" value="char.isPlayer" x="col(0)" y="curY" />
 
 		<radio for="memoryCheck" name="highMemoryRadio" text="High Memory Only" value="getEx('highMemory')" x="last.field.x + last.field.width + XOFFSET * 2" y="curY" />
 		<radio for="memoryCheck" name="lowMemoryRadio" text="Low Memory Only" value="getEx('lowMemory')" x="last.field.x + last.field.width + XOFFSET * 2" y="curY" />
@@ -86,7 +86,7 @@
 			var ratio = char.frameWidth / char.frameHeight;
 			previewSprite.setGraphicSize(145 * scaleXStepper.value * ratio, 145 * scaleYStepper.value);
 			previewSprite.updateHitbox();
-			if(flipXCheckbox.checked != (charPos.name == "boyfriend"))
+			if(flipXCheckbox.checked != char.playerOffsets)
 				previewSprite.scale.x *= -1;
 
 			previewSprite.x = 30;
@@ -97,23 +97,30 @@
 			setEx("highMemory", highMemoryRadio.checked);
 			setEx("lowMemory", lowMemoryRadio.checked);
 
-			charPos.x = xStepper.value;
-			charPos.y = yStepper.value;
-			charPos.scrollFactor.set(scrollXStepper.value, scrollYStepper.value);
-			charPos.scale.set(scaleXStepper.value, scaleYStepper.value);
-			charPos.camxoffset = camxStepper.value;
-			charPos.camyoffset = camyStepper.value;
-			charPos.skewX = skewXStepper.value;
-			charPos.skewY = skewYStepper.value;
-			charPos.alpha = alphaStepper.value;
-			charPos.charSpacingX = spacingXStepper.value;
-			charPos.charSpacingY = spacingYStepper.value;
-			charPos.flipX = flipXCheckbox.checked;
-			charPos.zoomFactor = zoomFactorStepper.value;
-			charPos.angle = angleStepper.value;
+			if (!StringTools.startsWith(char.name, 'NO_DELETE_'))
+				char.name = charName.field.text;
 
-			charPos.revertCharacter(char);
-			charPos.prepareCharacter(char, charPos._id);
+			char.x = xStepper.value;
+			char.y = yStepper.value;
+			char.scrollFactor.set(scrollXStepper.value, scrollYStepper.value);
+			char.scale.set(scaleXStepper.value * charScale, scaleYStepper.value * charScale);
+			char.cameraOffset.x -= getEx("camX");
+			char.cameraOffset.x += camxStepper.value;
+			setEx("camX", camxStepper.value);
+			char.cameraOffset.y -= getEx("camY");
+			char.cameraOffset.y += camyStepper.value;
+			setEx("camY", camyStepper.value);
+			char.skew.x = skewXStepper.value;
+			char.skew.y = skewYStepper.value;
+			char.alpha = alphaStepper.value * 0.75;
+			setEx("spacingX", spacingXStepper.value);
+			setEx("spacingY", spacingYStepper.value);
+			if (flipXCheckbox.checked != char.isPlayer) {
+				char.isPlayer = flipXCheckbox.checked;
+				char.swapLeftRightAnimations();
+			}
+			char.zoomFactor = zoomFactorStepper.value;
+			char.angle = angleStepper.value;
 		}
 	</exec>
 </window>

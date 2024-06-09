@@ -7,8 +7,10 @@ import haxe.xml.Access;
 class StageUnknownButton extends StageElementButton {
 	public var lowMemory:Bool = false;
 	public var highMemory:Bool = false;
+	public var basic:FlxBasic;
 
-	public function new(x:Float,y:Float, xml:Access) {
+	public function new(x:Float,y:Float, basic:FlxBasic, xml:Access) {
+		this.basic = basic;
 		super(x,y, xml);
 
 		if(xml.x.parent != null) {

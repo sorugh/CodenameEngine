@@ -181,10 +181,8 @@ function SCALE_TOP_RIGHT(sprite, relative) {
 }
 
 function MOVE_CENTER(sprite, relative) {
-	preRotBullshit(sprite, relative);
 	sprite.x = storedPos.x-relative.x;
 	sprite.y = storedPos.y-relative.y;
-	postRotBullshit(sprite, relative);
 }
 
 function SCALE_TOP_LEFT(sprite, relative) {

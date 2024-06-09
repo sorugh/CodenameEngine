@@ -1,17 +1,19 @@
 package funkin.editors.stage.elements;
 
 import funkin.editors.stage.StageEditor.StageXMLEditScreen;
+import funkin.editors.ui.notifications.UIBaseNotification;
+import funkin.editors.ui.UIState;
 import funkin.game.Character;
-import funkin.game.Stage.StageCharPos;
 import haxe.xml.Access;
 
-class StageCharacterButton extends StageElementButton {
-	public var charPos:StageCharPos;
-	public var char:Character;
+using StringTools;
 
-	public function new(x:Float,y:Float, charPos:StageCharPos, xml:Access) {
-		this.charPos = charPos;
-		this.char = charPos.extra.get(StageEditor.exID("char"));
+class StageCharacterButton extends StageElementButton {
+	public var char:Character;
+	public var charScale(get, null):Float;
+
+	public function new(x:Float,y:Float, char:Character, xml:Access) {
+		this.char = char;
 		super(x,y, xml);
 
 		color = 0xff7aa8ff;
@@ -27,13 +29,7 @@ class StageCharacterButton extends StageElementButton {
 
 	public override function updateInfo() {
 		char.visible = !isHidden;
-		char.alpha = 0.5 * charPos.alpha;
-		var charScale = (char.xml.has.scale ? Std.parseFloat(char.xml.att.scale).getDefault(1) : 1);
-		charPos.scale.x = char.scale.x / charScale;
-		charPos.scale.y = char.scale.y / charScale;
-		charPos.x = char.x;
-		charPos.y = char.y;
-		char.scale.copyFrom(charPos.scale);
+		char.scale.scale(1 / charScale);
 		super.updateInfo();
 		char.scale.scale(charScale);
 	}
@@ -58,11 +54,26 @@ class StageCharacterButton extends StageElementButton {
 			FlxG.state.openSubState(new StageXMLEditScreen(this.xml, updateInfo, "Character"));
 		}
 	}
-
 	//public override function onEdit() {
 	//	UIState.state.displayNotification(new UIBaseNotification("Editing a character isnt implemented yet!", 2, BOTTOM_LEFT));
 	//	CoolUtil.playMenuSFX(WARNING, 0.45);
 	//}
+
+	public override function onDelete() {
+		if (char.name.startsWith("NO_DELETE_")) {
+			var text = "This character position is required in stages!";
+			if (char.name == "NO_DELTE_girlfriend" && FlxG.random.bool(1))
+				text = "You can't delete Girlfriend";
+			UIState.state.displayNotification(new UIBaseNotification(text, 2, BOTTOM_LEFT));
+			return;
+		}
+
+		char.destroy();
+		xml.x.parent.removeChild(xml.x);
+		StageEditor.instance.stage.characterPoses.remove(xml.att.name);
+		StageEditor.instance.xmlMap.remove(char);
+		StageEditor.instance.stageSpritesWindow.remove(this);
+	}
 
 	public override function onVisiblityToggle() {
 		isHidden = !isHidden;
@@ -70,40 +81,42 @@ class StageCharacterButton extends StageElementButton {
 	}
 
 	public override function getName():String {
-		return charPos.name;
+		return char.name.replace("NO_DELETE_", "");
 	}
 
 	public override function getPos():FlxPoint {
-		return FlxPoint.get(charPos.x, charPos.y);
+		return FlxPoint.get(char.x, char.y);
 	}
 
 	public override function updatePos() {
 		super.updatePos();
+	}
+
+	function get_charScale():Float {
+		return (char.xml.has.scale ? Std.parseFloat(char.xml.att.scale).getDefault(1) : 1);
 	}
 }
 
 class StageCharacterEditScreen extends UISoftcodedWindow {
 	public var button:StageCharacterButton;
 	public var char:Character;
-	public var charPos:StageCharPos;
 
 	public function new(button:StageCharacterButton) {
 		this.button = button;
 		this.char = button.char;
-		this.charPos = button.charPos;
 		super("layouts/stage/characterEditScreen", [
 			"stage" => StageEditor.instance.stage,
 			"char" => char,
-			"charPos" => charPos,
+			"charScale" => button.charScale,
 			"button" => button,
 			"xml" => button.xml,
 			"exID" => StageEditor.exID,
+			"StringTools" => StringTools,
 			"getEx" => function(name:String):Dynamic {
 				return char.extra.get(StageEditor.exID(name));
 			},
 			"setEx" => function(name:String, value:Dynamic) {
 				char.extra.set(StageEditor.exID(name), value);
-				charPos.extra.set(StageEditor.exID(name), value);
 			},
 		]);
 	}

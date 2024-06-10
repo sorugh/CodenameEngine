@@ -19,7 +19,7 @@ class UICheckbox extends UISprite {
 
 		field = new UIText(x, y, w, text, small ? 12 : 15);
 		check = new FlxSprite().loadGraphicFromSprite(this);
-		check.animation.play("selected");
+		check.animation.play("checkmark");
 
 		members.push(check);
 		members.push(field);

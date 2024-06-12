@@ -36,13 +36,37 @@ class UISliceSprite extends UISprite {
 		bHeight = h;
 	}
 
-	public var topAlpha:Null<Float> = null;
-	public var middleAlpha:Null<Float> = null;
-	public var bottomAlpha:Null<Float> = null;
+	@:deprecated public var topAlpha:Null<Float> = null;
+	@:deprecated public var middleAlpha:Null<Float> = null;
+	@:deprecated public var bottomAlpha:Null<Float> = null;
 
-	public var drawTop:Bool = true;
-	public var drawMiddle:Bool = true;
-	public var drawBottom:Bool = true;
+	public var drawTop(default, set):Bool = true;
+	public var drawMiddle(default, set):Bool = true;
+	public var drawBottom(default, set):Bool = true;
+
+	private function set_drawTop(value:Bool):Bool {
+		if(value != drawTop) {
+			drawTop = value;
+			__meshDirty = true;
+		}
+		return value;
+	}
+
+	private function set_drawMiddle(value:Bool):Bool {
+		if(value != drawMiddle) {
+			drawMiddle = value;
+			__meshDirty = true;
+		}
+		return value;
+	}
+
+	private function set_drawBottom(value:Bool):Bool {
+		if(value != drawBottom) {
+			drawBottom = value;
+			__meshDirty = true;
+		}
+		return value;
+	}
 
 	var topleft:FlxFrame = null;
 	var top:FlxFrame = null;
@@ -62,7 +86,6 @@ class UISliceSprite extends UISprite {
 	override function set_frames(val) {
 		super.set_frames(val);
 		__framesDirty = true;
-		__meshDirty = true;
 		return val;
 	}
 
@@ -91,29 +114,29 @@ class UISliceSprite extends UISprite {
 		topHeight = Std.int(Math.max(topleft.frame.height, Math.max(top.frame.height, topright.frame.height)));
 		bottomHeight = Std.int(Math.max(topleft.frame.height, Math.max(top.frame.height, topright.frame.height)));
 
-		__genUVs();
+		__meshDirty = true;
 	}
 
 	public override function draw() @:privateAccess {
 		checkEmptyFrame();
 
-		if (!(alpha == 0 || _frame.type == FlxFrameType.EMPTY)) {
+		if (alpha != 0 && _frame.type != FlxFrameType.EMPTY) {
 			if (__framesDirty) calculateFrames();
 			if (__meshDirty) __genMesh();
-	
+
 			for (camera in cameras)
 			{
 				if (!camera.visible || !camera.exists || !isOnScreen(camera))
 					continue;
-	
+
 				getScreenPosition(_point, camera).subtractPoint(offset);
-				
+
 				#if !flash
 				camera.drawTriangles(graphic, vertices, indices, uvtData, colors, _point, blend, false, antialiasing, colorTransform, shader);
 				#else
 				camera.drawTriangles(graphic, vertices, indices, uvtData, colors, _point, blend, false, antialiasing);
 				#end
-	
+
 				#if FLX_DEBUG
 				FlxBasic.visibleCount++;
 				#end
@@ -132,7 +155,7 @@ class UISliceSprite extends UISprite {
 	var __framesDirty:Bool = false;
 	var __meshDirty:Bool = false;
 
-	public function set_bWidth(value:Int):Int {
+	private function set_bWidth(value:Int):Int {
 		if(value != bWidth) {
 			bWidth = value;
 			__meshDirty = true;
@@ -140,7 +163,7 @@ class UISliceSprite extends UISprite {
 		return value;
 	}
 
-	public function set_bHeight(value:Int):Int {
+	private function set_bHeight(value:Int):Int {
 		if(value != bHeight) {
 			bHeight = value;
 			__meshDirty = true;
@@ -148,133 +171,202 @@ class UISliceSprite extends UISprite {
 		return value;
 	}
 
-	private inline function __genMesh() {
+	private static inline function getFixedSize(value:Float, total:Float):Float {
+		return value * Math.min(total / (value * 2), 1);
+	}
+
+	private function __genMesh() {
 		indices.length = 0;
 		vertices.length = 0;
+		//colors.length = 0;
+		uvtData.length = 0;
+
+		var sliceTL:Quad = null;
+		var sliceTM:Quad = null;
+		var sliceTR:Quad = null;
+		var sliceML:Quad = null;
+		var sliceMM:Quad = null;
+		var sliceMR:Quad = null;
+		var sliceBL:Quad = null;
+		var sliceBM:Quad = null;
+		var sliceBR:Quad = null;
 
 		// TOP PART
 		if (drawTop) {
 			// TOP LEFT
-			var topLeftWidth:Float = topleft.frame.width * Math.min(bWidth / (topleft.frame.width * 2), 1);
-			var topLeftHeight:Float = topleft.frame.height * Math.min(bHeight / (topleft.frame.height * 2), 1);
-			__genSliceTri(
-				0, 0, 
-				topLeftWidth, topLeftHeight
+			var topLeftWidth:Float = getFixedSize(topleft.frame.width, bWidth);
+			var topLeftHeight:Float = getFixedSize(topleft.frame.height, bHeight);
+			sliceTL = __genSliceQuad(
+				0, 0,
+				topLeftWidth, topLeftHeight,
+				topleft, null, null
 			);
 
 			// TOP MIDDLE
 			if (bWidth > topleft.frame.width + topright.frame.width) {
 				var topWidth:Float = bWidth - topleft.frame.width - topright.frame.width;
-				var topHeight:Float = top.frame.height * Math.min(bHeight / (top.frame.height * 2), 1);
-				__genSliceTri(
-					topLeftWidth, 0, 
-					topWidth, topHeight
+				var topHeight:Float = getFixedSize(top.frame.height, bHeight);
+				sliceTM = __genSliceQuad(
+					topLeftWidth, 0,
+					topWidth, topHeight,
+					top, sliceTL, null
 				);
 			}
 
 			// TOP RIGHT
-			var topRightWidth:Float = topright.frame.width * Math.min(bWidth/(topright.frame.width*2), 1);
-			var topRightHeight:Float = topright.frame.height * Math.min(bHeight/(topright.frame.height*2), 1);
-			__genSliceTri(
-				bWidth - (topright.frame.width * Math.min(bWidth/(topright.frame.width*2), 1)), 0,
-				topRightWidth, topRightHeight
+			var topRightWidth:Float = getFixedSize(topright.frame.width, bWidth);
+			var topRightHeight:Float = getFixedSize(topright.frame.height, bHeight);
+			sliceTR = __genSliceQuad(
+				bWidth - getFixedSize(topright.frame.width, bWidth), 0,
+				topRightWidth, topRightHeight,
+				topright, sliceTM, null
 			);
 		}
 
 		if (drawMiddle && bHeight > top.frame.height + bottom.frame.height) {
-			var middleHeight:Float = bHeight - (topleft.frame.height * Math.min(bHeight/(topleft.frame.height*2), 1)) -
-			bottomleft.frame.height * Math.min(bHeight/(bottomleft.frame.height*2), 1);
+			var middleHeight:Float = bHeight - getFixedSize(topleft.frame.height, bHeight) - getFixedSize(bottomleft.frame.height, bHeight);
 
 			// MIDDLE LEFT
-			var middleLeftWidth:Float = middleleft.frame.width * Math.min(bWidth/(middleleft.frame.width*2), 1);
-			__genSliceTri(
+			var middleLeftWidth:Float = getFixedSize(middleleft.frame.width, bWidth);
+			sliceML = __genSliceQuad(
 				0, top.frame.height,
-				middleLeftWidth, middleHeight
+				middleLeftWidth, middleHeight,
+				middleleft, null, sliceTL
 			);
 
 			// MIDDLE
-			if (bWidth > (middleleft.frame.width * Math.min(bWidth/(middleleft.frame.width*2), 1)) + middleright.frame.width) {
+			if (bWidth > getFixedSize(middleleft.frame.width, bWidth) + middleright.frame.width) {
 				var middleWidth:Float = bWidth - middleleft.frame.width - middleright.frame.width;
-				__genSliceTri(
+				sliceMM = __genSliceQuad(
 					topleft.frame.width, top.frame.height,
-					middleWidth, middleHeight
+					middleWidth, middleHeight,
+					middle, sliceML, sliceTM
 				);
 			}
 
 			// MIDDLE RIGHT
-			var middleRightWidth:Float = middleright.frame.width * Math.min(bWidth/(middleright.frame.width*2), 1);
-			__genSliceTri(
-				bWidth - (topright.frame.width * Math.min(bWidth/(topright.frame.width*2), 1)), top.frame.height,
-				middleRightWidth, middleHeight
+			var middleRightWidth:Float = getFixedSize(middleright.frame.width, bWidth);
+			sliceMR = __genSliceQuad(
+				bWidth - getFixedSize(middleright.frame.width, bWidth), top.frame.height,
+				middleRightWidth, middleHeight,
+				middleright, sliceMM, sliceTR
 			);
 		}
 
 		// BOTTOM
 		if (drawBottom) {
 			// BOTTOM LEFT
-			var bottomLeftWidth:Float = bottomleft.frame.width * Math.min(bWidth/(bottomleft.frame.width*2), 1);
-			var bottomLeftHeight:Float = bottomleft.frame.height * Math.min(bHeight/(bottomleft.frame.height*2), 1);
-			__genSliceTri(
-				0, bHeight - (bottomleft.frame.height * Math.min(bHeight/(bottomleft.frame.height*2), 1)),
-				bottomLeftWidth, bottomLeftHeight
+			var bottomLeftWidth:Float = getFixedSize(bottomleft.frame.width, bWidth);
+			var bottomLeftHeight:Float = getFixedSize(bottomleft.frame.height, bHeight);
+			//var bottomLeftHeight:Float = bottomleft.frame.height * Math.min(bHeight/(bottomleft.frame.height*2), 1);
+			sliceBL = __genSliceQuad(
+				0, bHeight - getFixedSize(bottomleft.frame.height, bHeight),
+				bottomLeftWidth, bottomLeftHeight,
+				bottomleft, null, sliceML
 			);
 
 			// BOTTOM MIDDLE
 			if (bWidth > bottomleft.frame.width + bottomright.frame.width) {
 				var bottomMiddleWidth:Float = bWidth - bottomleft.frame.width - bottomright.frame.width;
-				var bottomMiddleHeight:Float = bottom.frame.height * Math.min(bHeight/(bottom.frame.height*2), 1);
-				__genSliceTri(
-					bottomleft.frame.width, bHeight - (bottom.frame.height * Math.min(bHeight/(bottom.frame.height*2), 1)),
-					bottomMiddleWidth, bottomMiddleHeight
+				var bottomMiddleHeight:Float = getFixedSize(bottom.frame.height, bHeight);
+				sliceBM = __genSliceQuad(
+					bottomleft.frame.width, bHeight - getFixedSize(bottom.frame.height, bHeight),
+					bottomMiddleWidth, bottomMiddleHeight,
+					bottom, sliceBL, sliceMM
 				);
 			}
 
 			// BOTTOM RIGHT
-			var bottomRightWidth:Float = bottomright.frame.width * Math.min(bWidth/(bottomright.frame.width*2), 1);
-			var bottomRightHeight:Float = bottomright.frame.height * Math.min(bHeight/(bottomright.frame.height*2), 1);
-			__genSliceTri(
-				bWidth - (bottomright.frame.width * Math.min(bWidth/(bottomright.frame.width*2), 1)),
-				bHeight - (bottomright.frame.height * Math.min(bHeight/(bottomright.frame.height*2), 1)),
-				bottomRightWidth, bottomRightHeight
+			var bottomRightWidth:Float = getFixedSize(bottomright.frame.width, bWidth);
+			var bottomRightHeight:Float = getFixedSize(bottomright.frame.height, bHeight);
+			sliceBR = __genSliceQuad(
+				bWidth - getFixedSize(bottomright.frame.width, bWidth),
+				bHeight - getFixedSize(bottomright.frame.height, bHeight),
+				bottomRightWidth, bottomRightHeight,
+				bottomright, sliceBM, sliceMR
 			);
 		}
 
 		__meshDirty = false;
 	}
 
-	private inline function __genUVs() {
-		uvtData.length = 0;
-
-		if (drawTop) {
-			__genSliceUV(topleft);
-			if (bWidth > topleft.frame.width + topright.frame.width) 
-				__genSliceUV(top);
-			__genSliceUV(topright);
-		}
-
-		if (drawMiddle && bHeight > top.frame.height + bottom.frame.height) {
-			__genSliceUV(middleleft);
-			if (bWidth > (middleleft.frame.width * Math.min(bWidth/(middleleft.frame.width*2), 1)) + middleright.frame.width)
-				__genSliceUV(middle);
-			__genSliceUV(middleright);
-		}
-
-		if (drawBottom) {
-			__genSliceUV(bottomleft);
-			if (bWidth > bottomleft.frame.width + bottomright.frame.width)
-				__genSliceUV(bottom);
-			__genSliceUV(bottomright);
-		}
-
-		__framesDirty = false;
-	} 
-
-	private inline function __genSliceTri(x:Float, y:Float, width:Float, height:Float) {
+	private function __genSliceQuad(x:Float, y:Float, width:Float, height:Float, frame:FlxFrame, leftSlice:Quad, topSlice:Quad):Quad {
 		var indicesOffset:Int = Std.int(vertices.length / 2);
 
+		if(leftSlice != null && topSlice != null) {
+			indices.push(topSlice.bl);
+			indices.push(topSlice.br);
+			indices.push(indicesOffset);
+
+			indices.push(leftSlice.tr);
+			indices.push(indicesOffset);
+			indices.push(leftSlice.br);
+
+			vertices.push(x + width);
+			vertices.push(y + height);
+
+			uvtData.push(frame.uv.width);
+			uvtData.push(frame.uv.height);
+
+			// add when openfl fixes this
+			//colors.push(color);
+
+			return new Quad(topSlice.bl, topSlice.br, indicesOffset, leftSlice.br);
+		}
+		if(leftSlice != null) {
+			indices.push(leftSlice.tr);
+			indices.push(indicesOffset);
+			indices.push(indicesOffset + 1);
+
+			indices.push(leftSlice.tr);
+			indices.push(indicesOffset + 1);
+			indices.push(leftSlice.br);
+
+			vertices.push(x + width);
+			vertices.push(y);
+			vertices.push(x + width);
+			vertices.push(y + height);
+
+			uvtData.push(frame.uv.width);
+			uvtData.push(frame.uv.y);
+			uvtData.push(frame.uv.width);
+			uvtData.push(frame.uv.height);
+
+			// add when openfl fixes this
+			//colors.push(color);
+			//colors.push(color);
+
+			return new Quad(leftSlice.tr, indicesOffset, indicesOffset + 1, leftSlice.br);
+		}
+		if(topSlice != null) {
+			indices.push(topSlice.bl);
+			indices.push(topSlice.br);
+			indices.push(indicesOffset);
+
+			indices.push(topSlice.bl);
+			indices.push(indicesOffset);
+			indices.push(indicesOffset + 1);
+
+			vertices.push(x + width);
+			vertices.push(y + height);
+			vertices.push(x);
+			vertices.push(y + height);
+
+			uvtData.push(frame.uv.width);
+			uvtData.push(frame.uv.height);
+			uvtData.push(frame.uv.x);
+			uvtData.push(frame.uv.height);
+
+			// add when openfl fixes this
+			//colors.push(color);
+			//colors.push(color);
+
+			return new Quad(topSlice.bl, topSlice.br, indicesOffset, indicesOffset + 1);
+		}
 		indices.push(indicesOffset);
 		indices.push(indicesOffset + 1);
 		indices.push(indicesOffset + 2);
+
 		indices.push(indicesOffset);
 		indices.push(indicesOffset + 2);
 		indices.push(indicesOffset + 3);
@@ -287,9 +379,7 @@ class UISliceSprite extends UISprite {
 		vertices.push(y + height);
 		vertices.push(x);
 		vertices.push(y + height);
-	}
 
-	private inline function __genSliceUV(frame:FlxFrame) {
 		uvtData.push(frame.uv.x);
 		uvtData.push(frame.uv.y);
 		uvtData.push(frame.uv.width);
@@ -298,6 +388,14 @@ class UISliceSprite extends UISprite {
 		uvtData.push(frame.uv.height);
 		uvtData.push(frame.uv.x);
 		uvtData.push(frame.uv.height);
+
+		// add when openfl fixes this
+		//colors.push(color);
+		//colors.push(color);
+		//colors.push(color);
+		//colors.push(color);
+
+		return new Quad(indicesOffset, indicesOffset + 1, indicesOffset + 2, indicesOffset + 3);
 	}
 
 	@:access(flixel.FlxCamera)
@@ -321,5 +419,19 @@ class UISliceSprite extends UISprite {
 		colors = null;
 
 		super.destroy();
+	}
+}
+
+final class Quad {
+	public var tl:Int;
+	public var tr:Int;
+	public var br:Int;
+	public var bl:Int;
+
+	public function new(tl:Int, tr:Int, br:Int, bl:Int) {
+		this.tl = tl;
+		this.tr = tr;
+		this.br = br;
+		this.bl = bl;
 	}
 }

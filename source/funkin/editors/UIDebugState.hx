@@ -1,5 +1,6 @@
 package funkin.editors;
 
+import funkin.editors.ui.old.OldUISpliceSprite.OldUISliceSprite;
 import funkin.editors.ui.UITopMenu.UITopMenuButton;
 import flixel.tweens.FlxTween;
 import funkin.editors.ui.*;
@@ -79,6 +80,18 @@ class UIDebugState extends UIState {
 							spliceSprites.resize(0);
 							MemoryUtil.clearMajor();
 						}
+					},
+					null,
+					{
+						label: "Draw Triangles?",
+						onSelect: (t) -> {
+							spliceUseTris = !spliceUseTris;
+							t.icon = spliceUseTris ? 1 : 0;
+
+							spliceCl = spliceUseTris ? UISliceSprite : OldUISliceSprite;
+							trace(spliceCl);
+						},
+						icon: spliceUseTris ? 1 : 0
 					}
 				]
 			}
@@ -141,11 +154,14 @@ class UIDebugState extends UIState {
 		add(spliceText);
 	}
 
-	public var spliceSprites:Array<UISliceSprite> = [];
+	public var spliceSprites:Array<FlxSprite> = [];
 	public var spliceText:UIText;
 
 	public var spliceTimer:Float = 0;
 	public var spliceCoolDown:Float = 0.04;
+
+	public var spliceUseTris:Bool = true;
+	public var spliceCl:Class<FlxSprite> = UISliceSprite;
 
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
@@ -158,11 +174,13 @@ class UIDebugState extends UIState {
 				for (i in 0...3) {
 					var width:Int = FlxG.random.int(10, 200);
 					var height:Int = FlxG.random.int(10, 200);
-	
-					var spliceSprite:UISliceSprite = new UISliceSprite(
-						FlxG.random.float(0, FlxG.width-width), 
-						FlxG.random.float(22, FlxG.height-height), 
-						width, height, "editors/ui/context-bg"
+
+					var spliceSprite:FlxSprite = Type.createInstance(spliceCl,
+						[
+							FlxG.random.float(0, FlxG.width-width), 
+							FlxG.random.float(22, FlxG.height-height), 
+							width, height, "editors/ui/context-bg"
+						]
 					);
 	
 					spliceSprites.push(cast add(spliceSprite));

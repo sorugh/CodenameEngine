@@ -1,0 +1,23 @@
+<!DOCTYPE codename-engine-alphabet-font>
+<alphabetFont fps="24" advance="30" lineGap="70">
+	<spritesheet>menus/alphabet</spritesheet>
+
+	<defaultAnim casing="upper">LETTER capital</defaultAnim>
+	<defaultAnim casing="lower">LETTER lowercase</defaultAnim>
+	<defaultAnim>LETTER</defaultAnim>
+
+	<anim char="$">dollarsign</anim>
+	<anim char="#">hashtag</anim>
+	<anim char="&amp;">amp</anim>
+	<anim char="→" y="9">right arrow</anim>
+	<anim char="←" y="9">left arrow</anim>
+	<anim char="↓" y="5">down arrow</anim>
+	<anim char="↑" y="4">up arrow</anim>
+	<anim char="," y="-9">comma</anim>
+	<anim char=".">period</anim>
+	<anim char="?">question mark</anim>
+	<anim char="&#34;" y="22">start parentheses</anim>
+	<anim char="^" y="28">^</anim>
+	<anim char="~" y="17">~</anim>
+	<anim char="=" y="13">=</anim>
+</alphabetFont>

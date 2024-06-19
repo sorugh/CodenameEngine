@@ -1,0 +1,6 @@
+<!DOCTYPE codename-engine-alphabet-font>
+<alphabetFont fps="24" advance="50" lineGap="75" forceCasing="upper">
+	<spritesheet>menus/alphabet-bold</spritesheet>
+
+	<defaultAnim>LETTER bold</defaultAnim>
+</alphabetFont>

@@ -61,12 +61,16 @@ class MainState extends FlxState {
 		EventsData.reloadEvents();
 		TitleState.initialized = false;
 
+		#if (ALPHABET_TESTING)
+		FlxG.switchState(new funkin.menus.ui.NewAlphabetTest());
+		#else
 		if (betaWarningShown)
 			FlxG.switchState(new TitleState());
 		else {
 			FlxG.switchState(new BetaWarningState());
 			betaWarningShown = true;
 		}
+		#end
 
 		CoolUtil.safeSetAttribute('./.temp/', HIDDEN);
 	}

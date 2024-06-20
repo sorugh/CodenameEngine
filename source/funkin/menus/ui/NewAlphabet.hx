@@ -56,7 +56,7 @@ class NewAlphabet extends FlxSprite {
 		var ogOffY = frameOffset.y;
 		frameOffset.addPoint(origin);
 		frameOffset.x -= (textWidth - __laneWidths[0]) * alignment.getMultiplier();
-		offset.subtractPoint(origin);
+		offset.subtract(origin.x * scale.x, origin.y * scale.y);
 
 		for (i in 0...daText.length) {
 			var letter = daText.charAt(i);
@@ -82,7 +82,7 @@ class NewAlphabet extends FlxSprite {
 		}
 
 		frameOffset.set(ogOffX, ogOffY);
-		offset.addPoint(origin);
+		offset.add(origin.x * scale.x, origin.y * scale.y);
 	}
 
 	override function updateHitbox() {
@@ -166,7 +166,6 @@ class NewAlphabet extends FlxSprite {
 	function set_font(value:String):String {
 		if (font != value) {
 			__queueResize = true;
-			trace(Paths.xml("alphabet/" + value));
 			var xml:Xml = Xml.parse(openfl.Assets.getText(Paths.xml("alphabet/" + value))).firstElement();
 			defaultAdvance = Std.parseFloat(xml.get("advance")).getDefault(40);
 			lineGap = Std.parseFloat(xml.get("lineGap")).getDefault(75);

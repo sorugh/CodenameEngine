@@ -27,6 +27,7 @@ class NewAlphabet extends FlxSprite {
 	var __forceWidth:Float = 0; // TODO: implement functionality for this.
 	var __queueResize:Bool = false;
 	var __animTime:Float = 0;
+	var __ogForceScreen:Bool = false;
 
 	public var font(default, set):String;
 	var defaultAdvance:Float = 40;
@@ -44,6 +45,18 @@ class NewAlphabet extends FlxSprite {
 	}
 
 	override function draw() {
+		__ogForceScreen = forceIsOnScreen;
+		forceIsOnScreen = true;
+		super.draw();
+	}
+
+	override function isSimpleRender(?camera:FlxCamera):Bool {
+		return false; // maybe ill get simple render working another time??? not right now tho.
+	}
+
+	override function drawComplex(camera:FlxCamera) {
+		forceIsOnScreen = __ogForceScreen;
+
 		__animTime += FlxG.elapsed;
 		var curLine = 0;
 		var daText = switch (forceCase) {
@@ -71,9 +84,14 @@ class NewAlphabet extends FlxSprite {
 			} else {
 				var frameToGet = Math.floor(__animTime * fps) % anim.numFrames;
 				frame = frames.frames[anim.frames[frameToGet]];
+
+				if (!isOnScreen(camera)) continue;
+				if (shader != null && shader is flixel.graphics.tile.FlxGraphicsShader)
+					shader.setCamSize(_frame.frame.x, _frame.frame.y, _frame.frame.width, _frame.frame.height);
+
 				var offsetY = frame.sourceSize.y - lineGap + (yOffset.exists(letter) ? yOffset.get(letter) : 0);
 				frameOffset.y += offsetY;
-				super.draw();
+				super.drawComplex(camera);
 				frameOffset.y -= offsetY;
 				frameOffset.x -= frame.sourceSize.x;
 			}

@@ -68,6 +68,7 @@ class NewAlphabet extends FlxSprite {
 	var defaults:Map<String, String> = [];
 	var anims:Map<String, String> = [];
 	var failedLetters:Array<String> = [];
+	var xOffset:Map<String, Float> = [];
 	var yOffset:Map<String, Float> = [];
 	var advances:Map<String, Float> = [];
 
@@ -146,10 +147,13 @@ class NewAlphabet extends FlxSprite {
 				var frameToGet = Math.floor(__animTime * fps) % anim.numFrames;
 				frame = frames.frames[anim.frames[frameToGet]];
 
+				var offsetX = xOffset.exists(letter) ? xOffset.get(letter) : 0;
 				var offsetY = frame.sourceSize.y - lineGap + (yOffset.exists(letter) ? yOffset.get(letter) : 0);
+				frameOffset.x += offsetX;
 				frameOffset.y += offsetY;
 				if (!isOnScreen(camera)) {
 					frameOffset.y -= offsetY;
+					frameOffset.x -= offsetX;
 					frameOffset.x -= advance;
 					continue;
 				}
@@ -158,6 +162,7 @@ class NewAlphabet extends FlxSprite {
 
 				super.drawComplex(camera);
 				frameOffset.y -= offsetY;
+				frameOffset.x -= offsetX;
 				frameOffset.x -= advance;
 			}
 		}
@@ -253,6 +258,7 @@ class NewAlphabet extends FlxSprite {
 		defaults = new Map();
 		anims = new Map();
 		advances = new Map();
+		xOffset = new Map();
 		yOffset = new Map();
 		failedLetters = [];
 
@@ -273,6 +279,11 @@ class NewAlphabet extends FlxSprite {
 					if (node.exists("advance")) {
 						var advance = Std.parseFloat(node.get("advance")).getDefault(defaultAdvance);
 						advances.set(char, advance);
+					}
+					if (node.exists("x")) {
+						// negative since flixel is weird
+						var xOff = -Std.parseFloat(node.get("x")).getDefault(0.0);
+						xOffset.set(char, xOff);
 					}
 					if (node.exists("y")) {
 						var yOff = Std.parseFloat(node.get("y")).getDefault(0.0);

@@ -3,6 +3,7 @@ package funkin.menus.ui;
 import flixel.util.FlxDirectionFlags;
 import flixel.math.FlxPoint;
 import haxe.xml.Access;
+import flixel.animation.FlxAnimation;
 
 using StringTools;
 
@@ -68,6 +69,7 @@ class NewAlphabet extends FlxSprite {
 	var anims:Map<String, String> = [];
 	var failedLetters:Array<String> = [];
 	var yOffset:Map<String, Float> = [];
+	var advances:Map<String, Float> = [];
 
 	public function new(?x:Float, ?y:Float, ?font:String = "bold") {
 		super(x, y);
@@ -124,6 +126,8 @@ class NewAlphabet extends FlxSprite {
 		var ogOffY = frameOffset.y;
 		frameOffset.x -= (textWidth - __laneWidths[0]) * alignmentMultiplier;
 
+		var isGraphicsShader = shader != null && shader is flixel.graphics.tile.FlxGraphicsShader;
+
 		for (i in 0...daText.length) {
 			var letter = daText.charAt(i);
 			if (letter == "\n") {
@@ -134,8 +138,10 @@ class NewAlphabet extends FlxSprite {
 			}
 
 			var anim = getLetterAnim(letter);
+			var advance:Float = getAdvance(letter, anim);
+
 			if (anim == null) {
-				frameOffset.x -= defaultAdvance;
+				frameOffset.x -= advance;
 			} else {
 				var frameToGet = Math.floor(__animTime * fps) % anim.numFrames;
 				frame = frames.frames[anim.frames[frameToGet]];
@@ -144,15 +150,15 @@ class NewAlphabet extends FlxSprite {
 				frameOffset.y += offsetY;
 				if (!isOnScreen(camera)) {
 					frameOffset.y -= offsetY;
-					frameOffset.x -= frame.sourceSize.x;
+					frameOffset.x -= advance;
 					continue;
 				}
-				if (shader != null && shader is flixel.graphics.tile.FlxGraphicsShader)
+				if (isGraphicsShader)
 					shader.setCamSize(_frame.frame.x, _frame.frame.y, _frame.frame.width, _frame.frame.height);
 
 				super.drawComplex(camera);
 				frameOffset.y -= offsetY;
-				frameOffset.x -= frame.sourceSize.x;
+				frameOffset.x -= advance;
 			}
 		}
 
@@ -186,15 +192,27 @@ class NewAlphabet extends FlxSprite {
 				continue;
 			}
 
-			var anim = getLetterAnim(letter);
-			__laneWidths[curLine] += (anim != null) ? frames.frames[anim.frames[0]].sourceSize.x : defaultAdvance;
+			__laneWidths[curLine] += getAdvance(letter);
 			@:bypassAccessor textWidth = Math.max(textWidth, __laneWidths[curLine]);
 		}
 
 		origin.set(textWidth * 0.5 + originOffset.x, textHeight * 0.5 + originOffset.y);
 	}
 
-	function getLetterAnim(char:String) {
+	function getAdvance(letter:String, ?anim:FlxAnimation):Float {
+		var advance:Null<Float> = defaultAdvance;
+		if(advances.exists(letter)) {
+			advance = advances.get(letter);
+		} else {
+			var anim = anim != null ? anim : getLetterAnim(letter);
+			if(anim != null)
+				advance = frames.frames[anim.frames[0]].sourceSize.x;
+			advances.set(letter, advance);
+		}
+		return advance;
+	}
+
+	function getLetterAnim(char:String):FlxAnimation {
 		if (failedLetters.contains(char)) return null;
 		if (animation.exists(char)) return animation.getByName(char);
 
@@ -228,11 +246,21 @@ class NewAlphabet extends FlxSprite {
 
 	function loadFont(value:String) {
 		__queueResize = true;
+
 		var xml:Xml = Xml.parse(Assets.getText(Paths.xml("alphabet/" + value))).firstElement();
+
+		// reset old values
+		defaults = new Map();
+		anims = new Map();
+		advances = new Map();
+		yOffset = new Map();
+		failedLetters = [];
+
 		defaultAdvance = Std.parseFloat(xml.get("advance")).getDefault(40.0);
 		lineGap = Std.parseFloat(xml.get("lineGap")).getDefault(75.0);
 		fps = Std.parseFloat(xml.get("fps")).getDefault(24.0);
 		forceCase = xml.get("forceCasing").getDefault("none").toLowerCase();
+
 		for (node in xml.elements()) {
 			switch (node.nodeName) {
 				case "spritesheet":
@@ -240,9 +268,16 @@ class NewAlphabet extends FlxSprite {
 				case "defaultAnim":
 					defaults.set(node.get("casing").getDefault("<NORMAL>").toUpperCase(), node.firstChild().nodeValue);
 				case "anim":
-					anims.set(node.get("char"), node.firstChild().nodeValue);
-					if (node.exists("y"))
-						yOffset.set(node.get("char"), Std.parseFloat(node.get("y")).getDefault(0));
+					var char = node.get("char");
+					anims.set(char, node.firstChild().nodeValue);
+					if (node.exists("advance")) {
+						var advance = Std.parseFloat(node.get("advance")).getDefault(defaultAdvance);
+						advances.set(char, advance);
+					}
+					if (node.exists("y")) {
+						var yOff = Std.parseFloat(node.get("y")).getDefault(0.0);
+						yOffset.set(char, yOff);
+					}
 			}
 		}
 	}

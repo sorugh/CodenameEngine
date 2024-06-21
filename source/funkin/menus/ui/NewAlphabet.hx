@@ -54,15 +54,13 @@ class NewAlphabet extends FlxSprite {
 
 		var ogOffX = frameOffset.x;
 		var ogOffY = frameOffset.y;
-		frameOffset.addPoint(origin);
 		frameOffset.x -= (textWidth - __laneWidths[0]) * alignment.getMultiplier();
-		offset.subtract(origin.x * scale.x, origin.y * scale.y);
 
 		for (i in 0...daText.length) {
 			var letter = daText.charAt(i);
 			if (letter == "\n") {
 				curLine++;
-				frameOffset.x = textWidth * 0.5 - (textWidth - __laneWidths[curLine]) * alignment.getMultiplier();
+				frameOffset.x = ogOffX - (textWidth - __laneWidths[curLine]) * alignment.getMultiplier();
 				frameOffset.y -= lineGap;
 				continue;
 			}
@@ -73,16 +71,15 @@ class NewAlphabet extends FlxSprite {
 			} else {
 				var frameToGet = Math.floor(__animTime * fps) % anim.numFrames;
 				frame = frames.frames[anim.frames[frameToGet]];
-				var offsetY = frame.sourceSize.y - lineGap;
-				frameOffset.y += offsetY + (yOffset.exists(letter) ? yOffset.get(letter) : 0);
+				var offsetY = frame.sourceSize.y - lineGap + (yOffset.exists(letter) ? yOffset.get(letter) : 0);
+				frameOffset.y += offsetY;
 				super.draw();
-				frameOffset.y -= offsetY + (yOffset.exists(letter) ? yOffset.get(letter) : 0);
+				frameOffset.y -= offsetY;
 				frameOffset.x -= frame.sourceSize.x;
 			}
 		}
 
 		frameOffset.set(ogOffX, ogOffY);
-		offset.add(origin.x * scale.x, origin.y * scale.y);
 	}
 
 	override function updateHitbox() {

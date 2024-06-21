@@ -85,12 +85,16 @@ class NewAlphabet extends FlxSprite {
 				var frameToGet = Math.floor(__animTime * fps) % anim.numFrames;
 				frame = frames.frames[anim.frames[frameToGet]];
 
-				if (!isOnScreen(camera)) continue;
+				var offsetY = frame.sourceSize.y - lineGap + (yOffset.exists(letter) ? yOffset.get(letter) : 0);
+				frameOffset.y += offsetY;
+				if (!isOnScreen(camera)) {
+					frameOffset.y -= offsetY;
+					frameOffset.x -= frame.sourceSize.x;
+					continue;
+				}
 				if (shader != null && shader is flixel.graphics.tile.FlxGraphicsShader)
 					shader.setCamSize(_frame.frame.x, _frame.frame.y, _frame.frame.width, _frame.frame.height);
 
-				var offsetY = frame.sourceSize.y - lineGap + (yOffset.exists(letter) ? yOffset.get(letter) : 0);
-				frameOffset.y += offsetY;
 				super.drawComplex(camera);
 				frameOffset.y -= offsetY;
 				frameOffset.x -= frame.sourceSize.x;

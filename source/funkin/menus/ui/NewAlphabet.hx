@@ -1,39 +1,69 @@
 package funkin.menus.ui;
 
+import flixel.util.FlxDirectionFlags;
+import flixel.math.FlxPoint;
 import haxe.xml.Access;
 
 using StringTools;
 
-enum abstract AlphabetAlignment(String) from String to String {
-    var LEFT = "left";
-    var CENTER = "center";
-    var RIGHT = "right";
+enum abstract AlphabetAlignment(Int) from Int to Int {
+	var LEFT;
+	var CENTER;
+	var RIGHT;
 
-    public function getMultiplier():Float {
-        return switch(this) {
-            case CENTER: 0.5;
-            case RIGHT: 1.0;
+	public function getMultiplier():Float {
+		return switch(this) {
+			case CENTER: 0.5;
+			case RIGHT: 1.0;
 			default: 0.0;
-        }
-    }
+		}
+	}
+
+	@:from
+	public static function fromString(value:String):AlphabetAlignment
+		return switch(value) {
+			case "left": LEFT;
+			case "center": CENTER;
+			case "right": RIGHT;
+			default: LEFT;
+		}
+}
+
+enum abstract CaseMode(Int) from Int to Int {
+	var NONE;
+	var UPPER;
+	var LOWER;
+
+	@:from
+	public static function fromString(value:String):CaseMode
+		return switch(value) {
+			case "none": NONE;
+			case "upper": UPPER;
+			case "lower": LOWER;
+			default: NONE;
+		}
 }
 
 class NewAlphabet extends FlxSprite {
 	public var text(default, set):String = "";
 	@:isVar public var textWidth(get, set):Float;
 	public var textHeight(get, null):Float;
+
 	public var alignment:AlphabetAlignment = LEFT;
+	public var forceCase:CaseMode = NONE;
+
 	var __laneWidths:Array<Float> = []; // TODO: add alignment.
-	var __forceWidth:Float = 0; // TODO: implement functionality for this.
+	var __forceWidth:Float = 0.0; // TODO: implement functionality for this.
 	var __queueResize:Bool = false;
-	var __animTime:Float = 0;
+	var __animTime:Float = 0.0;
 	var __ogForceScreen:Bool = false;
 
+	public var originOffset:FlxPoint = FlxPoint.get();
+
 	public var font(default, set):String;
-	var defaultAdvance:Float = 40;
-	var forceCase:String = "none";
-	var lineGap:Float = 75;
-	var fps:Int = 24;
+	var defaultAdvance:Float = 40.0;
+	var lineGap:Float = 75.0;
+	var fps:Float = 24.0;
 	var defaults:Map<String, String> = [];
 	var anims:Map<String, String> = [];
 	var failedLetters:Array<String> = [];
@@ -42,6 +72,28 @@ class NewAlphabet extends FlxSprite {
 	public function new(?x:Float, ?y:Float, ?font:String = "bold") {
 		super(x, y);
 		this.font = font;
+	}
+
+	override function update(elapsed:Float) {
+		//super.update(elapsed);
+		// FLXOBJECT UPDATE
+		#if FLX_DEBUG
+		@:privateAccess FlxBasic.activeCount += 1;
+		#end
+
+		last.set(x, y);
+
+		if (path != null && path.active)
+			path.update(elapsed);
+
+		if (moves)
+			updateMotion(elapsed);
+
+		wasTouching = touching;
+		touching = FlxDirectionFlags.NONE;
+		// FLXOBJECT UPDATE END
+
+		__animTime += elapsed;
 	}
 
 	override function draw() {
@@ -57,23 +109,26 @@ class NewAlphabet extends FlxSprite {
 	override function drawComplex(camera:FlxCamera) {
 		forceIsOnScreen = __ogForceScreen;
 
-		__animTime += FlxG.elapsed;
+		if (__queueResize)
+			recalcSizes();
 		var curLine = 0;
 		var daText = switch (forceCase) {
-			case "upper": text.toUpperCase();
-			case "lower": text.toLowerCase();
-			default: text;
+			case UPPER: text.toUpperCase();
+			case LOWER: text.toLowerCase();
+			case NONE: text;
 		}
+
+		var alignmentMultiplier = alignment.getMultiplier();
 
 		var ogOffX = frameOffset.x;
 		var ogOffY = frameOffset.y;
-		frameOffset.x -= (textWidth - __laneWidths[0]) * alignment.getMultiplier();
+		frameOffset.x -= (textWidth - __laneWidths[0]) * alignmentMultiplier;
 
 		for (i in 0...daText.length) {
 			var letter = daText.charAt(i);
 			if (letter == "\n") {
 				curLine++;
-				frameOffset.x = ogOffX - (textWidth - __laneWidths[curLine]) * alignment.getMultiplier();
+				frameOffset.x = ogOffX - (textWidth - __laneWidths[curLine]) * alignmentMultiplier;
 				frameOffset.y -= lineGap;
 				continue;
 			}
@@ -108,16 +163,16 @@ class NewAlphabet extends FlxSprite {
 		width = Math.abs(scale.x) * textWidth;
 		height = Math.abs(scale.y) * textHeight;
 		offset.set(-0.5 * (width - textWidth), -0.5 * (height - textHeight));
-		origin.set(textWidth * 0.5, textHeight * 0.5);
+		origin.set(textWidth * 0.5 + originOffset.x, textHeight * 0.5 + originOffset.y);
 	}
 
 	function recalcSizes():Void {
 		__queueResize = false;
 		var curLine = 0;
 		var daText = switch (forceCase) {
-			case "upper": text.toUpperCase();
-			case "lower": text.toLowerCase();
-			default: text;
+			case UPPER: text.toUpperCase();
+			case LOWER: text.toLowerCase();
+			case NONE: text;
 		}
 		@:bypassAccessor textWidth = 0;
 		textHeight = lineGap;
@@ -136,22 +191,32 @@ class NewAlphabet extends FlxSprite {
 			@:bypassAccessor textWidth = Math.max(textWidth, __laneWidths[curLine]);
 		}
 
-		origin.set(textWidth * 0.5, textHeight * 0.5);
+		origin.set(textWidth * 0.5 + originOffset.x, textHeight * 0.5 + originOffset.y);
 	}
 
 	function getLetterAnim(char:String) {
 		if (failedLetters.contains(char)) return null;
-		else if (animation.exists(char)) return animation.getByName(char);
+		if (animation.exists(char)) return animation.getByName(char);
 
 		var charCode:Int = char.charCodeAt(0);
 
-		var anim:String = defaults.get("<NORMAL>").replace("LETTER", char);
-		if (charCode >= 65 && charCode <= 90 && defaults.exists("UPPER"))
-			anim = defaults.get("UPPER").replace("LETTER", char);
-		else if (charCode >= 97 && charCode <= 122 && defaults.exists("LOWER"))
-			anim = defaults.get("LOWER").replace("LETTER", char);
+		var anim:String = null;
 		if (anims.exists(char))
 			anim = anims.get(char);
+
+		if (anim == null) {
+			if (charCode >= 'A'.code && charCode <= 'A'.code && defaults.exists("UPPER"))
+				anim = defaults.get("UPPER").replace("LETTER", char);
+			else if (charCode >= 'a'.code && charCode <= 'z'.code && defaults.exists("LOWER"))
+				anim = defaults.get("LOWER").replace("LETTER", char);
+			else
+				anim = defaults.get("<NORMAL>").replace("LETTER", char);
+		}
+
+		if(anim == null) {
+			failedLetters.push(char);
+			return null;
+		}
 
 		animation.addByPrefix(char, anim, fps);
 		if (!animation.exists(char)) {
@@ -161,13 +226,41 @@ class NewAlphabet extends FlxSprite {
 		return animation.getByName(char);
 	}
 
+	function loadFont(value:String) {
+		__queueResize = true;
+		var xml:Xml = Xml.parse(Assets.getText(Paths.xml("alphabet/" + value))).firstElement();
+		defaultAdvance = Std.parseFloat(xml.get("advance")).getDefault(40.0);
+		lineGap = Std.parseFloat(xml.get("lineGap")).getDefault(75.0);
+		fps = Std.parseFloat(xml.get("fps")).getDefault(24.0);
+		forceCase = xml.get("forceCasing").getDefault("none").toLowerCase();
+		for (node in xml.elements()) {
+			switch (node.nodeName) {
+				case "spritesheet":
+					frames = Paths.getFrames(node.firstChild().nodeValue);
+				case "defaultAnim":
+					defaults.set(node.get("casing").getDefault("<NORMAL>").toUpperCase(), node.firstChild().nodeValue);
+				case "anim":
+					anims.set(node.get("char"), node.firstChild().nodeValue);
+					if (node.exists("y"))
+						yOffset.set(node.get("char"), Std.parseFloat(node.get("y")).getDefault(0));
+			}
+		}
+	}
+
+	override function destroy() {
+		originOffset = FlxDestroyUtil.destroy(originOffset);
+		failedLetters = [];
+		super.destroy();
+	}
+
 	function get_textWidth():Float {
 		if (__queueResize)
 			recalcSizes();
 		return textWidth;
 	}
 	function set_textWidth(value:Float):Float {
-		__queueResize = __queueResize || (__forceWidth != value);
+		if(!__queueResize)
+			__queueResize = __forceWidth != value;
 		return __forceWidth = value;
 	}
 
@@ -178,31 +271,15 @@ class NewAlphabet extends FlxSprite {
 	}
 
 	function set_text(value:String):String {
-		__queueResize = __queueResize || (text != value);
+		if(!__queueResize)
+			__queueResize = text != value;
 		return text = value;
 	}
 
 	function set_font(value:String):String {
 		if (font != value) {
-			__queueResize = true;
-			var xml:Xml = Xml.parse(openfl.Assets.getText(Paths.xml("alphabet/" + value))).firstElement();
-			defaultAdvance = Std.parseFloat(xml.get("advance")).getDefault(40);
-			lineGap = Std.parseFloat(xml.get("lineGap")).getDefault(75);
-			fps = Std.parseInt(xml.get("fps")).getDefault(24);
-			forceCase = xml.get("forceCasing").getDefault("none").toLowerCase();
-			for (node in xml.elements()) {
-				switch (node.nodeName) {
-					case "spritesheet":
-						frames = Paths.getFrames(node.firstChild().nodeValue);
-					case "defaultAnim":
-						defaults.set(node.get("casing").getDefault("<NORMAL>").toUpperCase(), node.firstChild().nodeValue);
-					case "anim":
-						anims.set(node.get("char"), node.firstChild().nodeValue);
-						if (node.exists("y"))
-							yOffset.set(node.get("char"), Std.parseFloat(node.get("y")).getDefault(0));
-				}
-			}
+			loadFont(font = value);
 		}
-		return font = value;
+		return value;
 	}
 }

@@ -1,11 +1,15 @@
 package funkin.menus.ui;
 
+import funkin.menus.ui.effects.RegionEffect;
+
+import flixel.animation.FlxAnimation;
 import flixel.util.FlxDirectionFlags;
 import flixel.math.FlxPoint;
+
 import haxe.xml.Access;
-import flixel.animation.FlxAnimation;
 
 using StringTools;
+using flixel.util.FlxColorTransformUtil;
 
 enum abstract AlphabetAlignment(Int) from Int to Int {
 	var LEFT;
@@ -46,6 +50,9 @@ enum abstract CaseMode(Int) from Int to Int {
 }
 
 class NewAlphabet extends FlxSprite {
+	public var effects:Array<RegionEffect> = [];
+	var __renderData:AlphabetRenderData;
+	
 	public var text(default, set):String = "";
 	@:isVar public var textWidth(get, set):Float;
 	public var textHeight(get, null):Float;
@@ -62,6 +69,7 @@ class NewAlphabet extends FlxSprite {
 	public var originOffset:FlxPoint = FlxPoint.get();
 
 	public var font(default, set):String;
+	var transformMult:Int = 1; // 1 if multipliers (tint), 0 if offset.
 	var defaultAdvance:Float = 40.0;
 	var lineGap:Float = 75.0;
 	var fps:Float = 24.0;
@@ -75,6 +83,7 @@ class NewAlphabet extends FlxSprite {
 	public function new(?x:Float, ?y:Float, ?font:String = "bold") {
 		super(x, y);
 		this.font = font;
+		this.__renderData = new AlphabetRenderData(this);
 	}
 
 	override function update(elapsed:Float) {
@@ -97,6 +106,8 @@ class NewAlphabet extends FlxSprite {
 		// FLXOBJECT UPDATE END
 
 		__animTime += elapsed;
+		for (effect in effects)
+			effect.effectTime += FlxG.elapsed * effect.speed;
 	}
 
 	override function draw() {
@@ -115,6 +126,7 @@ class NewAlphabet extends FlxSprite {
 		if (__queueResize)
 			recalcSizes();
 		var curLine = 0;
+		var lastLine = 0;
 		var daText = switch (forceCase) {
 			case UPPER: text.toUpperCase();
 			case LOWER: text.toLowerCase();
@@ -128,11 +140,22 @@ class NewAlphabet extends FlxSprite {
 		frameOffset.x -= (textWidth - __laneWidths[0]) * alignmentMultiplier;
 
 		var isGraphicsShader = shader != null && shader is flixel.graphics.tile.FlxGraphicsShader;
+		var offsetMult = (1 - transformMult) * 255; 
+		var ogRed:Float = colorTransform.redMultiplier;
+		var ogGreen:Float = colorTransform.greenMultiplier;
+		var ogBlue:Float = colorTransform.blueMultiplier;
 
 		for (i in 0...daText.length) {
-			var letter = daText.charAt(i);
+			__renderData.reset(this, daText.charAt(i));
+			for (effect in effects) {
+				if (effect.willModify(i, i - lastLine, __renderData))
+					effect.modify(i, i - lastLine, __renderData);
+			}
+
+			var letter = __renderData.letter;
 			if (letter == "\n") {
 				curLine++;
+				lastLine = i + 1;
 				frameOffset.x = ogOffX - (textWidth - __laneWidths[curLine]) * alignmentMultiplier;
 				frameOffset.y -= lineGap;
 				continue;
@@ -147,8 +170,8 @@ class NewAlphabet extends FlxSprite {
 				var frameToGet = Math.floor(__animTime * fps) % anim.numFrames;
 				frame = frames.frames[anim.frames[frameToGet]];
 
-				var offsetX = xOffset.exists(letter) ? xOffset.get(letter) : 0;
-				var offsetY = frame.sourceSize.y - lineGap + (yOffset.exists(letter) ? yOffset.get(letter) : 0);
+				var offsetX = (xOffset.exists(letter) ? xOffset.get(letter) : 0) + __renderData.offsetX;
+				var offsetY = frame.sourceSize.y - lineGap + (yOffset.exists(letter) ? yOffset.get(letter) : 0) + __renderData.offsetY;
 				frameOffset.x += offsetX;
 				frameOffset.y += offsetY;
 				if (!isOnScreen(camera)) {
@@ -160,11 +183,18 @@ class NewAlphabet extends FlxSprite {
 				if (isGraphicsShader)
 					shader.setCamSize(_frame.frame.x, _frame.frame.y, _frame.frame.width, _frame.frame.height);
 
+				setColorTransform(
+					__renderData.red * transformMult, __renderData.green * transformMult, __renderData.blue * transformMult, colorTransform.alphaMultiplier,
+					Math.round(__renderData.red * offsetMult), Math.round(__renderData.green * offsetMult), Math.round(__renderData.blue * offsetMult), 0
+				);
 				super.drawComplex(camera);
 				frameOffset.y -= offsetY;
 				frameOffset.x -= offsetX;
 				frameOffset.x -= advance;
 			}
+			colorTransform.redMultiplier = ogRed;
+			colorTransform.greenMultiplier = ogGreen;
+			colorTransform.blueMultiplier = ogBlue;
 		}
 
 		frameOffset.set(ogOffX, ogOffY);
@@ -266,6 +296,7 @@ class NewAlphabet extends FlxSprite {
 		lineGap = Std.parseFloat(xml.get("lineGap")).getDefault(75.0);
 		fps = Std.parseFloat(xml.get("fps")).getDefault(24.0);
 		forceCase = xml.get("forceCasing").getDefault("none").toLowerCase();
+		transformMult = (xml.get("useColorOffsets") == "true") ? 0 : 1;
 
 		for (node in xml.elements()) {
 			switch (node.nodeName) {

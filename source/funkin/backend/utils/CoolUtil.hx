@@ -52,6 +52,17 @@ class CoolUtil
 	}
 
 	/**
+	 * Applies the % operator, but without any negatives.
+	 * 
+	 * @param dividend The intial value. The left side of the equation.
+	 * @param divisor What to modulo by. The right side of the equation.
+	 * @return A positive reminder of `dividend / divisor`.
+	 */
+	public static inline function positiveModulo(dividend:Float, divisor:Float) {
+		return ((dividend % divisor) + divisor) % divisor;
+	}
+
+	/**
 	 * Shortcut to parse JSON from an Asset path
 	 * @param assetPath Path to the JSON asset.
 	 */

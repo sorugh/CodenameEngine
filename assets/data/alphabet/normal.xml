@@ -1,5 +1,5 @@
 <!DOCTYPE codename-engine-alphabet-font>
-<alphabetFont fps="24" advance="30" lineGap="70">
+<alphabetFont fps="24" advance="30" lineGap="70" useColorOffsets="true">
 	<spritesheet>menus/alphabet</spritesheet>
 
 	<defaultAnim casing="upper">LETTER capital</defaultAnim>

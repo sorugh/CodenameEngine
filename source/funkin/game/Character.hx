@@ -55,30 +55,6 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 	@:noCompletion var __switchAnims:Bool = true;
 
-	public inline function getSingAnim(direction:Int, suffix:String = ""):String
-	{
-		return anims[direction % anims.length] + suffix;
-	}
-
-	/**
-	 * Like `playSingAnimUnsafe` but checks if the character has the animation with the suffix part, otherwhise tries to play the animation without the suffix part.
-	 */
-	public function playSingAnim(direction:Int, suffix:String = "", Context:PlayAnimContext = SING, Force:Bool = true, Reversed:Bool = false, Frame:Int = 0)
-	{
-		var event = EventManager.get(DirectionAnimEvent).recycle(getSingAnim(direction, suffix), direction, suffix, Context, Reversed, Frame, Force);
-		script.call("onPlaySingAnim", [event]);
-		if (!event.cancelled)
-			playSingAnimUnsafe(event.direction, hasAnimation(event.animName) ? event.suffix : "", event.context, event.force, event.reversed, event.frame);
-	}
-
-	public function playSingAnimUnsafe(direction:Int, suffix:String = "", Context:PlayAnimContext = SING, Force:Bool = true, Reversed:Bool = false, Frame:Int = 0)
-	{
-		var event = EventManager.get(DirectionAnimEvent).recycle(getSingAnim(direction, suffix), direction, suffix, Context, Reversed, Frame, Force);
-		script.call("onPlaySingAnimUnsafe", [event]);
-		if (!event.cancelled)
-			playAnim(event.animName, event.force, event.context, event.reversed, event.frame);
-	}
-
 	public function new(x:Float, y:Float, ?character:String = "bf", isPlayer:Bool = false, switchAnims:Bool = true, disableScripts:Bool = false)
 	{
 		super(x, y);
@@ -120,7 +96,9 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		if (isPlayer != playerOffsets && switchAnims)
 			swapLeftRightAnimations();
 
-		frameOffset.set(getAnimOffset(getAnimName()).x, getAnimOffset(getAnimName()).y);
+		var o:FlxPoint = getAnimOffset(getAnimName());
+		frameOffset.set(o.x, o.y);
+		o.put();
 		if (isPlayer) flipX = !flipX;
 		__baseFlipped = flipX;
 	}
@@ -232,11 +210,29 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	}
 
 	public var singAnims = ["singLEFT", "singDOWN", "singUP", "singRIGHT"];
-	public function playSingAnim(direction:Int, suffix:String = "", Context:PlayAnimContext = SING, Force:Bool = true, Reversed:Bool = false, Frame:Int = 0) {
-		var event = EventManager.get(DirectionAnimEvent).recycle(singAnims[direction % singAnims.length] + suffix, direction, suffix, Context, Reversed, Frame, Force);
+	public inline function getSingAnim(direction:Int, suffix:String = ""):String
+	{
+		return singAnims[direction % singAnims.length] + suffix;
+	}
+
+	/**
+	 * Like `playSingAnimUnsafe` but checks if the character has the animation with the suffix part, otherwise it plays the animation without the suffix part.
+	 */
+	public function playSingAnim(direction:Int, suffix:String = "", Context:PlayAnimContext = SING, Force:Bool = true, Reversed:Bool = false, Frame:Int = 0)
+	{
+		var event = EventManager.get(DirectionAnimEvent).recycle(getSingAnim(direction, suffix), direction, suffix, Context, Reversed, Frame, Force);
 		script.call("onPlaySingAnim", [event]);
-		if (!event.cancelled)
-			playAnim(event.animName, event.force, event.context, event.reversed, event.frame);
+		if (event.cancelled) return;
+
+		playSingAnimUnsafe(event.direction, hasAnimation(event.animName) ? event.suffix : "", event.context, event.force, event.reversed, event.frame);
+	}
+
+	public function playSingAnimUnsafe(direction:Int, suffix:String = "", Context:PlayAnimContext = SING, Force:Bool = true, Reversed:Bool = false, Frame:Int = 0) {
+		var event = EventManager.get(DirectionAnimEvent).recycle(getSingAnim(direction, suffix), direction, suffix, Context, Reversed, Frame, Force);
+		script.call("playSingAnimUnsafe", [event]);
+		if (event.cancelled) return;
+
+		playAnim(event.animName, event.force, event.context, event.reversed, event.frame);
 	}
 
 	public override function playAnim(AnimName:String, Force:Bool = false, Context:PlayAnimContext = NONE, Reversed:Bool = false, Frame:Int = 0) {
@@ -263,8 +259,10 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	}
 
 	public override function destroy() {
-		script.call('destroy');
-		script.destroy();
+		if(script != null) {
+			script.call('destroy');
+			script.destroy();
+		}
 		super.destroy();
 
 		cameraOffset.put();
@@ -330,12 +328,6 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		var hasInterval:Bool = xml.x.exists("interval");
 		if (hasInterval) beatInterval = Std.parseInt(xml.x.get("interval"));
 
-		var tempList = ["isPlayer", "isGF", "x", "y", "gameOverChar", "camx", "camy", "holdTime", "flipX", "icon", "color", "scale", "antialiasing", "sprite", "interval"];
-		var atts = xml.x.attributes();
-		for (i in atts)
-			if (!tempList.contains(i))
-				extra[i] = xml.x.get(i);
-
 		loadSprite(Paths.image('characters/$sprite'));
 
 		for (anim in xml.nodes.anim)
@@ -350,8 +342,8 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	}
 
 	public static var characterProperties:Array<String> = [
-		"x", "y", "sprite", "scale", "antialiasing", 
-		"flipX", "camx", "camy", "isPlayer", "icon", 
+		"x", "y", "sprite", "scale", "antialiasing",
+		"flipX", "camx", "camy", "isPlayer", "icon",
 		"color", "gameOverChar", "holdTime"
 	];
 	public static var characterAnimProperties:Array<String> = [
@@ -361,7 +353,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	public inline function buildXML(?animsOrder:Array<String>):Xml {
 		var xml:Xml = Xml.createElement("character");
 		xml.attributeOrder = characterProperties.copy();
-		
+
 		if (globalOffset.x != 0) xml.set("x", Std.string(FlxMath.roundDecimal(globalOffset.x, 2)));
 		if (globalOffset.y != 0) xml.set("y", Std.string(FlxMath.roundDecimal(globalOffset.y, 2)));
 
@@ -452,7 +444,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 			var xmlPath:String = Paths.xml('characters/$character');
 			if (!Assets.exists(xmlPath)) {
 				character = FALLBACK_CHARACTER;
-				if (char != null) 
+				if (char != null)
 					char.curCharacter = character;
 				continue;
 			}
@@ -466,7 +458,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 				Logs.trace('Error while loading character ${character}: ${e}', ERROR);
 
 				character = FALLBACK_CHARACTER;
-				if (char != null) 
+				if (char != null)
 					char.curCharacter = character;
 				continue;
 			}

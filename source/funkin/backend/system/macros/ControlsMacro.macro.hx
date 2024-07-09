@@ -17,6 +17,7 @@ class ControlsMacro
 	static var _currentControls: Map<String, Array<Expr>> = null;
 	static var _currentGamepadControls: Map<String, Expr> = null;
 	static var _keySet: Map<String, String> = null;
+	static var _internalMap: Map<String, String> = null;
 
 	public static macro function build(): Array<Field>
 	{
@@ -31,6 +32,7 @@ class ControlsMacro
 		_currentControls = [];
 		_currentGamepadControls = [];
 		_keySet = [];
+		_internalMap = [];
 		var fields = Context.getBuildFields();
 		for (field in fields.copy())
 		{
@@ -75,14 +77,32 @@ class ControlsMacro
 			meta: []
 		});
 
+		function buildBindControl(s:String, prefix:String) {
+			var prefixxed = prefix + s;
+
+			return macro bindKeys(Control.$s, Options.$prefixxed);
+		}
+
 		fields.push({
 			name: "macro_bindControls",
 			access: [],
 			kind: FFun({
 				ret: macro : Void,
 				params: [],
-				expr: macro $b{_allControls.map((s) -> macro addKeys(Control.$s, $v{_keySet.get(s)}))},
-				args: []
+				expr: macro switch(keyScheme) {
+					case Solo:
+						$a{_allControls.map(buildBindControl.bind(_, "SOLO_"))};
+					case Duo(true):
+						$a{_allControls.map(buildBindControl.bind(_, "P1_"))};
+					case Duo(false):
+						$a{_allControls.map(buildBindControl.bind(_, "P2_"))};
+					case None: // nothing
+					case Custom: // nothing
+				},
+				args: [{
+					name: "keyScheme",
+					type: macro : funkin.backend.system.Controls.KeyboardScheme
+				}]
 			}),
 			pos: Context.currentPos(),
 			doc: null,
@@ -95,7 +115,7 @@ class ControlsMacro
 			kind: FFun({
 				ret: macro : Void,
 				params: [],
-				expr: generateForEachBoundCode(),
+				expr: generateForEachBoundCode(macro control),
 				args: [
 					{
 						name: "control",
@@ -112,34 +132,64 @@ class ControlsMacro
 			meta: []
 		});
 
+		fields.push({
+			name: "macro_getActionFromControl",
+			access: [APrivate],
+			kind: FFun({
+				ret: macro : FlxActionDigital,
+				params: [],
+				expr: generateGetActionFromControlCode(macro control),
+				args: [{
+					name: "control",
+					type: macro : Control
+				}]
+			}),
+			pos: Context.currentPos(),
+			doc: null,
+			meta: []
+		});
+
 		// for (field in fields)
-		//	trace(new haxe.macro.Printer().printField(field));
+		// 	trace(new haxe.macro.Printer().printField(field));
 
 		_allControls = null;
 		_allInternalControls = null;
 		_currentControls = null;
 		_currentGamepadControls = null;
 		_keySet = null;
+		_internalMap = null;
 
 		return fields;
 	}
 
-	static function generateForEachBoundCode(): Expr
+	static function generateSwitchCase(expr:Expr, cases:Array<Case>, defaultCase:Expr): Expr
 	{
-		var cases: Array<Case> = [];
-
-		for (field => code in _currentControls)
-		{
-			cases.push({
-				values: [macro Control.$field],
-				expr: macro $b{code}
-			});
-		}
-
 		return {
-			expr: ESwitch(macro control, cases, macro {}),
+			expr: ESwitch(expr, cases, defaultCase),
 			pos: Context.currentPos()
 		}
+	}
+
+	static function generateGetActionFromControlCode(value:Expr): Expr
+	{
+		return macro return ${generateSwitchCase(value, [
+			for (short => internal in _internalMap)
+				{
+					values: [macro Control.$short],
+					expr: macro $i{internal}
+				}
+		], macro null)};
+	}
+
+	static function generateForEachBoundCode(value:Expr): Expr
+	{
+		return generateSwitchCase(value, [
+			for (field => code in _currentControls)
+				{
+					values: [macro Control.$field],
+					expr: macro $b{code}
+				}
+		], macro {});
 	}
 
 	static function generateGamepadCode(): Expr
@@ -148,6 +198,7 @@ class ControlsMacro
 		for (name in _allControls)
 		{
 			var expr = _currentGamepadControls.get(name);
+			if(expr == null) continue;
 			map.push(macro @:pos(expr.pos) Control.$name => ${expr});
 		}
 
@@ -197,10 +248,13 @@ class ControlsMacro
 			shortName = shortName.substr(0, shortName.length - 2);
 		else if (shortName.endsWith(type = "_H"))
 			shortName = shortName.substr(0, shortName.length - 2);
+		else if (shortName.endsWith(type = "_HOLD"))
+			shortName = shortName.substr(0, shortName.length - 5);
 		else
 			type = "";
 
 		var internalName = "_" + camelCase(shortName);
+		var internalNameNoType = internalName;
 		if (type != "")
 			internalName += type.substr(1);
 
@@ -212,11 +266,12 @@ class ControlsMacro
 			var shouldRemove = true;
 			switch (meta.name)
 			{
-				case ":gamepad":
+				case ":gamepad" | ":rawGamepad":
 					if (!_currentGamepadControls.exists(shortName))
 					{
 						var expr = meta.params[0];
-						if (Context.defined("switch"))
+						var shouldRemap = meta.name != ":rawGamepad";
+						if (shouldRemap && Context.defined("switch"))
 						{
 							expr = swapAB(expr);
 						}
@@ -256,6 +311,8 @@ class ControlsMacro
 			_allControls.push(shortName);
 
 		_keySet.set(shortName, keyset);
+		if (!_internalMap.exists(internalNameNoType))
+			_internalMap.set(shortName, internalNameNoType);
 
 		// Generated Code: var _uiUp = new FlxActionDigital("_uiUp");
 		var internalField: Field = {

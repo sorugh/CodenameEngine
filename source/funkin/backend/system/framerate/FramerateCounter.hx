@@ -19,7 +19,9 @@ class FramerateCounter extends Sprite {
 
 		fpsHistory = new Vector(FRAME_TIME_HISTORY);
 		// Initialize to 60 FPS, so that the initial estimation until we get enough data is always reasonable.
-		fpsHistory.fill(1000.0 / 60.0);
+		for(i in 0...FRAME_TIME_HISTORY) {
+			fpsHistory[i] = 1000.0 / 60.0;
+		}
 
 		fpsNum = new TextField();
 		fpsLabel = new TextField();

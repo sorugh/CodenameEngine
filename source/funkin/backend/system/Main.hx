@@ -1,5 +1,7 @@
 package funkin.backend.system;
 
+import sys.io.File;
+import sys.FileSystem;
 import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.transition.TransitionData;
@@ -160,6 +162,9 @@ class Main extends Sprite
 
 		ModsFolder.init();
 		#if MOD_SUPPORT
+		if (FileSystem.exists("mods/autoload.txt"))
+			modToLoad = File.getContent("mods/autoload.txt").trim();
+
 		ModsFolder.switchMod(modToLoad.getDefault(Options.lastLoadedMod));
 		#end
 

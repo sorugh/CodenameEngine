@@ -1,5 +1,7 @@
 package funkin.editors.character;
 
+import funkin.game.Stage;
+import funkin.editors.ui.UITopMenu.UITopMenuButton;
 import funkin.editors.extra.CameraHoverDummy;
 import openfl.display.BitmapData;
 import flixel.math.FlxPoint;
@@ -19,11 +21,10 @@ class CharacterEditor extends UIState {
 	private static inline function get_instance()
 		return FlxG.state is CharacterEditor ? cast FlxG.state : null;
 
-	/**
-	 * CHARACTER UI STUFF
-	*/
-	public var characterBG:FunkinSprite;
 	public var topMenu:Array<UIContextMenuOption>;
+	@:noCompletion private var animationIndex:Int = 5;
+	@:noCompletion private var stageIndex:Int = 3;
+
 	public var topMenuSpr:UITopMenu;
 
 	public var uiGroup:FlxTypedGroup<FlxSprite> = new FlxTypedGroup<FlxSprite>();
@@ -35,6 +36,11 @@ class CharacterEditor extends UIState {
 
 	public var charCamera:FlxCamera;
 	public var uiCamera:FlxCamera;
+
+	public var animationText:UIText;
+
+	public var currentStage:String = null;
+	public var stage:Stage = null;
 
 	public function new(character:String) {
 		super();
@@ -78,46 +84,21 @@ class CharacterEditor extends UIState {
 				label: "Edit",
 				childs: [
 					{
+						label: "Copy Offset",
+						keybind: [CONTROL, C],
+					},
+					{
+						label: "Paste Offset",
+						keybind: [CONTROL, V],
+					},
+					null,
+					{
 						label: "Undo",
 						keybind: [CONTROL, Z],
 					},
 					{
 						label: "Redo",
 						keybinds: [[CONTROL, Y], [CONTROL, SHIFT, Z]],
-					}
-				]
-			},
-			{
-				label: "Character",
-				childs: [
-					{
-						label: "New Animation",
-						keybind: [CONTROL, N],
-					},
-					{
-						label: "Edit Animation",
-					},
-					{
-						label: "Delete Animation",
-						keybind: [DELETE],
-					},
-					null,
-					{
-						label: "Edit Info",
-					}
-				]
-			},
-			{
-				label: "Playback",
-				childs: [
-					{
-						label: "Play Animation",
-						keybind: [SPACE],
-						onSelect: _playback_play_anim,
-					},
-					{
-						label: "Stop Animation",
-						onSelect: _playback_stop_anim
 					}
 				]
 			},
@@ -165,6 +146,10 @@ class CharacterEditor extends UIState {
 				]
 			},
 			{
+				label: "Stage",
+				childs: buildStagesUI()
+			},
+			{
 				label: "View",
 				childs: [
 					{
@@ -182,7 +167,39 @@ class CharacterEditor extends UIState {
 						keybind: [CONTROL, NUMPADZERO],
 						onSelect: _view_zoomreset
 					},
-
+					null,
+					{
+						label: "Character Hitbox?",
+					},
+					{
+						label: "Character Camera?",
+					},
+					{
+						label: "Visible BG Grid?",
+					},
+				]
+			},
+			{
+				label: "Animation >",
+				childs: [
+					{
+						label: "Play Animation",
+						keybind: [SPACE],
+						onSelect: _playback_play_anim,
+					},
+					{
+						label: "Stop Animation",
+						onSelect: _playback_stop_anim
+					},
+					null,
+					{
+						label: "Change Animation ↑",
+						keybind: [W],
+					},
+					{
+						label: "Change Animation ↓",
+						keybind: [S],
+					}
 				]
 			},
 		];
@@ -191,15 +208,6 @@ class CharacterEditor extends UIState {
 
 		uiCamera = new FlxCamera();
 		uiCamera.bgColor = 0;
-
-		characterBG = new FunkinSprite(0, 0, Paths.image('editors/character/WOAH'));
-		characterBG.cameras = [charCamera];
-		characterBG.screenCenter();
-		characterBG.scale.set(FlxG.width/characterBG.width, FlxG.height/characterBG.height);
-		characterBG.scrollFactor.set();
-		add(characterBG);
-
-		// characterBG.visible = false;
 
 		FlxG.cameras.add(uiCamera);
 
@@ -212,17 +220,21 @@ class CharacterEditor extends UIState {
 		uiGroup.cameras = [uiCamera];
 		add(cameraHoverDummy = new CameraHoverDummy(uiGroup, FlxPoint.weak(0, 0)));
 
-		characterPropertiesWindow = new CharacterPropertiesWindow((FlxG.width-(532+16)), 23+12+10, character);
+		characterPropertiesWindow = new CharacterPropertiesWindow((FlxG.width-(532)), 23+12+10, character);
 		uiGroup.add(characterPropertiesWindow);
 
 		topMenuSpr = new UITopMenu(topMenu);
 		topMenuSpr.cameras = [uiCamera];
+
+		animationText = new UIText(0, 0, 0, "");
+		animationText.cameras = [uiCamera];
 
 		characterAnimsWindow = new CharacterAnimsWindow(characterPropertiesWindow.x, characterPropertiesWindow.y+224+16, character);
 		uiGroup.add(characterAnimsWindow);
 
 		add(uiGroup);
 		add(topMenuSpr);
+		add(animationText);
 
 		playAnimation(character.getAnimOrder()[0]);
 		_view_focus_character(null);
@@ -278,8 +290,12 @@ class CharacterEditor extends UIState {
 
 		charCamera.zoom = lerp(charCamera.zoom, __camZoom*_cameraZoomMulti, 0.125);
 
-		characterBG.scale.set(FlxG.width/characterBG.width, FlxG.height/characterBG.height);
-		characterBG.scale.set(characterBG.scale.x / charCamera.zoom, characterBG.scale.y / charCamera.zoom);
+		if (topMenuSpr.members[animationIndex] != null) {
+			var animationTopButton:UITopMenuButton = cast topMenuSpr.members[animationIndex];
+			animationText.x = animationTopButton.x + animationTopButton.bWidth + 6;
+			animationText.y = Std.int((animationTopButton.bHeight - animationText.height) / 2);
+		}
+		animationText.text = '"${character.getAnimName()}"';
 
 		super.update(elapsed);
 	}
@@ -309,6 +325,29 @@ class CharacterEditor extends UIState {
 		openSubState(new SaveSubstate(buildCharacter(), {
 			defaultSaveFile: '${character.curCharacter}.xml'
 		}));
+	}
+
+	function buildStagesUI() {
+		var stageTopButton:UITopMenuButton = topMenuSpr == null ? null : cast topMenuSpr.members[stageIndex];
+		var newChilds:Array<UIContextMenuOption> = [];
+
+		var stageFileList = Stage.getList(true);
+		if (stageFileList.length == 0) stageFileList = Stage.getList(false);
+
+		for (stage in stageFileList)
+			newChilds.push({
+				label: 'Use "$stage"?',
+				icon: currentStage == stage ? 1 : 0
+			});
+
+		newChilds.push(null);
+		newChilds.push({
+			label: "Use No Stage?",
+			icon: currentStage == null ? 1 : 0
+		});
+
+		if (stageTopButton != null) stageTopButton.contextMenu = newChilds;
+		return newChilds;
 	}
 
 	function buildCharacter():String {

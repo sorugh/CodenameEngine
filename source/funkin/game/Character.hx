@@ -305,6 +305,11 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		for (anim in xml.nodes.anim)
 			XMLUtil.addXMLAnimation(this, anim);
 
+		for (offset in animOffsets) {
+			offset.x = FlxMath.roundDecimal(offset.x, 2);
+			offset.y = FlxMath.roundDecimal(offset.y, 2);
+		}
+
 		for (attribute in xml.x.attributes())
 			if (!characterProperties.contains(attribute))
 				extra[attribute] = xml.x.get(attribute);

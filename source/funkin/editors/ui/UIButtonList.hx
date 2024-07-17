@@ -67,21 +67,23 @@ class UIButtonList<T:UIButton> extends UIWindow {
 	}
 
 	public inline function updateButtonsPos(elapsed:Float) {
+		var endButtonY:Float = 0;
 		for (i => button in buttons.members) {
 			if (button == null) continue;
-
+			
 			if (curMoving != button) {
 				button.setPosition(
 					(bWidth/2) - (buttonSize.x/2) + buttonOffset.x,
-					CoolUtil.fpsLerp(button.y, ((buttonSize.y+buttonSpacing) * i) + buttonOffset.y, 0.25));
+					CoolUtil.fpsLerp(button.y, endButtonY + buttonOffset.y, 0.25));
 			}
+			endButtonY += button.bHeight+buttonSpacing;
 			if (button.hovered && FlxG.mouse.justPressed) curMoving = button;
 		}
 
 		if (addButton != null)
 			addButton.setPosition(
 				(bWidth/2) - (buttonSize.x/2) + buttonOffset.x,
-				CoolUtil.fpsLerp(addButton.y, ((buttonSize.y+buttonSpacing) * buttons.members.length) + buttonOffset.y, 0.25));
+				CoolUtil.fpsLerp(addButton.y, endButtonY + buttonOffset.y, 0.25));
 
 		if (curMoving != null) {
 			curMovingInterval += FlxG.mouse.deltaY;

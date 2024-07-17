@@ -172,9 +172,7 @@ class CharacterAnimButton extends UIButton {
 		members.push(ghostIcon);
 	}
 
-	public override function update(elapsed:Float) {
-		bHeight = closed ? 52 : 208;
-
+	public inline function updateButtonsPos() {
 		playIcon.follow(this, 22, (52/2) - (playIcon.height/2));
 		field.follow(this, 22+16+10, (52/2) - (field.height/2) + 1);
 
@@ -200,13 +198,17 @@ class CharacterAnimButton extends UIButton {
 
 		indicesTextBox.follow(this, 158, 164);
 
-		for (button in foldableButtons)
-			button.visible = button.active = !closed;
-
 		for (ui => text in labels) {
 			text.follow(ui, -(2+(ui is UICheckbox?12:0)), -(18+(ui is UICheckbox?6:0)));
 			text.visible = text.active = ui.visible;
 		}
+	}
+
+	public override function update(elapsed:Float) {
+		bHeight = closed ? 52 : 208;
+
+		for (button in foldableButtons)
+			button.visible = button.active = !closed;
 
 		super.update(elapsed);
 	}
@@ -366,6 +368,7 @@ class CharacterAnimButton extends UIButton {
 	}
 
 	public override function draw() {
+		updateButtonsPos();
 		super.draw();
 
 		if (!closed && parent.displayAnimsFramesList.exists(anim)) {

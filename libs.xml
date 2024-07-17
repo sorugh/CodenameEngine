@@ -30,7 +30,7 @@
 
 	<!-- Lime Building -->
 	<if cond="build-lime || all">
-		<print pretty="true">Building Lime...</print>
+		<print pretty="true">Rebuilding Lime...</print>
 
 		<!-- Build lime -->
 		<cmd inLib="lime" cmd="lime rebuild . $PLATFORM" />

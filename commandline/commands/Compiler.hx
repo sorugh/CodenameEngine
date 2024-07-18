@@ -13,27 +13,24 @@ class Compiler {
 	public static function testRelease(args:Array<String>) {
 		__runLime(args, ["test", getBuildTarget()]);
 	}
-
 	public static function run(args:Array<String>) {
 		__runLime(args, ["run", getBuildTarget()]);
 	}
 
 	private static function __runLime(args:Array<String>, arg:Array<String>) {
+		arg.insert(0, "lime");
+		arg.insert(0, "run");
 		for(a in args)
 			arg.push(a);
-		Sys.command("lime", arg);
+		Sys.command("haxelib", arg);
 	}
 
 	public static function getBuildTarget() {
 		return switch(Sys.systemName()) {
-			case "Windows":
-				"windows";
-			case "Mac":
-				"macos";
-			case "Linux":
-				"linux";
-			case def:
-				def.toLowerCase();
+			case "Windows": "windows";
+			case "Mac": "macos";
+			case "Linux": "linux";
+			case def: def.toLowerCase();
 		}
 	}
 }

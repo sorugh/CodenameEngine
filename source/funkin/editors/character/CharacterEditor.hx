@@ -355,10 +355,6 @@ class CharacterEditor extends UIState {
 	}
 
 	function buildCharacter():String {
-		if (character.isPlayer != character.playerOffsets) {
-			character.switchOffset('singLEFT', 'singRIGHT');
-			character.switchOffset('singLEFTmiss', 'singRIGHTmiss');
-		}
 		var charXML:Xml = character.buildXML([
 			for (button in characterAnimsWindow.buttons.members)
 				button.anim

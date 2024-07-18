@@ -69,7 +69,7 @@
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
-	<haxeflag name="--macro" value="funkin.backend.system.macros.NewHaxeWarning.warn()" />
+	<haxeflag name="--macro" value="funkin.backend.system.macros.BuildInfo.printBuildInfo()" />
 
 	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
 

@@ -835,16 +835,6 @@ class CoolUtil
 		return array.indexOf(element) != -1;
 	}
 	#end
-
-	/*
-	 * Returns the filename of a path, without the extension.
-	 * @param path Path to get the filename from
-	 * @return Filename
-	 */
-	 @:noUsing public static inline function getFilename(file:String) {
-		var file = new haxe.io.Path(file);
-		return file.file;
-	}
 }
 
 /**

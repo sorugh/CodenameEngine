@@ -72,6 +72,6 @@ class MainState extends FlxState {
 		}
 		#end
 
-		CoolUtil.safeSetAttribute('./.temp/', HIDDEN);
+		CoolUtil.safeAddAttributes('./.temp/', NativeAPI.FileAttribute.HIDDEN);
 	}
 }

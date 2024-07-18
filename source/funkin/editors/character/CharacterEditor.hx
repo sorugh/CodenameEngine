@@ -279,7 +279,7 @@ class CharacterEditor extends UIState {
 				openContextMenu(topMenu[2].childs);
 			}
 
-			if (FlxG.mouse.pressed) {
+			if (FlxG.mouse.pressed && !FlxG.mouse.justPressed) {
 				_nextScroll.set(_nextScroll.x - FlxG.mouse.deltaScreenX, _nextScroll.y - FlxG.mouse.deltaScreenY);
 				currentCursor = HAND;
 			} else

@@ -170,13 +170,14 @@ class CharacterEditor extends UIState {
 					null,
 					{
 						label: "Character Hitbox?",
+						onSelect: _view_character_show_hitbox,
+						icon: Options.characterHitbox ? 1 : 0
 					},
 					{
 						label: "Character Camera?",
-					},
-					{
-						label: "Visible BG Grid?",
-					},
+						onSelect: _view_character_show_camera,
+						icon: Options.characterCamera ? 1 : 0
+					}
 				]
 			},
 			{
@@ -214,6 +215,9 @@ class CharacterEditor extends UIState {
 		character = new Character(0,0, __character, false, false);
 		character.debugMode = true;
 		character.cameras = [charCamera];
+
+		character.debugHitbox = Options.characterHitbox;
+		character.debugCamera = Options.characterCamera;
 
 		add(character);
 
@@ -402,12 +406,22 @@ class CharacterEditor extends UIState {
 		__camZoom = Math.pow(2, zoom);
 	}
 
+	function _view_character_show_hitbox(t) {
+		t.icon = (Options.characterHitbox = !Options.characterHitbox) ? 1 : 0;
+		character.debugHitbox = Options.characterHitbox;
+	}
+
+	function _view_character_show_camera(t) {
+		t.icon = (Options.characterCamera = !Options.characterCamera) ? 1 : 0;
+		character.debugCamera = Options.characterCamera;
+	}
+
 	function _view_focus_character(_) {
 		if (character == null) return;
 
 		var characterMidpoint:FlxPoint = character.getMidpoint();
 		characterMidpoint.x -= (FlxG.width/2)-character.globalOffset.x;
-		characterMidpoint.y -= (FlxG.height/2)-character.globalOffset.y+(23/4);
+		characterMidpoint.y -= (FlxG.height/2)-character.globalOffset.y;
 		_nextScroll.set(characterMidpoint.x, characterMidpoint.y);
 		characterMidpoint.put();
 	}

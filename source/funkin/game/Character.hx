@@ -1,5 +1,7 @@
 package funkin.game;
 
+import flixel.util.FlxSpriteUtil;
+import openfl.display.Graphics;
 import flixel.util.typeLimit.OneOfTwo;
 import flixel.graphics.frames.FlxFrame;
 import flixel.math.FlxPoint;
@@ -201,6 +203,57 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 			scale.x *= -1;
 			__reverseDrawProcedure = false;
 		} else super.draw();
+
+		if (debugHitbox) drawHitbox();
+		if (debugCamera) drawCamera();
+	}
+
+	public var debugHitbox:Bool = false;
+	public var debugCamera:Bool = false;
+
+	public function drawHitbox() {
+		if (_matrix == null || frame == null) return;
+		
+		for (camera in cameras) {
+			var gfx:Graphics = FlxG.renderBlit ? {
+				FlxSpriteUtil.flashGfx.clear();
+				FlxSpriteUtil.flashGfx;
+			} :  camera.debugLayer.graphics;
+
+			_rect.set(_matrix.tx, _matrix.ty, frame.frame.width * _matrix.a, frame.frame.height * _matrix.d);
+			@:privateAccess _rect = camera.transformRect(_rect);
+
+			gfx.lineStyle(2, 0xFF00FF00, 0.75);
+			gfx.drawRect(_rect.x, _rect.y, _rect.width, _rect.height);
+
+			if (FlxG.renderBlit)
+				camera.buffer.draw(FlxSpriteUtil.flashGfxSprite);
+		}
+	}
+
+	public function drawCamera() {
+		for (camera in cameras) {
+			var gfx:Graphics = FlxG.renderBlit ? {
+				FlxSpriteUtil.flashGfx.clear();
+				FlxSpriteUtil.flashGfx;
+			} :  camera.debugLayer.graphics;
+
+			var camPos:FlxPoint = getCameraPosition();
+			camPos -= camera.scroll;
+
+			gfx.lineStyle(2, 0xFF00FF00, 0.75);
+
+			gfx.moveTo(camPos.x - 8, camPos.y);
+			gfx.lineTo(camPos.x + 8, camPos.y);
+
+			gfx.moveTo(camPos.x, camPos.y - 8);
+			gfx.lineTo(camPos.x, camPos.y + 8);
+
+			camPos.put();
+
+			if (FlxG.renderBlit)
+				camera.buffer.draw(FlxSpriteUtil.flashGfxSprite);
+		}
 	}
 
 	public var singAnims = ["singLEFT", "singDOWN", "singUP", "singRIGHT"];

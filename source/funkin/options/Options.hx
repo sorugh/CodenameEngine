@@ -69,6 +69,13 @@ class Options
 	public static var charterAutoSavesSeperateFolder:Bool = false;
 
 	/**
+	 * CHARACTER EDITOR
+	 */
+	public static var stageSelected:String = null;
+	public static var characterHitbox:Bool = true;
+	public static var characterCamera:Bool = true;
+
+	/**
 	 * PLAYER 1 CONTROLS
 	 */
 	public static var P1_NOTE_LEFT:Array<FlxKey> = [A];

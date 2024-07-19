@@ -42,6 +42,9 @@ class CharacterEditor extends UIState {
 	public var currentStage:String = null;
 	public var stage:Stage = null;
 
+	public var stageSprites:Array<FlxBasic> = [];
+	public var stagePosition:String  = null;
+
 	public function new(character:String) {
 		super();
 		if (character != null) __character = character;
@@ -228,17 +231,15 @@ class CharacterEditor extends UIState {
 		uiGroup.add(characterPropertiesWindow);
 
 		topMenuSpr = new UITopMenu(topMenu);
-		topMenuSpr.cameras = [uiCamera];
+		uiGroup.add(topMenuSpr);
 
 		animationText = new UIText(0, 0, 0, "");
-		animationText.cameras = [uiCamera];
+		uiGroup.add(animationText);
 
 		characterAnimsWindow = new CharacterAnimsWindow(characterPropertiesWindow.x, characterPropertiesWindow.y+224+16, character);
 		uiGroup.add(characterAnimsWindow);
 
 		add(uiGroup);
-		add(topMenuSpr);
-		add(animationText);
 
 		playAnimation(character.getAnimOrder()[0]);
 		_view_focus_character(null);
@@ -341,17 +342,84 @@ class CharacterEditor extends UIState {
 		for (stage in stageFileList)
 			newChilds.push({
 				label: 'Use "$stage"?',
-				icon: currentStage == stage ? 1 : 0
+				icon: currentStage == stage ? 1 : 0,
+				onSelect: (_) -> {changeStage(stage);}
 			});
 
 		newChilds.push(null);
 		newChilds.push({
 			label: "Use No Stage?",
-			icon: currentStage == null ? 1 : 0
+			icon: currentStage == null ? 1 : 0,
+			onSelect: (_) -> {changeStage(null);}
 		});
 
 		if (stageTopButton != null) stageTopButton.contextMenu = newChilds;
 		return newChilds;
+	}
+
+	function changeStage(__stage:String) {
+		if (stage != null) {
+			if (stage.characterPoses.exists(stagePosition))
+				stage.characterPoses[stagePosition].revertCharacter(character);
+
+			for (sprite in stageSprites) {
+				remove(sprite);
+				sprite.destroy();
+			}
+			stageSprites.clear();
+
+			stage.destroy();
+			stage = null;
+		}
+		remove(character);
+
+		if (__stage == null) {
+			updateStagePositions(["NONE"]);
+			add(character);
+		} else {
+			stage = new Stage(__stage, this, false);
+			stage.onAddSprite = (sprite:FlxBasic) -> {
+				sprite.cameras = [charCamera];
+				stageSprites.push(sprite);
+			};
+
+			stage.loadXml(stage.stageXML, true);
+			add(stage);
+
+			updateStagePositions([
+				for (pose in stage.characterPoses.keys())
+					pose.toUpperCase()
+			]);
+		}
+
+		currentStage = __stage;
+		buildStagesUI();
+	}
+
+	function updateStagePositions(stagePositions:Array<String>) @:privateAccess {
+		if (stage != null && stagePositions.length > 0) {
+			stagePosition = stagePositions[0];
+			stage.applyCharStuff(character, stagePosition, 0);
+
+			characterPropertiesWindow.testAsDropDown.items = 
+				UIDropDown.getItems(characterPropertiesWindow.testAsDropDown.options = stagePositions);
+		} else 
+			characterPropertiesWindow.testAsDropDown.items = 
+				UIDropDown.getItems(characterPropertiesWindow.testAsDropDown.options = ["NONE"]);
+
+		characterPropertiesWindow.testAsDropDown.index = 0;
+		characterPropertiesWindow.testAsDropDown.label.text = stagePositions[0];
+	}
+
+	public function changeStagePosition(position:String) {
+		if (stage.characterPoses.exists(stagePosition))
+			stage.characterPoses[stagePosition].revertCharacter(character);
+
+		stagePosition = position.toLowerCase();
+		remove(character);
+
+		if (stage.characterPoses.exists(stagePosition))
+			stage.applyCharStuff(character, stagePosition, 0);
 	}
 
 	function buildCharacter():String {

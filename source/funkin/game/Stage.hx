@@ -312,8 +312,6 @@ class Stage extends FlxBasic implements IBeatReceiver {
 			}
 		}
 
-		trace(list);
-
 		return list;
 	}
 }

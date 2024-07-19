@@ -75,6 +75,9 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		addLabelOn(antialiasingCheckbox, "Antialiasing");
 
 		testAsDropDown = new UIDropDown(cameraXStepper.x, cameraXStepper.y+32+32+4, 238, 32, ["PLAYER", "OPPONENT"], 0);
+		testAsDropDown.onChange = (index:Int) -> {
+			CharacterEditor.instance.changeStagePosition(testAsDropDown.options[index]);
+		};
 		members.push(testAsDropDown);
 		addLabelOn(testAsDropDown, "Test Character As...");
 

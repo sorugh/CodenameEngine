@@ -229,7 +229,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 			_rect.set(_matrix.tx, _matrix.ty, frame.frame.width * _matrix.a, frame.frame.height * _matrix.d);
 			@:privateAccess _rect = camera.transformRect(_rect);
 
-			gfx.lineStyle(2, 0xFF00FF00, 0.75);
+			gfx.lineStyle(2, 0xFF007B8F, 1);
 			gfx.drawRect(_rect.x, _rect.y, _rect.width, _rect.height);
 
 			if (FlxG.renderBlit)
@@ -247,7 +247,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 			var camPos:FlxPoint = getCameraPosition();
 			camPos -= camera.scroll;
 
-			gfx.lineStyle(2, 0xFF00FF00, 0.75);
+			gfx.lineStyle(2, 0xFF00A0B9, 1);
 
 			gfx.moveTo(camPos.x - 8, camPos.y);
 			gfx.lineTo(camPos.x + 8, camPos.y);

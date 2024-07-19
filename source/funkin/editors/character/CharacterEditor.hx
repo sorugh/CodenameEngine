@@ -11,6 +11,7 @@ import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
 import funkin.game.Character;
 import haxe.xml.Access;
 import haxe.xml.Printer;
+import funkin.editors.extra.DrawAxis;
 
 class CharacterEditor extends UIState {
 	static var __character:String;
@@ -27,6 +28,7 @@ class CharacterEditor extends UIState {
 
 	public var topMenuSpr:UITopMenu;
 
+	public var drawAxis:DrawAxis;
 	public var uiGroup:FlxTypedGroup<FlxSprite> = new FlxTypedGroup<FlxSprite>();
 
 	public var cameraHoverDummy:CameraHoverDummy;
@@ -180,6 +182,11 @@ class CharacterEditor extends UIState {
 						label: "Character Camera?",
 						onSelect: _view_character_show_camera,
 						icon: Options.characterCamera ? 1 : 0
+					},
+					{
+						label: "XY Axis?",
+						onSelect: _view_character_show_axis,
+						icon: Options.characterAxis ? 1 : 0
 					}
 				]
 			},
@@ -223,6 +230,10 @@ class CharacterEditor extends UIState {
 		character.debugCamera = Options.characterCamera;
 
 		add(character);
+
+		drawAxis = new DrawAxis();
+		drawAxis.cameras = [charCamera];
+		add(drawAxis);
 
 		uiGroup.cameras = [uiCamera];
 		add(cameraHoverDummy = new CameraHoverDummy(uiGroup, FlxPoint.weak(0, 0)));
@@ -301,6 +312,11 @@ class CharacterEditor extends UIState {
 			animationText.y = Std.int((animationTopButton.bHeight - animationText.height) / 2);
 		}
 		animationText.text = '"${character.getAnimName()}"';
+
+		// members.remove(drawAxis);
+		// var characterIndex:Int = members.indexOf(character);
+		// if (characterIndex != -1)
+		// 	members.insert(characterIndex, drawAxis);
 
 		super.update(elapsed);
 	}
@@ -478,6 +494,11 @@ class CharacterEditor extends UIState {
 	function _view_character_show_camera(t) {
 		t.icon = (Options.characterCamera = !Options.characterCamera) ? 1 : 0;
 		character.debugCamera = Options.characterCamera;
+	}
+
+	function _view_character_show_axis(t) {
+		t.icon = (Options.characterAxis = !Options.characterAxis) ? 1 : 0;
+		drawAxis.visible = Options.characterAxis;
 	}
 
 	function _view_focus_character(_) {

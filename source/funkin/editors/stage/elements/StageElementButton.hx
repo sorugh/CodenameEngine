@@ -63,7 +63,7 @@ class StageElementButton extends UIButton {
 		editButton.autoAlpha = false;
 		members.push(editButton);
 
-		editIcon = new FlxSprite(editButton.x + 8, editButton.y + 10).loadGraphic(Paths.image('editors/stage/edit-icon'), true, 16, 12);
+		editIcon = new FlxSprite(editButton.x + 8, editButton.y + 10).loadGraphic(Paths.image('editors/stage/edit-button'), true, 16, 16);
 		editIcon.animation.add("edit", [0]);
 		editIcon.animation.add("advanced", [1]);
 		editIcon.antialiasing = false;

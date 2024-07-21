@@ -293,9 +293,9 @@ class CharacterEditor extends UIState {
 
 			if (FlxG.mouse.pressed && !FlxG.mouse.justPressed) {
 				_nextScroll.set(_nextScroll.x - FlxG.mouse.deltaScreenX, _nextScroll.y - FlxG.mouse.deltaScreenY);
-				currentCursor = HAND;
+				cameraHoverDummy.cursor = HAND;
 			} else
-				currentCursor = ARROW;
+				cameraHoverDummy.cursor = ARROW;
 		} else if (!FlxG.mouse.pressed)
 			currentCursor = ARROW;
 

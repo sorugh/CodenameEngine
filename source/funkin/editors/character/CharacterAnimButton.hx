@@ -180,7 +180,7 @@ class CharacterAnimButton extends UIButton {
 		deleteIcon.follow(deleteButton, (deleteButton.bWidth/2)-6.5, (deleteButton.bHeight/2)-6);
 
 		editButton.follow(this, 340, 14);
-		editIcon.follow(editButton, (editButton.bWidth/2)-8,  (editButton.bHeight/2)-6);
+		editIcon.follow(editButton, (editButton.bWidth/2)-6,  (editButton.bHeight/2)-6);
 
 		ghostButton.follow(this, 300, 14);
 		ghostIcon.follow(ghostButton, (ghostButton.bWidth/2)-8, (ghostButton.bHeight/2)-6);
@@ -224,7 +224,7 @@ class CharacterAnimButton extends UIButton {
 		} else {
 			var flxAnimation:FlxAnimation = parent.character.animation._animations[anim];
 			flxAnimation.name = newName;
-	
+
 			parent.character.animation._animations.remove(anim);
 			parent.character.animation._animations.set(newName, flxAnimation);
 		}
@@ -270,7 +270,7 @@ class CharacterAnimButton extends UIButton {
 	public function changeOffset(newOffsetX:Null<Float>, newOffsetY:Null<Float>) {
 		var animData:AnimData = parent.character.animDatas[anim];
 
-		if (newOffsetX != null && newOffsetY != null && newOffsetX == animData.x && newOffsetY == animData.y) 
+		if (newOffsetX != null && newOffsetY != null && newOffsetX == animData.x && newOffsetY == animData.y)
 			return;
 		else {
 			if (newOffsetX != null && newOffsetX == animData.x) return;
@@ -362,7 +362,7 @@ class CharacterAnimButton extends UIButton {
 			// keeps on crashing, look at flxanimate FlxAnim.hx for refrence
 		} else {
 			for (name in parent.character.animateAtlas.anim.symbolDictionary.keys())
-				if (parent.character.animateAtlas.anim.startsWith(name, animData.anim)) 
+				if (parent.character.animateAtlas.anim.startsWith(name, animData.anim))
 					{symbol.instance.symbol.name = name; break;}
 		}
 	}
@@ -379,7 +379,7 @@ class CharacterAnimButton extends UIButton {
 			parent.displayWindowSprite.updateHitbox();
 
 			parent.displayWindowSprite.follow(
-				this, 16+(128/2)-((parent.displayWindowSprite.frame.sourceSize.x*displayData.scale)/2), 
+				this, 16+(128/2)-((parent.displayWindowSprite.frame.sourceSize.x*displayData.scale)/2),
 				8+32+8+2+11+(128/2)-((parent.displayWindowSprite.frame.sourceSize.y*displayData.scale)/2)
 			);
 			parent.displayWindowSprite.draw();

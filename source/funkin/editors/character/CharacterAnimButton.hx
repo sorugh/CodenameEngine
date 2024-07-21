@@ -153,7 +153,7 @@ class CharacterAnimButton extends UIButton {
 		members.push(editButton);
 
 		editIcon = new FlxSprite().loadGraphic(Paths.image('editors/character/edit-button'));
-		editIcon.color = 0xFFE8E801;
+		//editIcon.color = 0xFFE8E801;
 		editIcon.antialiasing = false;
 		members.push(editIcon);
 

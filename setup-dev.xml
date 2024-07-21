@@ -24,7 +24,7 @@
 		</cmd>
 
 		<!-- Build lime -->
-		<cmd inLib="lime" cmd="lime rebuild . $PLATFORM" />
+		<cmd inLib="lime" cmd="lime rebuild . $PLATFORM -clean" />
 		<cmd inLib="lime" >
 			<line>cd tools</line>
 			<line>haxe tools.hxml</line>

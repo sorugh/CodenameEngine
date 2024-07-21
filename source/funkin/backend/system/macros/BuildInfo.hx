@@ -6,7 +6,7 @@ using StringTools;
 class BuildInfo {
 	public static function printBuildInfo() {
 		var haxeVersion = haxe.macro.Context.definedValue("haxe");
-		Sys.println('[ BUILD INFO ]');
+		Sys.println('--- BUILD INFO ---');
 		Sys.println('Haxe Version: ${haxeVersion}');
 		try {
 			var lastBuiltWith:Null<String> = null;
@@ -33,6 +33,7 @@ class BuildInfo {
 			#elseif linux "Linux"
 			#elseif android "Android"
 			#elseif ios "iOS"
+			#elseif html5 "HTML5"
 			#else "Unknown"
 			#end
 		}');

@@ -402,10 +402,14 @@ class CharacterEditor extends UIState {
 			stage.loadXml(stage.stageXML, true);
 			add(stage);
 
+			stagePosition = character.playerOffsets || character.isPlayer ? "BOYFRIEND" : "DAD";
 			updateStagePositions([
 				for (pose in stage.characterPoses.keys())
 					pose.toUpperCase()
 			]);
+
+			changeStagePosition(stagePosition);
+			changeCharacterDesginedAs(stagePosition.toUpperCase() == "BOYFRIEND");
 		}
 
 		currentStage = __stage;
@@ -414,20 +418,16 @@ class CharacterEditor extends UIState {
 
 	function updateStagePositions(stagePositions:Array<String>) @:privateAccess {
 		if (stage != null && stagePositions.length > 0) {
-			stagePosition = stagePositions[0];
-			stage.applyCharStuff(character, stagePosition, 0);
-
 			characterPropertiesWindow.testAsDropDown.items = 
 				UIDropDown.getItems(characterPropertiesWindow.testAsDropDown.options = stagePositions);
 		} else 
 			characterPropertiesWindow.testAsDropDown.items = 
 				UIDropDown.getItems(characterPropertiesWindow.testAsDropDown.options = ["NONE"]);
-
-		characterPropertiesWindow.testAsDropDown.index = 0;
-		characterPropertiesWindow.testAsDropDown.label.text = stagePositions[0];
 	}
 
 	public function changeStagePosition(position:String) {
+		if (stage == null) return;
+
 		if (stage.characterPoses.exists(stagePosition))
 			stage.characterPoses[stagePosition].revertCharacter(character);
 
@@ -436,6 +436,34 @@ class CharacterEditor extends UIState {
 
 		if (stage.characterPoses.exists(stagePosition))
 			stage.applyCharStuff(character, stagePosition, 0);
+		_playback_play_anim(null);
+
+		characterPropertiesWindow.testAsDropDown.index = characterPropertiesWindow.testAsDropDown.options.indexOf(stagePosition.toUpperCase());
+		characterPropertiesWindow.testAsDropDown.label.text = stagePosition.toUpperCase();
+	}
+
+	public function changeCharacterDesginedAs(player:Bool) @:privateAccess {
+		trace(player);
+		if (stage == null) return;
+
+		if (stage.characterPoses.exists(stagePosition))
+			stage.characterPoses[stagePosition].revertCharacter(character);
+
+		if (character.__swappedLeftRightAnims)
+			character.swapLeftRightAnimations();
+		if (character.isPlayer) 
+			character.flipX = !character.__baseFlipped;
+		remove(character);
+
+		character.isPlayer = player;
+		character.fixChar(false, false);
+
+		if (stage.characterPoses.exists(stagePosition))
+			stage.applyCharStuff(character, stagePosition, 0);
+		_playback_play_anim(null);
+
+		characterPropertiesWindow.designedAsDropDown.index = characterPropertiesWindow.designedAsDropDown.options.indexOf(player ? "BOYFRIEND" : "DAD");
+		characterPropertiesWindow.designedAsDropDown.label.text = player ? "BOYFRIEND" : "DAD";
 	}
 
 	function buildCharacter():String {

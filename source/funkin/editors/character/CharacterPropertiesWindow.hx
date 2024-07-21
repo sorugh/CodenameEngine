@@ -74,14 +74,17 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		members.push(antialiasingCheckbox);
 		addLabelOn(antialiasingCheckbox, "Antialiasing");
 
-		testAsDropDown = new UIDropDown(cameraXStepper.x, cameraXStepper.y+32+32+4, 238, 32, ["PLAYER", "OPPONENT"], 0);
+		testAsDropDown = new UIDropDown(cameraXStepper.x, cameraXStepper.y+32+32+4, 238, 32, ["BOYFRIEND", "DAD"], character.playerOffsets ? 0 : 1);
 		testAsDropDown.onChange = (index:Int) -> {
 			CharacterEditor.instance.changeStagePosition(testAsDropDown.options[index]);
 		};
 		members.push(testAsDropDown);
 		addLabelOn(testAsDropDown, "Test Character As...");
 
-		designedAsDropDown = new UIDropDown(testAsDropDown.x+238, testAsDropDown.y, 238, 32, ["PLAYER", "OPPONENT"], 0);
+		designedAsDropDown = new UIDropDown(testAsDropDown.x+238, testAsDropDown.y, 238, 32, ["BOYFRIEND", "DAD"], character.playerOffsets ? 0 : 1);
+		designedAsDropDown.onChange = (index:Int) -> {
+			CharacterEditor.instance.changeCharacterDesginedAs(designedAsDropDown.options[index] == "BOYFRIEND");
+		};
 		members.push(designedAsDropDown);
 		addLabelOn(designedAsDropDown, "Char Desgined As...");
 

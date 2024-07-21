@@ -98,9 +98,6 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		if (isPlayer != playerOffsets && switchAnims)
 			swapLeftRightAnimations();
 
-		var o:FlxPoint = getAnimOffset(getAnimName());
-		frameOffset.set(o.x, o.y);
-		o.put();
 		if (isPlayer) flipX = !flipX;
 		__baseFlipped = flipX;
 	}

@@ -15,7 +15,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 	public var antialiasingCheckbox:UICheckbox;
 	public var testAsDropDown:UIDropDown;
 	public var designedAsDropDown:UIDropDown;
-	
+
 	public function new(x:Float, y:Float, character:Character) @:privateAccess {
 		super(x, y, Std.int(500-16), 204+20, "editors/ui/inputbox");
 
@@ -88,6 +88,8 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		members.push(designedAsDropDown);
 		addLabelOn(designedAsDropDown, "Char Desgined As...");
 
+		alpha = 0.7;
+
 		antialiasingCheckbox.x+=14;
 		for (checkbox in [flipXCheckbox, antialiasingCheckbox])
 			{checkbox.y += 3; checkbox.x += 12;}
@@ -96,7 +98,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 	}
 
 	public function changePosition(newPosX:Null<Float>, newPosY:Null<Float>) {
-		if (newPosX != null && newPosY != null && newPosX == character.globalOffset.x && newPosY == character.globalOffset.y) 
+		if (newPosX != null && newPosY != null && newPosX == character.globalOffset.x && newPosY == character.globalOffset.y)
 			return;
 		else {
 			if (newPosX != null && newPosX == character.globalOffset.x) return;
@@ -128,7 +130,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 	}
 
 	public function changeCamPosition(newPosX:Null<Float>, newPosY:Null<Float>) {
-		if (newPosX != null && newPosY != null && newPosX == character.cameraOffset.x && newPosY == character.cameraOffset.y) 
+		if (newPosX != null && newPosY != null && newPosX == character.cameraOffset.x && newPosY == character.cameraOffset.y)
 			return;
 		else {
 			if (newPosX != null && newPosX == character.cameraOffset.x) return;

@@ -35,7 +35,7 @@ class CharacterIconDisplay extends UISprite {
 
 		healthBarBG = new FlxSprite(x+(width/2), y+(height*(2.25/4))+2).makeSolid(barWidth-Std.int(width), 10, 0xFF000000);
 		healthBar = new FlxSprite(healthBarBG.x+2, healthBarBG.y+2).makeSolid(
-			Std.int(healthBarBG.width-4), Std.int(healthBarBG.height-4), 
+			Std.int(healthBarBG.width-4), Std.int(healthBarBG.height-4),
 			color != null ? color : 0xFFFFFFFF
 		);
 

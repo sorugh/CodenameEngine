@@ -31,10 +31,12 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 		displayWindowSprite.antialiasing = character.antialiasing;
 		displayWindowSprite.flipX = character.flipX;
 
+		alpha = 0.7;
+
 		@:privateAccess
-		for (name => anim in displayWindowSprite.animation._animations) 
+		for (name => anim in displayWindowSprite.animation._animations)
 			buildAnimDisplay(name, anim);
-			
+
 		for (anim in character.getAnimOrder())
 			add(new CharacterAnimButton(0,0, character.animDatas.get(anim), this));
 

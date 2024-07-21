@@ -418,10 +418,10 @@ class CharacterEditor extends UIState {
 
 	function updateStagePositions(stagePositions:Array<String>) @:privateAccess {
 		if (stage != null && stagePositions.length > 0) {
-			characterPropertiesWindow.testAsDropDown.items = 
+			characterPropertiesWindow.testAsDropDown.items =
 				UIDropDown.getItems(characterPropertiesWindow.testAsDropDown.options = stagePositions);
-		} else 
-			characterPropertiesWindow.testAsDropDown.items = 
+		} else
+			characterPropertiesWindow.testAsDropDown.items =
 				UIDropDown.getItems(characterPropertiesWindow.testAsDropDown.options = ["NONE"]);
 	}
 
@@ -450,7 +450,7 @@ class CharacterEditor extends UIState {
 
 		if (character.__swappedLeftRightAnims)
 			character.swapLeftRightAnimations();
-		if (character.isPlayer) 
+		if (character.isPlayer)
 			character.flipX = !character.__baseFlipped;
 		remove(character);
 

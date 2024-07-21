@@ -443,7 +443,6 @@ class CharacterEditor extends UIState {
 	}
 
 	public function changeCharacterDesginedAs(player:Bool) @:privateAccess {
-		trace(player);
 		if (stage == null) return;
 
 		if (stage.characterPoses.exists(stagePosition))

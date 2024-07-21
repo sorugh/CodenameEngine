@@ -37,7 +37,7 @@
 		<cmd inLib="lime" >
 			<line>cd tools</line>
 			<line>haxe tools.hxml</line>
-			<line>cd ..</line>s
+			<line>cd ..</line>
 		</cmd>
 	</if>
 </libraries>

@@ -1237,11 +1237,13 @@ class PlayState extends MusicBeatState
 			if (chartingMode && FlxG.keys.justPressed.SEVEN) {
 				FlxG.switchState(new funkin.editors.charter.Charter(SONG.meta.name, difficulty, false));
 			}
+			#if EXPERMENTAL_SCRIPT_RELOADING
 			if (FlxG.keys.justPressed.F5) {
 				Logs.trace('[PlayState] Reloading scripts...', WARNING, YELLOW);
 				scripts.reload();
 				Logs.trace('[PlayState] Song scripts successfully reloaded.', WARNING, GREEN);
 			}
+			#end
 		}
 
         if (doIconBop) {

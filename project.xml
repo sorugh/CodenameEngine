@@ -157,8 +157,6 @@
 	<haxedef name="SOFTCODED_CLASSES" if="SOFTCODED_CLASSES" />
 	<haxedef name="openfl_dpi_aware" if="openfl_dpi_aware" />
 
-	<haxedef name="EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX" />
-
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<!-- KEEP BOTH OF THESE AS THERE ARE SOME PARTICULAR CASES! -->
@@ -197,4 +195,8 @@
 	<haxedef name="HXCPP_DEBUG_LINK" if="release" />
 
 	<haxedef name="hscriptPos" /> <!-- for logging -->
+
+	<!-- EXPERMENTAL FEATURES -->
+	<!-- <haxedef name="EXPERMENTAL_SCRIPT_RELOADING" /> -->
+	<haxedef name="EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX" />
 </project>

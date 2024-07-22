@@ -282,7 +282,7 @@ class CharacterEditor extends UIState {
 		changeStage("stage");
 
 		_view_focus_character(null);
-		
+
 		if(Framerate.isLoaded) {
 			Framerate.fpsCounter.alpha = 0.4;
 			Framerate.memoryCounter.alpha = 0.4;
@@ -295,6 +295,7 @@ class CharacterEditor extends UIState {
 	override function destroy() {
 		_point.put();
 		draggingOffset.put();
+		clipboard.put();
 
 		super.destroy();
 		if(Framerate.isLoaded) {
@@ -429,8 +430,13 @@ class CharacterEditor extends UIState {
 		return "<!DOCTYPE codename-engine-character>\n" + Printer.print(charXML, true);
 	}
 
-	function _edit_copy_offset(_) {}
-	function _edit_paste_offset(_) {}
+	var clipboard:FlxPoint = FlxPoint.get();
+	function _edit_copy_offset(_) {
+		clipboard.copyFrom(character.animOffsets[character.getAnimName()]);
+	}
+	function _edit_paste_offset(_) {
+		_set_offset(clipboard.x, clipboard.y);
+	}
 
 	function _edit_undo(_) {}
 	function _edit_redo(_) {}
@@ -454,9 +460,15 @@ class CharacterEditor extends UIState {
 	}
 
 	function _change_offset(x:Float, y:Float) {
+		_set_offset(
+			character.animOffsets[character.getAnimName()].x - x,
+			character.animOffsets[character.getAnimName()].y - y
+		);
+	}
+
+	function _set_offset(x:Float, y:Float) {
 		characterAnimsWindow.animButtons.get(character.getAnimName()).changeOffset(
-			FlxMath.roundDecimal(character.animOffsets[character.getAnimName()].x - x, 2), 
-			FlxMath.roundDecimal(character.animOffsets[character.getAnimName()].y - y, 2)
+			FlxMath.roundDecimal(x, 2), FlxMath.roundDecimal(y, 2)
 		);
 	}
 

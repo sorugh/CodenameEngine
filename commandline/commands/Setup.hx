@@ -189,21 +189,21 @@ class Setup {
 			final proc = new Process('haxe --version');
 			proc.exitCode(true);
 			final haxeVer = proc.stdout.readLine();
-			if (haxeVer != "4.2.5" || haxeVer != "4.3.4") {
-				// check for outdated haxe
-				final curHaxeVer = [for(v in haxeVer.split(".")) Std.parseInt(v)];
-				final requiredHaxeVer = [4, 2, 5];
-				for(i in 0...requiredHaxeVer.length) {
-					if (curHaxeVer[i] < requiredHaxeVer[i]) {
-						prettyPrint([
-							"!! WARNING !!",
-							"Your current Haxe version is outdated.",
-							'You\'re using ${haxeVer}, whilst the required version is 4.2.5 or newer.',
-							'The engine may not compile with your current version of Haxe.',
-							'We recommend upgrading to 4.2.5 or newer'
-						].join("\n"));
-						break;
-					}
+
+			// check for outdated haxe
+			final curHaxeVer = [for(v in haxeVer.split(".")) Std.parseInt(v)];
+			final minumumVersion = [4, 2, 5];
+			for(i in 0...minumumVersion.length) {
+				if (curHaxeVer[i] > minumumVersion[i]) break;
+				if (curHaxeVer[i] < minumumVersion[i]) {
+					prettyPrint([
+						"!! WARNING !!",
+						"Your current Haxe version is outdated.",
+						'You\'re using ${haxeVer}, whilst the required version is 4.2.5 or newer.',
+						'The engine may not compile with your current version of Haxe.',
+						'We recommend upgrading to 4.2.5 or newer'
+					].join("\n"));
+					break;
 				}
 			}
 		}

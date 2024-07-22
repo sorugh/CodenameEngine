@@ -45,6 +45,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 	public var cameraOffset:FlxPoint = FlxPoint.get(0, 0);
 	public var globalOffset:FlxPoint = FlxPoint.get(0, 0);
+	public var extraOffset:FlxPoint = FlxPoint.get(0, 0);
 
 	public var script:Script;
 	public var xml:Access;
@@ -195,6 +196,9 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		return (isPlayer != playerOffsets) != (flipX != __baseFlipped);
 
 	public override function draw() {
+		x += extraOffset.x;
+		y += extraOffset.y;
+		
 		if (isFlippedOffsets()) {
 			__reverseDrawProcedure = true;
 			flipX = !flipX;
@@ -206,6 +210,9 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 			scale.x *= -1;
 			__reverseDrawProcedure = false;
 		} else super.draw();
+
+		x -= extraOffset.x;
+		y -= extraOffset.y;
 
 		if (debugHitbox) drawHitbox();
 		if (debugCamera) drawCamera();
@@ -261,9 +268,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 	public var singAnims = ["singLEFT", "singDOWN", "singUP", "singRIGHT"];
 	public inline function getSingAnim(direction:Int, suffix:String = ""):String
-	{
 		return singAnims[direction % singAnims.length] + suffix;
-	}
 
 	/**
 	 * Like `playSingAnimUnsafe` but checks if the character has the animation with the suffix part, otherwise it plays the animation without the suffix part.
@@ -317,6 +322,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 		cameraOffset.put();
 		globalOffset.put();
+		extraOffset.put();
 	}
 
 	@:noCompletion var __reverseTrailProcedure:Bool = false;
@@ -382,11 +388,6 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 		for (anim in xml.nodes.anim)
 			XMLUtil.addXMLAnimation(this, anim);
-
-		for (offset in animOffsets) {
-			offset.x = FlxMath.roundDecimal(offset.x, 2);
-			offset.y = FlxMath.roundDecimal(offset.y, 2);
-		}
 
 		for (attribute in xml.x.attributes())
 			if (!characterProperties.contains(attribute))

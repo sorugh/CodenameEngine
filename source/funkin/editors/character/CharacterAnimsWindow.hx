@@ -15,6 +15,8 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 	public var displayWindowGraphic:FlxGraphic;
 	public var displayAnimsFramesList:Map<String, {scale:Float, animBounds:Rectangle, frame:Int}> = [];
 
+	public var animButtons:Map<String, CharacterAnimButton> = [];
+
 	public function new(x:Float, y:Float, character:Character) {
 		super(x, y, Std.int(500-16), 419, "", FlxPoint.get(Std.int(500-16-32), 208));
 
@@ -36,10 +38,11 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 		@:privateAccess
 		for (name => anim in displayWindowSprite.animation._animations)
 			buildAnimDisplay(name, anim);
-
-		for (anim in character.getAnimOrder())
-			add(new CharacterAnimButton(0,0, character.animDatas.get(anim), this));
-
+			
+		for (anim in character.getAnimOrder()) {
+			var button:CharacterAnimButton = new CharacterAnimButton(0, 0, character.animDatas.get(anim), this);
+			add(button); animButtons.set(anim, button);
+		}
 		this.character = character;
 	}
 

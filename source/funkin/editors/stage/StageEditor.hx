@@ -1016,7 +1016,7 @@ class StageEditor extends UIState {
 		}
 	}
 
-	function calcSpriteBounds(sprite:FlxSprite) {
+	public static function calcSpriteBounds(sprite:FlxSprite) {
 		var oldWidth = sprite.width;
 		var oldHeight = sprite.height;
 		var oldOffset = sprite.offset.clone(FlxPoint.weak());
@@ -1211,7 +1211,7 @@ class StageEditor extends UIState {
 		relative.put();
 	}
 
-	var dotCheckSize:Float = 53;
+	public static var dotCheckSize:Float = 53;
 
 	function checkDot(point:FlxPoint):Bool {
 		if(point!=null){

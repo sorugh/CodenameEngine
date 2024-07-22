@@ -285,7 +285,7 @@ class CharacterAnimButton extends UIButton {
 		if (parent.character.getAnimName() == anim)
 			CharacterEditor.instance.playAnimation(anim);
 
-		field.text = '${animData.name} (${animData.x}, ${animData.y})';
+		field.text = '${animData.name} (${positionXStepper.value = animData.x}, ${positionYStepper.value = animData.y})';
 	}
 
 	public function changeFPS(newFPS:Float) @:privateAccess {

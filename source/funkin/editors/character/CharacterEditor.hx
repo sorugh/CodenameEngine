@@ -1,5 +1,7 @@
 package funkin.editors.character;
 
+import flixel.math.FlxRect;
+import funkin.editors.stage.StageEditor;
 import funkin.game.Stage;
 import funkin.editors.ui.UITopMenu.UITopMenuButton;
 import funkin.editors.extra.CameraHoverDummy;
@@ -27,7 +29,9 @@ class CharacterEditor extends UIState {
 	@:noCompletion private var stageIndex:Int = 3;
 
 	public var topMenuSpr:UITopMenu;
-
+	// public var dragOffsetsCheckbox:UICheckbox;
+	// public var lockCameraCheckbox:UICheckbox;
+	
 	public var drawAxis:DrawAxis;
 	public var uiGroup:FlxTypedGroup<FlxSprite> = new FlxTypedGroup<FlxSprite>();
 
@@ -229,6 +233,8 @@ class CharacterEditor extends UIState {
 		character.debugHitbox = Options.characterHitbox;
 		character.debugCamera = Options.characterCamera;
 
+		changeCharacterIsPlayer(character.playerOffsets);
+
 		add(character);
 
 		drawAxis = new DrawAxis();
@@ -243,6 +249,12 @@ class CharacterEditor extends UIState {
 
 		topMenuSpr = new UITopMenu(topMenu);
 		uiGroup.add(topMenuSpr);
+
+		// dragOffsetsCheckbox = new UICheckbox(FlxG.width - 440, 5, "Drag Offsets With Mouse?", false, 0, true);
+		// uiGroup.add(dragOffsetsCheckbox);
+
+		// lockCameraCheckbox = new UICheckbox(FlxG.width - 200, 5, "Lock Camera?", false, 0, true);
+		// uiGroup.add(lockCameraCheckbox);
 
 		animationText = new UIText(0, 0, 0, "");
 		uiGroup.add(animationText);
@@ -266,6 +278,9 @@ class CharacterEditor extends UIState {
 	}
 
 	override function destroy() {
+		_point.put();
+		draggingOffset.put();
+
 		super.destroy();
 		if(Framerate.isLoaded) {
 			Framerate.fpsCounter.alpha = 1;
@@ -274,13 +289,17 @@ class CharacterEditor extends UIState {
 		}
 	}
 
+	var _point:FlxPoint = new FlxPoint();
 	var _nextScroll:FlxPoint = FlxPoint.get(0,0);
 	var _cameraZoomMulti:Float = 1;
+
+	var draggingCharacter:Bool = false;
+	var draggingOffset:FlxPoint = new FlxPoint();
 	public override function update(elapsed:Float) {
 		if(FlxG.keys.justPressed.ANY)
 			UIUtil.processShortcuts(topMenu);
 
-		if (cameraHoverDummy.hovered) {
+		if (cameraHoverDummy.hovered && !draggingCharacter) {
 			if (FlxG.mouse.wheel != 0) {
 				zoom += 0.25 * FlxG.mouse.wheel;
 				__camZoom = Math.pow(2, zoom);
@@ -313,10 +332,46 @@ class CharacterEditor extends UIState {
 		}
 		animationText.text = '"${character.getAnimName()}"';
 
-		// members.remove(drawAxis);
-		// var characterIndex:Int = members.indexOf(character);
-		// if (characterIndex != -1)
-		// 	members.insert(characterIndex, drawAxis);
+		var point = FlxG.mouse.getWorldPosition(charCamera, _point);
+		if(character.animateAtlas == null) {
+			StageEditor.calcSpriteBounds(character);
+			var bounds:FlxRect = cast character.extra.get(StageEditor.exID("bounds"));
+
+			// my poor attempt at fixing the global offset flip hitbox bug
+			/*
+			if (character.isPlayer != character.playerOffsets) {
+				bounds.x = character.globalOffset.x + character.animOffsets[character.getAnimName()].x;
+				if (stage != null && stage.characterPoses.exists(stagePosition))
+					bounds.x += stage.characterPoses.get(stagePosition).x;
+			}
+			*/
+				
+			if (bounds.containsPoint(point)) {
+				cameraHoverDummy.cursor = #if (mac) DRAG_OPEN; #elseif (linux) CLICK; #elseif MOVE; #end
+				if (FlxG.mouse.justPressed)
+					draggingCharacter = true;
+			}
+		}
+
+		if (draggingCharacter) {
+			cameraHoverDummy.cursor = #if (mac) DRAG; #elseif (linux) DRAG; #elseif MOVE; #end
+
+			draggingOffset.x += FlxG.mouse.deltaScreenX; draggingOffset.y += FlxG.mouse.deltaScreenY;
+			character.extraOffset = draggingOffset;
+			trace(draggingOffset);
+
+			if (FlxG.mouse.justReleased) {
+				draggingOffset.x /= character.scale.x;
+				draggingOffset.y /= character.scale.y;
+				characterAnimsWindow.animButtons.get(character.getAnimName()).changeOffset(
+					FlxMath.roundDecimal(character.animOffsets[character.getAnimName()].x - (draggingOffset.x * (character.isPlayer != character.playerOffsets  ? -1 : 1)), 2), 
+					FlxMath.roundDecimal(character.animOffsets[character.getAnimName()].y - (draggingOffset.y), 2)
+				);
+
+				draggingOffset.set(0, 0); draggingCharacter = false;
+				character.extraOffset = draggingOffset;
+			}
+		}
 
 		super.update(elapsed);
 	}
@@ -448,14 +503,8 @@ class CharacterEditor extends UIState {
 		if (stage.characterPoses.exists(stagePosition))
 			stage.characterPoses[stagePosition].revertCharacter(character);
 
-		if (character.__swappedLeftRightAnims)
-			character.swapLeftRightAnimations();
-		if (character.isPlayer)
-			character.flipX = !character.__baseFlipped;
+		changeCharacterIsPlayer(player);
 		remove(character);
-
-		character.isPlayer = player;
-		character.fixChar(false, false);
 
 		if (stage.characterPoses.exists(stagePosition))
 			stage.applyCharStuff(character, stagePosition, 0);
@@ -463,6 +512,16 @@ class CharacterEditor extends UIState {
 
 		characterPropertiesWindow.designedAsDropDown.index = characterPropertiesWindow.designedAsDropDown.options.indexOf(player ? "BOYFRIEND" : "DAD");
 		characterPropertiesWindow.designedAsDropDown.label.text = player ? "BOYFRIEND" : "DAD";
+	}
+
+	public function changeCharacterIsPlayer(player:Bool) @:privateAccess {
+		if (character.__swappedLeftRightAnims)
+			character.swapLeftRightAnimations();
+		if (character.isPlayer) 
+			character.flipX = !character.__baseFlipped;
+
+		character.isPlayer = player;
+		character.fixChar(false, false);
 	}
 
 	function buildCharacter():String {

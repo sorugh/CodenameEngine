@@ -264,22 +264,16 @@ class CharacterEditor extends UIState {
 		uiGroup.cameras = [uiCamera];
 		add(cameraHoverDummy = new CameraHoverDummy(uiGroup, FlxPoint.weak(0, 0)));
 
-		characterPropertiesWindow = new CharacterPropertiesWindow((FlxG.width-(432)), 23+12+10, character);
+		characterPropertiesWindow = new CharacterPropertiesWindow((FlxG.width-(440)-16) - (((500-16)-(440))/2), 23+12+10, character);
 		uiGroup.add(characterPropertiesWindow);
 
 		topMenuSpr = new UITopMenu(topMenu);
 		uiGroup.add(topMenuSpr);
 
-		// dragOffsetsCheckbox = new UICheckbox(FlxG.width - 440, 5, "Drag Offsets With Mouse?", false, 0, true);
-		// uiGroup.add(dragOffsetsCheckbox);
-
-		// lockCameraCheckbox = new UICheckbox(FlxG.width - 200, 5, "Lock Camera?", false, 0, true);
-		// uiGroup.add(lockCameraCheckbox);
-
 		animationText = new UIText(0, 0, 0, "");
 		uiGroup.add(animationText);
 
-		characterAnimsWindow = new CharacterAnimsWindow(characterPropertiesWindow.x - 60, characterPropertiesWindow.y+224+16, character);
+		characterAnimsWindow = new CharacterAnimsWindow((FlxG.width-(500-16)-16), characterPropertiesWindow.y+224+16, character);
 		uiGroup.add(characterAnimsWindow);
 
 		add(uiGroup);

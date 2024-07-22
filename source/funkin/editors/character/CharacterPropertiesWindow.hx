@@ -8,6 +8,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 	public var positionXStepper:UINumericStepper;
 	public var positionYStepper:UINumericStepper;
 	public var scaleStepper:UINumericStepper;
+	public var editCharacterButton:UIButton;
 	public var flipXCheckbox:UICheckbox;
 
 	public var cameraXStepper:UINumericStepper;
@@ -17,7 +18,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 	public var designedAsDropDown:UIDropDown;
 
 	public function new(x:Float, y:Float, character:Character) @:privateAccess {
-		super(x, y, 424, 204+20, "editors/ui/inputbox");
+		super(x, y, 424+16, 204+20, "editors/ui/inputbox");
 
 		function addLabelOn(ui:UISprite, text:String)
 			members.push(new UIText(ui.x, ui.y - 24, 0, text));
@@ -39,7 +40,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		};
 		members.push(positionYStepper);
 
-		scaleStepper = new UINumericStepper(positionYStepper.x+104+16, positionYStepper.y, character.scale.x, 0.001, 2, 0, null, 104);
+		scaleStepper = new UINumericStepper(positionYStepper.x+104-32+26, positionYStepper.y, character.scale.x, 0.001, 2, 0, null, 90);
 		scaleStepper.onChange = (text:String) -> {
 			@:privateAccess scaleStepper.__onChange(text);
 			this.changeScale(scaleStepper.value);
@@ -47,7 +48,11 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		members.push(scaleStepper);
 		addLabelOn(scaleStepper, "Scale");
 
-		flipXCheckbox = new UICheckbox(scaleStepper.x, scaleStepper.y+32+14, "Flipped?", character.isPlayer ? !character.__baseFlipped : character.__baseFlipped);
+		editCharacterButton = new UIButton(scaleStepper.x + 90 -32 + 26, scaleStepper.y, "Edit Info", null);
+		members.push(editCharacterButton);
+		addLabelOn(editCharacterButton, "Character");
+
+		flipXCheckbox = new UICheckbox(scaleStepper.x+22, scaleStepper.y+32+14, "Flipped?", character.isPlayer ? !character.__baseFlipped : character.__baseFlipped);
 		flipXCheckbox.onChecked = (checked:Bool) -> {this.changeFlipX(checked);};
 		members.push(flipXCheckbox);
 
@@ -68,25 +73,25 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		};
 		members.push(cameraYStepper);
 
-		antialiasingCheckbox = new UICheckbox(scaleStepper.x, flipXCheckbox.y+32, "Antialiased?", character.antialiasing);
+		antialiasingCheckbox = new UICheckbox(scaleStepper.x+22, flipXCheckbox.y+32, "Antialiased?", character.antialiasing);
 		antialiasingCheckbox.onChecked = (checked:Bool) -> {this.changeAntialiasing(checked);};
 		members.push(antialiasingCheckbox);
 
-		testAsDropDown = new UIDropDown(cameraXStepper.x, cameraXStepper.y+32+32+4, 170, 32, ["BOYFRIEND", "DAD"], character.playerOffsets ? 0 : 1);
+		testAsDropDown = new UIDropDown(cameraXStepper.x, cameraXStepper.y+32+32+4, 193, 32, ["BOYFRIEND", "DAD"], character.playerOffsets ? 0 : 1);
 		testAsDropDown.onChange = (index:Int) -> {
 			CharacterEditor.instance.changeStagePosition(testAsDropDown.options[index]);
 		};
 		members.push(testAsDropDown);
 		addLabelOn(testAsDropDown, "Test Character As...");
-		testAsDropDown.bWidth = 170; //REFUSES TO FUCKING SET TO 170 PIECE OF SHIT!!
+		testAsDropDown.bWidth = 193; //REFUSES TO FUCKING SET TO 170 PIECE OF SHIT!!
 
-		designedAsDropDown = new UIDropDown(scaleStepper.x, testAsDropDown.y, 170, 32, ["BOYFRIEND", "DAD"], character.playerOffsets ? 0 : 1);
+		designedAsDropDown = new UIDropDown(testAsDropDown.x+193+22, testAsDropDown.y, 193, 32, ["BOYFRIEND", "DAD"], character.playerOffsets ? 0 : 1);
 		designedAsDropDown.onChange = (index:Int) -> {
 			CharacterEditor.instance.changeCharacterDesginedAs(designedAsDropDown.options[index] == "BOYFRIEND");
 		};
 		members.push(designedAsDropDown);
 		addLabelOn(designedAsDropDown, "Char Desgined As...");
-		designedAsDropDown.bWidth = 170;
+		designedAsDropDown.bWidth = 193;
 
 		alpha = 0.7;
 

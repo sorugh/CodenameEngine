@@ -95,19 +95,23 @@ class CharacterEditor extends UIState {
 					{
 						label: "Copy Offset",
 						keybind: [CONTROL, C],
+						onSelect: _edit_copy_offset
 					},
 					{
 						label: "Paste Offset",
 						keybind: [CONTROL, V],
+						onSelect: _edit_paste_offset
 					},
 					null,
 					{
 						label: "Undo",
 						keybind: [CONTROL, Z],
+						onSelect: _edit_undo
 					},
 					{
 						label: "Redo",
 						keybinds: [[CONTROL, Y], [CONTROL, SHIFT, Z]],
+						onSelect: _edit_redo
 					}
 				]
 			},
@@ -117,40 +121,49 @@ class CharacterEditor extends UIState {
 					{
 						label: "Move Left",
 						keybind: [LEFT],
+						onSelect: _offsets_left,
 					},
 					{
 						label: "Move Up",
 						keybind: [UP],
+						onSelect: _offsets_up,
 					},
 					{
 						label: "Move Down",
 						keybind: [DOWN],
+						onSelect: _offsets_down,
 					},
 					{
 						label: "Move Right",
 						keybind: [RIGHT],
+						onSelect: _offsets_right,
 					},
 					null,
 					{
 						label: "Move Extra Left",
 						keybind: [SHIFT, LEFT],
+						onSelect: _offsets_extra_left,
 					},
 					{
 						label: "Move Extra Up",
 						keybind: [SHIFT, UP],
+						onSelect: _offsets_extra_up,
 					},
 					{
 						label: "Move Extra Down",
 						keybind: [SHIFT, DOWN],
+						onSelect: _offsets_extra_down,
 					},
 					{
 						label: "Move Extra Right",
 						keybind: [SHIFT, RIGHT],
+						onSelect: _offsets_extra_right,
 					},
 					null,
 					{
 						label: "Clear Offsets",
 						keybind: [CONTROL, R],
+						onSelect: _offsets_clear,
 					}
 				]
 			},
@@ -200,20 +213,22 @@ class CharacterEditor extends UIState {
 					{
 						label: "Play Animation",
 						keybind: [SPACE],
-						onSelect: _playback_play_anim,
+						onSelect: _animation_play,
 					},
 					{
 						label: "Stop Animation",
-						onSelect: _playback_stop_anim
+						onSelect: _animation_stop
 					},
 					null,
 					{
 						label: "Change Animation ↑",
 						keybind: [W],
+						onSelect: _animation_up
 					},
 					{
 						label: "Change Animation ↓",
 						keybind: [S],
+						onSelect: _animation_down
 					}
 				]
 			},
@@ -378,11 +393,6 @@ class CharacterEditor extends UIState {
 
 	// TOP MENU OPTIONS
 	#if REGION
-	function _file_exit(_) {
-		/*if (undos.unsaved) SaveWarning.triggerWarning();
-		else*/ FlxG.switchState(new CharacterSelection());
-	}
-
 	function _file_new(_) {
 	}
 
@@ -402,6 +412,44 @@ class CharacterEditor extends UIState {
 			defaultSaveFile: '${character.curCharacter}.xml'
 		}));
 	}
+
+	function _file_exit(_) {
+		/*if (undos.unsaved) SaveWarning.triggerWarning();
+		else*/ FlxG.switchState(new CharacterSelection());
+	}
+
+	function buildCharacter():String {
+		var charXML:Xml = character.buildXML([
+			for (button in characterAnimsWindow.buttons.members)
+				button.anim
+		]);
+
+		return "<!DOCTYPE codename-engine-character>\n" + Printer.print(charXML, true);
+	}
+
+	function _edit_copy_offset(_) {}
+	function _edit_paste_offset(_) {}
+
+	function _edit_undo(_) {}
+	function _edit_redo(_) {}
+
+	function _offsets_left(_) {}
+
+	function _offsets_up(_) {}
+
+	function _offsets_down(_) {}
+
+	function _offsets_right(_) {}
+
+	function _offsets_extra_left(_) {}
+
+	function _offsets_extra_up(_) {}
+
+	function _offsets_extra_down(_) {}
+
+	function _offsets_extra_right(_) {}
+
+	function _offsets_clear(_) {}
 
 	function buildStagesUI() {
 		var stageTopButton:UITopMenuButton = topMenuSpr == null ? null : cast topMenuSpr.members[stageIndex];
@@ -491,7 +539,7 @@ class CharacterEditor extends UIState {
 
 		if (stage.characterPoses.exists(stagePosition))
 			stage.applyCharStuff(character, stagePosition, 0);
-		_playback_play_anim(null);
+		_animation_play(null);
 
 		characterPropertiesWindow.testAsDropDown.index = characterPropertiesWindow.testAsDropDown.options.indexOf(stagePosition.toUpperCase());
 		characterPropertiesWindow.testAsDropDown.label.text = stagePosition.toUpperCase();
@@ -508,7 +556,7 @@ class CharacterEditor extends UIState {
 
 		if (stage.characterPoses.exists(stagePosition))
 			stage.applyCharStuff(character, stagePosition, 0);
-		_playback_play_anim(null);
+		_animation_play(null);
 
 		characterPropertiesWindow.designedAsDropDown.index = characterPropertiesWindow.designedAsDropDown.options.indexOf(player ? "BOYFRIEND" : "DAD");
 		characterPropertiesWindow.designedAsDropDown.label.text = player ? "BOYFRIEND" : "DAD";
@@ -524,49 +572,16 @@ class CharacterEditor extends UIState {
 		character.fixChar(false, false);
 	}
 
-	function buildCharacter():String {
-		var charXML:Xml = character.buildXML([
-			for (button in characterAnimsWindow.buttons.members)
-				button.anim
-		]);
-
-		return "<!DOCTYPE codename-engine-character>\n" + Printer.print(charXML, true);
-	}
-
-	function _playback_play_anim(_) {
-		if (character.getNameList().length != 0)
-			playAnimation(character.getAnimName());
-	}
-
-	function _playback_stop_anim(_) {
-		if (character.getNameList().length != 0)
-			character.stopAnimation();
-	}
-
-	public function playAnimation(anim:String) {
-		character.playAnim(anim, true);
-
-		for(i in characterAnimsWindow.buttons.members)
-			i.alpha = i.anim == anim ? 1 : 0.25;
-	}
-
-	var zoom(default, set):Float = 0;
-	var __camZoom(default, set):Float = 1;
-	function set_zoom(val:Float) {
-		return zoom = FlxMath.bound(val, -3.5, 1.75); // makes zooming not lag behind when continuing scrolling
-	}
-	function set___camZoom(val:Float) {
-		return __camZoom = FlxMath.bound(val, 0.1, 3);
-	}
-
 	function _view_zoomin(_) {
 		zoom += 0.25;
 		__camZoom = Math.pow(2, zoom);
 	}
+
 	function _view_zoomout(_) {
 		zoom -= 0.25;
 		__camZoom = Math.pow(2, zoom);
 	}
+
 	function _view_zoomreset(_) {
 		zoom = 0;
 		__camZoom = Math.pow(2, zoom);
@@ -595,6 +610,35 @@ class CharacterEditor extends UIState {
 		characterMidpoint.y -= (FlxG.height/2)-character.globalOffset.y;
 		_nextScroll.set(characterMidpoint.x, characterMidpoint.y);
 		characterMidpoint.put();
+	}
+
+	var zoom(default, set):Float = 0;
+	var __camZoom(default, set):Float = 1;
+	function set_zoom(val:Float) {
+		return zoom = FlxMath.bound(val, -3.5, 1.75); // makes zooming not lag behind when continuing scrolling
+	}
+	function set___camZoom(val:Float) {
+		return __camZoom = FlxMath.bound(val, 0.1, 3);
+	}
+
+	function _animation_play(_) {
+		if (character.getNameList().length != 0)
+			playAnimation(character.getAnimName());
+	}
+
+	function _animation_stop(_) {
+		if (character.getNameList().length != 0)
+			character.stopAnimation();
+	}
+
+	function _animation_up(_) {}
+	function _animation_down(_) {}
+
+	public function playAnimation(anim:String) {
+		character.playAnim(anim, true);
+
+		for(i in characterAnimsWindow.buttons.members)
+			i.alpha = i.anim == anim ? 1 : 0.25;
 	}
 	#end
 }

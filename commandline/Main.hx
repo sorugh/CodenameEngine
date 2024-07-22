@@ -131,7 +131,7 @@ class Main {
 
 	public static function main() {
 		initCommands();
-		var args = Sys.args();
+		final args = Sys.args();
 		var commandName = args.shift();
 		if (commandName != null)
 			commandName = commandName.toLowerCase();

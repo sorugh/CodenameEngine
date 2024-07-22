@@ -8,10 +8,10 @@ import sys.FileSystem;
 
 class Setup {
 	public static function main(args:Array<String>) {
-		var args = ArgParser.parse(args, ["S" => "silent-progress", "silent" => "silent-progress"]);
-		var CHECK_VSTUDIO = !args.existsOption("no-vscheck");
-		var REINSTALL_ALL = args.existsOption("reinstall");
-		var SILENT = args.existsOption("silent-progress");
+		final args = ArgParser.parse(args, ["S" => "silent-progress", "silent" => "silent-progress"]);
+		final CHECK_VSTUDIO = !args.existsOption("no-vscheck");
+		final REINSTALL_ALL = args.existsOption("reinstall");
+		final SILENT = args.existsOption("silent-progress");
 
 		// to prevent messing with currently installed libs
 		if (!FileSystem.exists('.haxelib'))
@@ -35,13 +35,13 @@ class Setup {
 			return;
 		}
 
-		var events:Array<Event> = [];
-		var libsXML:Access = new Access(Xml.parse(File.getContent(libFile)).firstElement());
+		final events:Array<Event> = [];
+		final libsXML:Access = new Access(Xml.parse(File.getContent(libFile)).firstElement());
 
 		function handleLib(libNode:Access) {
 			switch(libNode.name) {
 				case "lib" | "git":
-					var lib:Library = {
+					final lib:Library = {
 						name: libNode.att.name,
 						type: libNode.name
 					};
@@ -58,7 +58,6 @@ class Setup {
 						data: lib
 					});
 				case "cmd":
-
 					events.push({
 						type: CMD,
 						data: {
@@ -89,20 +88,21 @@ class Setup {
 			}
 		}
 
-		var platform = switch(Sys.systemName()) {
+		final platform = switch(Sys.systemName()) {
 			case "Windows": "windows";
 			case "Mac": "mac";
 			case "Linux": "linux";
 			case def: def.toLowerCase();
 		}
 
-		var defines = args.args.copy();
+		final defines = args.args.copy();
 		defines.push(platform);
+		defines.push("true");
 		if(args.args.length == 0) defines.push("all");
 
 		function parse(libNode:Access) {
 			if(libNode.name == "if") {
-				var cond = libNode.att.cond;
+				final cond = libNode.att.cond;
 				if(!Utils.evaluateArgsCondition(cond, defines)) {
 					return;
 				}
@@ -114,6 +114,8 @@ class Setup {
 				handleLib(libNode);
 			}
 		}
+
+		final shouldCheckHaxeVersion = !libsXML.has.checkVersion || Utils.evaluateArgsCondition(libsXML.att.checkVersion, defines);
 
 		for (libNode in libsXML.elements) {
 			parse(libNode);
@@ -139,14 +141,14 @@ class Setup {
 							prettyPrint('Cannot resolve library of type "${lib.type}"');
 					}
 				case CMD:
-					var cmd:CmdData = event.data;
-					var lib = cmd.inLib;
-					var oldCwd = Sys.getCwd();
+					final cmd:CmdData = event.data;
+					final lib = cmd.inLib;
+					final oldCwd = Sys.getCwd();
 					if(lib != null) {
-						var libPrefix = '.haxelib/$lib';
+						final libPrefix = '.haxelib/$lib';
 						if(FileSystem.exists(libPrefix)) {
 							if(FileSystem.exists(libPrefix + '/.dev')) { // haxelib dev
-								var devPath = File.getContent(libPrefix + '/.dev');
+								final devPath = File.getContent(libPrefix + '/.dev');
 								if(!FileSystem.exists(devPath)) {
 									Sys.println('Cannot find dev path $devPath for $lib');
 									Sys.setCwd(oldCwd);
@@ -154,7 +156,7 @@ class Setup {
 								}
 								Sys.setCwd(devPath);
 							} else if(FileSystem.exists(libPrefix + '/.current')) {
-								var version = StringTools.replace(File.getContent(libPrefix + '/.current'), ".", ",");
+								final version = StringTools.replace(File.getContent(libPrefix + '/.current'), ".", ",");
 								if(!FileSystem.exists(libPrefix + '/$version')) {
 									Sys.println('Cannot find version $version of $lib');
 									Sys.setCwd(oldCwd);
@@ -169,13 +171,13 @@ class Setup {
 						}
 					}
 					for(line in cmd.lines) {
-						var line = StringTools.replace(line, "$PLATFORM", platform);
+						final line = StringTools.replace(line, "$PLATFORM", platform);
 						//Sys.println(line);
 						Sys.command(line);
 					}
 					Sys.setCwd(oldCwd);
 				case PRINT:
-					var data:PrintData = event.data;
+					final data:PrintData = event.data;
 					if(data.pretty)
 						prettyPrint(data.text);
 					else
@@ -183,30 +185,28 @@ class Setup {
 			}
 		}
 
-		/*var proc = new Process('haxe --version');
-		proc.exitCode(true);
-		var haxeVer = proc.stdout.readLine();
-		if (haxeVer != "4.2.5") {
-			// check for outdated haxe
-			var curHaxeVer = [for(v in haxeVer.split(".")) Std.parseInt(v)];
-			var requiredHaxeVer = [4, 2, 5];
-			for(i in 0...requiredHaxeVer.length) {
-				if (curHaxeVer[i] < requiredHaxeVer[i]) {
-					prettyPrint("!! WARNING !!");
-					Sys.println("Your current Haxe version is outdated.");
-					Sys.println('You\'re using ${haxeVer}, while the required version is 4.2.5.');
-					Sys.println('The engine may not compile with your current version of Haxe.');
-					Sys.println('We recommend upgrading to 4.2.5');
-					break;
-				} else if (curHaxeVer[i] > requiredHaxeVer[i]) {
-					prettyPrint("!! WARNING !!"
-					+ "\nUsing Haxe 4.3.0 and above is currently not recommended due to lack of testing.");
-					Sys.println('');
-					Sys.println('We recommend downgrading back to 4.2.5.');
-					break;
+		if(shouldCheckHaxeVersion) {
+			final proc = new Process('haxe --version');
+			proc.exitCode(true);
+			final haxeVer = proc.stdout.readLine();
+			if (haxeVer != "4.2.5" || haxeVer != "4.3.4") {
+				// check for outdated haxe
+				final curHaxeVer = [for(v in haxeVer.split(".")) Std.parseInt(v)];
+				final requiredHaxeVer = [4, 2, 5];
+				for(i in 0...requiredHaxeVer.length) {
+					if (curHaxeVer[i] < requiredHaxeVer[i]) {
+						prettyPrint([
+							"!! WARNING !!",
+							"Your current Haxe version is outdated.",
+							'You\'re using ${haxeVer}, whilst the required version is 4.2.5 or newer.',
+							'The engine may not compile with your current version of Haxe.',
+							'We recommend upgrading to 4.2.5 or newer'
+						].join("\n"));
+						break;
+					}
 				}
 			}
-		}*/
+		}
 
 		// vswhere.exe its used to find any visual studio related installations on the system, including full visual studio ide installations, visual studio build tools installations, and other related components  - Nex
 		if (CHECK_VSTUDIO && Compiler.getBuildTarget().toLowerCase() == "windows" && new Process('"C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -property catalog_productDisplayVersion').exitCode(true) == 1) {
@@ -224,7 +224,7 @@ class Setup {
 	}
 
 	public static function prettyPrint(text:String) {
-		var lines = text.split("\n");
+		final lines = text.split("\n");
 		var length = -1;
 		for(line in lines)
 			if(line.length > length)
@@ -242,9 +242,9 @@ class Setup {
 
 
 	public static function centerText(text:String, width:Int):String {
-		var centerOffset = (width - text.length) / 2;
-		var left = repeat(' ', Math.floor(centerOffset));
-		var right = repeat(' ', Math.ceil(centerOffset));
+		final centerOffset = (width - text.length) / 2;
+		final left = repeat(' ', Math.floor(centerOffset));
+		final right = repeat(' ', Math.ceil(centerOffset));
 		return left + text + right;
 	}
 

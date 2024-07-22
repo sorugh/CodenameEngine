@@ -219,8 +219,8 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		}
 
 		if (!ghostDraw) {
-			x += extraOffset.x;
-			y += extraOffset.y;
+			x -= extraOffset.x;
+			y -= extraOffset.y;
 		}
 	}
 

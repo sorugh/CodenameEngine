@@ -26,7 +26,9 @@ class CharacterGhost extends Character {
 
 		setAnimOffset(animation.name);
 		alpha = 1; color = 0xFFFFFFFF;
-		ghostDraw = false; super.draw();
+		ghostDraw = false; 
+		
+		super.draw();
 	}
 
 	public function setAnimOffset(anim:String) {

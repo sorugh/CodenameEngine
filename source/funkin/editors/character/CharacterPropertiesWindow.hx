@@ -17,7 +17,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 	public var designedAsDropDown:UIDropDown;
 
 	public function new(x:Float, y:Float, character:Character) @:privateAccess {
-		super(x, y, 440, 204+20, "editors/ui/inputbox");
+		super(x, y, 424, 204+20, "editors/ui/inputbox");
 
 		function addLabelOn(ui:UISprite, text:String)
 			members.push(new UIText(ui.x, ui.y - 24, 0, text));
@@ -39,7 +39,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		};
 		members.push(positionYStepper);
 
-		scaleStepper = new UINumericStepper(positionYStepper.x+104+32, positionYStepper.y, character.scale.x, 0.001, 2, 0, null, 104);
+		scaleStepper = new UINumericStepper(positionYStepper.x+104+16, positionYStepper.y, character.scale.x, 0.001, 2, 0, null, 104);
 		scaleStepper.onChange = (text:String) -> {
 			@:privateAccess scaleStepper.__onChange(text);
 			this.changeScale(scaleStepper.value);

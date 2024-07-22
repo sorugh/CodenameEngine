@@ -378,10 +378,8 @@ class CharacterEditor extends UIState {
 			if (FlxG.mouse.justReleased) {
 				draggingOffset.x /= character.scale.x;
 				draggingOffset.y /= character.scale.y;
-				characterAnimsWindow.animButtons.get(character.getAnimName()).changeOffset(
-					FlxMath.roundDecimal(character.animOffsets[character.getAnimName()].x - (draggingOffset.x * (character.isPlayer != character.playerOffsets  ? -1 : 1)), 2), 
-					FlxMath.roundDecimal(character.animOffsets[character.getAnimName()].y - (draggingOffset.y), 2)
-				);
+				
+				_change_offset((draggingOffset.x * (character.isPlayer != character.playerOffsets  ? -1 : 1)), draggingOffset.y);
 
 				draggingOffset.set(0, 0); draggingCharacter = false;
 				character.extraOffset = draggingOffset;
@@ -433,23 +431,23 @@ class CharacterEditor extends UIState {
 	function _edit_undo(_) {}
 	function _edit_redo(_) {}
 
-	function _offsets_left(_) {}
-
-	function _offsets_up(_) {}
-
-	function _offsets_down(_) {}
-
-	function _offsets_right(_) {}
-
-	function _offsets_extra_left(_) {}
-
-	function _offsets_extra_up(_) {}
-
-	function _offsets_extra_down(_) {}
-
-	function _offsets_extra_right(_) {}
+	function _offsets_left(_) _change_offset(-1, 0);
+	function _offsets_up(_) _change_offset(0, -1);
+	function _offsets_down(_) _change_offset(0, 1);
+	function _offsets_right(_) _change_offset(1, 0);
+	function _offsets_extra_left(_) _change_offset(-5, 0);
+	function _offsets_extra_up(_) _change_offset(0, -5);
+	function _offsets_extra_down(_) _change_offset(0, 5);
+	function _offsets_extra_right(_) _change_offset(5, 0);
 
 	function _offsets_clear(_) {}
+
+	function _change_offset(x:Float, y:Float) {
+		characterAnimsWindow.animButtons.get(character.getAnimName()).changeOffset(
+			FlxMath.roundDecimal(character.animOffsets[character.getAnimName()].x - x, 2), 
+			FlxMath.roundDecimal(character.animOffsets[character.getAnimName()].y - y, 2)
+		);
+	}
 
 	function buildStagesUI() {
 		var stageTopButton:UITopMenuButton = topMenuSpr == null ? null : cast topMenuSpr.members[stageIndex];

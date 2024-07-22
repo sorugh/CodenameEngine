@@ -272,10 +272,6 @@ class CharacterAnimButton extends UIButton {
 
 		if (newOffsetX != null && newOffsetY != null && newOffsetX == animData.x && newOffsetY == animData.y)
 			return;
-		else {
-			if (newOffsetX != null && newOffsetX == animData.x) return;
-			if (newOffsetY != null && newOffsetY == animData.y) return;
-		}
 
 		if (newOffsetX != null) animData.x = newOffsetX;
 		if (newOffsetY != null) animData.y = newOffsetY;

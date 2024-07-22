@@ -6,7 +6,7 @@ import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
 
-class Update {
+class Setup {
 	public static function main(args:Array<String>) {
 		var args = ArgParser.parse(args, ["S" => "silent-progress", "silent" => "silent-progress"]);
 		var CHECK_VSTUDIO = !args.existsOption("no-vscheck");

@@ -117,8 +117,6 @@ class CharacterPropertiesWindow extends UISliceSprite {
 	}
 
 	public function changeFlipX(newFlipX:Bool) @:privateAccess {
-		if (character.isPlayer ? !character.__baseFlipped : character.__baseFlipped == newFlipX) return;
-
 		character.flipX = character.isPlayer ? !newFlipX : newFlipX;
 		character.__baseFlipped = character.flipX;
 

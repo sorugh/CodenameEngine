@@ -17,7 +17,7 @@ import funkin.editors.extra.DrawAxis;
 
 class CharacterEditor extends UIState {
 	static var __character:String;
-	public var character:Character;
+	public var character:CharacterGhost;
 
 	public static var instance(get, null):CharacterEditor;
 
@@ -246,7 +246,7 @@ class CharacterEditor extends UIState {
 
 		FlxG.cameras.add(uiCamera);
 
-		character = new Character(0,0, __character, false, false);
+		character = new CharacterGhost(0,0, __character, false, false);
 		character.debugMode = true;
 		character.cameras = [charCamera];
 
@@ -313,8 +313,8 @@ class CharacterEditor extends UIState {
 	var _nextScroll:FlxPoint = FlxPoint.get(0,0);
 	var _cameraZoomMulti:Float = 1;
 
-	var draggingCharacter:Bool = false;
-	var draggingOffset:FlxPoint = new FlxPoint();
+	public var draggingCharacter:Bool = false;
+	public var draggingOffset:FlxPoint = new FlxPoint();
 	public override function update(elapsed:Float) {
 		if(FlxG.keys.justPressed.ANY)
 			UIUtil.processShortcuts(topMenu);
@@ -383,9 +383,6 @@ class CharacterEditor extends UIState {
 		if (draggingCharacter) {
 			cameraHoverDummy.cursor = #if (mac) DRAG; #elseif (linux) DRAG; #elseif MOVE; #end
 
-			draggingOffset.x += FlxG.mouse.deltaScreenX; draggingOffset.y += FlxG.mouse.deltaScreenY;
-			character.extraOffset = draggingOffset;
-
 			if (FlxG.mouse.justReleased) {
 				draggingOffset.x /= character.scale.x;
 				draggingOffset.y /= character.scale.y;
@@ -393,6 +390,9 @@ class CharacterEditor extends UIState {
 				_change_offset((draggingOffset.x * (character.isPlayer != character.playerOffsets  ? -1 : 1)), draggingOffset.y);
 
 				draggingOffset.set(0, 0); draggingCharacter = false;
+				character.extraOffset = draggingOffset;
+			} else {
+				draggingOffset.x += FlxG.mouse.deltaScreenX; draggingOffset.y += FlxG.mouse.deltaScreenY;
 				character.extraOffset = draggingOffset;
 			}
 		}

@@ -147,7 +147,7 @@ class CharacterAnimButton extends UIButton {
 		deleteIcon.antialiasing = false;
 		members.push(deleteIcon);
 
-		editButton = new UIButton(0, 0, "", () -> {this.closed = !this.closed; this.update(0);}, 28,24);
+		editButton = new UIButton(0, 0, "", () -> {this.closed = !this.closed;}, 28,24);
 		editButton.frames = Paths.getFrames("editors/ui/grayscale-button");
 		editButton.color = 0xFFAFAA12;
 		members.push(editButton);
@@ -157,7 +157,7 @@ class CharacterAnimButton extends UIButton {
 		editIcon.antialiasing = false;
 		members.push(editIcon);
 
-		ghostButton = new UIButton(0, 0, "", null, 28, 24);
+		ghostButton = new UIButton(0, 0, "", toggleGhost, 28, 24);
 		ghostButton.frames = Paths.getFrames("editors/ui/grayscale-button");
 		ghostButton.color = 0xFFADADAD;
 		ghostButton.alpha = 0.5;
@@ -360,6 +360,16 @@ class CharacterAnimButton extends UIButton {
 			for (name in parent.character.animateAtlas.anim.symbolDictionary.keys())
 				if (parent.character.animateAtlas.anim.startsWith(name, animData.anim))
 					{symbol.instance.symbol.name = name; break;}
+		}
+	}
+
+	public function toggleGhost() {
+		if (parent.ghosts.indexOf(anim) == -1) {
+			parent.ghosts.push(anim);
+			ghostIcon.animation.play("alive", true);
+		} else {
+			parent.ghosts.remove(anim);
+			ghostIcon.animation.play("dead", true);
 		}
 	}
 

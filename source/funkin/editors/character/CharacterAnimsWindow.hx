@@ -9,7 +9,7 @@ import funkin.game.Character;
 using funkin.backend.utils.BitmapUtil;
 
 class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
-	public var character:Character;
+	public var character:CharacterGhost;
 
 	public var displayWindowSprite:FlxSprite;
 	public var displayWindowGraphic:FlxGraphic;
@@ -17,7 +17,7 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 
 	public var animButtons:Map<String, CharacterAnimButton> = [];
 
-	public function new(x:Float, y:Float, character:Character) {
+	public function new(x:Float, y:Float, character:CharacterGhost) {
 		super(x, y, Std.int(500-16), 419, "", FlxPoint.get(Std.int(500-16-32), 208));
 
 		cameraSpacing = 0;
@@ -44,6 +44,18 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 			add(button); animButtons.set(anim, button);
 		}
 		this.character = character;
+	}
+
+	public var ghosts:Array<String> = [];
+	public override function update(elapsed:Float) {
+		super.update(elapsed);
+
+		//	if (CharacterEditor.instance.draggingCharacter && ghosts[0] != character.getAnimName()) {
+		//		if (ghosts.indexOf(character.getAnimName()) != -1)
+		//			ghosts.remove(character.getAnimName());
+		//		ghosts.insert(0, character.getAnimName());
+		//	}
+		character.ghosts = ghosts;
 	}
 
 	public function buildAnimDisplay(name:String, anim:FlxAnimation) {

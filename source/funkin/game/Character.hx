@@ -195,9 +195,12 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	public function isFlippedOffsets()
 		return (isPlayer != playerOffsets) != (flipX != __baseFlipped);
 
+	public var ghostDraw:Bool = false;
 	public override function draw() {
-		x += extraOffset.x;
-		y += extraOffset.y;
+		if (!ghostDraw) {
+			x += extraOffset.x;
+			y += extraOffset.y;
+		}
 		
 		if (isFlippedOffsets()) {
 			__reverseDrawProcedure = true;
@@ -211,11 +214,13 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 			__reverseDrawProcedure = false;
 		} else super.draw();
 
-		x -= extraOffset.x;
-		y -= extraOffset.y;
+		if (!ghostDraw) {
+			x -= extraOffset.x;
+			y -= extraOffset.y;
 
-		if (debugHitbox) drawHitbox();
-		if (debugCamera) drawCamera();
+			if (debugHitbox) drawHitbox();
+			if (debugCamera) drawCamera();
+		}
 	}
 
 	public var debugHitbox:Bool = false;

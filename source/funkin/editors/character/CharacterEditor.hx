@@ -279,9 +279,10 @@ class CharacterEditor extends UIState {
 		add(uiGroup);
 
 		playAnimation(character.getAnimOrder()[0]);
+		changeStage("stage");
+
 		_view_focus_character(null);
-
-
+		
 		if(Framerate.isLoaded) {
 			Framerate.fpsCounter.alpha = 0.4;
 			Framerate.memoryCounter.alpha = 0.4;
@@ -501,7 +502,9 @@ class CharacterEditor extends UIState {
 		remove(character);
 
 		if (__stage == null) {
-			updateStagePositions(["NONE"]);
+			updateStagePositions([]);
+			changeStagePosition("NONE");
+
 			add(character);
 		} else {
 			stage = new Stage(__stage, this, false);
@@ -537,24 +540,28 @@ class CharacterEditor extends UIState {
 	}
 
 	public function changeStagePosition(position:String) {
-		if (stage == null) return;
-
-		if (stage.characterPoses.exists(stagePosition))
-			stage.characterPoses[stagePosition].revertCharacter(character);
-
-		stagePosition = position.toLowerCase();
-		remove(character);
-
-		if (stage.characterPoses.exists(stagePosition))
-			stage.applyCharStuff(character, stagePosition, 0);
-		_animation_play(null);
+		if (stage != null && position != "NONE") {
+			if (stage.characterPoses.exists(stagePosition))
+				stage.characterPoses[stagePosition].revertCharacter(character);
+	
+			stagePosition = position.toLowerCase();
+			remove(character);
+	
+			if (stage.characterPoses.exists(stagePosition))
+				stage.applyCharStuff(character, stagePosition, 0);
+			_animation_play(null);
+		} else
+			stagePosition = position.toLowerCase();
 
 		characterPropertiesWindow.testAsDropDown.index = characterPropertiesWindow.testAsDropDown.options.indexOf(stagePosition.toUpperCase());
 		characterPropertiesWindow.testAsDropDown.label.text = stagePosition.toUpperCase();
 	}
 
 	public function changeCharacterDesginedAs(player:Bool) @:privateAccess {
-		if (stage == null) return;
+		if (stage == null) {
+			changeCharacterIsPlayer(player);
+			return;
+		}
 
 		if (stage.characterPoses.exists(stagePosition))
 			stage.characterPoses[stagePosition].revertCharacter(character);

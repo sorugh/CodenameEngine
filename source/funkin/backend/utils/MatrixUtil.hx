@@ -4,6 +4,11 @@ import flixel.FlxCamera;
 import flixel.math.FlxPoint;
 import flixel.util.typeLimit.OneOfTwo;
 
+interface IPrePostDraw {
+	public function preDraw():Void;
+	public function postDraw():Void;
+}
+
 class MatrixUtil {
 	public static function getMatrixPosition(sprite:FlxSprite, points:OneOfTwo<FlxPoint, Array<FlxPoint>>, ?camera:FlxCamera, _width:Float = 1, _height:Float = 1):Array<FlxPoint>
 	{
@@ -15,7 +20,15 @@ class MatrixUtil {
 		nc.zoom = camera.zoom;
 		nc.scroll.set(camera.scroll.x, camera.scroll.y);
 		nc.pixelPerfectRender = camera.pixelPerfectRender;
+		var isPostDraw = sprite is IPrePostDraw;
+		var postDraw = isPostDraw ? cast(sprite, IPrePostDraw) : null;
+		if(isPostDraw) {
+			postDraw.preDraw();
+		}
 		@:privateAccess sprite.drawComplex(nc);
+		if(isPostDraw) {
+			postDraw.postDraw();
+		}
 
 		var isFunkinSprite = sprite is FunkinSprite;
 

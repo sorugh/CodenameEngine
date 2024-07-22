@@ -18,6 +18,7 @@ import funkin.backend.scripting.events.PointEvent;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.backend.system.interfaces.IOffsetCompatible;
+import funkin.backend.utils.MatrixUtil;
 import funkin.backend.utils.XMLUtil;
 import haxe.Exception;
 import haxe.io.Path;
@@ -29,7 +30,7 @@ using StringTools;
 @:allow(funkin.desktop.editors.CharacterEditor)
 @:allow(funkin.game.StrumLine)
 @:allow(funkin.game.PlayState)
-class Character extends FunkinSprite implements IBeatReceiver implements IOffsetCompatible {
+class Character extends FunkinSprite implements IBeatReceiver implements IOffsetCompatible implements IPrePostDraw {
 	public var isPlayer:Bool = false;
 	public var curCharacter:String = 'bf';
 	public var sprite:String = 'bf';
@@ -195,29 +196,41 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	public function isFlippedOffsets()
 		return (isPlayer != playerOffsets) != (flipX != __baseFlipped);
 
-	public var ghostDraw:Bool = false;
-	public override function draw() {
+	var __reversePreDrawProcedure:Bool = false;
+
+	public function preDraw() {
 		if (!ghostDraw) {
 			x += extraOffset.x;
 			y += extraOffset.y;
 		}
-		
-		if (isFlippedOffsets()) {
+
+		if (__reversePreDrawProcedure = isFlippedOffsets()) {
 			__reverseDrawProcedure = true;
 			flipX = !flipX;
 			scale.x *= -1;
+		}
+	}
 
-			super.draw();
-
+	public function postDraw() {
+		if (__reversePreDrawProcedure) {
 			flipX = !flipX;
 			scale.x *= -1;
 			__reverseDrawProcedure = false;
-		} else super.draw();
+		}
 
 		if (!ghostDraw) {
-			x -= extraOffset.x;
-			y -= extraOffset.y;
+			x += extraOffset.x;
+			y += extraOffset.y;
+		}
+	}
 
+	public var ghostDraw:Bool = false;
+	public override function draw() {
+		preDraw();
+		super.draw();
+		postDraw();
+
+		if (!ghostDraw) {
 			if (debugHitbox) drawHitbox();
 			if (debugCamera) drawCamera();
 		}

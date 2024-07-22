@@ -20,14 +20,13 @@ class MatrixUtil {
 		nc.zoom = camera.zoom;
 		nc.scroll.set(camera.scroll.x, camera.scroll.y);
 		nc.pixelPerfectRender = camera.pixelPerfectRender;
-		var isPostDraw = sprite is IPrePostDraw;
-		var postDraw = isPostDraw ? cast(sprite, IPrePostDraw) : null;
-		if(isPostDraw) {
+		if(sprite is IPrePostDraw) {
+			var postDraw = cast(sprite, IPrePostDraw);
 			postDraw.preDraw();
-		}
-		@:privateAccess sprite.drawComplex(nc);
-		if(isPostDraw) {
+			@:privateAccess sprite.drawComplex(nc);
 			postDraw.postDraw();
+		} else {
+			@:privateAccess sprite.drawComplex(nc);
 		}
 
 		var isFunkinSprite = sprite is FunkinSprite;

@@ -75,6 +75,7 @@ class Options
 	public static var characterHitbox:Bool = true;
 	public static var characterCamera:Bool = true;
 	public static var characterAxis:Bool = true;
+	public static var characterDragging:Bool = true;
 
 	/**
 	 * PLAYER 1 CONTROLS

@@ -161,6 +161,11 @@ class CharacterEditor extends UIState {
 					},
 					null,
 					{
+						label: "Drag Offsets With Mouse?",
+						onSelect: _offsets_drag_offsets_mouse,
+						icon: Options.characterDragging ? 1 : 0
+					},
+					{
 						label: "Clear Offsets",
 						keybind: [CONTROL, R],
 						onSelect: _offsets_clear,
@@ -347,6 +352,13 @@ class CharacterEditor extends UIState {
 		}
 		animationText.text = '"${character.getAnimName()}"';
 
+		if (Options.characterDragging) 
+			handleMouseOffsets();
+
+		super.update(elapsed);
+	}
+
+	inline function handleMouseOffsets() {
 		var point = FlxG.mouse.getWorldPosition(charCamera, _point);
 		if(character.animateAtlas == null) {
 			StageEditor.calcSpriteBounds(character);
@@ -373,20 +385,17 @@ class CharacterEditor extends UIState {
 
 			draggingOffset.x += FlxG.mouse.deltaScreenX; draggingOffset.y += FlxG.mouse.deltaScreenY;
 			character.extraOffset = draggingOffset;
-			trace(draggingOffset);
 
 			if (FlxG.mouse.justReleased) {
 				draggingOffset.x /= character.scale.x;
 				draggingOffset.y /= character.scale.y;
-				
+
 				_change_offset((draggingOffset.x * (character.isPlayer != character.playerOffsets  ? -1 : 1)), draggingOffset.y);
 
 				draggingOffset.set(0, 0); draggingCharacter = false;
 				character.extraOffset = draggingOffset;
 			}
 		}
-
-		super.update(elapsed);
 	}
 
 	// TOP MENU OPTIONS
@@ -440,7 +449,14 @@ class CharacterEditor extends UIState {
 	function _offsets_extra_down(_) _change_offset(0, 5);
 	function _offsets_extra_right(_) _change_offset(5, 0);
 
-	function _offsets_clear(_) {}
+	function _offsets_drag_offsets_mouse(t) {
+		t.icon = (Options.characterDragging = !Options.characterDragging) ? 1 : 0;
+	}
+
+	function _offsets_clear(_) {
+		for (anim => button in characterAnimsWindow.animButtons)
+			button.changeOffset(0, 0);
+	}
 
 	function _change_offset(x:Float, y:Float) {
 		characterAnimsWindow.animButtons.get(character.getAnimName()).changeOffset(

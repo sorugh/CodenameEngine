@@ -264,7 +264,7 @@ class CharacterEditor extends UIState {
 		uiGroup.cameras = [uiCamera];
 		add(cameraHoverDummy = new CameraHoverDummy(uiGroup, FlxPoint.weak(0, 0)));
 
-		characterPropertiesWindow = new CharacterPropertiesWindow((FlxG.width-(532)), 23+12+10, character);
+		characterPropertiesWindow = new CharacterPropertiesWindow((FlxG.width-(456)), 23+12+10, character);
 		uiGroup.add(characterPropertiesWindow);
 
 		topMenuSpr = new UITopMenu(topMenu);
@@ -279,7 +279,7 @@ class CharacterEditor extends UIState {
 		animationText = new UIText(0, 0, 0, "");
 		uiGroup.add(animationText);
 
-		characterAnimsWindow = new CharacterAnimsWindow(characterPropertiesWindow.x, characterPropertiesWindow.y+224+16, character);
+		characterAnimsWindow = new CharacterAnimsWindow(characterPropertiesWindow.x - 44, characterPropertiesWindow.y+224+16, character);
 		uiGroup.add(characterAnimsWindow);
 
 		add(uiGroup);

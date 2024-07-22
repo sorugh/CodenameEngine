@@ -69,7 +69,7 @@ class CharacterAnimButton extends UIButton {
 		members.push(animationDisplayBG);
 		foldableButtons.push(animationDisplayBG);
 
-		nameTextBox = new UITextBox(animationDisplayBG.x+126+16, animationDisplayBG.y, animData.name, 116, 22, false, true);
+		nameTextBox = new UITextBox(animationDisplayBG.x+126+16, animationDisplayBG.y, animData.name, 104, 22, false, true);
 		nameTextBox.onChange = (newName:String) -> {this.changeName(newName);};
 		members.push(nameTextBox);
 		foldableButtons.push(nameTextBox);
@@ -114,7 +114,6 @@ class CharacterAnimButton extends UIButton {
 		loopedCheckbox.onChecked = (newLooping:Bool) -> {this.changeLooping(newLooping);};
 		members.push(loopedCheckbox);
 		foldableButtons.push(loopedCheckbox);
-		addLabelOn(loopedCheckbox, "Looped", 12);
 
 		loopedCheckbox.x += 8; loopedCheckbox.y += 6;
 
@@ -193,8 +192,8 @@ class CharacterAnimButton extends UIButton {
 		positionYStepper.follow(this, 218, 118);
 		XYComma.follow(positionXStepper, 64-24, 6);
 
-		fpsStepper.follow(this, 280, 118);
-		loopedCheckbox.follow(this, 336, 124);
+		fpsStepper.follow(this, 290, 118);
+		loopedCheckbox.follow(this, 336, 122);
 
 		indicesTextBox.follow(this, 158, 164);
 

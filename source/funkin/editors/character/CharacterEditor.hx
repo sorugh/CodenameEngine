@@ -658,8 +658,21 @@ class CharacterEditor extends UIState {
 			character.stopAnimation();
 	}
 
-	function _animation_up(_) {}
-	function _animation_down(_) {}
+	function _animation_up(_)
+		playAnimation(
+			characterAnimsWindow.animsList[
+				FlxMath.wrap(
+					characterAnimsWindow.animsList.indexOf(character.getAnimName()) - 1, 
+					0, characterAnimsWindow.animsList.length-1
+			)]
+		);
+	function _animation_down(_)
+		playAnimation(
+			characterAnimsWindow.animsList[FlxMath.wrap(
+					characterAnimsWindow.animsList.indexOf(character.getAnimName()) + 1, 
+					0, characterAnimsWindow.animsList.length-1
+			)]
+		);
 
 	public function playAnimation(anim:String) {
 		character.playAnim(anim, true);

@@ -16,6 +16,7 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 	public var displayAnimsFramesList:Map<String, {scale:Float, animBounds:Rectangle, frame:Int}> = [];
 
 	public var animButtons:Map<String, CharacterAnimButton> = [];
+	public var animsList:Array<String> = [];
 
 	public function new(x:Float, y:Float, character:CharacterGhost) {
 		super(x, y, Std.int(500-16), 419, "", FlxPoint.get(Std.int(500-16-32), 208));
@@ -50,11 +51,7 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		//	if (CharacterEditor.instance.draggingCharacter && ghosts[0] != character.getAnimName()) {
-		//		if (ghosts.indexOf(character.getAnimName()) != -1)
-		//			ghosts.remove(character.getAnimName());
-		//		ghosts.insert(0, character.getAnimName());
-		//	}
+		animsList = [for (button in buttons) button.anim];
 		character.ghosts = ghosts;
 	}
 

@@ -374,14 +374,14 @@ class CharacterEditor extends UIState {
 			*/
 				
 			if (bounds.containsPoint(point)) {
-				cameraHoverDummy.cursor = #if (mac) DRAG_OPEN; #elseif (linux) CLICK; #elseif MOVE; #end
+				cameraHoverDummy.cursor = #if (mac) DRAG_OPEN; #elseif (linux) CLICK; #else MOVE; #end
 				if (FlxG.mouse.justPressed)
 					draggingCharacter = true;
 			}
 		}
 
 		if (draggingCharacter) {
-			cameraHoverDummy.cursor = #if (mac) DRAG; #elseif (linux) DRAG; #elseif MOVE; #end
+			cameraHoverDummy.cursor = #if (mac) DRAG; #elseif (linux) DRAG; #else MOVE; #end
 
 			if (FlxG.mouse.justReleased) {
 				draggingOffset.x /= character.scale.x;

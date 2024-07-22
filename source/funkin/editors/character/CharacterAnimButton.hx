@@ -136,7 +136,7 @@ class CharacterAnimButton extends UIButton {
 		playIcon.antialiasing = false;
 		members.push(playIcon);
 
-		deleteButton = new UIButton(0, 0, "", null, 28*2,24);
+		deleteButton = new UIButton(0, 0, "", () -> {parent.deleteAnimation(this);}, 28*2,24);
 		deleteButton.frames = Paths.getFrames("editors/ui/grayscale-button");
 		deleteButton.color = 0xFFAC3D3D;
 		members.push(deleteButton);

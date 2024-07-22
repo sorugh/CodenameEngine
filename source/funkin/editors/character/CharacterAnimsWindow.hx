@@ -1,5 +1,6 @@
 package funkin.editors.character;
 
+import funkin.backend.utils.XMLUtil.AnimData;
 import flixel.animation.FlxAnimation;
 import flixel.graphics.FlxGraphic;
 import openfl.geom.Rectangle;
@@ -64,4 +65,23 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 
 		displayAnimsFramesList.set(name, {frame: anim.frames.getDefault([0])[0], scale: 104/animBounds.height, animBounds: animBounds});
 	}
+
+	public function deleteAnimation(button:CharacterAnimButton) {
+		if (buttons.members.length <= 1) return;
+		if (character.getAnimName() == button.anim)
+			@:privateAccess CharacterEditor.instance._animation_down(null);
+		
+		character.removeAnimation(button.anim);
+		if (character.animOffsets.exists(button.anim)) character.animOffsets.remove(button.anim);
+		if (character.animDatas.exists(button.anim)) character.animDatas.remove(button.anim);
+		
+		remove(button); button.destroy();
+	}
+
+	// public function createAnimation() {
+	// 	var animData:AnimData = {
+	// 		name: "New Animation"
+	// 		x: 0, y: 0,
+	// 	}
+	// }
 }

@@ -50,7 +50,6 @@ class CharacterPropertiesWindow extends UISliceSprite {
 
 		editCharacterButton = new UIButton(scaleStepper.x + 90 -32 + 26, scaleStepper.y, "Edit Info", null);
 		members.push(editCharacterButton);
-		addLabelOn(editCharacterButton, "Character");
 
 		flipXCheckbox = new UICheckbox(scaleStepper.x+22, scaleStepper.y+32+14, "Flipped?", character.isPlayer ? !character.__baseFlipped : character.__baseFlipped);
 		flipXCheckbox.onChecked = (checked:Bool) -> {this.changeFlipX(checked);};

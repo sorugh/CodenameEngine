@@ -356,7 +356,7 @@ class CharacterEditor extends UIState {
 
 	inline function handleMouseOffsets() {
 		if (draggingCharacter) {
-			cameraHoverDummy.cursor = #if (mac) DRAG; #elseif (linux) DRAG; #else MOVE; #end
+			cameraHoverDummy.cursor = #if (mac) DRAG; #elseif (linux) DRAG; #else BUTTON; #end
 
 			if (FlxG.mouse.justReleased) {
 				draggingOffset.x /= character.scale.x;

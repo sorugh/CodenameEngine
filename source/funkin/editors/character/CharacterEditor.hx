@@ -422,6 +422,9 @@ class CharacterEditor extends UIState {
 	}
 
 	function buildCharacter():String {
+		if (character.extra.exists(StageEditor.exID("bounds")))
+			character.extra.remove(StageEditor.exID("bounds"));
+		
 		var charXML:Xml = character.buildXML([
 			for (button in characterAnimsWindow.buttons.members)
 				button.anim

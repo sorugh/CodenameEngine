@@ -215,6 +215,11 @@ class CharacterAnimButton extends UIButton {
 	public function changeName(newName:String) @:privateAccess {
 		if (newName == anim) return;
 
+		if  (parent.character.getNameList().indexOf(newName) != -1) {
+			nameTextBox.label.text = anim;
+			return;
+		}
+
 		if (parent.character.animateAtlas != null) {
 			var animSymbol:SymbolStuff = parent.character.animateAtlas.anim.animsMap[anim];
 

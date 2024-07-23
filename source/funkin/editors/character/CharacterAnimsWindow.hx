@@ -21,6 +21,7 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 
 	public function new(x:Float, y:Float, character:CharacterGhost) {
 		super(x, y, Std.int(500-16), 419, "", FlxPoint.get(Std.int(500-16-32), 208));
+		this.character = character;
 
 		cameraSpacing = 0;
 		frames = Paths.getFrames('editors/ui/inputbox');
@@ -37,15 +38,9 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 
 		alpha = 0.7;
 
-		@:privateAccess
-		for (name => anim in displayWindowSprite.animation._animations)
-			buildAnimDisplay(name, anim);
-			
-		for (anim in character.getAnimOrder()) {
-			var button:CharacterAnimButton = new CharacterAnimButton(0, 0, character.animDatas.get(anim), this);
-			add(button); animButtons.set(anim, button);
-		}
-		this.character = character;
+		for (anim in character.getAnimOrder())
+			addAnimation(character.animDatas.get(anim));
+		addButton.callback = generateAnimation;
 	}
 
 	public var ghosts:Array<String> = [];
@@ -78,10 +73,35 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 		remove(button); button.destroy();
 	}
 
-	// public function createAnimation() {
-	// 	var animData:AnimData = {
-	// 		name: "New Animation"
-	// 		x: 0, y: 0,
-	// 	}
-	// }
+	public function generateAnimation() {
+		var animName:String = "New Anim";
+		var animNames:Array<String> = character.getNameList();
+
+		var newAnimCount:Int = 0;
+		while (animNames.indexOf(animName) != -1) {
+            newAnimCount++;
+            animName = 'New Anim - $newAnimCount';
+        }
+
+		var animData:AnimData = {
+			name: animName,
+			anim: character.frames.getByIndex(0).name,
+			fps: 24, loop: false,
+			x: 0, y: 0,
+			indices: [],
+			animType: NONE,
+		};
+		addAnimation(animData);
+	}
+
+	public function addAnimation(animData:AnimData, animID:Int = -1) @:privateAccess {
+		XMLUtil.addAnimToSprite(character, animData);
+		buildAnimDisplay(animData.name, character.animation._animations[animData.name]);
+
+		var newButton:CharacterAnimButton = new CharacterAnimButton(0, 0, animData, this);
+		newButton.alpha = 0.25; animButtons.set(animData.name, newButton);
+
+		if (animID == -1) add(newButton);
+		else insert(newButton, animID);
+	}
 }

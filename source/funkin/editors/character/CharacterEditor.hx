@@ -264,29 +264,24 @@ class CharacterEditor extends UIState {
 		uiGroup.cameras = [uiCamera];
 		add(cameraHoverDummy = new CameraHoverDummy(uiGroup, FlxPoint.weak(0, 0)));
 
-		characterPropertiesWindow = new CharacterPropertiesWindow((FlxG.width-(432)), 23+12+10, character);
+		characterPropertiesWindow = new CharacterPropertiesWindow((FlxG.width-(440)-16) - (((500-16)-(440))/2), 23+12+10, character);
 		uiGroup.add(characterPropertiesWindow);
 
 		topMenuSpr = new UITopMenu(topMenu);
 		uiGroup.add(topMenuSpr);
 
-		// dragOffsetsCheckbox = new UICheckbox(FlxG.width - 440, 5, "Drag Offsets With Mouse?", false, 0, true);
-		// uiGroup.add(dragOffsetsCheckbox);
-
-		// lockCameraCheckbox = new UICheckbox(FlxG.width - 200, 5, "Lock Camera?", false, 0, true);
-		// uiGroup.add(lockCameraCheckbox);
-
 		animationText = new UIText(0, 0, 0, "");
 		uiGroup.add(animationText);
 
-		characterAnimsWindow = new CharacterAnimsWindow(characterPropertiesWindow.x - 60, characterPropertiesWindow.y+224+16, character);
+		characterAnimsWindow = new CharacterAnimsWindow((FlxG.width-(500-16)-16), characterPropertiesWindow.y+224+16, character);
 		uiGroup.add(characterAnimsWindow);
 
 		add(uiGroup);
 
 		playAnimation(character.getAnimOrder()[0]);
-		_view_focus_character(null);
+		changeStage("stage");
 
+		_view_focus_character(null);
 
 		if(Framerate.isLoaded) {
 			Framerate.fpsCounter.alpha = 0.4;
@@ -300,6 +295,7 @@ class CharacterEditor extends UIState {
 	override function destroy() {
 		_point.put();
 		draggingOffset.put();
+		clipboard.put();
 
 		super.destroy();
 		if(Framerate.isLoaded) {
@@ -360,7 +356,7 @@ class CharacterEditor extends UIState {
 
 	inline function handleMouseOffsets() {
 		if (draggingCharacter) {
-			cameraHoverDummy.cursor = #if (mac) DRAG; #elseif (linux) DRAG; #else MOVE; #end
+			cameraHoverDummy.cursor = #if (mac) DRAG; #elseif (linux) DRAG; #else BUTTON; #end
 
 			if (FlxG.mouse.justReleased) {
 				draggingOffset.x /= character.scale.x;
@@ -426,6 +422,9 @@ class CharacterEditor extends UIState {
 	}
 
 	function buildCharacter():String {
+		if (character.extra.exists(StageEditor.exID("bounds")))
+			character.extra.remove(StageEditor.exID("bounds"));
+		
 		var charXML:Xml = character.buildXML([
 			for (button in characterAnimsWindow.buttons.members)
 				button.anim
@@ -434,8 +433,13 @@ class CharacterEditor extends UIState {
 		return "<!DOCTYPE codename-engine-character>\n" + Printer.print(charXML, true);
 	}
 
-	function _edit_copy_offset(_) {}
-	function _edit_paste_offset(_) {}
+	var clipboard:FlxPoint = FlxPoint.get();
+	function _edit_copy_offset(_) {
+		clipboard.copyFrom(character.animOffsets[character.getAnimName()]);
+	}
+	function _edit_paste_offset(_) {
+		_set_offset(clipboard.x, clipboard.y);
+	}
 
 	function _edit_undo(_) {}
 	function _edit_redo(_) {}
@@ -459,9 +463,15 @@ class CharacterEditor extends UIState {
 	}
 
 	function _change_offset(x:Float, y:Float) {
+		_set_offset(
+			character.animOffsets[character.getAnimName()].x - x,
+			character.animOffsets[character.getAnimName()].y - y
+		);
+	}
+
+	function _set_offset(x:Float, y:Float) {
 		characterAnimsWindow.animButtons.get(character.getAnimName()).changeOffset(
-			FlxMath.roundDecimal(character.animOffsets[character.getAnimName()].x - x, 2), 
-			FlxMath.roundDecimal(character.animOffsets[character.getAnimName()].y - y, 2)
+			FlxMath.roundDecimal(x, 2), FlxMath.roundDecimal(y, 2)
 		);
 	}
 
@@ -507,7 +517,9 @@ class CharacterEditor extends UIState {
 		remove(character);
 
 		if (__stage == null) {
-			updateStagePositions(["NONE"]);
+			updateStagePositions([]);
+			changeStagePosition("NONE");
+
 			add(character);
 		} else {
 			stage = new Stage(__stage, this, false);
@@ -543,24 +555,28 @@ class CharacterEditor extends UIState {
 	}
 
 	public function changeStagePosition(position:String) {
-		if (stage == null) return;
-
-		if (stage.characterPoses.exists(stagePosition))
-			stage.characterPoses[stagePosition].revertCharacter(character);
-
-		stagePosition = position.toLowerCase();
-		remove(character);
-
-		if (stage.characterPoses.exists(stagePosition))
-			stage.applyCharStuff(character, stagePosition, 0);
-		_animation_play(null);
+		if (stage != null && position != "NONE") {
+			if (stage.characterPoses.exists(stagePosition))
+				stage.characterPoses[stagePosition].revertCharacter(character);
+	
+			stagePosition = position.toLowerCase();
+			remove(character);
+	
+			if (stage.characterPoses.exists(stagePosition))
+				stage.applyCharStuff(character, stagePosition, 0);
+			_animation_play(null);
+		} else
+			stagePosition = position.toLowerCase();
 
 		characterPropertiesWindow.testAsDropDown.index = characterPropertiesWindow.testAsDropDown.options.indexOf(stagePosition.toUpperCase());
 		characterPropertiesWindow.testAsDropDown.label.text = stagePosition.toUpperCase();
 	}
 
 	public function changeCharacterDesginedAs(player:Bool) @:privateAccess {
-		if (stage == null) return;
+		if (stage == null) {
+			changeCharacterIsPlayer(player);
+			return;
+		}
 
 		if (stage.characterPoses.exists(stagePosition))
 			stage.characterPoses[stagePosition].revertCharacter(character);
@@ -645,8 +661,21 @@ class CharacterEditor extends UIState {
 			character.stopAnimation();
 	}
 
-	function _animation_up(_) {}
-	function _animation_down(_) {}
+	function _animation_up(_)
+		playAnimation(
+			characterAnimsWindow.animsList[
+				FlxMath.wrap(
+					characterAnimsWindow.animsList.indexOf(character.getAnimName()) - 1, 
+					0, characterAnimsWindow.animsList.length-1
+			)]
+		);
+	function _animation_down(_)
+		playAnimation(
+			characterAnimsWindow.animsList[FlxMath.wrap(
+					characterAnimsWindow.animsList.indexOf(character.getAnimName()) + 1, 
+					0, characterAnimsWindow.animsList.length-1
+			)]
+		);
 
 	public function playAnimation(anim:String) {
 		character.playAnim(anim, true);

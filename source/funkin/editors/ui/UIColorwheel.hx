@@ -125,28 +125,33 @@ class UIColorwheel extends UISliceSprite {
 	// Make the colorwheel feel better
 	static inline var hitBoxExtenstion:Float = 8;
 
+	// Skibidi
+	var selectedSprite = null;
 	public override function update(elapsed:Float) {
-		if (hovered && FlxG.mouse.pressed) {
+		if (hovered && FlxG.mouse.justPressed) {
 			var mousePos = FlxG.mouse.getScreenPosition(__lastDrawCameras[0], FlxPoint.get());
-
 			for (sprite in [colorPicker, colorSlider]) {
 				var spritePos:FlxPoint = sprite.getScreenPosition(FlxPoint.get(), __lastDrawCameras[0]);
-
-				if (((mousePos.x > (spritePos.x - (hitBoxExtenstion/2))) && (mousePos.x < spritePos.x - (hitBoxExtenstion/2) + (sprite.width + hitBoxExtenstion))) && ((mousePos.y > (spritePos.y - (hitBoxExtenstion/2))) && (mousePos.y < spritePos.y - (hitBoxExtenstion/2) + (sprite.height + hitBoxExtenstion)))) {
-					mousePos -= FlxPoint.weak(spritePos.x, spritePos.y);
-					mousePos.set(FlxMath.bound(mousePos.x, 0, sprite.width), FlxMath.bound(mousePos.y, 0, sprite.height));
-
-					if (sprite == colorSlider) updateColorSliderMouse(mousePos);
-					if (sprite == colorPicker) updateColorPickerMouse(mousePos);
-					updateWheel();
-
-					spritePos.put();
+				if (FlxMath.inBounds(mousePos.x, spritePos.x - (hitBoxExtenstion/2), spritePos.x - (hitBoxExtenstion/2) + (sprite.width + hitBoxExtenstion)) && FlxMath.inBounds(mousePos.y, spritePos.y - (hitBoxExtenstion/2), spritePos.y - (hitBoxExtenstion/2) + (sprite.height + hitBoxExtenstion))) {
+					selectedSprite = sprite;
 					break;
 				}
 			}
-			mousePos.put();
 		}
 
+		if (selectedSprite != null) {
+			var mousePos = FlxG.mouse.getScreenPosition(__lastDrawCameras[0], FlxPoint.get());
+			var spritePos:FlxPoint = selectedSprite.getScreenPosition(FlxPoint.get(), __lastDrawCameras[0]);
+			mousePos -= FlxPoint.weak(spritePos.x, spritePos.y);
+			mousePos.set(FlxMath.bound(mousePos.x, 0, selectedSprite.width), FlxMath.bound(mousePos.y, 0, selectedSprite.height));
+
+			if (selectedSprite == colorSlider) updateColorSliderMouse(mousePos);
+			if (selectedSprite == colorPicker) updateColorPickerMouse(mousePos);
+			updateWheel();
+			spritePos.put();
+
+			if (FlxG.mouse.justReleased) selectedSprite = null;
+		}
 		super.update(elapsed);
 	}
 }

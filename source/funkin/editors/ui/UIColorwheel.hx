@@ -128,8 +128,8 @@ class UIColorwheel extends UISliceSprite {
 	// Skibidi
 	var selectedSprite = null;
 	public override function update(elapsed:Float) {
+		var mousePos = FlxG.mouse.getScreenPosition(__lastDrawCameras[0], FlxPoint.get());
 		if (hovered && FlxG.mouse.justPressed) {
-			var mousePos = FlxG.mouse.getScreenPosition(__lastDrawCameras[0], FlxPoint.get());
 			for (sprite in [colorPicker, colorSlider]) {
 				var spritePos:FlxPoint = sprite.getScreenPosition(FlxPoint.get(), __lastDrawCameras[0]);
 				if (FlxMath.inBounds(mousePos.x, spritePos.x - (hitBoxExtenstion/2), spritePos.x - (hitBoxExtenstion/2) + (sprite.width + hitBoxExtenstion)) && FlxMath.inBounds(mousePos.y, spritePos.y - (hitBoxExtenstion/2), spritePos.y - (hitBoxExtenstion/2) + (sprite.height + hitBoxExtenstion))) {
@@ -140,7 +140,6 @@ class UIColorwheel extends UISliceSprite {
 		}
 
 		if (selectedSprite != null) {
-			var mousePos = FlxG.mouse.getScreenPosition(__lastDrawCameras[0], FlxPoint.get());
 			var spritePos:FlxPoint = selectedSprite.getScreenPosition(FlxPoint.get(), __lastDrawCameras[0]);
 			mousePos -= FlxPoint.weak(spritePos.x, spritePos.y);
 			mousePos.set(FlxMath.bound(mousePos.x, 0, selectedSprite.width), FlxMath.bound(mousePos.y, 0, selectedSprite.height));
@@ -152,6 +151,7 @@ class UIColorwheel extends UISliceSprite {
 
 			if (FlxG.mouse.justReleased) selectedSprite = null;
 		}
+		mousePos.put();
 		super.update(elapsed);
 	}
 }

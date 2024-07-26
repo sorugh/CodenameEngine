@@ -309,7 +309,7 @@ class DiscordUtil
 			Logs.logText(")")
 		], INFO);
 
-		call("onReady", [errorCode, cast(finalMsg, String)]);
+		call("onDisconnected", [errorCode, cast(finalMsg, String)]);
 	}
 
 	private static function onError(errorCode:Int, message:cpp.ConstCharStar):Void

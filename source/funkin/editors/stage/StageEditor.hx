@@ -427,6 +427,7 @@ class StageEditor extends UIState {
 	override function destroy() {
 		super.destroy();
 		nextScroll = FlxDestroyUtil.destroy(nextScroll);
+		DrawUtil.destroyDrawers();
 		if(Framerate.isLoaded) {
 			Framerate.fpsCounter.alpha = 1;
 			Framerate.memoryCounter.alpha = 1;
@@ -922,21 +923,6 @@ class StageEditor extends UIState {
 	override function draw() {
 		super.draw();
 
-		if(dot == null) {
-			dot = new FlxSprite().loadGraphic(Paths.image("editors/stage/selectionDot"), true, 32, 32);
-			dot.antialiasing = true;
-			dot.animation.add("default", [0], 0, false);
-			dot.animation.add("hollow", [1], 0, false);
-			dot.animation.play("default");
-			//dot = new FlxSprite().makeGraphic(30, 30, FlxColor.WHITE);
-			dot.camera = stageCamera;
-			dot.forceIsOnScreen = true;
-
-			line = new FlxSprite().makeGraphic(30, 30, FlxColor.WHITE);
-			line.camera = stageCamera;
-			line.color = lineColor;
-			line.forceIsOnScreen = true;
-		}
 		for(sprite in selection) {
 			if(sprite is FunkinSprite) {
 				@:privateAccess if(sprite._frame == null) continue;
@@ -968,42 +954,42 @@ class StageEditor extends UIState {
 			funkinSprite.extra.set(exID("buttonBoxes"), buttonBoxes);
 		}
 
-		drawLine(corners[0], corners[1]); // tl - tr
-		drawLine(corners[0], corners[2]); // tl - bl
-		drawLine(corners[1], corners[3]); // tr - br
-		drawLine(corners[2], corners[3]); // bl - br
+		DrawUtil.drawLine(corners[0], corners[1]); // tl - tr
+		DrawUtil.drawLine(corners[0], corners[2]); // tl - bl
+		DrawUtil.drawLine(corners[1], corners[3]); // tr - br
+		DrawUtil.drawLine(corners[2], corners[3]); // bl - br
 
-		drawLine(corners[7], corners[9], 0.3); // tc - ac // top center to angle center
+		DrawUtil.drawLine(corners[7], corners[9], 0.3); // tc - ac // top center to angle center
 
 		// cross
-		//drawLine(corners[0], corners[3]); // tl - br
-		//drawLine(corners[1], corners[2]); // tr - bl
+		//DrawUtil.drawLine(corners[0], corners[3]); // tl - br
+		//DrawUtil.drawLine(corners[1], corners[2]); // tr - bl
 
-		dot.color = circleColor;
+		DrawUtil.dot.color = circleColor;
 
 		final ANGLE_INDEX = StageEditorEdge.ROTATE_CIRCLE.toInt();
 		final CENTER_INDEX = StageEditorEdge.CENTER_CIRCLE.toInt();
 
-		dot.animation.play("default");
+		DrawUtil.dot.animation.play("default");
 
 		for(i in 0...corners.length) {
 			var corner = corners[i];
 			if(i != CENTER_INDEX) {
 				if(i == ANGLE_INDEX)  {
-					dot.color = hollowColor;
-					drawDot(corner.x, corner.y);
-					dot.animation.play("hollow");
-					dot.color = circleColor;
-					drawDot(corner.x, corner.y);
+					DrawUtil.dot.color = hollowColor;
+					DrawUtil.drawDot(corner.x, corner.y);
+					DrawUtil.dot.animation.play("hollow");
+					DrawUtil.dot.color = circleColor;
+					DrawUtil.drawDot(corner.x, corner.y);
 				} else {
-					drawDot(corner.x, corner.y);
+					DrawUtil.drawDot(corner.x, corner.y);
 				}
 				buttonBoxes.push(corner);
 			}
 			else if(sprite.visible){
-				dot.color = circleColor;
-				drawDot(corner.x, corner.y, 0.7);
-				dot.animation.play("hollow");
+				DrawUtil.dot.color = circleColor;
+				DrawUtil.drawDot(corner.x, corner.y, 0.7);
+				DrawUtil.dot.animation.play("hollow");
 				buttonBoxes.push(corner);
 			}
 			
@@ -1096,7 +1082,7 @@ class StageEditor extends UIState {
 		if(!sprite.extra.exists(exID("buttonBoxes"))) return;
 		var buttonBoxes:Array<FlxPoint> = cast sprite.extra.get(exID("buttonBoxes"));
 
-		dotCheckSize = dot.frameWidth / 0.7/stageCamera.zoom; // basically adjust it to the zoom.
+		dotCheckSize = DrawUtil.dot.frameWidth / 0.7/stageCamera.zoom; // basically adjust it to the zoom.
 
 		var prevMode = mouseMode;
 		if(FlxG.mouse.justPressed) {
@@ -1221,14 +1207,6 @@ class StageEditor extends UIState {
 		return false;
 	}
 
-	inline function drawDot(x:Float, y:Float, ?scale:Float = 1) {
-		dot.setPosition(x, y);
-		dot.scale.set(0.7/stageCamera.zoom * scale, 0.7/stageCamera.zoom * scale);
-		dot.x -= dot.width / 2;
-		dot.y -= dot.height / 2;
-		dot.draw();
-	}
-
 	function checkLine(point1:FlxPoint, point2:FlxPoint, dx:Float, dy:Float) {
 		var leftRegion = Math.min(point1.x, point2.x) - dotCheckSize * 0.2;
 		var rightRegion = Math.max(point1.x, point2.x) + dotCheckSize * 0.2;
@@ -1250,30 +1228,6 @@ class StageEditor extends UIState {
 		return (mousePoint.x >= leftRegion && mousePoint.x <= rightRegion)
 			&& (mousePoint.y >= topRegion && mousePoint.y <= bottomRegion);
 	}
-
-	function drawLine(point1:FlxPoint, point2:FlxPoint, sizeModify:Float = 1) {
-		var dx:Float = point2.x - point1.x;
-		var dy:Float = point2.y - point1.y;
-
-		var angle:Float = Math.atan2(dy, dx);
-		var distance:Float = Math.sqrt(dx * dx + dy * dy);
-
-		line.setPosition(point1.x, point1.y);
-		line.angle = angle * FlxAngle.TO_DEG;
-		line.origin.set(0, line.frameHeight / 2);
-		line.scale.x = distance / line.frameWidth;
-		line.scale.y = 0.20/stageCamera.zoom * sizeModify;
-		//line.x -= line.width / 2;
-		line.y -= line.height / 2;
-		line.draw();
-		// Reset the angle and scale
-		line.angle = 0;
-		line.scale.x = line.scale.y = 1;
-		line.updateHitbox();
-	}
-
-	var dot:FlxSprite = null;
-	var line:FlxSprite = null;
 }
 
 typedef StageInfo = {

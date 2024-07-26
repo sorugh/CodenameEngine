@@ -93,7 +93,6 @@ class CharacterInfoScreen extends UISubstateWindow {
 		add(saveButton);
 
 		closeButton = new UIButton(saveButton.x - 20 - saveButton.bWidth, saveButton.y, "Close", function() {
-			onSave(null);
 			close();
 		}, 125);
 		add(closeButton);

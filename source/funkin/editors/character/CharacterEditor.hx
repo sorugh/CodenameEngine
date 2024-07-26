@@ -10,6 +10,7 @@ import flixel.math.FlxPoint;
 import funkin.backend.system.framerate.Framerate;
 import funkin.backend.utils.XMLUtil.AnimData;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
+import funkin.editors.ui.UIContextMenu.UIContextMenuOptionSpr;
 import funkin.game.Character;
 import haxe.xml.Access;
 import haxe.xml.Printer;
@@ -112,6 +113,19 @@ class CharacterEditor extends UIState {
 						label: "Redo",
 						keybinds: [[CONTROL, Y], [CONTROL, SHIFT, Z]],
 						onSelect: _edit_redo
+					},
+					null,
+					{
+						label: "Edit information",
+						color: 0xFF959829, icon: 4,
+						onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2;},
+						onSelect: _edit_info
+					},
+					{
+						label: "Edit sprite",
+						color: 0xFF959829, icon: 4,
+						onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2;},
+						onSelect: _edit_sprite
 					}
 				]
 			},
@@ -433,6 +447,10 @@ class CharacterEditor extends UIState {
 
 	function _edit_undo(_) {}
 	function _edit_redo(_) {}
+
+	function _edit_info(_)
+		characterPropertiesWindow.editCharacterInfoUI();
+	function _edit_sprite(_) {}
 
 	function _offsets_left(_) _change_offset(-1, 0);
 	function _offsets_up(_) _change_offset(0, -1);

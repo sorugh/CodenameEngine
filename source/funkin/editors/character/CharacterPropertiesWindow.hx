@@ -1,5 +1,6 @@
 package funkin.editors.character;
 
+import funkin.editors.character.CharacterInfoScreen.CharacterExtraInfo;
 import funkin.game.Character;
 
 class CharacterPropertiesWindow extends UISliceSprite {
@@ -48,7 +49,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		members.push(scaleStepper);
 		addLabelOn(scaleStepper, "Scale");
 
-		editCharacterButton = new UIButton(scaleStepper.x + 90 -32 + 26, scaleStepper.y, "Edit Info", null);
+		editCharacterButton = new UIButton(scaleStepper.x + 90 -32 + 26, scaleStepper.y, "Edit Info", editCharacterInfoUI);
 		members.push(editCharacterButton);
 
 		flipXCheckbox = new UICheckbox(scaleStepper.x+22, scaleStepper.y+32+14, "Flipped?", character.isPlayer ? !character.__baseFlipped : character.__baseFlipped);
@@ -118,6 +119,15 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		character.updateHitbox();
 
 		CharacterEditor.instance.playAnimation(character.getAnimName());
+	}
+
+	public function editCharacterInfoUI() {
+		CharacterEditor.instance.openSubState(new CharacterInfoScreen(character, (info:CharacterExtraInfo) -> {
+			character.icon = info.icon;
+			character.iconColor = info.iconColor;
+			character.holdTime = info.holdTime;
+			character.extra = info.customProperties.copy();
+		}));
 	}
 
 	public function changeFlipX(newFlipX:Bool) @:privateAccess {

@@ -375,16 +375,6 @@ class CharacterEditor extends UIState {
 			if(character.animateAtlas == null) {
 				StageEditor.calcSpriteBounds(character);
 				var bounds:FlxRect = cast character.extra.get(StageEditor.exID("bounds"));
-	
-				// my poor attempt at fixing the global offset flip hitbox bug
-				/*
-				if (character.isPlayer != character.playerOffsets) {
-					bounds.x = character.globalOffset.x + character.animOffsets[character.getAnimName()].x;
-					if (stage != null && stage.characterPoses.exists(stagePosition))
-						bounds.x += stage.characterPoses.get(stagePosition).x;
-				}
-				*/
-					
 				if (bounds.containsPoint(point)) {
 					cameraHoverDummy.cursor = #if (mac) DRAG_OPEN; #elseif (linux) CLICK; #else MOVE; #end
 					if (FlxG.mouse.justPressed)

@@ -69,10 +69,11 @@ class UIColorwheel extends UISliceSprite {
 			numStepper.antialiasing = true; numStepper.ID = i;
 			numStepper.onChange = (text:String) -> {
 				@:privateAccess numStepper.__onChange(text);
+				var val = Std.int(numStepper.value);
 				switch (numStepper.ID) {
-					default: curColor.red = Std.int(numStepper.value);
-					case 1: curColor.green = Std.int(numStepper.value);
-					case 2: curColor.blue = Std.int(numStepper.value);
+					default: curColor.red = val;
+					case 1: curColor.green = val;
+					case 2: curColor.blue = val;
 				}
 				hue = curColor.hue; saturation = curColor.saturation; brightness = curColor.brightness;
 				updateWheel();

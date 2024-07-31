@@ -58,11 +58,11 @@ class Update {
 						data: lib
 					});
 				case "cmd":
-
 					events.push({
 						type: CMD,
 						data: {
 							inLib: libNode.has.inLib ? libNode.att.inLib : null,
+							dir: libNode.has.dir ? libNode.att.dir : null,
 							lines: {
 								if(Lambda.count(libNode.nodes.line) > 0)
 								[
@@ -141,6 +141,10 @@ class Update {
 				case CMD:
 					var cmd:CmdData = event.data;
 					var lib = cmd.inLib;
+					var dir = "";
+					if(cmd.dir != null) {
+						dir = "/" + cmd.dir;
+					}
 					var oldCwd = Sys.getCwd();
 					if(lib != null) {
 						var libPrefix = '.haxelib/$lib';
@@ -152,7 +156,7 @@ class Update {
 									Sys.setCwd(oldCwd);
 									continue;
 								}
-								Sys.setCwd(devPath);
+								Sys.setCwd(devPath + dir);
 							} else if(FileSystem.exists(libPrefix + '/.current')) {
 								var version = StringTools.replace(File.getContent(libPrefix + '/.current'), ".", ",");
 								if(!FileSystem.exists(libPrefix + '/$version')) {
@@ -160,7 +164,7 @@ class Update {
 									Sys.setCwd(oldCwd);
 									continue;
 								}
-								Sys.setCwd(libPrefix + '/$version');
+								Sys.setCwd(libPrefix + '/$version' + dir);
 							} else {
 								Sys.println('Cannot find .dev or .current file in $libPrefix');
 								Sys.setCwd(oldCwd);
@@ -271,7 +275,8 @@ typedef Event = {
 }
 
 typedef CmdData = {
-	var ?inLib:String;
+	var inLib:String;
+	var dir:String;
 	var lines:Array<String>;
 }
 

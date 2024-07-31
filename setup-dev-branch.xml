@@ -22,9 +22,5 @@
 
 	<print pretty="true">Rebuilding Lime...</print>
 	<cmd inLib="lime" cmd="lime rebuild . $PLATFORM" />
-	<cmd inLib="lime" >
-		<line>cd tools</line>
-		<line>haxe tools.hxml</line>
-		<line>cd ..</line>s
-	</cmd>
+	<cmd inLib="lime" dir="tools" cmd="haxe tools.hxml" />
 </libraries>

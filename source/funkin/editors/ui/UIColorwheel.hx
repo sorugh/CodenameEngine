@@ -142,7 +142,7 @@ class UIColorwheel extends UISliceSprite {
 		if (selectedSprite != null) {
 			var spritePos:FlxPoint = selectedSprite.getScreenPosition(FlxPoint.get(), __lastDrawCameras[0]);
 			mousePos -= FlxPoint.weak(spritePos.x, spritePos.y);
-			mousePos.set(FlxMath.bound(mousePos.x, 0, selectedSprite.width), FlxMath.bound(mousePos.y, 0, selectedSprite.height));
+			mousePos.set(CoolUtil.bound(mousePos.x, 0, selectedSprite.width), CoolUtil.bound(mousePos.y, 0, selectedSprite.height));
 
 			if (selectedSprite == colorSlider) updateColorSliderMouse(mousePos);
 			if (selectedSprite == colorPicker) updateColorPickerMouse(mousePos);

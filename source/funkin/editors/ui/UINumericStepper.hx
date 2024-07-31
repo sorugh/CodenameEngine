@@ -31,7 +31,7 @@ class UINumericStepper extends UITextBox {
 
 	private function set_value(v:Float) {
 		if (min != null && max != null) {
-			v = FlxMath.bound(v, min, max);
+			v = CoolUtil.bound(v, min, max);
 		} else if (min != null) {
 			v = Math.max(v, min);
 		} else if (max != null) {

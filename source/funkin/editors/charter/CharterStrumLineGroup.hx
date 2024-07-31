@@ -40,7 +40,7 @@ class CharterStrumLineGroup extends FlxTypedGroup<CharterStrumline> {
 			Charter.instance.eventsBackdrop.x = members[0].button.x - Charter.instance.eventsBackdrop.width;
 		if (Charter.instance.strumlineLockButton != null && members[0] != null)
 			Charter.instance.strumlineLockButton.x = members[0].x - (40*4);
-		if (Charter.instance.strumlineAddButton != null && members[Std.int(Math.max(0, members.length-1))] != null)
+		if (Charter.instance.strumlineAddButton != null && members[CoolUtil.maxInt(0, members.length-1)] != null)
 			Charter.instance.strumlineAddButton.x = members[members.length-1].x + (40*4);
 
 		if ((FlxG.mouse.justReleased || !draggable) && isDragging)

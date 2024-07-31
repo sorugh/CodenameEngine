@@ -106,7 +106,7 @@ class UISlider extends UISprite {
 
 		if (selectableHitbox.hovered && FlxG.mouse.pressed) {
 			var mousePos = FlxG.mouse.getScreenPosition(__lastDrawCameras[0], FlxPoint.get());
-			__barProgress = FlxMath.bound(mousePos.x-x, 0, barWidth)/barWidth;
+			__barProgress = CoolUtil.bound(mousePos.x-x, 0, barWidth)/barWidth;
 			mousePos.put();
 		}
 
@@ -117,7 +117,7 @@ class UISlider extends UISprite {
 
 		visualProgress = FlxMath.lerp(visualProgress, __barProgress, 1/2.25);
 		progressbar.follow(this, progressCentered ? barWidth/2 : 0, (height-progressbar.height)/2);
-		progressbar.scale.x = FlxMath.bound(visualProgress-(progressCentered?0.5:0),-1,1);
+		progressbar.scale.x = CoolUtil.bound(visualProgress-(progressCentered?0.5:0),-1,1);
 		progressbar.colorTransform.color = FlxColor.interpolate(progressbar.colorTransform.color, selectableHitbox.hovered ? 0xFF7F00BF : 0xFF67009B, 1/14);
 
 		selectableBar.follow(this, (visualProgress * barWidth) - (selectableBar.width/2), (height-selectableBar.height)/2); selectableBarHighlight.follow(selectableBar);

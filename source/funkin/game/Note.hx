@@ -282,7 +282,7 @@ class Note extends FlxSprite
 		}
 
 		if (!wasGoodHit) return;
-		var t = FlxMath.bound((Conductor.songPosition - strumTime) / (height) * len, 0, 1);
+		var t = CoolUtil.bound((Conductor.songPosition - strumTime) / (height) * len, 0, 1);
 		var swagRect = this.clipRect == null ? new FlxRect() : this.clipRect;
 		swagRect.x = 0;
 		swagRect.y = t * frameHeight;

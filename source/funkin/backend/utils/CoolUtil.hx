@@ -316,7 +316,7 @@ class CoolUtil
 	 * @return FPS-Modified Ratio
 	 */
 	@:noUsing public static inline function getFPSRatio(ratio:Float):Float {
-		return FlxMath.bound(ratio * 60 * FlxG.elapsed, 0, 1);
+		return CoolUtil.bound(ratio * 60 * FlxG.elapsed, 0.0, 1.0);
 	}
 	/**
 	 * Tries to get a color from a `Dynamic` variable.
@@ -462,6 +462,23 @@ class CoolUtil
 	 */
 	@:noUsing public static inline function numberArray(max:Int, ?min:Int = 0):Array<Int>
 	{
+		/*return [for (i in min...max) i];*/
+		// Reason for change:
+		// Old one uses push instead of creating an array with the wanted size.
+		var len:Int = CoolUtil.maxInt(max - min, 0);
+		#if cpp
+		var arr:Array<Int> = untyped __cpp__("::Array_obj< int >::__new({0})", len);
+		#else
+		var arr:Array<Int> = [];
+		arr.resize(len);
+		#end
+		for(i in 0...len)
+			arr[i] = i + min;
+		return arr;
+	}
+
+	@:noUsing public static inline function numberArrayOld(max:Int, ?min:Int = 0):Array<Int>
+	{
 		return [for (i in min...max) i];
 	}
 
@@ -565,7 +582,6 @@ class CoolUtil
 			case Y:
 				obj.y = (cam.height - obj.height) / 2;
 			case NONE:
-
 		}
 	}
 
@@ -587,8 +603,16 @@ class CoolUtil
 	 * @param name Name of the attribute
 	 */
 	public static inline function getAtt(xml:Access, name:String) {
-		if (!xml.has.resolve(name)) return null;
-		return xml.att.resolve(name);
+		/*if (!xml.has.resolve(name)) return null;
+		return xml.att.resolve(name);*/
+		// Reason for change:
+		// Old one has error checking 4 times, this one has it once.
+		var xml:Xml = xml.x;
+		if (xml.nodeType != Element) {
+			throw 'Bad node type, expected Element but found ${xml.nodeType}';
+		}
+		@:privateAccess
+		return xml.attributeMap.exists(name) ? xml.attributeMap.get(name) : null;
 	}
 
 	/**
@@ -704,6 +728,8 @@ class CoolUtil
 			i--;
 		}
 		return i;*/
+		// Reason for change:
+		// Old one was made because at the time we didnt know the lastIndexOf function.
 		return array.lastIndexOf(element);
 	}
 
@@ -734,11 +760,7 @@ class CoolUtil
 	 * @param url
 	 */
 	@:noUsing public static inline function openURL(url:String) {
-		#if linux
-		Sys.command('/usr/bin/xdg-open', [url, "&"]);
-		#else
 		FlxG.openURL(url);
-		#end
 	}
 
 	/**
@@ -765,6 +787,15 @@ class CoolUtil
 	 */
 	@:noUsing public static inline function maxInt(p1:Int, p2:Int)
 		return p1 < p2 ? p2 : p1;
+
+	/**
+	 * Equivalent of `Math.min`, except doesn't require a Int -> Float -> Int conversion.
+	 * @param p1
+	 * @param p2
+	 * @return return p1 > p2 ? p2 : p1
+	 */
+	@:noUsing public static inline function minInt(p1:Int, p2:Int)
+		return p1 > p2 ? p2 : p1;
 
 	/**
 	 * Equivalent of `Math.floor`, except doesn't require a Int -> Float -> Int conversion.
@@ -835,6 +866,36 @@ class CoolUtil
 		return array.indexOf(element) != -1;
 	}
 	#end
+
+	public static inline function bound(Value:Float, Min:Float, Max:Float):Float {
+		#if cpp
+		var _hx_tmp1:Float = Value;
+		var _hx_tmp2:Float = Min;
+		var _hx_tmp3:Float = Max;
+		return untyped __cpp__("((({0}) < ({1})) ? ({1}) : (({0}) > ({2})) ? ({2}) : ({0}))", _hx_tmp1, _hx_tmp2, _hx_tmp3);
+		#else
+		return (Value < Min) ? Min : (Value > Max) ? Max : Value;
+		#end
+	}
+
+	public static inline function boundInt(Value:Int, Min:Int, Max:Int):Int {
+		#if cpp
+		var _hx_tmp1:Int = Value;
+		var _hx_tmp2:Int = Min;
+		var _hx_tmp3:Int = Max;
+		return untyped __cpp__("((({0}) < ({1})) ? ({1}) : (({0}) > ({2})) ? ({2}) : ({0}))", _hx_tmp1, _hx_tmp2, _hx_tmp3);
+		#else
+		return (Value < Min) ? Min : (Value > Max) ? Max : Value;
+		#end
+	}
+
+	public static inline function boolToInt(b:Bool):Int {
+		#if cpp
+		return untyped __cpp__("(({0}) ? 1 : 0)", b);
+		#else
+		return b ? 1 : 0;
+		#end
+	}
 }
 
 /**

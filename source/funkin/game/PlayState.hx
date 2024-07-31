@@ -1195,7 +1195,7 @@ class PlayState extends MusicBeatState
 		iconP1.x = center - iconOffset;
 		iconP2.x = center - (iconP2.width - iconOffset);
 
-		health = FlxMath.bound(health, 0, maxHealth);
+		health = CoolUtil.bound(health, 0, maxHealth);
 
 		iconP1.health = healthBar.percent / 100;
 		iconP2.health = 1 - (healthBar.percent / 100);

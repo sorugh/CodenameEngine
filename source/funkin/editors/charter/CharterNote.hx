@@ -173,8 +173,8 @@ class CharterNote extends UISprite implements ICharterSelectable {
 	}
 
 	public function handleDrag(change:FlxPoint) {
-		var newStep = FlxMath.bound(step + change.x, 0, Charter.instance.__endStep-1);
-		var newID:Int = Std.int(FlxMath.bound(fullID + Std.int(change.y), 0, (Charter.instance.strumLines.members.length*4)-1));
+		var newStep = CoolUtil.bound(step + change.x, 0, Charter.instance.__endStep-1);
+		var newID:Int = CoolUtil.boundInt(fullID + Std.int(change.y), 0, (Charter.instance.strumLines.members.length*4)-1);
 
 		updatePos(newStep, newID % 4, susLength, type, Charter.instance.strumLines.members[Std.int(newID/4)]);
 	}

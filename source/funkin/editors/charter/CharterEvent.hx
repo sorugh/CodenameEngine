@@ -90,7 +90,7 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 	}
 
 	public function handleDrag(change:FlxPoint) {
-		var newStep:Float = step = FlxMath.bound(step + change.x, 0, Charter.instance.__endStep-1);
+		var newStep:Float = step = CoolUtil.bound(step + change.x, 0, Charter.instance.__endStep-1);
 		y = ((newStep) * 40) - 17;
 	}
 

@@ -772,12 +772,12 @@ class Charter extends UIState {
 					selection.loop(function (n:CharterNote) {
 						n.snappedToStrumline = false;
 						n.setPosition(n.fullID * 40 + (mousePos.x - dragStartPos.x), n.step * 40 + (mousePos.y - dragStartPos.y));
-						n.y = FlxMath.bound(n.y, 0, (__endStep*40) - n.height);
-						n.x = FlxMath.bound(n.x, 0, ((strumLines.members.length * 4)-1) * 40);
+						n.y = CoolUtil.bound(n.y, 0, (__endStep*40) - n.height);
+						n.x = CoolUtil.bound(n.x, 0, ((strumLines.members.length * 4)-1) * 40);
 						n.cursor = HAND;
 					}, function (e:CharterEvent) {
 						e.y =  e.step * 40 + (mousePos.y - dragStartPos.y) - 17;
-						e.y = FlxMath.bound(e.y, -17, (__endStep*40)-17);
+						e.y = CoolUtil.bound(e.y, -17, (__endStep*40)-17);
 						e.cursor = HAND;
 					});
 					currentCursor = HAND;
@@ -844,7 +844,7 @@ class Charter extends UIState {
 							if (mouseOnGrid && mousePos.y > 0 && mousePos.y < (__endStep)*40) {
 								var note = new CharterNote();
 								note.updatePos(
-									FlxMath.bound(FlxG.keys.pressed.SHIFT ? ((mousePos.y-20) / 40) : quantStep(mousePos.y/40), 0, __endStep-1),
+									CoolUtil.bound(FlxG.keys.pressed.SHIFT ? ((mousePos.y-20) / 40) : quantStep(mousePos.y/40), 0, __endStep-1),
 									id % 4, 0, noteType, strumLines.members[Std.int(id/4)]
 								);
 								notesGroup.add(note);
@@ -1212,7 +1212,7 @@ class Charter extends UIState {
 		}
 
 		var songLength = FlxG.sound.music.getDefault(vocals).length;
-		Conductor.songPosition = FlxMath.bound(Conductor.songPosition + Conductor.songOffset, 0, songLength);
+		Conductor.songPosition = CoolUtil.bound(Conductor.songPosition + Conductor.songOffset, 0, songLength);
 
 		if (Conductor.songPosition >= songLength - Conductor.songOffset) {
 			FlxG.sound.music.pause();
@@ -1262,10 +1262,10 @@ class Charter extends UIState {
 	var zoom(default, set):Float = 0;
 	var __camZoom(default, set):Float = 1;
 	function set_zoom(val:Float) {
-		return zoom = FlxMath.bound(val, -3.5, 1.75); // makes zooming not lag behind when continuing scrolling
+		return zoom = CoolUtil.bound(val, -3.5, 1.75); // makes zooming not lag behind when continuing scrolling
 	}
 	function set___camZoom(val:Float) {
-		return __camZoom = FlxMath.bound(val, 0.1, 3);
+		return __camZoom = CoolUtil.bound(val, 0.1, 3);
 	}
 
 	// TOP MENU OPTIONS
@@ -1389,7 +1389,7 @@ class Charter extends UIState {
 			switch(c) {
 				case CNote(step, id, strumLineID, susLength, type):
 					var note = new CharterNote();
-					note.updatePos(minStep + step, id, susLength, type, strumLines.members[Std.int(FlxMath.bound(strumLineID, 0, strumLines.length-1))]);
+					note.updatePos(minStep + step, id, susLength, type, strumLines.members[CoolUtil.boundInt(strumLineID, 0, strumLines.length-1)]);
 					notesGroup.add(note);
 					sObjects.push(note);
 				case CEvent(step, events):
@@ -1675,7 +1675,7 @@ class Charter extends UIState {
 
 	inline public function changeNoteType(?newID:Int, checkSelection:Bool = true) {
 		if(newID != null) noteType = newID;
-		noteType = Std.int(FlxMath.bound(noteType, 0, noteTypes.length));
+		noteType = CoolUtil.boundInt(noteType, 0, noteTypes.length);
 		buildNoteTypesUI();
 
 		var changedNotes:{notes:Array<CharterNote>, oldTypes:Array<Int>, newTypes:Array<Int>} = {notes:[], oldTypes:[], newTypes:[]};

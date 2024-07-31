@@ -862,10 +862,10 @@ class StageEditor extends UIState {
 	var zoom(default, set):Float = 0;
 	var __camZoom(default, set):Float = 1;
 	function set_zoom(val:Float) {
-		return zoom = FlxMath.bound(val, -3.5, 1.75); // makes zooming not lag behind when continuing scrolling
+		return zoom = CoolUtil.bound(val, -3.5, 1.75); // makes zooming not lag behind when continuing scrolling
 	}
 	function set___camZoom(val:Float) {
-		return __camZoom = FlxMath.bound(val, 0.1, 3);
+		return __camZoom = CoolUtil.bound(val, 0.1, 3);
 	}
 
 	function _view_zoomin(_) {
@@ -1087,10 +1087,10 @@ class StageEditor extends UIState {
 		var prevMode = mouseMode;
 		if(FlxG.mouse.justPressed) {
 			for (i in StageEditorMouseMode.SKEW_TOP...(StageEditorMouseMode.SKEW_BOTTOM + 1)) {
-				var cappedI1 = Math.max(i - StageEditorMouseMode.SKEW_TOP - 1, 0);
-				var cappedI2 = Math.min(i - StageEditorMouseMode.SKEW_TOP + 1, 3);
-				var point1 = buttonBoxes[Std.int(cappedI1)];
-				var point2 = buttonBoxes[Std.int(cappedI2)];
+				var cappedI1 = CoolUtil.maxInt(i - StageEditorMouseMode.SKEW_TOP - 1, 0);
+				var cappedI2 = CoolUtil.minInt(i - StageEditorMouseMode.SKEW_TOP + 1, 3);
+				var point1 = buttonBoxes[cappedI1];
+				var point2 = buttonBoxes[cappedI2];
 				if (checkLine(point1, point2, point2.x - point1.x, point2.y - point1.y)) {
 					mousePoint.copyTo(clickPoint);
 					storedPos.set(sprite.x, sprite.y);

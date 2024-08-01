@@ -23,7 +23,7 @@ class MathUtil {
 		return min;
 	}
 
-	public static function maxFloat(...args:Float):Float {
+	public static function max(...args:Float):Float {
 		var max = args[0];
 		for(i in 1...args.length) {
 			var arg = args[i];
@@ -33,7 +33,7 @@ class MathUtil {
 		return max;
 	}
 
-	public static function minFloat(...args:Float):Float {
+	public static function min(...args:Float):Float {
 		var min = args[0];
 		for(i in 1...args.length) {
 			var arg = args[i];
@@ -45,45 +45,30 @@ class MathUtil {
 
 	/**
 	 * Shortcut to `Math.max` but with infinite amount of arguments
-	 * Uses `CoolUtil.maxInt` if theres only int arguments
 	 *
 	 * Might not preserve the order of arguments, please test this.
 	 *
 	 * Dont use this in hscript, it doesnt work, it only works on compile time
 	**/
 	@:dox(hide) public static macro function maxSmart(..._args:Expr):Expr {
-		return genericMinMaxSmart(_args.toArray(), true);
+		return genericMinMaxSmart(_args.toArray(), "Math.max");
 	}
 
 	/**
 	 * Shortcut to `Math.min` but with infinite amount of arguments
-	 * Uses `CoolUtil.minInt` if theres only int arguments
 	 *
 	 * Might not preserve the order of arguments, please test this.
 	 *
 	 * Dont use this in hscript, it doesnt work, it only works on compile time
 	**/
 	@:dox(hide) public static macro function minSmart(..._args:Expr):Expr {
-		return genericMinMaxSmart(_args.toArray(), false);
+		return genericMinMaxSmart(_args.toArray(), "Math.min");
 	}
 
 	#if macro
-	@:dox(hide) private static function genericMinMaxSmart(_args:Array<Expr>, isMax:Bool):Expr {
+	@:dox(hide) private static function genericMinMaxSmart(_args:Array<Expr>, funcPath:String):Expr {
 		var args = _args.copy();
 		if (args.length == 0) return macro 0;
-
-		var isFloat = true;
-		var isInt = true;
-
-		for(arg in args) {
-			if(isInt)
-				isInt = arg.expr.match(EConst(CInt(_)));
-			if(isFloat)
-				isFloat = arg.expr.match(EConst(CFloat(_)));
-		}
-
-		var funcPath = isInt ? "funkin.backend.utils.CoolUtil.maxInt" : "Math.max";
-		if (!isMax) funcPath = isInt ? "funkin.backend.utils.CoolUtil.minInt" : "Math.min";
 
 		var func = funcPath.split(".");
 

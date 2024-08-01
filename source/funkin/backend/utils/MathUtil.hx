@@ -3,6 +3,12 @@ package funkin.backend.utils;
 import haxe.macro.Expr;
 
 class MathUtil {
+	/**
+	 * Returns the maximum value in the arguments.
+	 * @param args Array of values
+	 *
+	 * @return The maximum value
+	**/
 	public static function maxInt(...args:Int):Int {
 		var max = args[0];
 		for(i in 1...args.length) {
@@ -13,6 +19,12 @@ class MathUtil {
 		return max;
 	}
 
+	/**
+	 * Returns the minimum value in the arguments.
+	 * @param args Array of values
+	 *
+	 * @return The minimum value
+	**/
 	public static function minInt(...args:Int):Int {
 		var min = args[0];
 		for(i in 1...args.length) {
@@ -23,6 +35,15 @@ class MathUtil {
 		return min;
 	}
 
+	/**
+	 * Returns the maximum value in the arguments.
+	 *
+	 * NOTE: If you are using this in compile time, you should use `MathUtil.maxSmart` instead of this for better performance.
+	 *
+	 * @param args Array of values
+	 *
+	 * @return The maximum value
+	**/
 	public static function max(...args:Float):Float {
 		var max = args[0];
 		for(i in 1...args.length) {
@@ -33,6 +54,15 @@ class MathUtil {
 		return max;
 	}
 
+	/**
+	 * Returns the minimum value in the arguments.
+	 *
+	 * NOTE: If you are using this in compile time, you should use `MathUtil.minSmart` instead of this for better performance.
+	 *
+	 * @param args Array of values
+	 *
+	 * @return The minimum value
+	**/
 	public static function min(...args:Float):Float {
 		var min = args[0];
 		for(i in 1...args.length) {

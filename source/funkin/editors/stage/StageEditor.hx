@@ -1038,10 +1038,14 @@ class StageEditor extends UIState {
 
 		if(sprite is FunkinSprite) {
 			var sprite:FunkinSprite = cast sprite;
-			var maxX = Math.max(Math.max(corners[0].x, corners[1].x), Math.max(corners[2].x, corners[3].x));
-			var maxY = Math.max(Math.max(corners[0].y, corners[1].y), Math.max(corners[2].y, corners[3].y));
-			var minX = Math.min(Math.min(corners[0].x, corners[1].x), Math.min(corners[2].x, corners[3].x));
-			var minY = Math.min(Math.min(corners[0].y, corners[1].y), Math.min(corners[2].y, corners[3].y));
+			var corner0 = corners[0];
+			var corner1 = corners[1];
+			var corner2 = corners[2];
+			var corner3 = corners[3];
+			var maxX = MathUtil.maxSmart(corner0.x, corner1.x, corner2.x, corner3.x);
+			var maxY = MathUtil.maxSmart(corner0.y, corner1.y, corner2.y, corner3.y);
+			var minX = MathUtil.minSmart(corner0.x, corner1.x, corner2.x, corner3.x);
+			var minY = MathUtil.minSmart(corner0.y, corner1.y, corner2.y, corner3.y);
 
 			if(!sprite.extra.exists(exID("bounds"))) {
 				sprite.extra.set(exID("bounds"), new FlxRect());

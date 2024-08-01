@@ -56,7 +56,13 @@ class DrawUtil {
 	}
 
 	public static function destroyDrawers() {
-		dot.destroy(); line.destroy();
-		dot = null; line = null;
+		if(dot != null) {
+			dot.destroy();
+			dot = null;
+		}
+		if(line != null) {
+			line.destroy();
+			line = null;
+		}
 	}
 }

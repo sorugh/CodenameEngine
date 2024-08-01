@@ -271,7 +271,8 @@ class CoolUtil
 	public static function getSizeString(size:Float):String {
 		var rSize:Float = size;
 		var label:Int = 0;
-		while(rSize > 1024 && label < sizeLabels.length-1) {
+		var len = sizeLabels.length;
+		while(rSize > 1024 && label < len-1) {
 			label++;
 			rSize /= 1024;
 		}
@@ -711,7 +712,7 @@ class CoolUtil
 	 * Gets the macro class created by hscript-improved for an abstract / enum
 	 */
 	@:noUsing public static inline function getMacroAbstractClass(className:String) {
-		return Type.resolveClass('${className}_HSC');
+		return Type.resolveClass(className + '_HSC');
 	}
 
 	/**

@@ -80,10 +80,10 @@ class OldUISliceSprite extends UISprite {
 		bottom = frames.frames[framesOffset + 7];
 		bottomright = frames.frames[framesOffset + 8];
 
-		leftWidth = Std.int(Math.max(topleft.frame.width, Math.max(middleleft.frame.width, bottomleft.frame.width)));
-		rightWidth = Std.int(Math.max(topright.frame.width, Math.max(middleright.frame.width, bottomright.frame.width)));
-		topHeight = Std.int(Math.max(topleft.frame.height, Math.max(top.frame.height, topright.frame.height)));
-		bottomHeight = Std.int(Math.max(topleft.frame.height, Math.max(top.frame.height, topright.frame.height)));
+		leftWidth = Std.int(MathUtil.maxSmart(topleft.frame.width, middleleft.frame.width, bottomleft.frame.width));
+		rightWidth = Std.int(MathUtil.maxSmart(topright.frame.width, middleright.frame.width, bottomright.frame.width));
+		topHeight = Std.int(MathUtil.maxSmart(topleft.frame.height, top.frame.height, topright.frame.height));
+		bottomHeight = Std.int(MathUtil.maxSmart(topleft.frame.height, top.frame.height, topright.frame.height));
 	}
 
 	public override function draw() @:privateAccess {

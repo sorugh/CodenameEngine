@@ -86,7 +86,7 @@ class ModsFolder {
 		var mods:Array<String> = [];
 		#if MOD_SUPPORT
 		for(modFolder in FileSystem.readDirectory(modsPath)) {
-			if (FileSystem.isDirectory('${modsPath}${modFolder}')) {
+			if (FileSystem.isDirectory(modsPath + modFolder)) {
 				mods.push(modFolder);
 			} else {
 				var ext = Path.extension(modFolder).toLowerCase();

@@ -36,20 +36,20 @@ class MainState extends FlxState {
 		var _highPriorityAddons:Array<String> = [];
 		var _noPriorityAddons:Array<String> = [];
 		if (FileSystem.exists(ModsFolder.addonsPath) && FileSystem.isDirectory(ModsFolder.addonsPath)) {
-			for(i=>addon in [for(dir in FileSystem.readDirectory(ModsFolder.addonsPath)) if (FileSystem.isDirectory('${ModsFolder.addonsPath}$dir')) dir]) {
+			for(i=>addon in [for(dir in FileSystem.readDirectory(ModsFolder.addonsPath)) if (FileSystem.isDirectory(ModsFolder.addonsPath + dir)) dir]) {
 				if (addon.startsWith("[LOW]")) _lowPriorityAddons.insert(0, addon);
 				else if (addon.startsWith("[HIGH]")) _highPriorityAddons.insert(0, addon);
 				else _noPriorityAddons.insert(0, addon);
 			}
 			for (addon in _lowPriorityAddons)
-				Paths.assetsTree.addLibrary(ModsFolder.loadModLib('${ModsFolder.addonsPath}$addon', StringTools.ltrim(addon.substr("[LOW]".length))));
+				Paths.assetsTree.addLibrary(ModsFolder.loadModLib(ModsFolder.addonsPath + addon, StringTools.ltrim(addon.substr("[LOW]".length))));
 		}
 		if (ModsFolder.currentModFolder != null)
-			Paths.assetsTree.addLibrary(ModsFolder.loadModLib('${ModsFolder.modsPath}${ModsFolder.currentModFolder}', ModsFolder.currentModFolder));
+			Paths.assetsTree.addLibrary(ModsFolder.loadModLib(ModsFolder.modsPath + ModsFolder.currentModFolder, ModsFolder.currentModFolder));
 
 		if (FileSystem.exists(ModsFolder.addonsPath) && FileSystem.isDirectory(ModsFolder.addonsPath)){
-			for (addon in _noPriorityAddons) Paths.assetsTree.addLibrary(ModsFolder.loadModLib('${ModsFolder.addonsPath}$addon', addon));
-			for (addon in _highPriorityAddons) Paths.assetsTree.addLibrary(ModsFolder.loadModLib('${ModsFolder.addonsPath}$addon', StringTools.ltrim(addon.substr("[HIGH]".length))));
+			for (addon in _noPriorityAddons) Paths.assetsTree.addLibrary(ModsFolder.loadModLib(ModsFolder.addonsPath + addon, addon));
+			for (addon in _highPriorityAddons) Paths.assetsTree.addLibrary(ModsFolder.loadModLib(ModsFolder.addonsPath + addon, StringTools.ltrim(addon.substr("[HIGH]".length))));
 		}
 		#end
 

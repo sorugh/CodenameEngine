@@ -100,7 +100,7 @@ class UISlider extends UISprite {
 		valueStepper.bWidth = Std.int(FlxMath.lerp(valueStepper.bWidth, __stepperWidth, 1/2.25));
 		valueStepper.follow(this, -startText.width-10 - valueStepper.bWidth - 4, (height-valueStepper.bHeight)/2);
 
-		@:privateAccess valueStepper.__framesDirty = true;
+		//@:privateAccess valueStepper.__framesDirty = true;
 
 		var lastBarProgress:Float = __barProgress;
 

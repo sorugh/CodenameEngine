@@ -1,6 +1,6 @@
 package funkin.editors;
 
-import funkin.editors.ui.old.OldUISpliceSprite.OldUISliceSprite;
+import funkin.editors.ui.old.OldUISliceSpriteTri;
 import funkin.editors.ui.UITopMenu.UITopMenuButton;
 import flixel.tweens.FlxTween;
 import funkin.editors.ui.*;
@@ -88,7 +88,7 @@ class UIDebugState extends UIState {
 							spliceUseTris = !spliceUseTris;
 							t.icon = spliceUseTris ? 1 : 0;
 
-							spliceCl = spliceUseTris ? UISliceSprite : OldUISliceSprite;
+							spliceCl = spliceUseTris ? UISliceSprite : OldUISliceSpriteTri;
 							trace(spliceCl);
 						},
 						icon: spliceUseTris ? 1 : 0

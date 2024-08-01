@@ -88,7 +88,7 @@ class UIDebugState extends UIState {
 							spliceUseTris = !spliceUseTris;
 							t.icon = spliceUseTris ? 1 : 0;
 
-							spliceCl = spliceUseTris ? UISliceSprite : OldUISliceSpriteTri;
+							spliceCl = spliceUseTris ? OldUISliceSpriteTri : UISliceSprite;
 							trace(spliceCl);
 						},
 						icon: spliceUseTris ? 1 : 0
@@ -160,7 +160,7 @@ class UIDebugState extends UIState {
 	public var spliceTimer:Float = 0;
 	public var spliceCoolDown:Float = 0.04;
 
-	public var spliceUseTris:Bool = true;
+	public var spliceUseTris:Bool = false;
 	public var spliceCl:Class<FlxSprite> = UISliceSprite;
 
 	public override function update(elapsed:Float) {

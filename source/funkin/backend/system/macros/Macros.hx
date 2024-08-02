@@ -31,10 +31,10 @@ class Macros {
 		if(Context.defined("sys")) {
 			for(inc in ["sys", "openfl.net", "funkin.backend.system.net"]) {
 				if(!isHl)
-					Compiler.include(inc);
+					Compiler.include(inc, ["sys.db.Sqlite", "sys.db.Mysql"]);
 				else {
 					// TODO: Hashlink
-					//Compiler.include(inc, ["sys.net.UdpSocket", "openfl.net.DatagramSocket"]); // fixes FATAL ERROR : Failed to load function std@socket_set_broadcast
+					//Compiler.include(inc, ["sys.net.UdpSocket", "openfl.net.DatagramSocket", "sys.db.Sqlite", "sys.db.Mysql"]); // fixes FATAL ERROR : Failed to load function std@socket_set_broadcast
 				}
 			}
 		}

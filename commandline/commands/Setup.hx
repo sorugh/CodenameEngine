@@ -7,18 +7,29 @@ import sys.io.Process;
 import sys.FileSystem;
 
 class Setup {
+	private static function recursiveDelete(path:String) {
+		for(file in FileSystem.readDirectory(path)) {
+			var p = '$path/$file';
+			if(FileSystem.isDirectory(p))
+				recursiveDelete(p);
+			else
+				FileSystem.deleteFile(p);
+		}
+		FileSystem.deleteDirectory(path);
+	}
+
 	public static function main(args:Array<String>) {
-		final args = ArgParser.parse(args, ["S" => "silent-progress", "silent" => "silent-progress"]);
-		final CHECK_VSTUDIO = !args.existsOption("no-vscheck");
-		final REINSTALL_ALL = args.existsOption("reinstall");
-		final SILENT = args.existsOption("silent-progress");
+		var args = ArgParser.parse(args, ["s" => "silent-progress", "S" => "silent-progress", "silent" => "silent-progress"]);
+		var CHECK_VSTUDIO = !args.existsOption("no-vscheck");
+		var REINSTALL_ALL = args.existsOption("reinstall");
+		var SILENT = args.existsOption("silent-progress");
 
 		// to prevent messing with currently installed libs
 		if (!FileSystem.exists('.haxelib'))
 			FileSystem.createDirectory('.haxelib');
 
 		if (REINSTALL_ALL) {
-			FileSystem.deleteDirectory('.haxelib');
+			recursiveDelete('.haxelib');
 			FileSystem.createDirectory('.haxelib');
 		}
 
@@ -46,6 +57,7 @@ class Setup {
 						type: libNode.name
 					};
 					if (libNode.has.global) lib.global = libNode.att.global;
+					if (libNode.has.skipDeps) lib.skipDeps = libNode.att.skipDeps;
 					switch (lib.type) {
 						case "lib":
 							if (libNode.has.version) lib.version = libNode.att.version;
@@ -102,9 +114,9 @@ class Setup {
 		if(args.args.length == 0) defines.push("all");
 
 		function parse(libNode:Access) {
-			if(libNode.name == "if") {
-				final cond = libNode.att.cond;
-				if(!Utils.evaluateArgsCondition(cond, defines)) {
+			if(libNode.name == "if" || libNode.name == "unless") {
+				var cond = libNode.att.cond;
+				if(Utils.evaluateArgsCondition(cond, defines) != (libNode.name == "if")) {
 					return;
 				}
 
@@ -123,21 +135,22 @@ class Setup {
 		}
 
 		var commandSuffix = " --always";
-		if (SILENT) commandSuffix += " --silent";
+		if (SILENT) commandSuffix += " --quiet";
 
 		for(event in events) {
 			switch(event.type) {
 				case INSTALL:
 					var lib:Library = event.data;
-					var globalism:Null<String> = lib.global == "true" ? "--global" : null;
-					var globalSuffix = globalism != null ? ' $globalism' : '';
+					var globalSuffix:Null<String> = lib.global == "true" ? " --global" : "";
+					var skipDeps = lib.skipDeps == "true" ? " --skip-dependencies" : "";
+					var commandPrefix = commandSuffix + globalSuffix + skipDeps;// + " --no-timeout";
 					switch(lib.type) {
 						case "lib":
 							prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}"...');
-							Sys.command('haxelib install ${lib.name} ${lib.version != null ? " " + lib.version : " "}$globalSuffix$commandSuffix');
+							Sys.command('haxelib$commandPrefix install ${lib.name} ${lib.version != null ? " " + lib.version : " "}');
 						case "git":
 							prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}" from git url "${lib.url}"');
-							Sys.command('haxelib git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}$globalSuffix$commandSuffix');
+							Sys.command('haxelib$commandPrefix git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}');
 						default:
 							prettyPrint('Cannot resolve library of type "${lib.type}"');
 					}
@@ -265,6 +278,8 @@ typedef Library = {
 	var name:String;
 	var type:String;
 	var ?global:String;
+	var ?skipDeps:String;
+	var ?recursive:String;
 	var ?version:String;
 	var ?ref:String;
 	var ?url:String;

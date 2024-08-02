@@ -1000,7 +1000,7 @@ class PlayState extends MusicBeatState
 		curSong = songData.meta.name.toLowerCase();
 
 		inst = FlxG.sound.load(Paths.inst(SONG.meta.name, difficulty));
-		if (Assets.exists(Paths.voices(SONG.meta.name, difficulty))) // null or true
+		if (SONG.meta.needsVoices != false && Assets.exists(Paths.voices(SONG.meta.name, difficulty))) // null or true
 			vocals = FlxG.sound.load(Paths.voices(SONG.meta.name, difficulty));
 		else
 			vocals = new FlxSound();

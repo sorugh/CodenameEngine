@@ -25,6 +25,19 @@
 		<!-- For building lime -->
 		<lib global="true" name="hxp" /> <lib name="hxp" />
 		<lib global="true" name="format" /> <lib name="format" />
+
+		<!-- Extras -->
+		<!-- TODO: Remove this when hxcpp is updated -->
+		<!-- Adds a progress counter to compilation -->
+		<git name="hxcpp" url="https://github.com/NeeEoo/hxcpp" ref="codename" />
+	</if>
+
+	<!-- Hxcpp Building -->
+	<if cond="build-hxcpp || all">
+		<print pretty="true">Rebuilding Hxcpp...</print>
+
+		<!-- Build hxcpp -->
+		<cmd inLib="hxcpp" dir="tools/hxcpp" cmd="haxe compile.hxml" />
 	</if>
 
 	<!-- Lime Building -->

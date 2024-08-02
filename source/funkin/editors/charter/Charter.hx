@@ -725,7 +725,7 @@ class Charter extends UIState {
 		/**
 		 * NOTE DRAG HANDLING
 		 */
-		mousePos = FlxG.mouse.getWorldPosition(charterCamera);
+		FlxG.mouse.getWorldPosition(charterCamera, mousePos);
 		if (!gridBackdropDummy.hoveredByChild && !FlxG.mouse.pressed)
 			gridActionType = NONE;
 		selectionBox.visible = false;
@@ -918,7 +918,6 @@ class Charter extends UIState {
 						var mousePos = FlxG.mouse.getScreenPosition(uiCamera);
 						closeCurrentContextMenu();
 						openContextMenu(topMenu[1].childs, null, mousePos.x, mousePos.y);
-						mousePos.put();
 					}
 					gridActionType = NONE; deletedNotes = [];
 				}

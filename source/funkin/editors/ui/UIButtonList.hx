@@ -89,8 +89,10 @@ class UIButtonList<T:UIButton> extends UIWindow {
 			curMovingInterval += FlxG.mouse.deltaY;
 			if (Math.abs(curMovingInterval) > addButton.bHeight / 2) {
 				curMovingInterval = 999;
-				curMoving.y = CoolUtil.fpsLerp(curMoving.y, FlxG.mouse.getWorldPosition(buttonCameras).y - (curMoving.bHeight / 2), 0.3);
+				var mousePos = FlxG.mouse.getWorldPosition(buttonCameras);
+				curMoving.y = CoolUtil.fpsLerp(curMoving.y, mousePos.y - (curMoving.bHeight / 2), 0.3);
 				buttons.sort(function(o, a:T, b:T) return FlxSort.byValues(o, a.y + (a.bHeight / 2), b.y + (a.bHeight / 2)), -1);
+				mousePos.put();
 			}
 			if (FlxG.mouse.justReleased) {
 				curMoving = null;

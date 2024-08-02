@@ -13,8 +13,10 @@ class CharterStrumLineGroup extends FlxTypedGroup<CharterStrumline> {
 	public function get_isDragging():Bool
 		return draggingObj != null;
 
+	var __mousePos:FlxPoint = new FlxPoint();
+
 	public override function update(elapsed:Float) {
-		var mousePos = FlxG.mouse.getWorldPosition(cameras[0], FlxPoint.get());
+		FlxG.mouse.getWorldPosition(cameras[0], __mousePos);
 		for (strumLine in members) {
 			if (strumLine == null) continue;
 			strumLine.draggable = draggable;
@@ -22,14 +24,14 @@ class CharterStrumLineGroup extends FlxTypedGroup<CharterStrumline> {
 				draggingObj = strumLine;
 				strumLine.dragging = true;
 
-				draggingOffset = mousePos.x - strumLine.button.x;
+				draggingOffset = __mousePos.x - strumLine.button.x;
 				__pastStrumlines = members.copy();
 				break;
 			}
 		}
 
 		if (isDragging) {
-			draggingObj.x = mousePos.x - draggingOffset;
+			draggingObj.x = __mousePos.x - draggingOffset;
 			this.sort(function(o, a, b) return FlxSort.byValues(o, a.x, b.x), -1);
 		}
 
@@ -46,7 +48,6 @@ class CharterStrumLineGroup extends FlxTypedGroup<CharterStrumline> {
 		if ((FlxG.mouse.justReleased || !draggable) && isDragging)
 			finishDrag();
 
-		mousePos.put();
 		super.update(elapsed);
 	}
 

@@ -454,7 +454,7 @@ class StageEditor extends UIState {
 
 		currentCursor = ARROW;
 
-		mousePoint = FlxG.mouse.getWorldPosition(stageCamera, mousePoint);
+		FlxG.mouse.getWorldPosition(stageCamera, mousePoint);
 		if ((!stageSpritesWindow.hovered && !stageSpritesWindow.dragging) && !topMenuSpr.hovered) {
 			if (FlxG.mouse.wheel != 0) {
 				zoom += 0.25 * FlxG.mouse.wheel;

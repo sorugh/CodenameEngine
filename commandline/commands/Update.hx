@@ -7,8 +7,19 @@ import sys.io.Process;
 import sys.FileSystem;
 
 class Update {
+	private static function recursiveDelete(path:String) {
+		for(file in FileSystem.readDirectory(path)) {
+			var p = '$path/$file';
+			if(FileSystem.isDirectory(p))
+				recursiveDelete(p);
+			else
+				FileSystem.deleteFile(p);
+		}
+		FileSystem.deleteDirectory(path);
+	}
+
 	public static function main(args:Array<String>) {
-		var args = ArgParser.parse(args, ["S" => "silent-progress", "silent" => "silent-progress"]);
+		var args = ArgParser.parse(args, ["s" => "silent-progress", "S" => "silent-progress", "silent" => "silent-progress"]);
 		var CHECK_VSTUDIO = !args.existsOption("no-vscheck");
 		var REINSTALL_ALL = args.existsOption("reinstall");
 		var SILENT = args.existsOption("silent-progress");
@@ -18,7 +29,7 @@ class Update {
 			FileSystem.createDirectory('.haxelib');
 
 		if (REINSTALL_ALL) {
-			FileSystem.deleteDirectory('.haxelib');
+			recursiveDelete('.haxelib');
 			FileSystem.createDirectory('.haxelib');
 		}
 
@@ -102,9 +113,9 @@ class Update {
 		if(args.args.length == 0) defines.push("all");
 
 		function parse(libNode:Access) {
-			if(libNode.name == "if") {
+			if(libNode.name == "if" || libNode.name == "unless") {
 				var cond = libNode.att.cond;
-				if(!Utils.evaluateArgsCondition(cond, defines)) {
+				if(Utils.evaluateArgsCondition(cond, defines) != (libNode.name == "if")) {
 					return;
 				}
 

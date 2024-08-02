@@ -41,6 +41,7 @@ class FNFLegacyParser {
 		}
 
 		result.meta.bpm = data.bpm;
+		result.meta.needsVoices = data.needsVoices.getDefault(true);
 
 		var camFocusedBF:Bool = false;
 		var altAnims:Bool = false;

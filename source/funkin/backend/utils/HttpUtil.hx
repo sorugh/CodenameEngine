@@ -2,7 +2,7 @@ package funkin.backend.utils;
 
 import haxe.Http;
 
-class HttpUtil
+final class HttpUtil
 {
 	public static var userAgent:String = "request";
 	public static function requestText(url:String)

@@ -9,7 +9,7 @@ import openfl.Assets;
 
 using StringTools;
 
-class EventsData {
+final class EventsData {
 	public static var defaultEventsList:Array<String> = ["HScript Call", "Camera Movement", "Add Camera Zoom", "Camera Modulo Change", "Camera Flash", "BPM Change", "Scroll Speed Change", "Alt Animation Toggle", "Play Animation"];
 	public static var defaultEventsParams:Map<String, Array<EventParamInfo>> = [
 		"HScript Call" => [

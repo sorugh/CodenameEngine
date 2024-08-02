@@ -2,7 +2,7 @@ package funkin.backend.utils;
 
 import haxe.macro.Expr;
 
-class MathUtil {
+final class MathUtil {
 	/**
 	 * Returns the maximum value in the arguments.
 	 * @param args Array of values

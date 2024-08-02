@@ -14,7 +14,7 @@ package funkin.backend.utils;
  * - The Function cannot be found in the NDLL
  * then an empty function will be returned instead, and a message will be shown in logs.
  */
-class NdllUtil {
+final class NdllUtil {
 	#if NDLLS_SUPPORTED
 		#if windows   public static final os:String = "windows";   #end
 		#if linux     public static final os:String = "linux";     #end

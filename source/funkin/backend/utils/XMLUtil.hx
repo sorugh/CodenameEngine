@@ -15,7 +15,7 @@ typedef TextFormat = { text:String, format:Dynamic }
 /**
  * Class made to make XML parsing easier.
  */
-class XMLUtil {
+final class XMLUtil {
 
 	/**
 	 * Applies a property XML node to an object.

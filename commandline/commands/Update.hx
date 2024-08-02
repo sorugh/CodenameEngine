@@ -46,6 +46,7 @@ class Update {
 						type: libNode.name
 					};
 					if (libNode.has.global) lib.global = libNode.att.global;
+					if (libNode.has.skipDeps) lib.skipDeps = libNode.att.skipDeps;
 					switch (lib.type) {
 						case "lib":
 							if (libNode.has.version) lib.version = libNode.att.version;
@@ -120,21 +121,22 @@ class Update {
 		}
 
 		var commandSuffix = " --always";
-		if (SILENT) commandSuffix += " --silent";
+		if (SILENT) commandSuffix += " --quiet";
 
 		for(event in events) {
 			switch(event.type) {
 				case INSTALL:
 					var lib:Library = event.data;
-					var globalism:Null<String> = lib.global == "true" ? "--global" : null;
-					var globalSuffix = globalism != null ? ' $globalism' : '';
+					var globalSuffix:Null<String> = lib.global == "true" ? " --global" : "";
+					var skipDeps = lib.skipDeps == "true" ? " --skip-dependencies" : "";
+					var commandPrefix = commandSuffix + globalSuffix + skipDeps;// + " --no-timeout";
 					switch(lib.type) {
 						case "lib":
 							prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}"...');
-							Sys.command('haxelib install ${lib.name} ${lib.version != null ? " " + lib.version : " "}$globalSuffix$commandSuffix');
+							Sys.command('haxelib$commandPrefix install ${lib.name} ${lib.version != null ? " " + lib.version : " "}');
 						case "git":
 							prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}" from git url "${lib.url}"');
-							Sys.command('haxelib git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}$globalSuffix$commandSuffix');
+							Sys.command('haxelib$commandPrefix git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}');
 						default:
 							prettyPrint('Cannot resolve library of type "${lib.type}"');
 					}
@@ -264,6 +266,8 @@ typedef Library = {
 	var name:String;
 	var type:String;
 	var ?global:String;
+	var ?skipDeps:String;
+	var ?recursive:String;
 	var ?version:String;
 	var ?ref:String;
 	var ?url:String;

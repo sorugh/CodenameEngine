@@ -66,10 +66,7 @@ class UITopMenuButton extends UISliceSprite {
 		var opened = curMenu != null ? curMenu.contextMenuOpened() : false;
 
 		if(opened && FlxG.mouse.justPressed) {
-			__rect.x = x;
-			__rect.y = y;
-			__rect.width = bWidth;
-			__rect.height = bHeight;
+			__rect.set(x, y, bWidth, bHeight);
 			if(UIState.state.isOverlapping(this, __rect)) {
 				curMenu.close();
 				justClosed = 2;

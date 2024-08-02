@@ -21,8 +21,7 @@ class UIWindow extends UISliceSprite {
 		cursor = ARROW;
 
 		if(collapsable) {
-			__rect.x = x; __rect.y = y;
-			__rect.width = bWidth; __rect.height = topHeight;
+			__rect.set(x, y, bWidth, topHeight);
 
 			if(UIState.state.isOverlapping(this, __rect)) {
 				cursor = CLICK;
@@ -44,6 +43,6 @@ class UIWindow extends UISliceSprite {
 			__rect.y = y+topHeight;
 			__rect.height = bHeight-topHeight;
 		}
-		hovered = UIState.state.isOverlapping(this, __rect);
+		hovered = content.exists && UIState.state.isOverlapping(this, __rect);
 	}
 }

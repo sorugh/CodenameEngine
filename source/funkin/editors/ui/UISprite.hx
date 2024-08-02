@@ -118,9 +118,6 @@ class UISprite extends FlxSprite {
 	}
 
 	public function updateSpriteRect() {
-		__rect.x = x;
-		__rect.y = y;
-		__rect.width = width;
-		__rect.height = height;
+		__rect.set(x, y, width, height);
 	}
 }

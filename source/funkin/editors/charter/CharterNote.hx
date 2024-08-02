@@ -49,10 +49,7 @@ class CharterNote extends UISprite implements ICharterSelectable {
 	}
 
 	public override function updateButtonHandler() {
-		__rect.x = x;
-		__rect.y = y;
-		__rect.width = 40;
-		__rect.height = 40;
+		__rect.set(x, y, 40, 40);
 		UIState.state.updateRectButtonHandler(this, __rect, onHovered);
 	}
 

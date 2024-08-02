@@ -146,6 +146,7 @@ class FNFLegacyParser {
 			notes: null,
 			bpm: chart.meta.bpm,
 			speed: chart.scrollSpeed,
+			needsVoices: chart.meta.needsVoices,
 
 			player1: null,
 			player2: null,
@@ -209,6 +210,7 @@ typedef SwagSong =
 	var ?stage:String;
 	var ?noteTypes:Array<String>;
 	var ?events:Array<Dynamic>;
+	var ?needsVoices:Bool;
 
 	var player1:String;
 	var player2:String;

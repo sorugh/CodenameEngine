@@ -67,7 +67,7 @@ class ChartCreationScreen extends UISubstateWindow {
 		add(scrollSpeedTextBox);
 		addLabelOn(scrollSpeedTextBox, "Scroll Speed");
 
-		strumLineList = new UIButtonList<StrumLineButton>(difficultyNameTextBox.x, difficultyNameTextBox.y+difficultyNameTextBox.bHeight+36, 620, (552-179)-16, "", FlxPoint.get(620, 246), null, 6);
+		strumLineList = new UIButtonList<StrumLineButton>(difficultyNameTextBox.x, difficultyNameTextBox.y+difficultyNameTextBox.bHeight+36, 620, (552-179)-16, null, FlxPoint.get(620, 246), null, 6);
 		strumLineList.frames = Paths.getFrames('editors/ui/inputbox');
 		strumLineList.cameraSpacing = 0;
 
@@ -207,7 +207,7 @@ class StrumLineButton extends UIButton {
 			return uiText;
 		}
 
-		charactersList = new UIButtonList<CompactCharacterButton>(16, 8+26, 210, 160, "", FlxPoint.get(200, 40), null, 5);
+		charactersList = new UIButtonList<CompactCharacterButton>(16, 8+26, 210, 160, null, FlxPoint.get(200, 40), null, 5);
 		charactersList.frames = Paths.getFrames('editors/ui/inputbox');
 		charactersList.cameraSpacing = 0;
 
@@ -270,7 +270,7 @@ class StrumLineButton extends UIButton {
 		}
 		members.push(usesChartscrollSpeed);
 
-		deleteButton = new UIButton(16, 246-32-11, "", function () {
+		deleteButton = new UIButton(16, 246-32-11, null, function () {
 			parent.remove(this);
 		}, 620-32);
 		deleteButton.color = 0xFFFF0000;
@@ -315,7 +315,7 @@ class CompactCharacterButton extends UIButton {
 	public var deleteIcon:FlxSprite;
 
 	public function new(char:String, charsList:Array<String>, parent:UIButtonList<CompactCharacterButton>) {
-		super(0, 0, "", null, 200, 40);
+		super(0, 0, null, null, 200, 40);
 		autoAlpha = false;
 
 		charIcon = new HealthIcon(funkin.game.Character.getIconFromCharName(char));
@@ -338,7 +338,7 @@ class CompactCharacterButton extends UIButton {
 			charIcon.updateHitbox();
 		}
 
-		deleteButton = new UIButton(textBox.x + 115 + 16, bHeight/2 - (32/2), "", function () {
+		deleteButton = new UIButton(textBox.x + 115 + 16, bHeight/2 - (32/2), null, function () {
 			parent.remove(this);
 		}, 32);
 		deleteButton.color = 0xFFFF0000;

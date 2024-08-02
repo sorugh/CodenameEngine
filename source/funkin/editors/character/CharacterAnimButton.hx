@@ -136,7 +136,7 @@ class CharacterAnimButton extends UIButton {
 		playIcon.antialiasing = false;
 		members.push(playIcon);
 
-		deleteButton = new UIButton(0, 0, "", () -> {parent.deleteAnimation(this);}, 28*2,24);
+		deleteButton = new UIButton(0, 0, null, () -> {parent.deleteAnimation(this);}, 28*2,24);
 		deleteButton.frames = Paths.getFrames("editors/ui/grayscale-button");
 		deleteButton.color = 0xFFAC3D3D;
 		members.push(deleteButton);
@@ -146,7 +146,7 @@ class CharacterAnimButton extends UIButton {
 		deleteIcon.antialiasing = false;
 		members.push(deleteIcon);
 
-		editButton = new UIButton(0, 0, "", () -> {this.closed = !this.closed;}, 28,24);
+		editButton = new UIButton(0, 0, null, () -> {this.closed = !this.closed;}, 28,24);
 		editButton.frames = Paths.getFrames("editors/ui/grayscale-button");
 		editButton.color = 0xFFAFAA12;
 		members.push(editButton);
@@ -156,7 +156,7 @@ class CharacterAnimButton extends UIButton {
 		editIcon.antialiasing = false;
 		members.push(editIcon);
 
-		ghostButton = new UIButton(0, 0, "", toggleGhost, 28, 24);
+		ghostButton = new UIButton(0, 0, null, toggleGhost, 28, 24);
 		ghostButton.frames = Paths.getFrames("editors/ui/grayscale-button");
 		ghostButton.color = 0xFFADADAD;
 		ghostButton.alpha = 0.5;

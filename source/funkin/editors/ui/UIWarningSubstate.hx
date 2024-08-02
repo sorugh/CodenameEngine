@@ -62,8 +62,10 @@ class UIWarningSubstate extends MusicBeatSubstate {
 		spr.color = isError ? 0xFFFF0000 : 0xFFFFFF00;
 		add(spr);
 
-		add(titleSpr = new UIText(spr.x + 25, spr.y, spr.bWidth - 50, title, 15, -1));
-		titleSpr.y = spr.y + ((30 - titleSpr.height) / 2);
+		if(title != null) {
+			add(titleSpr = new UIText(spr.x + 25, spr.y, spr.bWidth - 50, title, 15, -1));
+			titleSpr.y = spr.y + ((30 - titleSpr.height) / 2);
+		}
 
 		var sprIcon:FlxSprite = new FlxSprite(spr.x + 18, spr.y + 28 + 26).loadGraphic(Paths.image('editors/warnings/${isError ? "error" : "warning"}'));
 		sprIcon.scale.set(1.4, 1.4);

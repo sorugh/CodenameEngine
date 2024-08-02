@@ -28,7 +28,7 @@ class CharterEventTypeSelection extends UISubstateWindow {
 		FlxG.cameras.add(buttonCameras, false);
 		buttonCameras.bgColor = 0;
 
-		buttonsBG = new UIWindow(10, 41, buttonCameras.width, buttonCameras.height, "");
+		buttonsBG = new UIWindow(10, 41, buttonCameras.width, buttonCameras.height, null);
 		buttonsBG.frames = Paths.getFrames('editors/ui/inputbox');
 		add(buttonsBG);
 

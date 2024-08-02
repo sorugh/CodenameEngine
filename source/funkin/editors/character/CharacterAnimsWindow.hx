@@ -20,7 +20,7 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 	public var animsList:Array<String> = [];
 
 	public function new(x:Float, y:Float, character:CharacterGhost) {
-		super(x, y, Std.int(500-16), 419, "", FlxPoint.get(Std.int(500-16-32), 208));
+		super(x, y, Std.int(500-16), 419, null, FlxPoint.get(Std.int(500-16-32), 208));
 		this.character = character;
 
 		cameraSpacing = 0;

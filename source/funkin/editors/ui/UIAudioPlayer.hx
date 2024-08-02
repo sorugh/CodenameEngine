@@ -29,7 +29,7 @@ class UIAudioPlayer extends UIButton {
 	public function new(x:Float, y:Float, bytes:Bytes) {
 		sound = FlxG.sound.load(Sound.fromAudioBuffer(AudioBuffer.fromBytes(bytes)));
 
-		super(x, y, "", function () {
+		super(x, y, null, function () {
 			if (sound.playing) sound.pause();
 			else sound.play(false, sound.time);
 		}, 58 - 16, 58 - 16);

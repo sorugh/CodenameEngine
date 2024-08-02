@@ -20,7 +20,7 @@ class UIFileExplorer extends UISliceSprite {
 
 		if (onFile != null) this.onFile = onFile;
 
-		uploadButton = new UIButton(x + 8, y+ 8, "", function () {
+		uploadButton = new UIButton(x + 8, y+ 8, null, function () {
 			var fileDialog = new FileDialog();
 			fileDialog.onOpen.add(function(res) {
 				file = cast res;
@@ -36,7 +36,7 @@ class UIFileExplorer extends UISliceSprite {
 		uploadIcon.antialiasing = false;
 		uploadButton.members.push(uploadIcon);
 
-		deleteButton = new UIButton(x + bWidth - (bHeight - 16) - 8, y + 8, "", removeFile, bHeight - 16, bHeight - 16);
+		deleteButton = new UIButton(x + bWidth - (bHeight - 16) - 8, y + 8, null, removeFile, bHeight - 16, bHeight - 16);
 		deleteButton.color = 0xFFFF0000;
 		members.push(deleteButton);
 

@@ -39,7 +39,7 @@ class CharterAutoSaveUI extends UISliceSprite {
 		progressBar.antialiasing = false; progressBar.clipRect = new FlxRect(0, 0, progressBar.width, progressBar.height);
 		members.push(progressBar);
 
-		cancelButton = new UIButton(x-(10+16), y+8, "", () -> {
+		cancelButton = new UIButton(x-(10+16), y+8, null, () -> {
 			if (cancelled || !showedAnimation) return;
 			cancelled = true; __timer.cancel(); __tween.cancel();
 

@@ -44,7 +44,7 @@ class CharterEventScreen extends UISubstateWindow {
 
 		events = chartEvent.events.copy();
 
-		eventsList = new UIButtonList<EventButton>(0,0,75, 570, "", FlxPoint.get(73, 40), null, 0);
+		eventsList = new UIButtonList<EventButton>(0,0,75, 570, null, FlxPoint.get(73, 40), null, 0);
 		eventsList.drawTop = false;
 		eventsList.addButton.callback = () -> openSubState(new CharterEventTypeSelection(function(eventName) {
 			events.push({
@@ -218,17 +218,17 @@ class EventButton extends UIButton {
 	public function new(event:ChartEvent, icon:FlxSprite, id:Int, substate:CharterEventScreen, parent:UIButtonList<EventButton>) {
 		this.icon = icon;
 		this.event = event;
-		super(0,0,"" ,function() {
+		super(0, 0, null, function() {
 			substate.changeTab(id);
 			for(i in parent.buttons.members)
 				i.alpha = i == this ? 1 : 0.25;
-		},73,40);
+		}, 73, 40);
 		autoAlpha = false;
 
 		members.push(icon);
 		icon.setPosition(18 - icon.width / 2, 20 - icon.height / 2);
 
-		deleteButton = new UIButton(bWidth - 30, y + (bHeight - 26) / 2, "", function () {
+		deleteButton = new UIButton(bWidth - 30, y + (bHeight - 26) / 2, null, function () {
 			substate.events.splice(id, 1);
 			substate.changeTab(id, false);
 			parent.remove(this);

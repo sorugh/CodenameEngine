@@ -41,7 +41,7 @@ class StageElementButton extends UIButton {
 
 		field.alignment = LEFT;
 
-		visibilityButton = new UIButton(x+282+17, y, "", function () {
+		visibilityButton = new UIButton(x+282+17, y, null, function () {
 			onVisiblityToggle();
 		}, 32);
 		visibilityButton.autoAlpha = false;
@@ -55,7 +55,7 @@ class StageElementButton extends UIButton {
 		visibilityIcon.updateHitbox();
 		members.push(visibilityIcon);
 
-		editButton = new UIButton(visibilityButton.x+32+17, y, "", function () {
+		editButton = new UIButton(visibilityButton.x+32+17, y, null, function () {
 			onEdit();
 		}, 32);
 		editButton.frames = Paths.getFrames("editors/ui/grayscale-button");
@@ -69,7 +69,7 @@ class StageElementButton extends UIButton {
 		editIcon.antialiasing = false;
 		members.push(editIcon);
 
-		deleteButton = new UIButton(editButton.x+32+17, y, "", function () {
+		deleteButton = new UIButton(editButton.x+32+17, y, null, function () {
 			onDelete();
 		}, 32);
 		deleteButton.color = FlxColor.RED;

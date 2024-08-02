@@ -63,7 +63,7 @@ class CharterStrumlineScreen extends UISubstateWindow {
 		var charFileList = Character.getList(true);
 		if (charFileList.length == 0) charFileList = Character.getList(false);
 
-		charactersList = new UIButtonList<CharacterButton>(15, title.y + title.height + 36, 250, 269, "", FlxPoint.get(250, 54), null, 0);
+		charactersList = new UIButtonList<CharacterButton>(15, title.y + title.height + 36, 250, 269, null, FlxPoint.get(250, 54), null, 0);
 		charactersList.addButton.callback = () -> charactersList.add(new CharacterButton(0, 0, "New Char", charFileList, charactersList));
 		charactersList.cameraSpacing = 0;
 		for (i in strumLine.characters)
@@ -188,7 +188,7 @@ class CharacterButton extends UIButton {
 	public var deleteIcon:FlxSprite;
 
 	public function new(x:Float, y:Float, char:String, charsList:Array<String>, parent:UIButtonList<CharacterButton>) {
-		super(x, y, "", null, 250, 54);
+		super(x, y, null, null, 250, 54);
 
 		charIcon = new HealthIcon(Character.getIconFromCharName(char));
 		charIcon.scale.set(0.3, 0.3);
@@ -210,7 +210,7 @@ class CharacterButton extends UIButton {
 			charIcon.updateHitbox();
 		}
 
-		deleteButton = new UIButton(textBox.x + 115 + 16, bHeight/2 - (32/2), "", function () {
+		deleteButton = new UIButton(textBox.x + 115 + 16, bHeight/2 - (32/2), null, function () {
 			parent.remove(this);
 		}, 32);
 		deleteButton.color = 0xFFFF0000;

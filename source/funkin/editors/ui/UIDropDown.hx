@@ -4,6 +4,7 @@ import flixel.util.typeLimit.OneOfTwo;
 
 class UIDropDown extends UISliceSprite {
 	public var dropButton:UIButton;
+	public var dropIcon:FlxSprite;
 	public var label:UIText;
 
 	public var index:Int = 0;
@@ -48,8 +49,12 @@ class UIDropDown extends UISliceSprite {
 		label = new UIText(0, 0, width - height, items[index].label);
 		members.push(label);
 
-		dropButton = new UIButton(0, 0, "V", null, height, height);
+		dropButton = new UIButton(0, 0, null, null, height, height);
 		members.push(dropButton);
+
+		dropIcon = new FlxSprite(x-(10+16), y+8).loadGraphic(Paths.image("editors/ui/dropdown-button"));
+		dropIcon.antialiasing = false;
+		members.push(dropIcon);
 	}
 
 	public static function indexOfItemValue(items:Array<DropDownItem>, value:Dynamic):Int {
@@ -82,6 +87,7 @@ class UIDropDown extends UISliceSprite {
 
 		label.follow(this, 4, Std.int((bHeight - label.height) / 2));
 		dropButton.follow(this, bWidth - bHeight, 0);
+		dropIcon.follow(dropButton, (dropButton.bWidth/2)-(dropIcon.width/2), (dropButton.bHeight/2)-(dropIcon.height/2));
 	}
 
 	public function openContextMenu() {

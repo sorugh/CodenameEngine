@@ -33,7 +33,7 @@ class UIButtonList<T:UIButton> extends UIWindow {
 		FlxG.cameras.add(buttonCameras, false);
 		buttonCameras.bgColor = 0;
 
-		addButton = new UIButton(25, 16, "", null, Std.int(this.buttonSize.x));
+		addButton = new UIButton(25, 16, null, null, Std.int(this.buttonSize.x));
 		addButton.autoAlpha = false;
 		addButton.color = 0xFF00FF00;
 		addButton.cameras = [buttonCameras];
@@ -110,8 +110,10 @@ class UIButtonList<T:UIButton> extends UIWindow {
 		nextscrollY = CoolUtil.bound(nextscrollY - (hovered ? FlxG.mouse.wheel : 0) * 12, -buttonSpacing, Math.max((addButton.y + 32 + (buttonSpacing*1.5)) - buttonCameras.height, -buttonSpacing));
 
 		if (curMoving != null && dragging) {
-			nextscrollY -= Math.min((bHeight - 100) - FlxG.mouse.getWorldPosition(buttonCameras).y, 0) / 8;
-			nextscrollY += Math.min(FlxG.mouse.getWorldPosition(buttonCameras).y - 100, 0) / 8;
+			var mousePos = FlxG.mouse.getWorldPosition(buttonCameras);
+			nextscrollY -= Math.min((bHeight - 100) - mousePos.y, 0) / 8;
+			nextscrollY += Math.min(mousePos.y - 100, 0) / 8;
+			mousePos.put();
 		}
 
 		buttonCameras.scroll.y = FlxMath.lerp(buttonCameras.scroll.y, nextscrollY, 1/3);

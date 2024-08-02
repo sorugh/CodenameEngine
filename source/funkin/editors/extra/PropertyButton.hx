@@ -12,7 +12,7 @@ class PropertyButton extends UIButton {
 		members.push(valueText = new UITextBox(propertyText.x + propertyText.bWidth + 10, 5, value, valueWidth, inputHeight));
 
 		var deleteSize = height - 5 * 2;
-		deleteButton = new UIButton(valueText.x + 135, bHeight/2 - (deleteSize/2), "", function () {
+		deleteButton = new UIButton(valueText.x + 135, bHeight/2 - (deleteSize/2), null, function () {
 			parent.remove(this);
 		}, deleteSize, deleteSize);
 		deleteButton.color = 0xFFFF0000;

@@ -26,7 +26,7 @@ class UIIconColorPicker extends UISliceSprite {
 		members.push(iconSprite = new FlxSprite());
 		iconSprite.antialiasing = antialaising;
 
-		pickerButton = new UIButton(x+12+125-26, y+12, "", colorPick, 26, 26);
+		pickerButton = new UIButton(x+12+125-26, y+12, null, colorPick, 26, 26);
 		pickerButton.frames = Paths.getFrames('editors/ui/inputbox');
 		members.push(pickerButton);
 

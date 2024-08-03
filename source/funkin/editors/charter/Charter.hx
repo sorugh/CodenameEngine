@@ -286,6 +286,22 @@ class Charter extends UIState {
 						label: 'Low Detail Waveforms',
 						onSelect: _view_switchWaveformDetail,
 						icon: Options.charterLowDetailWaveforms ? 1 : 0
+					},
+					null,
+					{
+						label: "Scroll left",
+						keybind: [SHIFT, LEFT],
+						onSelect: _view_scrollleft
+					},
+					{
+						label: "Scroll right",
+						keybind: [SHIFT, RIGHT],
+						onSelect: _view_scrollright
+					},
+					{
+						label: "Reset scroll",
+						keybind: [SHIFT, DOWN],
+						onSelect: _view_scrollreset
 					}
 				]
 			},
@@ -773,7 +789,7 @@ class Charter extends UIState {
 						n.snappedToStrumline = false;
 						n.setPosition(n.fullID * 40 + (mousePos.x - dragStartPos.x), n.step * 40 + (mousePos.y - dragStartPos.y));
 						n.y = CoolUtil.bound(n.y, 0, (__endStep*40) - n.height);
-						n.x = CoolUtil.bound(n.x, 0, ((strumLines.members.length * 4)-1) * 40);
+						n.x = CoolUtil.bound(n.x, 0, (strumLines.totalKeyCount-1) * 40);
 						n.cursor = HAND;
 					}, function (e:CharterEvent) {
 						e.y =  e.step * 40 + (mousePos.y - dragStartPos.y) - 17;
@@ -802,7 +818,7 @@ class Charter extends UIState {
 							if (s is CharterNote) {
 								var note:CharterNote = cast s;
 								if (note.fullID + changePoint.y < 0) boundedChange.y += Math.abs(note.fullID + changePoint.y);
-								if (note.fullID + changePoint.y > (strumLines.members.length*4)-1) boundedChange.y -= (note.fullID + changePoint.y) - ((strumLines.members.length*4)-1);
+								if (note.fullID + changePoint.y > strumLines.totalKeyCount-1) boundedChange.y -= (note.fullID + changePoint.y) - (strumLines.totalKeyCount-1);
 							}
 
 							s.handleDrag(boundedChange);
@@ -835,7 +851,7 @@ class Charter extends UIState {
 						gridActionType = BOX_SELECTION;
 
 					var id = Math.floor(mousePos.x / 40);
-					var mouseOnGrid = id >= 0 && id < 4 * gridBackdrops.strumlinesAmount && mousePos.y >= 0;
+					var mouseOnGrid = id >= 0 && id < strumLines.totalKeyCount && mousePos.y >= 0;
 
 					if (FlxG.mouse.justReleased) {
 							for (n in selection) n.selected = false;
@@ -843,9 +859,10 @@ class Charter extends UIState {
 
 							if (mouseOnGrid && mousePos.y > 0 && mousePos.y < (__endStep)*40) {
 								var note = new CharterNote();
+								var targetStrumline = strumLines.getStrumlineFromID(id);
 								note.updatePos(
 									CoolUtil.bound(FlxG.keys.pressed.SHIFT ? ((mousePos.y-20) / 40) : quantStep(mousePos.y/40), 0, __endStep-1),
-									id % 4, 0, noteType, strumLines.members[Std.int(id/4)]
+									(id-targetStrumline.startingID) % targetStrumline.keyCount, 0, noteType, targetStrumline
 								);
 								notesGroup.add(note);
 								selection = [note];
@@ -1147,7 +1164,7 @@ class Charter extends UIState {
 			gridBackdrops.conductorSprY = lerp(gridBackdrops.conductorSprY, curStepFloat * 40, __firstFrame ? 1 : 1/3);
 		}
 		charterCamera.scroll.set(
-			((((40*4) * gridBackdrops.strumlinesAmount) - FlxG.width) / 2),
+			lerp(charterCamera.scroll.x, (((40*strumLines.totalKeyCount) - FlxG.width) / 2) + sideScroll, __firstFrame ? 1 : 1/3),
 			gridBackdrops.conductorSprY - (FlxG.height * 0.5)
 		);
 
@@ -1198,14 +1215,20 @@ class Charter extends UIState {
 			if(FlxG.keys.justPressed.ANY && !strumLines.isDragging && this.currentFocus == null)
 				UIUtil.processShortcuts(topMenu);
 
-			if (FlxG.keys.pressed.CONTROL) {
-				if (FlxG.mouse.wheel != 0) {
-					zoom += 0.25 * FlxG.mouse.wheel;
-					__camZoom = Math.pow(2, zoom);
-				}
-			} else {
-				if (!FlxG.sound.music.playing) {
-					Conductor.songPosition -= (__crochet * FlxG.mouse.wheel) - Conductor.songOffset;
+			if (!topMenuSpr.anyMenuOpened) {
+				if (FlxG.keys.pressed.CONTROL) {
+					if (FlxG.mouse.wheel != 0) {
+						zoom += 0.25 * FlxG.mouse.wheel;
+						__camZoom = Math.pow(2, zoom);
+					}
+				} else if (FlxG.keys.pressed.SHIFT) {
+					if (FlxG.mouse.wheel != 0) {
+						sideScroll -= 40 * FlxG.mouse.wheel;
+					}
+				} else {
+					if (!FlxG.sound.music.playing) {
+						Conductor.songPosition -= (__crochet * FlxG.mouse.wheel) - Conductor.songOffset;
+					}
 				}
 			}
 		}
@@ -1265,6 +1288,11 @@ class Charter extends UIState {
 	}
 	function set___camZoom(val:Float) {
 		return __camZoom = CoolUtil.bound(val, 0.1, 3);
+	}
+
+	var sideScroll(default, set):Float = 0;
+	function set_sideScroll(val:Float) {
+		return sideScroll = FlxMath.bound(val, -(40*strumLines.totalKeyCount) / 2, (40*strumLines.totalKeyCount) / 2);
 	}
 
 	// TOP MENU OPTIONS
@@ -1600,6 +1628,16 @@ class Charter extends UIState {
 	function _view_switchWaveformDetail(t) {
 		t.icon = (Options.charterLowDetailWaveforms = !Options.charterLowDetailWaveforms) ? 1 : 0;
 		for (shader in waveformHandler.waveShaders) shader.data.lowDetail.value = [Options.charterLowDetailWaveforms];
+	}
+
+	function _view_scrollleft(_) {
+		sideScroll -= 40;
+	}
+	function _view_scrollright(_) {
+		sideScroll += 40;
+	}
+	function _view_scrollreset(_) {
+		sideScroll = 0;
 	}
 	
 	inline function _snap_increasesnap(_) changequant(1);

@@ -1,5 +1,6 @@
 package funkin.editors.charter;
 
+import flixel.math.FlxAngle;
 import flixel.math.FlxPoint;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
@@ -67,7 +68,7 @@ class CharterNote extends UISprite implements ICharterSelectable {
 
 	public var fullID(get, never):Int; // instead of %4 get fullID (for mousepos stuff)
 	public function get_fullID():Int
-		return (strumLineID * 4) + id;
+		return strumLine.startingID + id;
 
 	public function updatePos(step:Float, id:Int, susLength:Float = 0, ?type:Int = 0, ?strumLine:CharterStrumline = null) {
 		this.step = step;
@@ -84,8 +85,8 @@ class CharterNote extends UISprite implements ICharterSelectable {
 
 		if (angleTween != null) angleTween.cancel();
 
-		var destAngle = switch(animation.curAnim.curFrame = (id % 4)) {
-			case 0: -90;
+		var destAngle:Float = switch(animation.curAnim.curFrame = (id % 4)) {
+			case 0: 270;
 			case 1: 180;
 			case 2: 0;
 			case 3: 90;
@@ -104,7 +105,9 @@ class CharterNote extends UISprite implements ICharterSelectable {
 		if(angleTween != null)
 			angleTween.cancel();
 
-		angleTween = FlxTween.tween(this, {angle: destAngle}, (2/3)/__animSpeed, {ease: function(t) {
+		destAngle = CoolUtil.getClosestAngle(angle, destAngle);
+		
+		angleTween = FlxTween.angle(this, angle, destAngle, (2/3)/__animSpeed, {ease: function(t) {
 			return ((Math.sin(t * Math.PI) * 0.35) * 3 * t * Math.sqrt(1 - t)) + t;
 		}});
 	}
@@ -114,7 +117,7 @@ class CharterNote extends UISprite implements ICharterSelectable {
 			angleTween.cancel();
 			angleTween = null;
 			angle = switch(animation.curAnim.curFrame = (id % 4)) {
-				case 0: -90;
+				case 0: 270;
 				case 1: 180;
 				case 2: 0;
 				case 3: 90;
@@ -171,14 +174,15 @@ class CharterNote extends UISprite implements ICharterSelectable {
 
 	public function handleDrag(change:FlxPoint) {
 		var newStep = CoolUtil.bound(step + change.x, 0, Charter.instance.__endStep-1);
-		var newID:Int = CoolUtil.boundInt(fullID + Std.int(change.y), 0, (Charter.instance.strumLines.members.length*4)-1);
+		var newID:Int = Std.int(FlxMath.bound(fullID + Std.int(change.y), 0, Charter.instance.strumLines.totalKeyCount-1));
+		var newStrumLine = Charter.instance.strumLines.getStrumlineFromID(newID);
 
-		updatePos(newStep, newID % 4, susLength, type, Charter.instance.strumLines.members[Std.int(newID/4)]);
+		updatePos(newStep, (newID - newStrumLine.startingID) % newStrumLine.keyCount, susLength, type, newStrumLine);
 	}
 
 	public override function draw() {
 		if (snappedToStrumline)
-			x = (strumLine != null ? strumLine.x : 0) + (id % 4) * 40;
+			x = (strumLine != null ? strumLine.x : 0) + (id % (strumLine != null ? strumLine.keyCount : 4)) * 40;
 
 		drawMembers();
 		drawSuper();

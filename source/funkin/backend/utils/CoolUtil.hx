@@ -839,6 +839,13 @@ class CoolUtil
 		return file.file;
 	}
 
+	@:noUsing public static function getClosestAngle(angle:Float, targetAngle:Float):Float {
+		var diff:Float = angle - targetAngle;
+		if (diff < -180) diff += 360;
+		else if (diff > 180) diff -= 360;
+		return angle - diff;
+	}
+
 	public static function sortAlphabetically(array:Array<String>, ?lowercase:Bool=false) {
 		array.sort(function(a1, a2):Int {
 			if(lowercase) {

@@ -18,7 +18,7 @@ class ModsFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 	public var folderPath:String;
 	public var modName:String;
 	public var libName:String;
-	public var useImageCache:Bool = true;
+	//public var useImageCache:Bool = true;
 	public var prefix = 'assets/';
 
 	public function new(folderPath:String, libName:String, ?modName:String) {

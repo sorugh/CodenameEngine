@@ -7,12 +7,21 @@ import sys.io.Process;
 import sys.FileSystem;
 
 class Update {
-	public static function main(args:Array<String>) {
-		prettyPrint("Preparing installation...");
+	private static function recursiveDelete(path:String) {
+		for(file in FileSystem.readDirectory(path)) {
+			var p = '$path/$file';
+			if(FileSystem.isDirectory(p))
+				recursiveDelete(p);
+			else
+				FileSystem.deleteFile(p);
+		}
+		FileSystem.deleteDirectory(path);
+	}
 
-		var args = ArgParser.parse(args, ["S" => "silent-progress", "silent" => "silent-progress"]);
+	public static function main(args:Array<String>) {
+		var args = ArgParser.parse(args, ["s" => "silent-progress", "S" => "silent-progress", "silent" => "silent-progress"]);
 		var CHECK_VSTUDIO = !args.existsOption("no-vscheck");
-		var REINSTALL_ALL = args.existsOption("all");
+		var REINSTALL_ALL = args.existsOption("reinstall");
 		var SILENT = args.existsOption("silent-progress");
 
 		// to prevent messing with currently installed libs
@@ -20,48 +29,178 @@ class Update {
 			FileSystem.createDirectory('.haxelib');
 
 		if (REINSTALL_ALL) {
-			FileSystem.deleteDirectory('.haxelib');
+			recursiveDelete('.haxelib');
 			FileSystem.createDirectory('.haxelib');
 		}
 
-		var libs:Array<Library> = [];
-		var libsXML:Access = new Access(Xml.parse(File.getContent('./libs.xml')).firstElement());
+		var libFile = "./libs.xml";
+		if(args.existsOption("lib")) {
+			libFile = args.getOption("lib");
+			if(libFile == null) {
+				Sys.println('Please specify a file with the --lib option as --lib=path/to/libs.xml');
+				return;
+			}
+		}
+		if(!FileSystem.exists(libFile)) {
+			Sys.println('File $libFile does not exist.');
+			return;
+		}
+
+		var events:Array<Event> = [];
+		var libsXML:Access = new Access(Xml.parse(File.getContent(libFile)).firstElement());
+
+		function handleLib(libNode:Access) {
+			switch(libNode.name) {
+				case "lib" | "git":
+					var lib:Library = {
+						name: libNode.att.name,
+						type: libNode.name
+					};
+					if (libNode.has.global) lib.global = libNode.att.global;
+					if (libNode.has.skipDeps) lib.skipDeps = libNode.att.skipDeps;
+					switch (lib.type) {
+						case "lib":
+							if (libNode.has.version) lib.version = libNode.att.version;
+						case "git":
+							if (libNode.has.url) lib.url = libNode.att.url;
+							if (libNode.has.ref) lib.ref = libNode.att.ref;
+					}
+					events.push({
+						type: INSTALL,
+						data: lib
+					});
+				case "cmd":
+					events.push({
+						type: CMD,
+						data: {
+							inLib: libNode.has.inLib ? libNode.att.inLib : null,
+							dir: libNode.has.dir ? libNode.att.dir : null,
+							lines: {
+								if(Lambda.count(libNode.nodes.line) > 0)
+								[
+									for(line in libNode.nodes.line)
+										line.innerData
+								];
+								else
+								[
+									libNode.has.cmd ? libNode.att.cmd : "echo 'No command specified'"
+								];
+							}
+						}
+					});
+				case "print":
+					events.push({
+						type: PRINT,
+						data: {
+							text: libNode.innerData,
+							pretty: libNode.has.pretty && libNode.att.pretty == "true"
+						}
+					});
+				default:
+					Sys.println('Unknown library type ${libNode.name}');
+			}
+		}
+
+		var platform = switch(Sys.systemName()) {
+			case "Windows": "windows";
+			case "Mac": "mac";
+			case "Linux": "linux";
+			case def: def.toLowerCase();
+		}
+
+		var defines = args.args.copy();
+		defines.push(platform);
+		if(args.args.length == 0) defines.push("all");
+
+		function parse(libNode:Access) {
+			if(libNode.name == "if" || libNode.name == "unless") {
+				var cond = libNode.att.cond;
+				if(Utils.evaluateArgsCondition(cond, defines) != (libNode.name == "if")) {
+					return;
+				}
+
+				for(child in libNode.elements) {
+					parse(child);
+				}
+			} else {
+				handleLib(libNode);
+			}
+		}
 
 		for (libNode in libsXML.elements) {
-			var lib:Library = {
-				name: libNode.att.name,
-				type: libNode.name
-			};
-			if (libNode.has.global) lib.global = libNode.att.global;
-			switch (lib.type) {
-				case "lib":
-					if (libNode.has.version) lib.version = libNode.att.version;
-				case "git":
-					if (libNode.has.url) lib.url = libNode.att.url;
-					if (libNode.has.ref) lib.ref = libNode.att.ref;
-			}
-			libs.push(lib);
+			parse(libNode);
 		}
 
 		var commandSuffix = " --always";
-		if (SILENT) commandSuffix += " --silent";
+		if (SILENT) commandSuffix += " --quiet";
 
-		for(lib in libs) {
-			var globalism:Null<String> = lib.global == "true" ? "--global" : null;
-			var globalSuffix = globalism != null ? ' $globalism' : '';
-			switch(lib.type) {
-				case "lib":
-					prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}"...');
-					Sys.command('haxelib install ${lib.name} ${lib.version != null ? " " + lib.version : " "}$globalSuffix$commandSuffix');
-				case "git":
-					prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}" from git url "${lib.url}"');
-					Sys.command('haxelib git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}$globalSuffix$commandSuffix');
-				default:
-					prettyPrint('Cannot resolve library of type "${lib.type}"');
+		for(event in events) {
+			switch(event.type) {
+				case INSTALL:
+					var lib:Library = event.data;
+					var globalSuffix:Null<String> = lib.global == "true" ? " --global" : "";
+					var skipDeps = lib.skipDeps == "true" ? " --skip-dependencies" : "";
+					var commandPrefix = commandSuffix + globalSuffix + skipDeps;// + " --no-timeout";
+					switch(lib.type) {
+						case "lib":
+							prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}"...');
+							Sys.command('haxelib$commandPrefix install ${lib.name} ${lib.version != null ? " " + lib.version : " "}');
+						case "git":
+							prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}" from git url "${lib.url}"');
+							Sys.command('haxelib$commandPrefix git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}');
+						default:
+							prettyPrint('Cannot resolve library of type "${lib.type}"');
+					}
+				case CMD:
+					var cmd:CmdData = event.data;
+					var lib = cmd.inLib;
+					var dir = "";
+					if(cmd.dir != null) {
+						dir = "/" + cmd.dir;
+					}
+					var oldCwd = Sys.getCwd();
+					if(lib != null) {
+						var libPrefix = '.haxelib/$lib';
+						if(FileSystem.exists(libPrefix)) {
+							if(FileSystem.exists(libPrefix + '/.dev')) { // haxelib dev
+								var devPath = File.getContent(libPrefix + '/.dev');
+								if(!FileSystem.exists(devPath)) {
+									Sys.println('Cannot find dev path $devPath for $lib');
+									Sys.setCwd(oldCwd);
+									continue;
+								}
+								Sys.setCwd(devPath + dir);
+							} else if(FileSystem.exists(libPrefix + '/.current')) {
+								var version = StringTools.replace(File.getContent(libPrefix + '/.current'), ".", ",");
+								if(!FileSystem.exists(libPrefix + '/$version')) {
+									Sys.println('Cannot find version $version of $lib');
+									Sys.setCwd(oldCwd);
+									continue;
+								}
+								Sys.setCwd(libPrefix + '/$version' + dir);
+							} else {
+								Sys.println('Cannot find .dev or .current file in $libPrefix');
+								Sys.setCwd(oldCwd);
+								continue;
+							}
+						}
+					}
+					for(line in cmd.lines) {
+						var line = StringTools.replace(line, "$PLATFORM", platform);
+						//Sys.println(line);
+						Sys.command(line);
+					}
+					Sys.setCwd(oldCwd);
+				case PRINT:
+					var data:PrintData = event.data;
+					if(data.pretty)
+						prettyPrint(data.text);
+					else
+						Sys.println(data.text);
 			}
 		}
 
-		var proc = new Process('haxe --version');
+		/*var proc = new Process('haxe --version');
 		proc.exitCode(true);
 		var haxeVer = proc.stdout.readLine();
 		if (haxeVer != "4.2.5") {
@@ -84,7 +223,7 @@ class Update {
 					break;
 				}
 			}
-		}
+		}*/
 
 		// vswhere.exe its used to find any visual studio related installations on the system, including full visual studio ide installations, visual studio build tools installations, and other related components  - Nex
 		if (CHECK_VSTUDIO && Compiler.getBuildTarget().toLowerCase() == "windows" && new Process('"C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -property catalog_productDisplayVersion').exitCode(true) == 1) {
@@ -138,7 +277,31 @@ typedef Library = {
 	var name:String;
 	var type:String;
 	var ?global:String;
+	var ?skipDeps:String;
+	var ?recursive:String;
 	var ?version:String;
 	var ?ref:String;
 	var ?url:String;
+}
+
+typedef Event = {
+	var type:EventType;
+	var data:Dynamic;
+}
+
+typedef CmdData = {
+	var inLib:String;
+	var dir:String;
+	var lines:Array<String>;
+}
+
+typedef PrintData = {
+	var text:String;
+	var ?pretty:Bool;
+}
+
+enum abstract EventType(Int) {
+	var INSTALL = 0;
+	var CMD = 1;
+	var PRINT = 2;
 }

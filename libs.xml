@@ -1,22 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <libraries>
-	<!-- OpenFL & Lime (Required for Flixel) -->
-	<lib name="openfl" version="9.2.2" />
-	<lib name="lime"  version="8.1.2" />
+	<if cond="update || all">
+		<print pretty="true">Preparing installation...</print>
 
-	<!-- Flixel -->
-	<git name="flixel" url="https://github.com/FNF-CNE-Devs/flixel" />
-	<git name="flixel-addons" url="https://github.com/FNF-CNE-Devs/flixel-addons" />
+		<!-- OpenFL & Lime (Required for Flixel) -->
+		<git name="openfl" url="https://github.com/FNF-CNE-Devs/openfl" />
+		<git name="lime" url="https://github.com/FNF-CNE-Devs/lime" />
 
-	<!-- Other Libraries -->
-	<git name="hscript-improved" url="https://github.com/FNF-CNE-Devs/hscript-improved" ref="custom-classes" />
-	<git name="flxanimate" url="https://github.com/FNF-CNE-Devs/flxanimate" />
-	<git name="hxdiscord_rpc" url="https://github.com/FNF-CNE-Devs/hxdiscord_rpc" />
-	<lib name="hxvlc" />
+		<!-- Flixel -->
+		<git name="flixel" url="https://github.com/FNF-CNE-Devs/flixel" />
+		<git name="flixel-addons" url="https://github.com/FNF-CNE-Devs/flixel-addons" />
 
-	<!-- Documentation and other features -->
-	<git name="away3d" url="https://github.com/FNF-CNE-Devs/away3d" />
-	<!-- <lib name="dox" /> -->
-	<lib name="format" />
-	<lib name="markdown" />
+		<!-- Other Libraries -->
+		<git name="hscript-improved" url="https://github.com/FNF-CNE-Devs/hscript-improved" ref="custom-classes" />
+		<git name="flxanimate" url="https://github.com/FNF-CNE-Devs/flxanimate" />
+		<git name="hxdiscord_rpc" url="https://github.com/FNF-CNE-Devs/hxdiscord_rpc" skipDeps="true" />
+		<lib name="hxvlc" skipDeps="true" />
+
+		<!-- Documentation and other features -->
+		<git name="away3d" url="https://github.com/FNF-CNE-Devs/away3d" />
+		<!-- <lib name="dox" /> -->
+		<lib name="markdown" />
+
+		<!-- For building lime -->
+		<lib global="true" name="hxp" /> <lib name="hxp" />
+		<lib global="true" name="format" /> <lib name="format" />
+
+		<!-- Extras -->
+		<!-- TODO: Remove this when hxcpp is updated -->
+		<!-- Adds a progress counter to compilation -->
+		<git name="hxcpp" url="https://github.com/NeeEoo/hxcpp" ref="codename" />
+	</if>
+
+	<!-- Hxcpp Building -->
+	<if cond="build-hxcpp || all">
+		<print pretty="true">Rebuilding Hxcpp...</print>
+
+		<!-- Build hxcpp -->
+		<cmd inLib="hxcpp" dir="tools/hxcpp" cmd="haxe compile.hxml" />
+	</if>
+
+	<!-- Lime Building -->
+	<if cond="build-lime || all">
+		<print pretty="true">Rebuilding Lime...</print>
+
+		<!-- Build lime -->
+		<cmd inLib="lime" cmd="haxelib run lime rebuild . $PLATFORM -clean" />
+		<cmd inLib="lime" dir="tools" cmd="haxe tools.hxml" />
+	</if>
 </libraries>

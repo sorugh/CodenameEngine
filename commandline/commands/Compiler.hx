@@ -15,21 +15,19 @@ class Compiler {
 	}
 
 	private static function __build(args:Array<String>, arg:Array<String>) {
+		arg.insert(0, "lime");
+		arg.insert(0, "run");
 		for(a in args)
 			arg.push(a);
-		Sys.command("lime", arg);
+		Sys.command("haxelib", arg);
 	}
 
 	public static function getBuildTarget() {
 		return switch(Sys.systemName()) {
-			case "Windows":
-				"windows";
-			case "Mac":
-				"macos";
-			case "Linux":
-				"linux";
-			case def:
-				def.toLowerCase();
+			case "Windows": "windows";
+			case "Mac": "macos";
+			case "Linux": "linux";
+			case def: def.toLowerCase();
 		}
 	}
 }

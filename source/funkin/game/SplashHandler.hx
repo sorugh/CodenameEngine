@@ -43,7 +43,7 @@ class SplashHandler extends FlxTypedGroup<FunkinSprite> {
 		var event = funkin.backend.scripting.EventManager.get(funkin.backend.scripting.events.DynamicEvent).recycle(__grp.showOnStrum(strum), strum);
 		event = PlayState.instance.scripts.event("onSplashShown", event);
 		if (!event.cancelled)
-			add(__grp.showOnStrum(strum));
+			add(event.value1);
 
 		// max 8 rendered splashes
 		while(members.length > 8)

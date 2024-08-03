@@ -203,6 +203,9 @@ class CharterStrumlineOptions extends UITopMenuButton {
 
 		contextMenu.insert(1+Charter.waveformHandler.waveformList.length, null);
 
-		super.openContextMenu();
+		var cam = Charter.instance.charterCamera;
+		var point = CoolUtil.worldToScreenPosition(this, cam);
+		curMenu = UIState.state.openContextMenu(contextMenu, null, point.x, point.y + (bHeight*cam.zoom), Std.int(bWidth * cam.zoom));
+		point.put();
 	}
 }

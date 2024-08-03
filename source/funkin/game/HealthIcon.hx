@@ -50,12 +50,12 @@ class HealthIcon extends FlxSprite
 
 	public function new(char:String = 'bf', isPlayer:Bool = false)
 	{
-		super();
 		health = 0.5;
 		this.isPlayer = isPlayer;
 		setIcon(char);
 
 		scrollFactor.set();
+		super();
 	}
 
 	public function setIcon(char:String, width:Int = 150, height:Int = 150) {

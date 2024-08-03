@@ -25,6 +25,11 @@ class HealthIcon extends FlxSprite
 	public var healthSteps:Map<Int, Int> = null;
 
 	/**
+	 * current animation state
+	 */
+	 public var curAnimState:Int = -1;
+
+	/**
 	 * Helper for HScript who can't make maps
 	 * @param steps Something like this: `[[0, 1], [20, 0]]`
 	 */
@@ -91,7 +96,14 @@ class HealthIcon extends FlxSprite
 					i = icon;
 				}
 			}
-			if (i >= 0) animation.curAnim.curFrame = i;
+			if (i >= 0 && curAnimState != i) {
+				var event = EventManager.get(funkin.backend.scripting.events.AmountEvent).recycle(i);
+				funkin.backend.scripting.GlobalScript.event("onHealthIconAnimChange", event);
+				if (!event.cancelled)
+					animation.curAnim.curFrame = event.amount;
+
+				curAnimState = event.amount;
+			}
 		}
 	}
 }

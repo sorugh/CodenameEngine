@@ -1,6 +1,6 @@
-package source.funkin.backend.scripting.events;
+package funkin.backend.scripting.events;
 
-final class AmountEvent extends CancellableEvent {
+final class HealthIconChangeEvent extends CancellableEvent {
 	/**
 	 * Amount
 	 */
@@ -9,5 +9,5 @@ final class AmountEvent extends CancellableEvent {
 	/**
 	 * The health icon
 	 */
-	public var healthIcon:HealthIcon;
+	public var healthIcon:funkin.game.HealthIcon;
 }

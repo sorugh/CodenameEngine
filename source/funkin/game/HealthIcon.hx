@@ -97,7 +97,7 @@ class HealthIcon extends FlxSprite
 				}
 			}
 			if (i >= 0 && curAnimState != i) {
-				var event = EventManager.get(funkin.backend.scripting.events.AmountEvent).recycle(i);
+				var event = EventManager.get(funkin.backend.scripting.events.HealthIconChangeEvent).recycle(i, this);
 				funkin.backend.scripting.GlobalScript.event("onHealthIconAnimChange", event);
 				if (!event.cancelled)
 					animation.curAnim.curFrame = event.amount;

@@ -70,6 +70,8 @@ class EventsData {
 		hscriptInterp.variables.set("StrumLine", TStrumLine);
 		hscriptInterp.variables.set("ColorWheel", TColorWheel);
 		hscriptInterp.variables.set("DropDown", Reflect.makeVarArgs((args) -> {return args.length > 0 ? TDropDown([for (arg in args) Std.string(arg)]) : TDropDown(["null"]);}));
+		hscriptInterp.variables.set("Character", TCharacter);
+		hscriptInterp.variables.set("Stage", TStage);
 
 		var hscriptParser:Parser = new Parser();
 		hscriptParser.allowJSON = hscriptParser.allowMetadata = false;
@@ -127,4 +129,6 @@ enum EventParamType {
 	TStrumLine;
 	TColorWheel;
 	TDropDown(?options:Array<String>);
+	TCharacter;
+	TStage;
 }

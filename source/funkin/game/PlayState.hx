@@ -1423,6 +1423,8 @@ class PlayState extends MusicBeatState
 			FlxG.sound.music.stop();
 		for (strumLine in strumLines.members) strumLine.vocals.stop();
 
+		deathCounter++;
+
 		openSubState(new GameOverSubstate(event.x, event.y, event.deathCharID, event.isPlayer, event.gameOverSong, event.lossSFX, event.retrySFX));
 
 		scripts.event("onPostGameOver", event);

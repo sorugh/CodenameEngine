@@ -107,14 +107,28 @@ class DiscordUtil
 
 	public static function loadScript()
 	{
+		#if DISCORD_RPC
 		if (script != null)
 		{
 			call("destroy");
 			script = FlxDestroyUtil.destroy(script);
 		}
 		script = Script.create(Paths.script('data/discord'));
+		script.set("ActivityType", {
+			Playing: ActivityType.Playing,
+			PLAYING: ActivityType.Playing,
+			Streaming: ActivityType.Streaming,
+			STREAMING: ActivityType.Streaming,
+			Watching: ActivityType.Watching,
+			WATCHING: ActivityType.Watching,
+			Listening: ActivityType.Listening,
+			LISTENING: ActivityType.Listening,
+			Competing: ActivityType.Competing,
+			COMPETING: ActivityType.Competing
+		});
 		// script.setParent(DiscordUtil);
 		script.load();
+		#end
 	}
 
 	public static function changePresence(details:String, state:String, ?smallImageKey:String)
@@ -218,6 +232,8 @@ class DiscordUtil
 		Utils.safeSetWrapper(dp.joinSecret, data.joinSecret, fixString);
 		Utils.safeSetWrapper(dp.spectateSecret, data.spectateSecret, fixString);
 		Utils.safeSet(dp.instance, data.instance);
+		Utils.safeSet(dp.activityType, data.activityType);
+		Utils.safeSetWrapper(dp.streamUrl, data.streamUrl, fixString);
 		if (data.matchSecret == null && data.joinSecret == null && data.spectateSecret == null)
 		{
 			Utils.safeSetWrapper(dp.button1Label, data.button1Label, fixString);
@@ -476,6 +492,8 @@ typedef DPresence =
 	var ?button1Url:String; /* max 512 bytes */
 	var ?button2Label:String; /* max 32 bytes */
 	var ?button2Url:String; /* max 512 bytes */
+	var ?activityType:ActivityType;
+	var ?streamUrl:String; /* max 512 bytes */
 }
 
 typedef DEvents =

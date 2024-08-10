@@ -1,5 +1,6 @@
 package funkin.backend.utils;
 
+import flixel.util.FlxSignal.FlxTypedSignal;
 import flixel.sound.FlxSound;
 import flixel.util.typeLimit.OneOfTwo;
 import funkin.backend.scripting.*; // lazy
@@ -268,6 +269,7 @@ final class DiscordUtil
 		handlers.joinGame = cpp.Function.fromStaticFunction(onJoin);
 		handlers.joinRequest = cpp.Function.fromStaticFunction(onJoinReq);
 		handlers.spectateGame = cpp.Function.fromStaticFunction(onSpectate);
+		handlers.anyResponse = cpp.Function.fromStaticFunction(onAnyResponse);
 		Discord.Initialize(id, cpp.RawPointer.addressOf(handlers), 1, null);
 		stopThread = false;
 
@@ -367,7 +369,38 @@ final class DiscordUtil
 		var req:DUser = DUser.initRaw(request);
 		call("onJoinRequest", [req]);
 	}
+
+	public static var anyResponse:FlxTypedSignal<String->Void> = new FlxTypedSignal<String->Void>();
+
+	private static function onAnyResponse(data:cpp.ConstCharStar):Void
+	{
+		call("onAnyResponse", [data]);
+		anyResponse.dispatch(data);
+	}
 	#end
+
+	private static function getUUID():String {
+		var uuid = new StringBuf();
+		for (i in 0...16) {
+			uuid.add(StringTools.hex(Math.floor(Math.random() * 16), 1));
+		}
+		return uuid.toString();
+	}
+
+	public static function sendCustomCommand(data:Dynamic) {
+		#if DISCORD_RPC
+		if(data == null) return;
+		if(data.nonce == null) data.nonce = getUUID();
+		var json = Json.stringify(data);
+		Discord.SendCustomCommand(json);
+		#end
+	}
+
+	public static function setDebugMode(mode:Bool) {
+		#if DISCORD_RPC
+		Discord.SetDebugMode(mode);
+		#end
+	}
 }
 
 typedef DiscordJson =

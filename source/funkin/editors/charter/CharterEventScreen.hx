@@ -5,6 +5,8 @@ import flixel.util.FlxColor;
 import funkin.backend.chart.ChartData.ChartEvent;
 import funkin.backend.chart.EventsData;
 import funkin.backend.system.Conductor;
+import funkin.game.Character;
+import funkin.game.Stage;
 
 using StringTools;
 
@@ -163,6 +165,20 @@ class CharterEventScreen extends UISubstateWindow {
 						var dropdown = new UIDropDown(eventName.x, y, 320, 32, options, Std.int(Math.abs(options.indexOf(cast value))));
 						paramsPanel.add(dropdown); paramsFields.push(dropdown);
 						dropdown;
+					case TCharacter:
+						addLabel();
+						var charFileList = Character.getList(false);
+						var textBox:UIAutoCompleteTextBox = new UIAutoCompleteTextBox(eventName.x, y, cast value);
+						textBox.suggestItems = charFileList;
+						paramsPanel.add(textBox); paramsFields.push(textBox);
+						textBox;
+					case TStage:
+						addLabel();
+						var stageFileList = Stage.getList(false);
+						var textBox:UIAutoCompleteTextBox = new UIAutoCompleteTextBox(eventName.x, y, cast value);
+						textBox.suggestItems = stageFileList;
+						paramsPanel.add(textBox); paramsFields.push(textBox);
+						textBox;
 					default:
 						paramsFields.push(null);
 						null;

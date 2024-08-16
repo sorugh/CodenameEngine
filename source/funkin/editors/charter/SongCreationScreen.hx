@@ -46,8 +46,14 @@ class SongCreationScreen extends UISubstateWindow {
 		if (onSave != null) this.onSave = onSave;
 	}
 
+	inline function translate(id:String):String
+		return TU.translate("songCreationScreen." + id);
+
+	inline function translateMeta(id:String):String
+		return TU.translate("charterMetaDataScreen." + id);
+
 	public override function create() {
-		winTitle = "Creating New Song";
+		winTitle = translate("win-title");
 
 		winWidth = 748 - 32 + 40;
 		winHeight = 520;
@@ -61,19 +67,19 @@ class SongCreationScreen extends UISubstateWindow {
 		}
 
 		var songTitle:UIText;
-		songDataGroup.add(songTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Song Info", 28));
+		songDataGroup.add(songTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, translate("title"), 28));
 
-		songNameTextBox = new UITextBox(songTitle.x, songTitle.y + songTitle.height + 36, "Song Name");
+		songNameTextBox = new UITextBox(songTitle.x, songTitle.y + songTitle.height + 36, translateMeta("songName"));
 		songDataGroup.add(songNameTextBox);
-		addLabelOn(songNameTextBox, "Song Name");
+		addLabelOn(songNameTextBox, translateMeta("songName"));
 
 		bpmStepper = new UINumericStepper(songNameTextBox.x + 320 + 26, songNameTextBox.y, 100, 1, 2, 1, null, 90);
 		songDataGroup.add(bpmStepper);
-		addLabelOn(bpmStepper, "BPM");
+		addLabelOn(bpmStepper, translateMeta("bpm"));
 
 		beatsPerMeasureStepper = new UINumericStepper(bpmStepper.x + 60 + 26, bpmStepper.y, 4, 1, 0, 1, null, 54);
 		songDataGroup.add(beatsPerMeasureStepper);
-		addLabelOn(beatsPerMeasureStepper, "Time Signature");
+		addLabelOn(beatsPerMeasureStepper, translateMeta("timeSignature"));
 
 		songDataGroup.add(new UIText(beatsPerMeasureStepper.x + 30, beatsPerMeasureStepper.y + 3, 0, "/", 22));
 
@@ -88,8 +94,8 @@ class SongCreationScreen extends UISubstateWindow {
 			instExplorer.uiElement = audioPlayer;
 		});
 		songDataGroup.add(instExplorer);
-		addLabelOn(instExplorer, "Inst Audio File").applyMarkup(
-			"Inst Audio File $* Required$",
+		addLabelOn(instExplorer, "").applyMarkup(
+			translate("instAudio"),
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
 		voicesExplorer = new UIFileExplorer(instExplorer.x + 320 + 26, instExplorer.y, null, null, Paths.SOUND_EXT, function (res) {
@@ -99,44 +105,44 @@ class SongCreationScreen extends UISubstateWindow {
 		});
 		songDataGroup.add(voicesExplorer);
 
-		voicesUIText = addLabelOn(voicesExplorer, "Vocal Audio File");
+		voicesUIText = addLabelOn(voicesExplorer, "");
 		voicesUIText.applyMarkup(
-			"Vocal Audio File $* Required$",
+			translate("voicesAudio"),
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
 		var menuTitle:UIText;
-		menuDataGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Menus Data (Freeplay/Story)", 28));
+		menuDataGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, translateMeta("menusData"), 28));
 
-		displayNameTextBox = new UITextBox(menuTitle.x, menuTitle.y + menuTitle.height + 36, "Display Name");
+		displayNameTextBox = new UITextBox(menuTitle.x, menuTitle.y + menuTitle.height + 36, translateMeta("displayName"));
 		menuDataGroup.add(displayNameTextBox);
-		addLabelOn(displayNameTextBox, "Display Name");
+		addLabelOn(displayNameTextBox, translateMeta("displayName"));
 
-		iconTextBox = new UITextBox(displayNameTextBox.x + 320 + 26, displayNameTextBox.y, "Icon", 150);
+		iconTextBox = new UITextBox(displayNameTextBox.x + 320 + 26, displayNameTextBox.y, "face", 150);
 		iconTextBox.onChange = (newIcon:String) -> {updateIcon(newIcon);}
 		menuDataGroup.add(iconTextBox);
-		addLabelOn(iconTextBox, "Icon");
+		addLabelOn(iconTextBox, translateMeta("icon"));
 
-		updateIcon("Icon");
+		updateIcon("face");
 
-		opponentModeCheckbox = new UICheckbox(displayNameTextBox.x, iconTextBox.y + 10 + 32 + 26, "Opponent Mode", true);
+		opponentModeCheckbox = new UICheckbox(displayNameTextBox.x, iconTextBox.y + 10 + 32 + 26, translateMeta("opponentMode"), true);
 		menuDataGroup.add(opponentModeCheckbox);
-		addLabelOn(opponentModeCheckbox, "Modes Allowed");
+		addLabelOn(opponentModeCheckbox, translateMeta("modesAllowed"));
 
-		coopAllowedCheckbox = new UICheckbox(opponentModeCheckbox.x + 150 + 26, opponentModeCheckbox.y, "Co-op Mode", true);
+		coopAllowedCheckbox = new UICheckbox(opponentModeCheckbox.x + 150 + 26, opponentModeCheckbox.y, translateMeta("coopAllowed"), true);
 		menuDataGroup.add(coopAllowedCheckbox);
 
 		colorWheel = new UIColorwheel(iconTextBox.x, coopAllowedCheckbox.y, 0xFFFFFF);
 		menuDataGroup.add(colorWheel);
-		addLabelOn(colorWheel, "Color");
+		addLabelOn(colorWheel, translateMeta("color"));
 
 		difficulitesTextBox = new UITextBox(opponentModeCheckbox.x, opponentModeCheckbox.y + 6 + 32 + 26, "");
 		menuDataGroup.add(difficulitesTextBox);
-		addLabelOn(difficulitesTextBox, "Difficulties");
+		addLabelOn(difficulitesTextBox, translateMeta("difficulties"));
 
 		for (checkbox in [opponentModeCheckbox, coopAllowedCheckbox])
 			{checkbox.y += 6; checkbox.x += 4;}
 
-		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
+		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, TU.translate("editor.saveClose"), function() {
 			if (curPage == pages.length-1) {
 				saveSongInfo();
 				close();
@@ -149,7 +155,7 @@ class SongCreationScreen extends UISubstateWindow {
 		}, 125);
 		add(saveButton);
 
-		backButton = new UIButton(saveButton.x - 20 - saveButton.bWidth, saveButton.y, "< Back", function() {
+		backButton = new UIButton(saveButton.x - 20 - saveButton.bWidth, saveButton.y, "< " + translate("back"), function() {
 			curPage--;
 			refreshPages();
 
@@ -157,7 +163,7 @@ class SongCreationScreen extends UISubstateWindow {
 		}, 125);
 		add(backButton);
 
-		closeButton = new UIButton(backButton.x - 20 - saveButton.bWidth, saveButton.y, "Cancel", function() {
+		closeButton = new UIButton(backButton.x - 20 - saveButton.bWidth, saveButton.y, TU.translate("editor.close"), function() {
 			close();
 		}, 125);
 		add(closeButton);
@@ -197,10 +203,10 @@ class SongCreationScreen extends UISubstateWindow {
 		titleSpr.x = windowSpr.x + 25;
 		titleSpr.y = windowSpr.y + ((30 - titleSpr.height) / 2);
 
-		saveButton.field.text = curPage == pages.length-1 ? "Save & Close" : 'Next >';
-		titleSpr.text = 'Creating New Song (${curPage+1}/${pages.length})';
+		saveButton.field.text = curPage == pages.length-1 ? TU.translate("editor.saveClose") : translate("next") + " >";
+		titleSpr.text = translate("win-title") + ' (${curPage+1}/${pages.length})';
 
-		backButton.field.text = '< Back';
+		backButton.field.text = '< ' + translate("back");
 		backButton.visible = backButton.exists = curPage > 0;
 
 		backButton.x = (saveButton.x = windowSpr.x + windowSpr.bWidth - 20 - 125) - 20 - saveButton.bWidth;

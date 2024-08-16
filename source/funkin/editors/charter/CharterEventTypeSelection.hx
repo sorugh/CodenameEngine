@@ -19,7 +19,7 @@ class CharterEventTypeSelection extends UISubstateWindow {
 	}
 
 	public override function create() {
-		winTitle = "Choose an event type...";
+		winTitle = TU.translate("charterEventTypeSelection.title");
 		super.create();
 
 		var w:Int = winWidth - 20;
@@ -33,7 +33,11 @@ class CharterEventTypeSelection extends UISubstateWindow {
 		add(buttonsBG);
 
 		for(k=>eventName in EventsData.eventsList) {
-			var button = new UIButton(0, (32 * k), eventName, function() {
+			var visualName = eventName;
+			var tuId = "charter.events." + TU.raw2Id(eventName);
+			if(TU.exists(tuId))
+				visualName = TU.translate(tuId);
+			var button = new UIButton(0, (32 * k), visualName, function() {
 				close();
 				callback(eventName);
 			}, w);
@@ -56,7 +60,7 @@ class CharterEventTypeSelection extends UISubstateWindow {
 
 		windowSpr.bHeight = 61 + (32 * (17));
 
-		add(new UIButton(10, windowSpr.bHeight-42, "Cancel", function() {
+		add(new UIButton(10, windowSpr.bHeight-42, TU.translate("editor.cancel"), function() {
 			close();
 		}, w));
 

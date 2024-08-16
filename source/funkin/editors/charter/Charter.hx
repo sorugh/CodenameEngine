@@ -100,152 +100,152 @@ class Charter extends UIState {
 	public override function create() {
 		super.create();
 
-		WindowUtils.suffix = " (Chart Editor)";
+		WindowUtils.suffix = " (" + TU.translate("charter.name") + ")";
 		SaveWarning.selectionClass = CharterSelection;
 		SaveWarning.saveFunc = () -> {_file_save(null);};
 
 		topMenu = [
 			{
-				label: "File",
+				label: TU.translate("charter.topBar.file"),
 				childs: [
 					{
-						label: "New"
+						label: TU.translate("charter.file.new")
 					},
 					null,
 					{
-						label: "Save",
+						label: TU.translate("charter.file.save"),
 						keybind: [CONTROL, S],
 						onSelect: _file_save,
 					},
 					{
-						label: "Save As...",
+						label: TU.translate("charter.file.saveAs"),
 						keybind: [CONTROL, SHIFT, S],
 						onSelect: _file_saveas,
 					},
 					null,
 					{
-						label: "Save Without Events",
+						label: TU.translate("charter.file.saveWithoutEvents"),
 						keybind: [CONTROL, ALT, TAB, S],
 						onSelect: _file_save_no_events,
 					},
 					{
-						label: "Save Without Events As...",
+						label: TU.translate("charter.file.saveWithoutEventsAs"),
 						keybind: [CONTROL, SHIFT, ALT, TAB, S],
 						onSelect: _file_saveas_no_events,
 					},
 					{
-						label: "Save Events Separately",
+						label: TU.translate("charter.file.saveEventsSeparately"),
 						keybind: [CONTROL, TAB, S],
 						onSelect: _file_events_save,
 					},
 					{
-						label: "Save Events Separately As...",
+						label: TU.translate("charter.file.saveEventsSeparatelyAs"),
 						keybind: [CONTROL, SHIFT, TAB, S],
 						onSelect: _file_events_saveas,
 					},
 					null,
 					{
-						label: "Save Meta",
+						label: TU.translate("charter.file.saveMeta"),
 						keybind: [CONTROL, ALT, S],
 						onSelect: _file_meta_save,
 					},
 					{
-						label: "Save Meta As...",
+						label: TU.translate("charter.file.saveMetaAs"),
 						keybind: [CONTROL, ALT ,SHIFT, S],
 						onSelect: _file_meta_saveas,
 					},
 					null,
 					{
-						label: "Export For FNF Legacy...",
+						label: TU.translate("charter.file.exportFnfLegacy"),
 						onSelect: _file_saveas_fnflegacy,
 					},
 					{
-						label: "Export For Psych Engine...",
+						label: TU.translate("charter.file.exportPsych"),
 						onSelect: _file_saveas_psych,
 					},
 					null,
 					{
-						label: "Exit",
+						label: TU.translate("charter.file.exit"),
 						onSelect: _file_exit
 					}
 				]
 			},
 			{
-				label: "Edit",
+				label: TU.translate("charter.topBar.edit"),
 				childs: [
 					{
-						label: "Undo",
+						label: TU.translate("charter.edit.undo"),
 						keybind: [CONTROL, Z],
 						onSelect: _edit_undo
 					},
 					{
-						label: "Redo",
+						label: TU.translate("charter.edit.redo"),
 						keybinds: [[CONTROL, Y], [CONTROL, SHIFT, Z]],
 						onSelect: _edit_redo
 					},
 					null,
 					{
-						label: "Copy",
+						label: TU.translate("charter.edit.copy"),
 						keybind: [CONTROL, C],
 						onSelect: _edit_copy
 					},
 					{
-						label: "Paste",
+						label: TU.translate("charter.edit.paste"),
 						keybind: [CONTROL, V],
 						onSelect: _edit_paste
 					},
 					null,
 					{
-						label: "Cut",
+						label: TU.translate("charter.edit.cut"),
 						keybind: [CONTROL, X],
 						onSelect: _edit_cut
 					},
 					{
-						label: "Delete",
+						label: TU.translate("charter.edit.delete"),
 						keybind: [DELETE],
 						onSelect: _edit_delete
 					}
 				]
 			},
 			{
-				label: "Chart",
+				label: TU.translate("charter.topBar.chart"),
 				childs: [
 					{
-						label: "Playtest",
+						label: TU.translate("charter.chart.playtest"),
 						keybind: [ENTER],
 						onSelect: _chart_playtest
 					},
 					{
-						label: "Playtest here",
+						label: TU.translate("charter.chart.playtestHere"),
 						keybind: [SHIFT, ENTER],
 						onSelect: _chart_playtest_here
 					},
 					null,
 					{
-						label: "Playtest as opponent",
+						label: TU.translate("charter.chart.playtestOpponent"),
 						keybind: [CONTROL, ENTER],
 						onSelect: _chart_playtest_opponent
 					},
 					{
-						label: "Playtest as opponent here",
+						label: TU.translate("charter.chart.playtestOpponentHere"),
 						keybind: [CONTROL, SHIFT, ENTER],
 						onSelect: _chart_playtest_opponent_here
 					},
 					null,
 					{
-						label: 'Enable scripts during playtesting',
+						label: TU.translate("charter.chart.enableScripts"),
 						onSelect: _chart_enablescripts,
 						icon: Options.charterEnablePlaytestScripts ? 1 : 0
 					},
 					null,
 					{
-						label: "Edit chart data",
+						label: TU.translate("charter.chart.editChartData"),
 						color: 0xFF959829, icon: 4,
 						onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2;},
 						onSelect: chart_edit_data
 					},
 					{
-						label: "Edit metadata information",
+						label: TU.translate("charter.chart.editMetadata"),
 						color: 0xFF959829, icon: 4,
 						onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2;},
 						onSelect: chart_edit_metadata
@@ -253,114 +253,114 @@ class Charter extends UIState {
 				]
 			},
 			{
-				label: "View",
+				label: TU.translate("charter.topBar.view"),
 				childs: [
 					{
-						label: "Zoom in",
+						label: TU.translate("charter.view.zoomIn"),
 						keybind: [CONTROL, NUMPADPLUS],
 						onSelect: _view_zoomin
 					},
 					{
-						label: "Zoom out",
+						label: TU.translate("charter.view.zoomOut"),
 						keybind: [CONTROL, NUMPADMINUS],
 						onSelect: _view_zoomout
 					},
 					{
-						label: "Reset zoom",
+						label: TU.translate("charter.view.resetZoom"),
 						keybind: [CONTROL, NUMPADZERO],
 						onSelect: _view_zoomreset
 					},
 					null,
 					{
-						label: 'Show Sections Separator',
+						label: TU.translate("charter.view.showSectionsSeparator"),
 						onSelect: _view_showeventSecSeparator,
 						icon: Options.charterShowSections ? 1 : 0
 					},
 					{
-						label: 'Show Beats Separator',
+						label: TU.translate("charter.view.showBeatsSeparator"),
 						onSelect: _view_showeventBeatSeparator,
 						icon: Options.charterShowBeats ? 1 : 0
 					},
 					null,
 					{
-						label: 'Low Detail Waveforms',
+						label: TU.translate("charter.view.lowDetailWaveforms"),
 						onSelect: _view_switchWaveformDetail,
 						icon: Options.charterLowDetailWaveforms ? 1 : 0
 					}
 				]
 			},
 			{
-				label: "Song",
+				label: TU.translate("charter.topBar.song"),
 				childs: [
 					{
-						label: "Go back to the start",
+						label: TU.translate("charter.song.goStart"),
 						keybind: [HOME],
 						onSelect: _song_start
 					},
 					{
-						label: "Go to the end",
+						label: TU.translate("charter.song.goEnd"),
 						keybind: [END],
 						onSelect: _song_end
 					},
 					null,
 					{
-						label: "Mute instrumental",
+						label: TU.translate("charter.song.muteInst"),
 						onSelect: _song_muteinst
 					},
 					{
-						label: "Mute voices",
+						label: TU.translate("charter.song.muteVoices"),
 						onSelect: _song_mutevoices
 					}
 				]
 			},
 			{
-				label: "Note >",
+				label: TU.translate("charter.topBar.note") + " >",
 				childs: buildNoteTypesUI()
 			},
 			{
-				label: "Snap >",
+				label: TU.translate("charter.topBar.snap") + " >",
 				childs: buildSnapsUI()
 			},
 			{
-				label: "Playback >",
+				label: TU.translate("charter.topBar.playback") + " >",
 				childs: [
 					{
-						label: "Play/Pause",
+						label: TU.translate("charter.playback.play"),
 						keybind: [SPACE],
 						onSelect: _playback_play
 					},
 					null,
 					{
-						label: "↑ Speed 25%",
+						label: TU.translate("charter.playback.speedRaise", ["25"]),
 						onSelect: _playback_speed_raise
 					},
 					{
-						label: "Reset Speed",
+						label: TU.translate("charter.playback.speedReset"),
 						onSelect: _playback_speed_reset
 					},
 					{
-						label: "↓ Speed 25%",
+						label: TU.translate("charter.playback.speedLower", ["25"]),
 						onSelect: _playback_speed_lower
 					},
 					null,
 					{
-						label: "Go back a section",
+						label: TU.translate("charter.playback.sectionBack"),
 						keybind: [A],
 						onSelect: _playback_back
 					},
 					{
-						label: "Go forward a section",
+						label: TU.translate("charter.playback.sectionForward"),
 						keybind: [D],
 						onSelect: _playback_forward
 					},
 					null,
 					{
-						label: "Metronome",
+						label: TU.translate("charter.playback.metronome"),
 						onSelect: _playback_metronome,
 						icon: Options.charterMetronomeEnabled ? 1 : 0
 					},
 					{
-						label: "Visual metronome"
+						label: TU.translate("charter.playback.visualMetronome")
 					},
 				]
 			}
@@ -406,7 +406,7 @@ class Charter extends UIState {
 		topMenuSpr = new UITopMenu(topMenu);
 		topMenuSpr.cameras = uiGroup.cameras = [uiCamera];
 
-		noteTypeText = new UIText(0, 0, 0, "(0) Default Note");
+		noteTypeText = new UIText(0, 0, 0, "(0) " + TU.translate("charter.noteTypes.default"));
 		noteTypeText.cameras = [uiCamera];
 
 		scrollBar = new UIScrollBar(FlxG.width - 20, topMenuSpr.bHeight, 1000, 0, 100);
@@ -444,12 +444,12 @@ class Charter extends UIState {
 		autoSaveNotif = new CharterAutoSaveUI(20, strumlineInfoBG.y + strumlineInfoBG.height + 20);
 		uiGroup.add(autoSaveNotif);
 
-		strumlineAddButton = new CharterStrumlineButton("editors/new", "Create New");
+		strumlineAddButton = new CharterStrumlineButton("editors/new", TU.translate("charter.createNew"));
 		strumlineAddButton.onClick = createStrumWithUI;
 		strumlineAddButton.animationOnClick = false;
 		strumlineAddButton.textColorLerp = 0.5;
 
-		strumlineLockButton = new CharterStrumlineButton("editors/charter/lock-strumline", "Lock/Unlock");
+		strumlineLockButton = new CharterStrumlineButton("editors/charter/lock-strumline", TU.translate("charter.lock-unlock"));
 		strumlineLockButton.onClick = function () {
 			if (strumLines != null) {
 				strumLines.draggable = !strumLines.draggable;
@@ -697,9 +697,9 @@ class Charter extends UIState {
 		if (autoSaveTimer < Options.charterAutoSaveWarningTime && !autoSaveNotif.cancelled && !autoSaveNotif.showedAnimation) {
 			if (Options.charterAutoSavesSeperateFolder)
 				__autoSaveLocation = __diff.toLowerCase() + DateTools.format(Date.now(), "%m-%d_%H-%M");
+			var filename = !Options.charterAutoSavesSeperateFolder ? '${__diff.toLowerCase()}.json' : '${__autoSaveLocation}.json';
 			autoSaveNotif.startAutoSave(autoSaveTimer,
-				!Options.charterAutoSavesSeperateFolder ? 'Saved chart at ${__diff.toLowerCase()}.json!' :
-				'Saved chart at $__autoSaveLocation.json!'
+				TU.translate("charter.popup.savedChartAt", [filename])
 			);
 		}
 		if (autoSaveTimer <= 0) {
@@ -1182,7 +1182,7 @@ class Charter extends UIState {
 			noteTypeText.x = noteTopButton.x + noteTopButton.bWidth + 6;
 			noteTypeText.y = Std.int((noteTopButton.bHeight - noteTypeText.height) / 2);
 		}
-		noteTypeText.text = '($noteType) ${noteTypes[noteType-1] == null ? "Default Note" : noteTypes[noteType-1]}';
+		noteTypeText.text = '($noteType) ${noteTypes[noteType-1] == null ? TU.translate("noteTypes.default") : noteTypes[noteType-1]}';
 
 		super.update(elapsed);
 
@@ -1220,6 +1220,7 @@ class Charter extends UIState {
 			for (strumLine in strumLines.members) strumLine.vocals.pause();
 		}
 
+		// TODO: make this translatable?
 		songPosInfo.text = '${CoolUtil.timeToStr(Conductor.songPosition)} / ${CoolUtil.timeToStr(songLength)}'
 		+ '\nStep: ${curStep}'
 		+ '\nBeat: ${curBeat}'
@@ -1614,25 +1615,27 @@ class Charter extends UIState {
 		var snapsTopButton:UITopMenuButton = topMenuSpr == null ? null : cast topMenuSpr.members[snapIndex];
 		var newChilds:Array<UIContextMenuOption> = [
 			{
-				label: "↑ Grid Snap",
+				label: TU.translate("charter.snap.increaseSnap"),
 				keybind: [X],
 				onSelect: _snap_increasesnap
 			},
 			{
-				label: "Reset Grid Snap",
+				label: TU.translate("charter.snap.resetSnap"),
 				onSelect: _snap_resetsnap
 			},
 			{
-				label: "↓ Grid Snap",
+				label: TU.translate("charter.snap.decreaseSnap"),
 				keybind: [Z],
 				onSelect: _snap_decreasesnap
 			},
 			null
 		];
 
+		var snapStr = TU.getRaw("charter.snap.snap");
+
 		for (_quant in quants)
 			newChilds.push({
-				label: '${_quant}x Grid Snap',
+				label: snapStr.format([_quant]),
 				onSelect: (_) -> {setquant(_quant); buildSnapsUI();},
 				icon: _quant == quant ? 1 : 0
 			});
@@ -1700,29 +1703,29 @@ class Charter extends UIState {
 		var noteTopButton:UITopMenuButton = topMenuSpr == null ? null : cast topMenuSpr.members[noteIndex];
 		var newChilds:Array<UIContextMenuOption> = [
 			{
-				label: "Add sustain length",
+				label: TU.translate("charter.note.addSustainLength"),
 				keybind: [E],
 				onSelect: _note_addsustain
 			},
 			{
-				label: "Subtract sustain length",
+				label: TU.translate("charter.note.subtractSustainLength"),
 				keybind: [Q],
 				onSelect: _note_subtractsustain
 			},
 			null,
 			{
-				label: "Select all",
+				label: TU.translate("charter.note.selectAll"),
 				keybind: [CONTROL, A],
 				onSelect: _note_selectall
 			},
 			{
-				label: "Select measure",
+				label: TU.translate("charter.note.selectMeasure"),
 				keybind: [CONTROL, SHIFT, A],
 				onSelect: _note_selectmeasure
 			},
 			null,
 			{
-				label: "(0) Default Note",
+				label: "(0) " + TU.translate("charter.noteTypes.default"),
 				keybind: [ZERO],
 				onSelect: (_) -> {changeNoteType(0);},
 				icon: this.noteType == 0 ? 1 : 0
@@ -1733,6 +1736,7 @@ class Charter extends UIState {
 		for (i=>type in noteTypes) {
 			var realNoteID:Int = i+1; // Default Note not stored
 			var newChild:UIContextMenuOption = {
+				// TODO: make this translatable?
 				label: '(${realNoteID}) ${type}',
 				onSelect: (_) -> {changeNoteType(realNoteID);},
 				icon: this.noteType == realNoteID ? 1 : 0
@@ -1741,7 +1745,7 @@ class Charter extends UIState {
 			newChilds.push(newChild);
 		}
 		newChilds.push({
-			label: "Edit Note Types List",
+			label: TU.translate("charter.note.editNoteTypesList"),
 			color: 0xFF959829, icon: 4,
 			onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2;},
 			onSelect: editNoteTypesList

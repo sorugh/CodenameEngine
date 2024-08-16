@@ -26,26 +26,28 @@ class CharterSelection extends EditorTreeMenu {
 		freeplayList = FreeplaySonglist.get(false);
 
 		var list:Array<OptionType> = [
-			for(s in freeplayList.songs) new EditorIconOption(s.name, "Press ACCEPT to choose a difficulty to edit.", s.icon, function() {
+			for(s in freeplayList.songs) new EditorIconOption(s.name, TU.translate("charterSelection.accept-song"), s.icon, function() {
 				curSong = s;
 				var list:Array<OptionType> = [
 					for(d in s.difficulties) if (d != "")
-						new TextOption(d, "Press ACCEPT to edit the chart for the selected difficulty", function() {
+						new TextOption(d, TU.translate("charterSelection.accept-difficulty"), function() {
 							FlxG.switchState(new Charter(s.name, d));
 						})
 				];
-				list.push(new NewOption("New Difficulty", "New Difficulty", function() {
+				var newDiff = TU.translate("charterSelection.newDifficulty");
+				list.push(new NewOption(newDiff, newDiff, function() {
 					FlxG.state.openSubState(new ChartCreationScreen(saveChart));
 				}));
-				optionsTree.add(new OptionsScreen(s.name, "Select a difficulty to continue.", list));
+				optionsTree.add(new OptionsScreen(s.name, TU.translate("charterSelection.selectDifficulty"), list));
 			}, s.parsedColor.getDefault(0xFFFFFFFF))
 		];
 
-		list.insert(0, new NewOption("New Song", "New Song", function() {
+		var newSong = TU.translate("charterSelection.newSong");
+		list.insert(0, new NewOption(newSong, newSong, function() {
 			FlxG.state.openSubState(new SongCreationScreen(saveSong));
 		}));
 
-		main = new OptionsScreen("Chart Editor", "Select a song to modify the charts from.", list);
+		main = new OptionsScreen(TU.translate("charter.name"), TU.translate("charterSelection.desc"), list);
 
 		DiscordUtil.call("onEditorTreeLoaded", ["Chart Editor"]);
 	}
@@ -92,8 +94,8 @@ class CharterSelection extends EditorTreeMenu {
 		var songAlreadlyExsits:Bool = [for (s in freeplayList.songs) s.name.toLowerCase()].contains(creation.meta.name.toLowerCase());
 
 		if (songAlreadlyExsits) {
-			openSubState(new UIWarningSubstate("Creating Song: Error!", "The song you are trying to create alreadly exists, if you would like to override it delete the song first!", [
-				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
+			openSubState(new UIWarningSubstate(TU.translate("chartCreation.warnings.song-exists-title"), TU.translate("chartCreation.warnings.song-exists-body"), [
+				{label: TU.translate("editor.ok"), color: 0xFFFF0000, onClick: function(t) {}},
 			]));
 			return;
 		}
@@ -114,18 +116,20 @@ class CharterSelection extends EditorTreeMenu {
 		if (creation.voicesBytes != null) sys.io.File.saveBytes('$songFolder/song/Voices.${Paths.SOUND_EXT}', creation.voicesBytes);
 		#end
 
-		var option = new EditorIconOption(creation.meta.name, "Press ACCEPT to choose a difficulty to edit.", creation.meta.icon, function() {
+		// duplicated code, todo: fix this
+		var option = new EditorIconOption(creation.meta.name, TU.translate("charterSelection.accept-song"), creation.meta.icon, function() {
 			curSong = creation.meta;
 			var list:Array<OptionType> = [
 				for(d in creation.meta.difficulties)
-					if (d != "") new TextOption(d, "Press ACCEPT to edit the chart for the selected difficulty", function() {
+					if (d != "") new TextOption(d, TU.translate("charterSelection.accept-difficulty"), function() {
 						FlxG.switchState(new Charter(creation.meta.name, d));
 					})
 			];
-			list.push(new NewOption("New Difficulty", "New Difficulty", function() {
+			var newDiff = TU.translate("charterSelection.newDifficulty");
+			list.push(new NewOption(newDiff, newDiff, function() {
 				FlxG.state.openSubState(new ChartCreationScreen(saveChart));
 			}));
-			optionsTree.insert(1, new OptionsScreen(creation.meta.name, "Select a difficulty to continue.", list));
+			optionsTree.insert(1, new OptionsScreen(creation.meta.name, TU.translate("charterSelection.selectDifficulty"), list));
 		}, creation.meta.parsedColor.getDefault(0xFFFFFFFF));
 
 		// Add to List
@@ -137,8 +141,8 @@ class CharterSelection extends EditorTreeMenu {
 		var difficultyAlreadlyExsits:Bool = curSong.difficulties.contains(name);
 
 		if (difficultyAlreadlyExsits) {
-			openSubState(new UIWarningSubstate("Creating Chart: Error!", "The chart you are trying to create alreadly exists, if you would like to override it delete the chart first!", [
-				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
+			openSubState(new UIWarningSubstate(TU.translate("chartCreation.warnings.chart-exists-title"), TU.translate("chartCreation.warnings.chart-exists-body"), [
+				{label: TU.translate("editor.ok"), color: 0xFFFF0000, onClick: function(t) {}},
 			]));
 			return;
 		}
@@ -150,8 +154,9 @@ class CharterSelection extends EditorTreeMenu {
 		CoolUtil.safeSaveFile('$songFolder/charts/${name}.json', Json.stringify(data, "\t"));
 
 		// Add to List
+		// duplicated code, todo: fix this
 		curSong.difficulties.push(name);
-		var option = new TextOption(name, "Press ACCEPT to edit the chart for the selected difficulty", function() {
+		var option = new TextOption(name, TU.translate("charterSelection.accept-difficulty"), function() {
 			FlxG.switchState(new Charter(curSong.name, name));
 		});
 		optionsTree.members[optionsTree.members.length-1].insert(optionsTree.members[optionsTree.members.length-1].length-1, option);

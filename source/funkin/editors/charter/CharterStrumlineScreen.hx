@@ -46,7 +46,7 @@ class CharterStrumlineScreen extends UISubstateWindow {
 				visible: true
 			};
 
-		winTitle = creatingStrumLine ? 'Creating strumline #$strumLineID' : 'Editing strumline #$strumLineID properties';
+		winTitle = TU.translate("charterStrumlineScreen.win-title" + (creatingStrumLine ? "-creating" : "-editing"), ["#" + strumLineID]);
 		winWidth = 690; winHeight = 400;
 
 		FlxG.sound.music.pause();
@@ -58,26 +58,26 @@ class CharterStrumlineScreen extends UISubstateWindow {
 			add(new UIText(ui.x, ui.y - 24, 0, text));
 
 		var title:UIText;
-		add(title = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, creatingStrumLine ? "Create New Strumline" : "Edit Strumline Properties", 28));
+		add(title = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, TU.translate("charterStrumlineScreen.title" + (creatingStrumLine ? "-creating" : "-editing")), 28));
 
 		var charFileList = Character.getList(true);
 		if (charFileList.length == 0) charFileList = Character.getList(false);
 
 		charactersList = new UIButtonList<CharacterButton>(15, title.y + title.height + 36, 250, 269, "", FlxPoint.get(250, 54), null, 0);
-		charactersList.addButton.callback = () -> charactersList.add(new CharacterButton(0, 0, "New Char", charFileList, charactersList));
+		charactersList.addButton.callback = () -> charactersList.add(new CharacterButton(0, 0, TU.translate("charterStrumLine.newChar"), charFileList, charactersList));
 		charactersList.cameraSpacing = 0;
 		for (i in strumLine.characters)
 			charactersList.add(new CharacterButton(0, 0, i, charFileList, charactersList));
 		add(charactersList);
-		addLabelOn(charactersList, "Characters");
+		addLabelOn(charactersList, TU.translate("charterStrumLine.characters"));
 
 		charactersList.frames = Paths.getFrames('editors/ui/inputbox');
 
 		typeDropdown = new UIDropDown(charactersList.x + charactersList.bWidth + 16, charactersList.y, 200, 32, ["OPPONENT", "PLAYER", "ADDITIONAL"], strumLine.type);
 		add(typeDropdown);
-		addLabelOn(typeDropdown, "Type");
+		addLabelOn(typeDropdown, TU.translate("charterStrumLine.type"));
 
-		usesChartscrollSpeed = new UICheckbox(typeDropdown.x + 104, typeDropdown.y + 135, "Uses charts scroll speed?", strumLine.scrollSpeed == null);
+		usesChartscrollSpeed = new UICheckbox(typeDropdown.x + 104, typeDropdown.y + 135, TU.translate("charterStrumLine.useChartScrollSpeed"), strumLine.scrollSpeed == null);
 		usesChartscrollSpeed.onChecked = function(b) {
 			if(b)
 			{
@@ -97,17 +97,17 @@ class CharterStrumlineScreen extends UISubstateWindow {
 			scrollSpeedStepper.selectable = true;
 		}
 		add(scrollSpeedStepper);
-		addLabelOn(scrollSpeedStepper, "Scroll Speed");
+		addLabelOn(scrollSpeedStepper, TU.translate("charterStrumLine.scrollSpeed"));
 
 		var stagePositionI = strumLine.position == null ? strumLine.type : ["DAD", "BOYFRIEND", "GIRLFRIEND"].indexOf(strumLine.position.toUpperCase());
 
 		stagePositionDropdown = new UIDropDown(typeDropdown.x + 200 - 32 + 26, typeDropdown.y, 200, 32, ["DAD", "BOYFRIEND", "GIRLFRIEND"], stagePositionI);
 		add(stagePositionDropdown);
-		addLabelOn(stagePositionDropdown, "Stage Position");
+		addLabelOn(stagePositionDropdown, TU.translate("charterStrumLine.stagePos"));
 
 		hudScaleStepper = new UINumericStepper(typeDropdown.x, typeDropdown.y + 64, strumLine.strumScale == null ? 1 : strumLine.strumScale, 0.001, 2, null, null, 74);
 		add(hudScaleStepper);
-		addLabelOn(hudScaleStepper, "Scale");
+		addLabelOn(hudScaleStepper, TU.translate("charterStrumLine.scale"));
 
 		var strOffset:Float = strumLine.strumLinePos == null ? (strumLine.type == 1 ? 0.75 : 0.25) : strumLine.strumLinePos;
 
@@ -117,23 +117,23 @@ class CharterStrumlineScreen extends UISubstateWindow {
 
 		hudXStepper = new UINumericStepper(hudScaleStepper.x + 80 - 32 + 26, hudScaleStepper.y, startingPos.x, 0.01, 2, 0, 2, 84);
 		add(hudXStepper);
-		addLabelOn(hudXStepper, "Hud Position (X [Ratio 0-1],Y)");
+		addLabelOn(hudXStepper, TU.translate("charterStrumLine.hudPos"));
 
 		add(new UIText(hudXStepper.x + 84 - 32 + 0, hudXStepper.y + 9, 0, ",", 22));
 
 		hudYStepper = new UINumericStepper(hudXStepper.x + 84 - 32 + 26, hudXStepper.y, startingPos.y, 0.001, 2, null, null, 84);
 		add(hudYStepper);
 
-		visibleCheckbox = new UICheckbox(hudYStepper.x + hudYStepper.bWidth + 42, hudYStepper.y + 9, "Visible?", strumLine.visible);
+		visibleCheckbox = new UICheckbox(hudYStepper.x + hudYStepper.bWidth + 42, hudYStepper.y + 9, TU.translate("charterStrumLine.visible"), strumLine.visible);
 		add(visibleCheckbox);
 
-		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
+		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, TU.translate("editor.saveClose"), function() {
 			saveStrumline();
 			close();
 		}, 125);
 		add(saveButton);
 
-		closeButton = new UIButton(saveButton.x - 20 - saveButton.bWidth, saveButton.y, creatingStrumLine ? "Cancel" : "Close", function() {
+		closeButton = new UIButton(saveButton.x - 20 - saveButton.bWidth, saveButton.y, TU.translate("editor." + (creatingStrumLine ? "cancel" : "close")), function() {
 			if (creatingStrumLine && onSave != null) onSave(null);
 			close();
 		}, 125);
@@ -155,7 +155,7 @@ class CharterStrumlineScreen extends UISubstateWindow {
 
 		vocalsSuffixDropDown = new UIDropDown(typeDropdown.x, hudScaleStepper.y + 128, 200, 32, suffixlist, strumLine.vocalsSuffix != null && strumLine.vocalsSuffix != "" ? suffixlist.indexOf(strumLine.vocalsSuffix) : 0);
 		add(vocalsSuffixDropDown);
-		addLabelOn(vocalsSuffixDropDown, "Vocal Suffix");
+		addLabelOn(vocalsSuffixDropDown, TU.translate("charterStrumLine.vocalSuffix"));
 	}
 
 	function saveStrumline() {

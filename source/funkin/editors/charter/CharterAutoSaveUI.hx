@@ -45,7 +45,8 @@ class CharterAutoSaveUI extends UISliceSprite {
 
 			icon.animation.curAnim.curFrame = 2;
 			(new FlxTimer()).start(1, (_) -> {disappearAnimation(true);});
-			autosavingText.text += " (Canceled)!"; cancelButton.visible = false;
+			autosavingText.text += " " + TU.translate("editor.autosavingCanceledSuffix");
+			cancelButton.visible = false;
 			for (member in [this, autosavingText]) member.color = 0xFFE67F7F;
 			for (member in [progressBar, progressBarBack]) member.color = 0xFFE67F7F;
 		}, 24, 14);

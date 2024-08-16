@@ -24,7 +24,7 @@ class ChartDataScreen extends UISubstateWindow {
 		FlxG.sound.music.pause();
 		Charter.instance.vocals.pause();
 
-		winTitle = 'Chart Properties';
+		winTitle = TU.translate("chartDataScreen.title");
 		winWidth = 420; winHeight = 230; // guys look, the funny numbers!
 
 		super.create();
@@ -33,7 +33,7 @@ class ChartDataScreen extends UISubstateWindow {
 			add(new UIText(ui.x, ui.y - 24, 0, text));
 
 		var title:UIText;
-		add(title = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Edit Chart Data", 28));
+		add(title = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, TU.translate("chartDataScreen.editChartData"), 28));
 
 		var stageFileList = Stage.getList(true);
 		if (stageFileList.length == 0) stageFileList = Stage.getList(false);
@@ -41,19 +41,19 @@ class ChartDataScreen extends UISubstateWindow {
 		stageTextBox = new UIAutoCompleteTextBox(title.x, title.y + title.height + 38, PlayState.SONG.stage, 200);
 		stageTextBox.suggestItems = stageFileList;
 		add(stageTextBox);
-		addLabelOn(stageTextBox, "Stage");
+		addLabelOn(stageTextBox, TU.translate("chartDataScreen.stage"));
 
 		scrollSpeedStepper = new UINumericStepper(stageTextBox.x + 200 + 26, stageTextBox.y, data.scrollSpeed, 0.1, 2, 0, 10, 82);
 		add(scrollSpeedStepper);
-		addLabelOn(scrollSpeedStepper, "Scroll Speed");
+		addLabelOn(scrollSpeedStepper, TU.translate("chartDataScreen.scrollSpeed"));
 
-		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
+		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, TU.translate("editor.saveClose"), function() {
 			saveInfo();
 			close();
 		}, 125);
 		add(saveButton);
 
-		closeButton = new UIButton(saveButton.x - 20, saveButton.y, "Close", function() {
+		closeButton = new UIButton(saveButton.x - 20, saveButton.y, TU.translate("editor.close"), function() {
 			close();
 		}, 125);
 		add(closeButton);

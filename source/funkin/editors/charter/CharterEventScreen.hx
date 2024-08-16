@@ -36,7 +36,7 @@ class CharterEventScreen extends UISubstateWindow {
 		var creatingEvent:Bool = chartEvent == null;
 		if (creatingEvent) chartEvent = new CharterEvent(step, []);
 
-		winTitle = creatingEvent ? "Create Event Group" : "Edit Event Group";
+		winTitle = TU.translate("charterEventScreen.title" + (creatingEvent ? "-creating" : "-editing"));
 		winWidth = 960;
 
 		super.create();
@@ -64,7 +64,7 @@ class CharterEventScreen extends UISubstateWindow {
 		paramsPanel = new FlxGroup();
 		add(paramsPanel);
 
-		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
+		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight - 16 - 32, TU.translate("editor.saveClose"), function() {
 			saveCurTab();
 			chartEvent.refreshEventIcons();
 
@@ -92,7 +92,7 @@ class CharterEventScreen extends UISubstateWindow {
 		saveButton.x -= saveButton.bWidth;
 		add(saveButton);
 
-		closeButton = new UIButton(saveButton.x - 10, saveButton.y, "Close", ()->close());
+		closeButton = new UIButton(saveButton.x - 10, saveButton.y, TU.translate("editor.close"), ()->close());
 		closeButton.color = 0xFFFF0000;
 		closeButton.x -= closeButton.bWidth;
 		add(closeButton);
@@ -189,7 +189,7 @@ class CharterEventScreen extends UISubstateWindow {
 					y += cast(lastAdded, FlxSprite).height + 6;
 			}
 		} else {
-			eventName.text = "No event";
+			eventName.text = TU.translate("charterEventScreen.noEvent"); // Maybe should be No Events?
 			curEvent = -1;
 		}
 	}

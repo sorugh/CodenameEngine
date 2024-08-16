@@ -111,7 +111,7 @@ final class TranslationUtil
 	 * If `id` is `null` then it's gonna search using `defString`.
 	 */
 	public static inline function get(?id:String, ?params:Array<Dynamic>, ?def:String):String
-		return getUnformatted(id, def).format(params);
+		return getRaw(id, def).format(params);
 
 	public static inline function translate(?id:String, ?params:Array<Dynamic>, ?def:String):String
 		return get(id, params, def);
@@ -126,7 +126,7 @@ final class TranslationUtil
 		return false;
 		#end
 
-	public static function getUnformatted(id:String, ?def:String):IFormatInfo
+	public static function getRaw(id:String, ?def:String):IFormatInfo
 	{
 		#if TRANSLATIONS_SUPPORT
 		if (stringMap.exists(id)) return stringMap.get(id);
@@ -154,7 +154,7 @@ final class TranslationUtil
 	public static function raw2Id(str:String):String
 	{
 		var result:String = "";
-		for(i => s in str.split(" ")) result += (i == 0 ? s.charAt(0).toLowerCase() : s.charAt(0).toUpperCase()) + s.substr(1);
+		for(i => s in str.split(" ")) result += (i == 0 ? s.charAt(0).toLowerCase() : s.charAt(0).toUpperCase()) + s.substr(1).toLowerCase();
 		return result.length == 0 ? str : result;
 	}
 
@@ -260,6 +260,7 @@ final class TranslationUtil
 			if(node.getAtt("notrim").getDefault("true") != "true") value = value.trim();
 			value = value.replace("\\n", "\n").replace("\r", ""); // remove stupid windows line breaks and convert newline literals to newlines
 			leMap.set(id, FormatUtil.get(value));
+			//leMap.set(id, FormatUtil.getStr("{" + id + "}"));
 			//Logs.trace("Added " + id + " -> `" + value + "`", "Language");
 		}
 

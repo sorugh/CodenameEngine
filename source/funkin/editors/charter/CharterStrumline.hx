@@ -123,7 +123,8 @@ class CharterStrumline extends UISprite {
 class CharterStrumlineOptions extends UITopMenuButton {
 	var strLine:CharterStrumline;
 	public function new(parent:CharterStrumline) {
-		super(0, 95, null, "Options ↓", []);
+		// TODO: better id for this
+		super(0, 95, null, TU.translate("charter.strumLine.button-name"), []);
 		strLine = parent;
 		bWidth = 40 * 4;
 		this.label.fieldWidth = bWidth;
@@ -137,14 +138,14 @@ class CharterStrumlineOptions extends UITopMenuButton {
 	public override function openContextMenu() {
 		contextMenu = [
 			{
-				label: "Hitsounds",
+				label: TU.translate("charter.strumLine.hitsounds"),
 				onSelect: function(_) {
 					strLine.hitsounds = !strLine.hitsounds;
 				},
 				icon: strLine.hitsounds ? 1 : 0
 			},
 			{
-				label: "Mute Vocals",
+				label: TU.translate("charter.strumLine.muteVocals"),
 				onSelect: function(_) {
 					strLine.vocals.volume = strLine.vocals.volume > 0 ? 0 : 1;
 				},
@@ -152,7 +153,7 @@ class CharterStrumlineOptions extends UITopMenuButton {
 			},
 			null,
 			{
-				label: "Edit",
+				label: TU.translate("charter.strumLine.edit"),
 				onSelect: function (_) {
 					Charter.instance.editStrumline(strLine.strumLine);
 				},
@@ -160,7 +161,7 @@ class CharterStrumlineOptions extends UITopMenuButton {
 				icon: 4
 			},
 			{
-				label: "Delete",
+				label: TU.translate("charter.strumLine.delete"),
 				onSelect: function (_) {
 					Charter.instance.deleteStrumlineFromData(strLine.strumLine);
 				},
@@ -170,7 +171,7 @@ class CharterStrumlineOptions extends UITopMenuButton {
 		];
 
 		contextMenu.insert(0, {
-			label: "No Waveform",
+			label: TU.translate("charter.strumLine.noWaveform"),
 			onSelect: function(_) {strLine.selectedWaveform = -1;},
 			icon: strLine.selectedWaveform == -1 ? 1 : 0
 		});

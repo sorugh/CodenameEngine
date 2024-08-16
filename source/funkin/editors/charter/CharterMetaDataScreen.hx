@@ -30,8 +30,11 @@ class CharterMetaDataScreen extends UISubstateWindow {
 		this.metadata = metadata;
 	}
 
+	inline function translate(id:String):String
+		return TU.translate("charterMetaDataScreen." + id);
+
 	public override function create() {
-		winTitle = "Edit Metadata";
+		winTitle = translate("title");
 		winWidth = 1056;
 		winHeight = 520;
 
@@ -44,52 +47,52 @@ class CharterMetaDataScreen extends UISubstateWindow {
 			add(new UIText(ui.x, ui.y - 24, 0, text));
 
 		var title:UIText;
-		add(title = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Song Data", 28));
+		add(title = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, translate("songData"), 28));
 
 		songNameTextBox = new UITextBox(title.x, title.y + title.height + 36, metadata.name);
 		add(songNameTextBox);
-		addLabelOn(songNameTextBox, "Song Name");
+		addLabelOn(songNameTextBox, translate("songName"));
 
 		bpmStepper = new UINumericStepper(songNameTextBox.x + 320 + 26, songNameTextBox.y, metadata.bpm, 1, 2, 1, null, 90);
 		add(bpmStepper);
-		addLabelOn(bpmStepper, "BPM");
+		addLabelOn(bpmStepper, translate("bpm"));
 
 		beatsPerMeasureStepper = new UINumericStepper(bpmStepper.x + 60 + 26, bpmStepper.y, metadata.beatsPerMeasure, 1, 0, 1, null, 54);
 		add(beatsPerMeasureStepper);
-		addLabelOn(beatsPerMeasureStepper, "Time Signature");
+		addLabelOn(beatsPerMeasureStepper, translate("timeSignature"));
 
 		add(new UIText(beatsPerMeasureStepper.x + 30, beatsPerMeasureStepper.y + 3, 0, "/", 22));
 
 		stepsPerBeatStepper = new UINumericStepper(beatsPerMeasureStepper.x + 30 + 24, beatsPerMeasureStepper.y, metadata.stepsPerBeat, 1, 0, 1, null, 54);
 		add(stepsPerBeatStepper);
 
-		add(title = new UIText(songNameTextBox.x, songNameTextBox.y + 10 + 46, 0, "Menus Data (Freeplay/Story)", 28));
+		add(title = new UIText(songNameTextBox.x, songNameTextBox.y + 10 + 46, 0, translate("menusData"), 28));
 
 		displayNameTextBox = new UITextBox(title.x, title.y + title.height + 36, metadata.displayName);
 		add(displayNameTextBox);
-		addLabelOn(displayNameTextBox, "Display Name");
+		addLabelOn(displayNameTextBox, translate("displayName"));
 
 		iconTextBox = new UITextBox(displayNameTextBox.x + 320 + 26, displayNameTextBox.y, metadata.icon, 150);
 		iconTextBox.onChange = (newIcon:String) -> {updateIcon(newIcon);}
 		add(iconTextBox);
-		addLabelOn(iconTextBox, "Icon");
+		addLabelOn(iconTextBox, translate("icon"));
 
 		updateIcon(metadata.icon);
 
-		opponentModeCheckbox = new UICheckbox(displayNameTextBox.x, iconTextBox.y + 10 + 32 + 26, "Opponent Mode", metadata.opponentModeAllowed);
+		opponentModeCheckbox = new UICheckbox(displayNameTextBox.x, iconTextBox.y + 10 + 32 + 26, translate("opponentMode"), metadata.opponentModeAllowed);
 		add(opponentModeCheckbox);
-		addLabelOn(opponentModeCheckbox, "Modes Allowed");
+		addLabelOn(opponentModeCheckbox, translate("modesAllowed"));
 
-		coopAllowedCheckbox = new UICheckbox(opponentModeCheckbox.x + 150 + 26, opponentModeCheckbox.y, "Co-op Mode", metadata.coopAllowed);
+		coopAllowedCheckbox = new UICheckbox(opponentModeCheckbox.x + 150 + 26, opponentModeCheckbox.y, translate("coopAllowed"), metadata.coopAllowed);
 		add(coopAllowedCheckbox);
 
 		colorWheel = new UIColorwheel(iconTextBox.x, coopAllowedCheckbox.y, metadata.parsedColor);
 		add(colorWheel);
-		addLabelOn(colorWheel, "Color");
+		addLabelOn(colorWheel, translate("color"));
 
 		difficulitesTextBox = new UITextBox(opponentModeCheckbox.x, opponentModeCheckbox.y + 6 + 32 + 26, metadata.difficulties.join(", "));
 		add(difficulitesTextBox);
-		addLabelOn(difficulitesTextBox, "Difficulties");
+		addLabelOn(difficulitesTextBox, translate("difficulties"));
 
 		customPropertiesButtonList = new UIButtonList<PropertyButton>(stepsPerBeatStepper.x + 80 + 26 + 105, songNameTextBox.y, 290, 316, '', FlxPoint.get(280, 35), null, 5);
 		customPropertiesButtonList.frames = Paths.getFrames('editors/ui/inputbox');
@@ -100,19 +103,19 @@ class CharterMetaDataScreen extends UISubstateWindow {
 		for (val in Reflect.fields(metadata.customValues))
 			customPropertiesButtonList.add(new PropertyButton(val, Reflect.field(metadata.customValues, val), customPropertiesButtonList));
 		add(customPropertiesButtonList);
-		addLabelOn(customPropertiesButtonList, "Custom Values (Advanced)");
+		addLabelOn(customPropertiesButtonList, translate("customValues"));
 
 		for (checkbox in [opponentModeCheckbox, coopAllowedCheckbox])
 			{checkbox.y += 6; checkbox.x += 4;}
 
-		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight - 20, "Save & Close", function() {
+		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight - 20, TU.translate("editor.saveClose"), function() {
 			saveMeta();
 			close();
 		}, 125);
 		saveButton.x -= saveButton.bWidth;
 		saveButton.y -= saveButton.bHeight;
 
-		closeButton = new UIButton(saveButton.x - 20, saveButton.y, "Close", function() {
+		closeButton = new UIButton(saveButton.x - 20, saveButton.y, TU.translate("editor.close"), function() {
 			close();
 		}, 125);
 		closeButton.color = 0xFFFF0000;

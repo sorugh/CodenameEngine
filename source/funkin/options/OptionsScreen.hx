@@ -14,11 +14,23 @@ class OptionsScreen extends FlxTypedSpriteGroup<OptionType> {
 
 	public var name:String;
 	public var desc:String;
+	public var prefix:String = "";
 
-	public function new(name:String, desc:String, ?options:Array<OptionType>) {
+	public function getName(name:String, ?args:Array<Dynamic>):String {
+		return TU.translate(prefix + name + "-name", args);
+	}
+	public function getDesc(name:String, ?args:Array<Dynamic>):String {
+		return TU.translate(prefix + name + "-desc", args);
+	}
+	public function translate(name:String, ?args:Array<Dynamic>):String {
+		return TU.translate(prefix + name, args);
+	}
+
+	public function new(name:String, desc:String, ?prefix:String, ?options:Array<OptionType>) {
 		super();
 		this.name = name;
 		this.desc = desc;
+		if (prefix != null) this.prefix = prefix;
 		if (options != null) for(o in options) add(o);
 	}
 

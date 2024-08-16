@@ -9,25 +9,25 @@ import haxe.xml.Access;
 
 class OptionsMenu extends TreeMenu {
 	public static var mainOptions:Array<OptionCategory> = [
-		{
-			name: 'Controls',
-			desc: 'Change Controls for Player 1 and Player 2!',
+		{  // name and desc are actually the translations ids!  - Nex
+			name: 'optionsTree.controls-name',
+			desc: 'optionsTree.controls-desc',
 			state: null,
 			substate: funkin.options.keybinds.KeybindsOptions
 		},
 		{
-			name: 'Gameplay >',
-			desc: 'Change Gameplay options such as Downscroll, Scroll Speed, Naughtyness...',
+			name: 'optionsTree.gameplay-name',
+			desc: 'optionsTree.gameplay-desc',
 			state: GameplayOptions
 		},
 		{
-			name: 'Appearance >',
-			desc: 'Change Appearance options such as Flashing menus...',
+			name: 'optionsTree.appearance-name',
+			desc: 'optionsTree.appearance-desc',
 			state: AppearanceOptions
 		},
 		{
-			name: 'Miscellaneous >',
-			desc: 'Use this menu to reset save data or engine settings.',
+			name: 'optionsTree.miscellaneous-name',
+			desc: 'optionsTree.miscellaneous-desc',
 			state: MiscOptions
 		}
 	];
@@ -48,23 +48,29 @@ class OptionsMenu extends TreeMenu {
 		bg.antialiasing = true;
 		add(bg);
 
-		main = new OptionsScreen("Options", "Select a category to continue.", [for(o in mainOptions) new TextOption(o.name, o.desc, function() {
-			if (o.substate != null) {
-				persistentUpdate = false;
-				persistentDraw = true;
-				if (o.substate is MusicBeatSubstate) {
-					openSubState(o.substate);
+		main = new OptionsScreen(TU.translate("optionsMenu.header.title"), TU.translate("optionsMenu.header.desc"), [for(o in mainOptions) {
+			var name = o.name;
+			var desc = o.desc;
+			if(TU.exists(name)) name = TU.translate(name);
+			if(TU.exists(desc)) desc = TU.translate(desc);
+			new TextOption(name, desc, function() {
+				if (o.substate != null) {
+					persistentUpdate = false;
+					persistentDraw = true;
+					if (o.substate is MusicBeatSubstate) {
+						openSubState(o.substate);
+					} else {
+						openSubState(Type.createInstance(o.substate, [name, desc]));
+					}
 				} else {
-					openSubState(Type.createInstance(o.substate, []));
+					if (o.state is OptionsScreen) {
+						optionsTree.add(o.state);
+					} else {
+						optionsTree.add(Type.createInstance(o.state, [name, desc]));
+					}
 				}
-			} else {
-				if (o.state is OptionsScreen) {
-					optionsTree.add(o.state);
-				} else {
-					optionsTree.add(Type.createInstance(o.state, []));
-				}
-			}
-		})]);
+			});
+		}]);
 
 		var xmlPath = Paths.xml("config/options");
 		for(source in [funkin.backend.assets.AssetSource.SOURCE, funkin.backend.assets.AssetSource.MODS]) {

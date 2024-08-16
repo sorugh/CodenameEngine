@@ -9,26 +9,33 @@ class EditorPicker extends MusicBeatSubstate {
 	public var options:Array<Editor> = [
 		{
 			name: "Chart Editor",
+			id: "charter",
 			iconID: 0,
 			state: funkin.editors.charter.CharterSelection
 		},
 		{
 			name: "Character Editor",
+			id: "character",
 			iconID: 1,
 			state: funkin.editors.character.CharacterSelection
 		},
 		{
 			name: "Stage Editor",
+			id: "stage",
 			iconID: 2,
 			state: null
 		},
+		#if (debug || debug_ui)
 		{
 			name: "UI Debug State",
+			id: "ui-debug",
 			iconID: 3,
 			state: UIDebugState
 		},
+		#end
 		{
 			name: "Debug Options",
+			id: "debug-options",
 			iconID: 4,
 			state: DebugOptions
 		}
@@ -143,6 +150,7 @@ class EditorPicker extends MusicBeatSubstate {
 
 typedef Editor = {
 	var name:String;
+	var id:String;
 	var iconID:Int;
 	var state:Class<MusicBeatState>;
 }

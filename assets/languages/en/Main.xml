@@ -45,13 +45,13 @@
 
 	<group name="Pause">
 		<group name="PauseOptions">
-			<!-- These are actually the only strings that dont require an english translation, you can still translate them though
+			<!-- These are actually the only strings that dont require an english translation, you can still translate them though -->
 			<str id="pause.resume">Resume</str>
 			<str id="pause.restartSong">Restart Song</str>
 			<str id="pause.changeControls">Change Controls</str>
 			<str id="pause.changeOptions">Change Options</str>
 			<str id="pause.exitToMenu">Exit to menu</str>
-			<str id="pause.exitToCharter">Exit to charter</str> -->
+			<str id="pause.exitToCharter">Exit to charter</str>
 		</group>
 
 		<str id="pause.deathCounter">Blue balled: {0}</str>

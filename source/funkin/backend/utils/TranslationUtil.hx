@@ -61,6 +61,8 @@ final class TranslationUtil
 	 */
 	public static var foundLanguages:Array<String> = [];
 
+	public static var showMissingIds:Bool = false;
+
 	// Private
 	private static inline var LANG_FOLDER:String = "languages";
 	private static var langConfigs:Map<String, IniMap> = [];
@@ -98,6 +100,8 @@ final class TranslationUtil
 
 		config = getConfig(name);
 		stringMap = loadLanguage(name);
+
+		showMissingIds = config.get("showMissingIds").getDefault("false") == "true";
 		#end
 	}
 
@@ -115,13 +119,31 @@ final class TranslationUtil
 	public static inline function translateDiff(?id:String, ?params:Array<Dynamic>):String
 		return get("diff." + id.toLowerCase(), params, id);
 
+	public static inline function exists(id:String):Bool
+		#if TRANSLATIONS_SUPPORT
+		return stringMap.exists(id);
+		#else
+		return false;
+		#end
+
 	public static function getUnformatted(id:String, ?def:String):IFormatInfo
 	{
 		#if TRANSLATIONS_SUPPORT
 		if (stringMap.exists(id)) return stringMap.get(id);
 		#end
-		if(def != null) id = def;
-		return FormatUtil.get(id);
+
+		if(def != null)
+			return FormatUtil.get(def);
+
+		return FormatUtil.getStr("{" + id + "}");
+
+		/*if(curLanguage == DEFAULT_LANGUAGE) {
+			return FormatUtil.getStr("{" + id + "}");
+		} else {
+
+		}
+
+		return FormatUtil.get(showMissingIds ? "{" + id + "}" : id);*/
 	}
 
 	/**
@@ -187,13 +209,16 @@ final class TranslationUtil
 		FormatUtil.clear(); // Clean up the format cache
 		var mainPath:String = translationsMain(lang);
 		var leMap:Map<String, IFormatInfo> = [];
-		var translations = [];
-		function parseXml(xml:Access) {
+		var translations:Array<TranslationPair> = [];
+		function parseXml(xml:Access, prefix:String = "") {
 			for(node in xml.elements) {
 				if (node.name == "group") // Cosmetic name
-					parseXml(node);
+					parseXml(node, prefix + (node.has.prefix ? node.att.prefix : ""));
 				else if(["text", "trans", "lang", "string", "str"].contains(node.name))
-					translations.push(node);
+					translations.push({
+						prefix: prefix,
+						node: node
+					});
 			}
 		}
 
@@ -220,18 +245,22 @@ final class TranslationUtil
 			parseXml(langNode);
 		}
 
-		for(node in translations) {
+		for(pair in translations) {
+			var node = pair.node;
 			if (!node.has.id) {
 				Logs.warn('A <${node.name}> node requires an ID attribute.', "Language");
 				continue;
 			}
+			var prefix = pair.prefix;
 
-			if(leMap.exists(node.att.id)) continue;
+			var id = prefix + node.att.id;
+
+			if(leMap.exists(id)) continue;
 			var value:String = node.has.string ? node.att.string : node.innerData;
 			if(node.getAtt("notrim").getDefault("true") != "true") value = value.trim();
 			value = value.replace("\\n", "\n").replace("\r", ""); // remove stupid windows line breaks and convert newline literals to newlines
-			leMap.set(node.att.id, FormatUtil.get(value));
-			//Logs.trace("Added " + node.att.id + " -> `" + value + "`", "Language");
+			leMap.set(id, FormatUtil.get(value));
+			//Logs.trace("Added " + id + " -> `" + value + "`", "Language");
 		}
 
 		return leMap;
@@ -288,4 +317,10 @@ final class TranslationUtil
 
 	@:noCompletion private static function get_isLanguageLoaded():Bool
 		return Lambda.count(stringMap) > 0;
+}
+
+@:structInit
+class TranslationPair {
+	public var prefix:String;
+	public var node:Access;
 }

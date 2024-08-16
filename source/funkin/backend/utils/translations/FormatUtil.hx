@@ -7,6 +7,7 @@ package funkin.backend.utils.translations;
  */
 class FormatUtil {
 	private static var cache:Map<String, IFormatInfo> = new Map();
+	private static var cacheStr:Map<String, IFormatInfo> = new Map();
 
 	public static function get(id:String):IFormatInfo {
 		if (cache.exists(id))
@@ -18,8 +19,18 @@ class FormatUtil {
 		return fi;
 	}
 
+	public static function getStr(id:String):IFormatInfo {
+		if (cacheStr.exists(id))
+			return cacheStr.get(id);
+
+		var fi:IFormatInfo = new StrFormatInfo(id);
+		cacheStr.set(id, fi);
+		return fi;
+	}
+
 	public inline static function clear() {
 		cache.clear();
+		cacheStr.clear();
 	}
 }
 

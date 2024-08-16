@@ -27,7 +27,7 @@
 		</cmd>
 	</if>
 
-	<if cond="lime || all">
+	<!-- <if cond="lime || all">
 		<cmd>
 			<line>cd dev-libs</line>
 			<line>git clone https://github.com/FNF-CNE-Devs/lime lime</line>
@@ -35,10 +35,10 @@
 			<line>haxelib dev lime dev-libs/lime</line>
 		</cmd>
 
-		<!-- Build lime -->
+		<!- - Build lime - ->
 		<cmd inLib="lime" cmd="haxelib run lime rebuild . $PLATFORM -clean" />
 		<cmd inLib="lime" dir="tools" cmd="haxe tools.hxml" />
-	</if>
+	</if> -->
 
 	<if cond="flixel || all">
 		<cmd>

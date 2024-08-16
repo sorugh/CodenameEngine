@@ -51,7 +51,7 @@ class Update {
 
 		function handleLib(libNode:Access) {
 			switch(libNode.name) {
-				case "lib" | "git":
+				case "lib" | "git" | "custom":
 					var lib:Library = {
 						name: libNode.att.name,
 						type: libNode.name
@@ -149,7 +149,7 @@ class Update {
 							prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}" from git url "${lib.url}"');
 							Sys.command('haxelib$commandPrefix git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}');
 						case "custom":
-							Sys.command('haxelib dev ${lib.name} "./libraries/${lib.name}"');
+							Sys.command('haxelib$commandPrefix dev ${lib.name} "./libraries/${lib.name}"');
 						default:
 							prettyPrint('Cannot resolve library of type "${lib.type}"');
 					}

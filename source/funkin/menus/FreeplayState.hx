@@ -196,6 +196,10 @@ class FreeplayState extends MusicBeatState
 	 * Path to the currently playing song instrumental.
 	 */
 	public var curPlayingInst:String = null;
+	/**
+	 * If it should play the song automatically.
+	 */
+	public var autoplayShouldPlay:Bool = true;
 	#end
 
 	override function update(elapsed:Float)
@@ -236,7 +240,17 @@ class FreeplayState extends MusicBeatState
 		autoplayElapsed += elapsed;
 		if (!disableAutoPlay && !songInstPlaying && (autoplayElapsed > timeUntilAutoplay || FlxG.keys.justPressed.SPACE)) {
 			if (curPlayingInst != (curPlayingInst = Paths.inst(songs[curSelected].name, songs[curSelected].difficulties[curDifficulty]))) {
-				var huh:Void->Void = function() FlxG.sound.playMusic(curPlayingInst, 0);
+				var huh:Void->Void = function() {
+					var soundPath = curPlayingInst;
+					var sound = null;
+					if (Assets.exists(soundPath, SOUND) || Assets.exists(soundPath, MUSIC))
+						sound = Assets.getSound(soundPath);
+					else
+						FlxG.log.error('Could not find a Sound asset with an ID of \'$soundPath\'.');
+
+					if (sound != null && autoplayShouldPlay)
+						FlxG.sound.playMusic(sound, 0);
+				}
 				if(!disableAsyncLoading) Main.execAsync(huh);
 				else huh();
 			}
@@ -288,6 +302,10 @@ class FreeplayState extends MusicBeatState
 		var event = event("onSelect", EventManager.get(FreeplaySongSelectEvent).recycle(songs[curSelected].name, songs[curSelected].difficulties[curDifficulty], __opponentMode, __coopMode));
 
 		if (event.cancelled) return;
+
+		#if PRELOAD_ALL
+		autoplayShouldPlay = false;
+		#end
 
 		Options.freeplayLastSong = songs[curSelected].name;
 		Options.freeplayLastDifficulty = songs[curSelected].difficulties[curDifficulty];

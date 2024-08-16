@@ -5,6 +5,7 @@ using StringTools;
 #if macro
 class BuildInfo {
 	public static function printBuildInfo() {
+		if(haxe.macro.Context.defined("display")) return;
 		var haxeVersion = haxe.macro.Context.definedValue("haxe");
 		Sys.println('[ BUILD INFO ]');
 		Sys.println('Haxe Version: ${haxeVersion}');

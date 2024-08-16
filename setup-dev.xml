@@ -6,6 +6,18 @@
 		<line>mkdir dev-libs</line>
 	</cmd>
 
+	<if cond="hxcpp || all">
+		<cmd>
+			<line>cd dev-libs</line>
+			<line>git clone https://github.com/NeeEoo/hxcpp hxcpp</line>
+			<line>cd ..</line>
+			<line>haxelib dev hxcpp dev-libs/hxcpp</line>
+		</cmd>
+
+		<!-- Build hxcpp -->
+		<cmd inLib="hxcpp" dir="tools/hxcpp" cmd="haxe compile.hxml" />
+	</if>
+
 	<if cond="openfl || all">
 		<cmd>
 			<line>cd dev-libs</line>
@@ -24,12 +36,8 @@
 		</cmd>
 
 		<!-- Build lime -->
-		<cmd inLib="lime" cmd="lime rebuild . $PLATFORM" />
-		<cmd inLib="lime" >
-			<line>cd tools</line>
-			<line>haxe tools.hxml</line>
-			<line>cd ..</line>s
-		</cmd>
+		<cmd inLib="lime" cmd="haxelib run lime rebuild . $PLATFORM -clean" />
+		<cmd inLib="lime" dir="tools" cmd="haxe tools.hxml" />
 	</if>
 
 	<if cond="flixel || all">

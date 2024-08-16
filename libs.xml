@@ -14,20 +14,32 @@
 		<!-- Other Libraries -->
 		<git name="hscript-improved" url="https://github.com/FNF-CNE-Devs/hscript-improved" ref="custom-classes" />
 		<git name="flxanimate" url="https://github.com/FNF-CNE-Devs/flxanimate" />
-		<git name="hxdiscord_rpc" url="https://github.com/FNF-CNE-Devs/hxdiscord_rpc" />
-		<lib name="hxvlc" />
+		<git name="hxdiscord_rpc" url="https://github.com/FNF-CNE-Devs/hxdiscord_rpc" skipDeps="true" />
+		<lib name="hxvlc" skipDeps="true" />
 
 		<!-- Documentation and other features -->
 		<git name="away3d" url="https://github.com/FNF-CNE-Devs/away3d" />
 		<!-- <lib name="dox" /> -->
-		<lib name="format" />
 		<lib name="markdown" />
 
 		<custom name="macro-fixer" />
 
 		<!-- For building lime -->
-		<lib global="true" name="hxp" />
-		<lib global="true" name="format" />
+		<lib global="true" name="hxp" /> <lib name="hxp" />
+		<lib global="true" name="format" /> <lib name="format" />
+
+		<!-- Extras -->
+		<!-- TODO: Remove this when hxcpp is updated -->
+		<!-- Adds a progress counter to compilation -->
+		<git name="hxcpp" url="https://github.com/NeeEoo/hxcpp" ref="codename" />
+	</if>
+
+	<!-- Hxcpp Building -->
+	<if cond="build-hxcpp || all">
+		<print pretty="true">Rebuilding Hxcpp...</print>
+
+		<!-- Build hxcpp -->
+		<cmd inLib="hxcpp" dir="tools/hxcpp" cmd="haxe compile.hxml" />
 	</if>
 
 	<!-- Lime Building -->
@@ -35,11 +47,7 @@
 		<print pretty="true">Rebuilding Lime...</print>
 
 		<!-- Build lime -->
-		<cmd inLib="lime" cmd="lime rebuild . $PLATFORM" />
-		<cmd inLib="lime" >
-			<line>cd tools</line>
-			<line>haxe tools.hxml</line>
-			<line>cd ..</line>s
-		</cmd>
+		<cmd inLib="lime" cmd="haxelib run lime rebuild . $PLATFORM -clean" />
+		<cmd inLib="lime" dir="tools" cmd="haxe tools.hxml" />
 	</if>
 </libraries>

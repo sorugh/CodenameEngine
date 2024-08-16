@@ -7,8 +7,19 @@ import sys.io.Process;
 import sys.FileSystem;
 
 class Update {
+	private static function recursiveDelete(path:String) {
+		for(file in FileSystem.readDirectory(path)) {
+			var p = '$path/$file';
+			if(FileSystem.isDirectory(p))
+				recursiveDelete(p);
+			else
+				FileSystem.deleteFile(p);
+		}
+		FileSystem.deleteDirectory(path);
+	}
+
 	public static function main(args:Array<String>) {
-		var args = ArgParser.parse(args, ["S" => "silent-progress", "silent" => "silent-progress"]);
+		var args = ArgParser.parse(args, ["s" => "silent-progress", "S" => "silent-progress", "silent" => "silent-progress"]);
 		var CHECK_VSTUDIO = !args.existsOption("no-vscheck");
 		var REINSTALL_ALL = args.existsOption("reinstall");
 		var SILENT = args.existsOption("silent-progress");
@@ -18,7 +29,7 @@ class Update {
 			FileSystem.createDirectory('.haxelib');
 
 		if (REINSTALL_ALL) {
-			FileSystem.deleteDirectory('.haxelib');
+			recursiveDelete('.haxelib');
 			FileSystem.createDirectory('.haxelib');
 		}
 
@@ -46,6 +57,7 @@ class Update {
 						type: libNode.name
 					};
 					if (libNode.has.global) lib.global = libNode.att.global;
+					if (libNode.has.skipDeps) lib.skipDeps = libNode.att.skipDeps;
 					switch (lib.type) {
 						case "lib":
 							if (libNode.has.version) lib.version = libNode.att.version;
@@ -58,11 +70,11 @@ class Update {
 						data: lib
 					});
 				case "cmd":
-
 					events.push({
 						type: CMD,
 						data: {
 							inLib: libNode.has.inLib ? libNode.att.inLib : null,
+							dir: libNode.has.dir ? libNode.att.dir : null,
 							lines: {
 								if(Lambda.count(libNode.nodes.line) > 0)
 								[
@@ -101,9 +113,9 @@ class Update {
 		if(args.args.length == 0) defines.push("all");
 
 		function parse(libNode:Access) {
-			if(libNode.name == "if") {
+			if(libNode.name == "if" || libNode.name == "unless") {
 				var cond = libNode.att.cond;
-				if(!Utils.evaluateArgsCondition(cond, defines)) {
+				if(Utils.evaluateArgsCondition(cond, defines) != (libNode.name == "if")) {
 					return;
 				}
 
@@ -120,21 +132,22 @@ class Update {
 		}
 
 		var commandSuffix = " --always";
-		if (SILENT) commandSuffix += " --silent";
+		if (SILENT) commandSuffix += " --quiet";
 
 		for(event in events) {
 			switch(event.type) {
 				case INSTALL:
 					var lib:Library = event.data;
-					var globalism:Null<String> = lib.global == "true" ? "--global" : null;
-					var globalSuffix = globalism != null ? ' $globalism' : '';
+					var globalSuffix:Null<String> = lib.global == "true" ? " --global" : "";
+					var skipDeps = lib.skipDeps == "true" ? " --skip-dependencies" : "";
+					var commandPrefix = commandSuffix + globalSuffix + skipDeps;// + " --no-timeout";
 					switch(lib.type) {
 						case "lib":
 							prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}"...');
-							Sys.command('haxelib install ${lib.name} ${lib.version != null ? " " + lib.version : " "}$globalSuffix$commandSuffix');
+							Sys.command('haxelib$commandPrefix install ${lib.name} ${lib.version != null ? " " + lib.version : " "}');
 						case "git":
 							prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}" from git url "${lib.url}"');
-							Sys.command('haxelib git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}$globalSuffix$commandSuffix');
+							Sys.command('haxelib$commandPrefix git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}');
 						case "custom":
 							Sys.command('haxelib dev ${lib.name} "./libraries/${lib.name}"');
 						default:
@@ -143,6 +156,10 @@ class Update {
 				case CMD:
 					var cmd:CmdData = event.data;
 					var lib = cmd.inLib;
+					var dir = "";
+					if(cmd.dir != null) {
+						dir = "/" + cmd.dir;
+					}
 					var oldCwd = Sys.getCwd();
 					if(lib != null) {
 						var libPrefix = '.haxelib/$lib';
@@ -154,7 +171,7 @@ class Update {
 									Sys.setCwd(oldCwd);
 									continue;
 								}
-								Sys.setCwd(devPath);
+								Sys.setCwd(devPath + dir);
 							} else if(FileSystem.exists(libPrefix + '/.current')) {
 								var version = StringTools.replace(File.getContent(libPrefix + '/.current'), ".", ",");
 								if(!FileSystem.exists(libPrefix + '/$version')) {
@@ -162,7 +179,7 @@ class Update {
 									Sys.setCwd(oldCwd);
 									continue;
 								}
-								Sys.setCwd(libPrefix + '/$version');
+								Sys.setCwd(libPrefix + '/$version' + dir);
 							} else {
 								Sys.println('Cannot find .dev or .current file in $libPrefix');
 								Sys.setCwd(oldCwd);
@@ -262,6 +279,8 @@ typedef Library = {
 	var name:String;
 	var type:String;
 	var ?global:String;
+	var ?skipDeps:String;
+	var ?recursive:String;
 	var ?version:String;
 	var ?ref:String;
 	var ?url:String;
@@ -273,7 +292,8 @@ typedef Event = {
 }
 
 typedef CmdData = {
-	var ?inLib:String;
+	var inLib:String;
+	var dir:String;
 	var lines:Array<String>;
 }
 

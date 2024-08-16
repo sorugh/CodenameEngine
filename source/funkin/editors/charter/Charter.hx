@@ -526,7 +526,7 @@ class Charter extends UIState {
 		noteTypes = PlayState.SONG.noteTypes;
 
 		FlxG.sound.setMusic(FlxG.sound.load(Paths.inst(__song, __diff)));
-		if (Assets.exists(Paths.voices(__song, __diff))) // null or true
+		if (PlayState.SONG.meta.needsVoices != false && Assets.exists(Paths.voices(__song, __diff))) // null or true
 			vocals = FlxG.sound.load(Paths.voices(__song, __diff));
 		else
 			vocals = new FlxSound();
@@ -598,15 +598,22 @@ class Charter extends UIState {
 		updateWaveforms();
 	}
 
+	inline function isSoundLoaded(sound:FlxSound) {
+		@:privateAccess
+		return sound != null && sound._sound != null && sound._sound.length > 0;
+	}
+
 	public function updateWaveforms() {
-		var wavesToGenerate:Array<{name:String, sound:FlxSound}> = [
-			{name: "Inst.ogg", sound: FlxG.sound.music},
-		];
-		if (@:privateAccess vocals._sound != null) //for some reason Assets.exists returns true regardless if the file actually exists
+		var wavesToGenerate:Array<{name:String, sound:FlxSound}> = [];
+
+		if(isSoundLoaded(FlxG.sound.music))
+			wavesToGenerate.push({name: "Inst.ogg", sound: FlxG.sound.music});
+
+		if (PlayState.SONG.meta.needsVoices != false && isSoundLoaded(vocals))
 			wavesToGenerate.push({name: "Voices.ogg", sound: vocals});
 
 		for (strumLine in strumLines)
-			if (strumLine.vocals != null && strumLine.strumLine.vocalsSuffix != null && strumLine.strumLine.vocalsSuffix != "")
+			if (strumLine.vocals != null && strumLine.strumLine.vocalsSuffix != null && strumLine.strumLine.vocalsSuffix != "" && isSoundLoaded(strumLine.vocals))
 				wavesToGenerate.push({
 					name: 'Voices${strumLine.strumLine.vocalsSuffix}.ogg',
 					sound: strumLine.vocals

@@ -47,8 +47,9 @@ class ModsFolder {
 	 */
 	public static function init() {
 		if(!getModsList().contains(Options.lastLoadedMod)) {
+			if(Options.lastLoadedMod != null)
+				Logs.warn("Mod \"" + Options.lastLoadedMod + "\" not found in mods list, switching to base game!");
 			Options.lastLoadedMod = null;
-			Logs.warn("Mod not found in mods list, switching to base game!");
 		}
 	}
 

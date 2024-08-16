@@ -6,7 +6,7 @@ using StringTools;
 class BuildInfo {
 	public static function printBuildInfo() {
 		if(haxe.macro.Context.defined("display")) return;
-		var haxeVersion = haxe.macro.Context.definedValue("haxe");
+		var haxeVersion = haxe.macro.Context.definedValue("haxe").trim();
 		Sys.println('[ BUILD INFO ]');
 		Sys.println('Haxe Version: ${haxeVersion}');
 		try {
@@ -20,7 +20,7 @@ class BuildInfo {
 			var options = sys.io.File.getContent(exportPath);
 			for(option in options.split("\n")) {
 				if(option.startsWith("haxe=")) {
-					lastBuiltWith = option.substr(5);
+					lastBuiltWith = option.substr(5).trim();
 					break;
 				}
 			}

@@ -12,8 +12,8 @@
 
 	<group name="CharterSelection" prefix="charterSelection.">
 		<str id="desc">Select a song to modify the charts from."</str>
-		<str id="accept-song">Press ACCEPT to choose a difficulty to edit.</str>
-		<str id="accept-difficulty">Press ACCEPT to edit the chart for the selected difficulty.</str>
+		<str id="acceptSong">Press ACCEPT to choose a difficulty to edit.</str>
+		<str id="acceptDifficulty">Press ACCEPT to edit the chart for the selected difficulty.</str>
 		<str id="selectDifficulty">Select a difficulty to continue.</str>
 		<str id="newDifficulty">New Difficulty</str>
 		<str id="newSong">New Song</str>
@@ -246,13 +246,141 @@
 		</group>
 	</group>
 
-	<group name="CharacterEditor">
-		<str id="charEditor.name">Character Editor</str>
+	<!-- Character Editor -->
+
+	<group name="CharacterSelection" prefix="characterSelection.">
+		<str id="acceptCharacter">Press ACCEPT to edit this character.</str>
+		<str id="newCharacter">New Character</str>
+		<str id="desc">Select a character to edit</str>
+
+		<group name="Warnings" prefix="warnings.">
+			<str id="notImplemented-title">New Character: Feature Not Implemented!</str>
+			<str id="notImplemented-body">This feature isn't implemented yet. Please wait for more cne updates to have this functional.\n\n\n- Codename Devs</str>
+		</group>
+	</group>
+
+	<group name="CharacterAnimScreen" prefix="characterAnimScreen.">
+		<str id="win-title-creating">Creating Animation</str>
+		<str id="win-title-editing">Animation {0} properties</str>
+
+		<str id="title-creating">Create New Animation</str>
+		<str id="title-editing">Edit Animation Properties</str>
+
+		<str id="name">Name</str>
+		<str id="anim">Animation</str>
+		<str id="fps">FPS</str>
+		<str id="looped">Looped</str>
+		<str id="looping">Looping</str>
+		<str id="indices">Indices</str>
+		<str id="offset">Offset (X,Y)</str>
+	</group>
+
+	<group name="CharacterInfoScreen" prefix="characterInfoScreen.">
+		<str id="win-title">Editing Character</str>
+
+		<str id="spriteData">Sprite Data</str>
+
+		<str id="sprite">Sprite</str>
+		<str id="icon">Icon</str>
+		<str id="gameOverChar">Game Over Character</str>
+		<str id="antialiasing">Antialiasing</str>
+		<str id="antialiased">Antialiased</str>
+		<str id="flipX">Flip X</str>
+		<str id="flipped">Flipped</str>
+		<str id="iconColor">Icon Color</str>
+
+		<str id="characterData">Character Data</str>
+
+		<str id="position">Position (X,Y)</str>
+		<str id="cameraPosition">Camera Position (X,Y)</str>
+		<str id="scale">Scale</str>
+		<str id="singDuration">Sing Duration (Steps)</str>
+		<str id="customValues">Custom Values (Advanced)</str>
+		<str id="isPlayer">Is Player</str>
+		<str id="isGF">Is GF</str>
+	</group>
+
+	<group name="CharacterEditor" prefix="characterEditor.">
+		<str id="name">Character Editor</str>
+
+		<group name="TopBar">
+			<str id="topBar.file">File</str>
+			<group name="FileMenu" prefix="file.">
+				<str id="new">New</str>
+				<str id="save">Save</str>
+				<str id="saveAs">Save As...</str>
+				<str id="exit">Exit</str>
+			</group>
+
+			<str id="topBar.edit">Edit</str>
+			<group name="EditMenu" prefix="edit.">
+				<str id="undo">Undo</str>
+				<str id="redo">Redo</str>
+			</group>
+
+			<str id="topBar.character">Character</str>
+			<group name="CharacterMenu" prefix="character.">
+				<str id="newAnim">New Animation</str>
+				<str id="editAnim">Edit Animation</str>
+				<str id="deleteAnim">Delete Animation</str>
+				<str id="editInfo">Edit Info</str>
+			</group>
+
+			<str id="topBar.playback">Playback</str>
+			<group name="PlaybackMenu" prefix="playback.">
+				<str id="play">Play Animation</str>
+				<str id="stop">Stop Animation</str>
+			</group>
+
+			<str id="topBar.offset">Offsets</str>
+			<group name="OffsetsMenu" prefix="offset.">
+				<str id="moveLeft">Move Left</str>
+				<str id="moveUp">Move Up</str>
+				<str id="moveDown">Move Down</str>
+				<str id="moveRight">Move Right</str>
+				<str id="moveExtraLeft">Move Extra Left</str>
+				<str id="moveExtraUp">Move Extra Up</str>
+				<str id="moveExtraDown">Move Extra Down</str>
+				<str id="moveExtraRight">Move Extra Right</str>
+				<str id="clearOffsets">Clear Offsets</str>
+			</group>
+
+			<str id="topBar.view">View</str>
+			<group name="ViewMenu" prefix="view.">
+				<str id="zoomIn">Zoom in</str>
+				<str id="zoomOut">Zoom out</str>
+				<str id="resetZoom">Reset Zoom</str>
+			</group>
+		</group>
+
+		<group prefix="characterAnimsWindow.">
+			<str id="name">Character Animations</str>
+		</group>
+		<group prefix="characterPropertiesWindow.">
+			<str id="name">Character Properties</str>
+
+			<str id="newCharacter">New Character</str>
+			<str id="editCharacter">Edit Character Info</str>
+
+		</group>
+		<str id="info.animations">{0} Animations</str>
+		<str id="info.flipped">Flipped: {0}</str>
+		<str id="info.sprite">Sprite: {0}</str>
+		<str id="info.anim">Anim: {0}</str>
+		<str id="info.offset">Offset: ({0}, {1})</str>
+
+		<str id="info.invalidCharacter">Invalid Character</str>
 	</group>
 
 	<group name="StageEditor">
 		<str id="stageEditor.name">Stage Editor</str>
 	</group>
 
-	<!-- Debug Options here maybe?-->
+	<group name="UIDebugState">
+		<str id="uiDebug.name">UI Debug State</str>
+	</group>
+
+	<group name="DebugOptions">
+		<str id="debugOptions.name">Debug Options</str>
+	</group>
 </language>

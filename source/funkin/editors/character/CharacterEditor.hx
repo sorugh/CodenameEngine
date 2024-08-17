@@ -29,7 +29,7 @@ class CharacterEditor extends UIState {
 	public var uiGroup:FlxTypedGroup<FlxSprite> = new FlxTypedGroup<FlxSprite>();
 
 	// WINDOWS
-	public var characterPropertiresWindow:CharacterPropertiesWindow;
+	public var characterPropertiesWindow:CharacterPropertiesWindow;
 	public var characterAnimsWindow:UIButtonList<CharacterAnimButtons>;
 
 	// camera for the character itself so that it can be unzoomed/zoomed in again
@@ -46,159 +46,162 @@ class CharacterEditor extends UIState {
 		if (character != null) __character = character;
 	}
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("characterEditor." + id, args);
+
 	public override function create() {
 		super.create();
 
-		WindowUtils.suffix = " (Character Editor)";
+		WindowUtils.suffix = " (" + translate("name") + ")";
 		SaveWarning.selectionClass = CharacterSelection;
 		SaveWarning.saveFunc = () -> {_file_save(null);};
 
 		topMenu = [
 			{
-				label: "File",
+				label: translate("topBar.file"),
 				childs: [
 					{
-						label: "New",
+						label: translate("file.new"),
 						onSelect: _file_new,
 					},
 					null,
 					{
-						label: "Save",
+						label: translate("file.save"),
 						keybind: [CONTROL, S],
 						onSelect: _file_save,
 					},
 					{
-						label: "Save As...",
+						label: translate("file.saveAs"),
 						keybind: [CONTROL, SHIFT, S],
 						onSelect: _file_saveas,
 					},
 					null,
 					{
-						label: "Exit",
+						label: translate("file.exit"),
 						onSelect: _file_exit
 					}
 				]
 			},
 			{
-				label: "Edit",
+				label: translate("topBar.edit"),
 				childs: [
 					{
-						label: "Undo",
+						label: translate("edit.undo"),
 						keybind: [CONTROL, Z],
 						onSelect: _edit_undo
 					},
 					{
-						label: "Redo",
+						label: translate("edit.redo"),
 						keybinds: [[CONTROL, Y], [CONTROL, SHIFT, Z]],
 						onSelect: _edit_redo
 					}
 				]
 			},
 			{
-				label: "Character",
+				label: translate("topBar.character"),
 				childs: [
 					{
-						label: "New Animation",
+						label: translate("character.newAnim"),
 						keybind: [CONTROL, N],
 						onSelect: _char_add_anim,
 					},
 					{
-						label: "Edit Animation",
+						label: translate("character.editAnim"),
 						onSelect: _char_edit_anim,
 					},
 					{
-						label: "Delete Animation",
+						label: translate("character.deleteAnim"),
 						keybind: [DELETE],
 						onSelect: _char_remove_anim,
 					},
 					null,
 					{
-						label: "Edit Info",
+						label: translate("character.editInfo"),
 						onSelect: _char_edit_info,
 					}
 				]
 			},
 			{
-				label: "Playback",
+				label: translate("topBar.playback"),
 				childs: [
 					{
-						label: "Play Animation",
+						label: translate("playback.play"),
 						keybind: [SPACE],
 						onSelect: _playback_play_anim,
 					},
 					{
-						label: "Stop Animation",
+						label: translate("playback.stop"),
 						onSelect: _playback_stop_anim
 					}
 				]
 			},
 			{
-				label: "Offsets",
+				label: translate("topBar.offset"),
 				childs: [
 					{
-						label: "Move Left",
+						label: translate("offset.moveLeft"),
 						keybind: [LEFT],
 						onSelect: _offsets_left,
 					},
 					{
-						label: "Move Up",
+						label: translate("offset.moveUp"),
 						keybind: [UP],
 						onSelect: _offsets_up,
 					},
 					{
-						label: "Move Down",
+						label: translate("offset.moveDown"),
 						keybind: [DOWN],
 						onSelect: _offsets_down,
 					},
 					{
-						label: "Move Right",
+						label: translate("offset.moveRight"),
 						keybind: [RIGHT],
 						onSelect: _offsets_right,
 					},
 					null,
 					{
-						label: "Move Extra Left",
+						label: translate("offset.moveExtraLeft"),
 						keybind: [SHIFT, LEFT],
 						onSelect: _offsets_extra_left,
 					},
 					{
-						label: "Move Extra Up",
+						label: translate("offset.moveExtraUp"),
 						keybind: [SHIFT, UP],
 						onSelect: _offsets_extra_up,
 					},
 					{
-						label: "Move Extra Down",
+						label: translate("offset.moveExtraDown"),
 						keybind: [SHIFT, DOWN],
 						onSelect: _offsets_extra_down,
 					},
 					{
-						label: "Move Extra Right",
+						label: translate("offset.moveExtraRight"),
 						keybind: [SHIFT, RIGHT],
 						onSelect: _offsets_extra_right,
 					},
 					null,
 					{
-						label: "Clear Offsets",
+						label: translate("offset.clearOffsets"),
 						keybind: [CONTROL, R],
 						onSelect: _offsets_clear,
 					}
 				]
 			},
 			{
-				label: "View",
+				label: translate("topBar.view"),
 				childs: [
 					{
-						label: "Zoom in",
+						label: translate("view.zoomIn"),
 						keybind: [CONTROL, NUMPADPLUS],
 						onSelect: _view_zoomin
 					},
 					{
-						label: "Zoom out",
+						label: translate("view.zoomOut"),
 						keybind: [CONTROL, NUMPADMINUS],
 						onSelect: _view_zoomout
 					},
 					{
-						label: "Reset zoom",
+						label: translate("view.resetZoom"),
 						keybind: [CONTROL, NUMPADZERO],
 						onSelect: _view_zoomreset
 					},
@@ -237,10 +240,10 @@ class CharacterEditor extends UIState {
 		topMenuSpr = new UITopMenu(topMenu);
 		topMenuSpr.cameras = uiGroup.cameras = [uiCamera];
 
-		characterPropertiresWindow = new CharacterPropertiesWindow();
-		uiGroup.add(characterPropertiresWindow);
+		characterPropertiesWindow = new CharacterPropertiesWindow();
+		uiGroup.add(characterPropertiesWindow);
 
-		characterAnimsWindow = new UIButtonList<CharacterAnimButtons>(777, 209, 473, 488, "Character Animations", FlxPoint.get(429, 32));
+		characterAnimsWindow = new UIButtonList<CharacterAnimButtons>(777, 209, 473, 488, translate("characterAnimsWindow.name"), FlxPoint.get(429, 32));
 		characterAnimsWindow.addButton.callback = function() CharacterEditor.instance.createAnimWithUI();
 		var animOrder = character.getAnimOrder();
 		for (i=>anim in animOrder)
@@ -284,9 +287,16 @@ class CharacterEditor extends UIState {
 		}
 
 		if (character != null)
-			characterPropertiresWindow.characterInfo.text = '${character.getNameList().length} Animations\nFlipped: ${character.flipX}\nSprite: ${character.sprite}\nAnim: ${character.getAnimName()}\nOffset: (${character.frameOffset.x}, ${character.frameOffset.y})';
+			characterPropertiesWindow.characterInfo.text = [
+				translate("info.animations", [character.getNameList().length]),
+				translate("info.flipped", [character.flipX]),
+				translate("info.sprite", [character.sprite]),
+				translate("info.anim", [character.getAnimName()]),
+				translate("info.offset", [character.frameOffset.x, character.frameOffset.y])
+			].join('\n');
+		else characterPropertiesWindow.characterInfo.text = translate("info.invalidCharacter");
 
-		if (!(characterPropertiresWindow.hovered || characterAnimsWindow.hovered) && !characterAnimsWindow.dragging) {
+		if (!(characterPropertiesWindow.hovered || characterAnimsWindow.hovered) && !characterAnimsWindow.dragging) {
 			if (FlxG.mouse.wheel != 0) {
 				zoom += 0.25 * FlxG.mouse.wheel;
 				__camZoom = Math.pow(2, zoom);

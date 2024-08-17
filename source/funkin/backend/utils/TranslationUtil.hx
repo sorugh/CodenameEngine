@@ -258,6 +258,7 @@ final class TranslationUtil
 			if(leMap.exists(id)) continue;
 			var value:String = node.has.string ? node.att.string : node.innerData;
 			if(node.getAtt("notrim").getDefault("true") != "true") value = value.trim();
+			// make it so you can escape the backslash
 			value = value.replace("\\n", "\n").replace("\r", ""); // remove stupid windows line breaks and convert newline literals to newlines
 			leMap.set(id, FormatUtil.get(value));
 			//leMap.set(id, FormatUtil.getStr("{" + id + "}"));

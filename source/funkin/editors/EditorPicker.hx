@@ -15,27 +15,27 @@ class EditorPicker extends MusicBeatSubstate {
 		},
 		{
 			name: "Character Editor",
-			id: "character",
+			id: "characterEditor",
 			iconID: 1,
 			state: funkin.editors.character.CharacterSelection
 		},
 		{
 			name: "Stage Editor",
-			id: "stage",
+			id: "stageEditor",
 			iconID: 2,
 			state: null
 		},
 		#if (debug || debug_ui)
 		{
 			name: "UI Debug State",
-			id: "ui-debug",
+			id: "uiDebug",
 			iconID: 3,
 			state: UIDebugState
 		},
 		#end
 		{
 			name: "Debug Options",
-			id: "debug-options",
+			id: "debugOptions",
 			iconID: 4,
 			state: DebugOptions
 		}
@@ -71,7 +71,8 @@ class EditorPicker extends MusicBeatSubstate {
 
 		optionHeight = FlxG.height / options.length;
 		for(k=>o in options) {
-			var spr = new EditorPickerOption(o.name, o.iconID, optionHeight);
+			var visualName = o.name;
+			var spr = new EditorPickerOption(visualName, o.iconID, optionHeight);
 			spr.y = k * optionHeight;
 			add(spr);
 			sprites.push(spr);

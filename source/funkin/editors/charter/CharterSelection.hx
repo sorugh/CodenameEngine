@@ -26,11 +26,11 @@ class CharterSelection extends EditorTreeMenu {
 		freeplayList = FreeplaySonglist.get(false);
 
 		var list:Array<OptionType> = [
-			for(s in freeplayList.songs) new EditorIconOption(s.name, TU.translate("charterSelection.accept-song"), s.icon, function() {
+			for(s in freeplayList.songs) new EditorIconOption(s.name, TU.translate("charterSelection.acceptSong"), s.icon, function() {
 				curSong = s;
 				var list:Array<OptionType> = [
 					for(d in s.difficulties) if (d != "")
-						new TextOption(d, TU.translate("charterSelection.accept-difficulty"), function() {
+						new TextOption(d, TU.translate("charterSelection.acceptDifficulty"), function() {
 							FlxG.switchState(new Charter(s.name, d));
 						})
 				];
@@ -117,11 +117,11 @@ class CharterSelection extends EditorTreeMenu {
 		#end
 
 		// duplicated code, todo: fix this
-		var option = new EditorIconOption(creation.meta.name, TU.translate("charterSelection.accept-song"), creation.meta.icon, function() {
+		var option = new EditorIconOption(creation.meta.name, TU.translate("charterSelection.acceptSong"), creation.meta.icon, function() {
 			curSong = creation.meta;
 			var list:Array<OptionType> = [
 				for(d in creation.meta.difficulties)
-					if (d != "") new TextOption(d, TU.translate("charterSelection.accept-difficulty"), function() {
+					if (d != "") new TextOption(d, TU.translate("charterSelection.acceptDifficulty"), function() {
 						FlxG.switchState(new Charter(creation.meta.name, d));
 					})
 			];
@@ -156,7 +156,7 @@ class CharterSelection extends EditorTreeMenu {
 		// Add to List
 		// duplicated code, todo: fix this
 		curSong.difficulties.push(name);
-		var option = new TextOption(name, TU.translate("charterSelection.accept-difficulty"), function() {
+		var option = new TextOption(name, TU.translate("charterSelection.acceptDifficulty"), function() {
 			FlxG.switchState(new Charter(curSong.name, name));
 		});
 		optionsTree.members[optionsTree.members.length-1].insert(optionsTree.members[optionsTree.members.length-1].length-1, option);

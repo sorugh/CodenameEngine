@@ -36,8 +36,11 @@ class CharacterInfoScreen extends UISubstateWindow {
 		super();
 	}
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("characterInfoScreen." + id, args);
+
 	public override function create() {
-		winTitle = "Editing Character";
+		winTitle = translate("win-title");
 		winWidth = 1014;
 		winHeight = 600;
 
@@ -47,40 +50,40 @@ class CharacterInfoScreen extends UISubstateWindow {
 			add(new UIText(ui.x, ui.y - 24, 0, text));
 
 		var title:UIText;
-		add(title = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Sprite Data", 28));
+		add(title = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, translate("spriteData"), 28));
 
 		spriteTextBox = new UITextBox(title.x, title.y + title.height + 38, character.sprite, 200);
 		add(spriteTextBox);
-		addLabelOn(spriteTextBox, "Sprite");
+		addLabelOn(spriteTextBox, translate("sprite"));
 
 		iconTextBox = new UITextBox(spriteTextBox.x + 200 + 26, spriteTextBox.y, character.getIcon(), 150);
 		iconTextBox.onChange = (newIcon:String) -> {updateIcon(newIcon);}
 		add(iconTextBox);
-		addLabelOn(iconTextBox, "Icon");
+		addLabelOn(iconTextBox, translate("icon"));
 
 		updateIcon(character.getIcon());
 
 		gameOverCharTextBox = new UITextBox(iconTextBox.x + 150 + (75 + 12), iconTextBox.y, character.gameOverCharacter, 200);
 		add(gameOverCharTextBox);
-		addLabelOn(gameOverCharTextBox, "Game Over Character");
+		addLabelOn(gameOverCharTextBox, translate("gameOverChar"));
 
-		antialiasingCheckbox = new UICheckbox(spriteTextBox.x, spriteTextBox.y + 10 + 32 + 28, "Antialiasing", character.antialiasing);
+		antialiasingCheckbox = new UICheckbox(spriteTextBox.x, spriteTextBox.y + 10 + 32 + 28, translate("antialiasing"), character.antialiasing);
 		add(antialiasingCheckbox);
-		addLabelOn(antialiasingCheckbox, "Antialiased");
+		addLabelOn(antialiasingCheckbox, translate("antialiased"));
 
-		flipXCheckbox = new UICheckbox(antialiasingCheckbox.x + 172, spriteTextBox.y + 10 + 32 + 28, "FlipX", character.flipX);
+		flipXCheckbox = new UICheckbox(antialiasingCheckbox.x + 172, spriteTextBox.y + 10 + 32 + 28, translate("flipX"), character.flipX);
 		add(flipXCheckbox);
-		addLabelOn(flipXCheckbox, "Flipped");
+		addLabelOn(flipXCheckbox, translate("flipped"));
 
 		iconColorWheel = new UIColorwheel(gameOverCharTextBox.x + 200 + 20, gameOverCharTextBox.y, character.iconColor);
 		add(iconColorWheel);
-		addLabelOn(iconColorWheel, "Icon Color");
+		addLabelOn(iconColorWheel, translate("iconColor"));
 
-		add(title = new UIText(spriteTextBox.x, spriteTextBox.y + 10 + 46 + 84, 0, "Character Data", 28));
+		add(title = new UIText(spriteTextBox.x, spriteTextBox.y + 10 + 46 + 84, 0, translate("characterData"), 28));
 
 		positionXStepper = new UINumericStepper(title.x, title.y + title.height + 36, character.globalOffset.x, 0.001, 2, null, null, 84);
 		add(positionXStepper);
-		addLabelOn(positionXStepper, "Position (X,Y)");
+		addLabelOn(positionXStepper, translate("position"));
 
 		add(new UIText(positionXStepper.x + 84 - 32 + 0, positionXStepper.y + 9, 0, ",", 22));
 
@@ -89,7 +92,7 @@ class CharacterInfoScreen extends UISubstateWindow {
 
 		cameraXStepper = new UINumericStepper(positionYStepper.x + 36 + 84 - 32, positionYStepper.y, character.cameraOffset.x, 0.001, 2, null, null, 84);
 		add(cameraXStepper);
-		addLabelOn(cameraXStepper, "Camera Position (X,Y)");
+		addLabelOn(cameraXStepper, translate("cameraPosition"));
 
 		add(new UIText(cameraXStepper.x + 84 - 32 + 0, cameraXStepper.y + 9, 0, ",", 22));
 
@@ -98,11 +101,11 @@ class CharacterInfoScreen extends UISubstateWindow {
 
 		scaleStepper = new UINumericStepper(cameraYStepper.x + 84 - 32 + 90, cameraYStepper.y, character.scale.x, 0.001, 2, null, null, 74);
 		add(scaleStepper);
-		addLabelOn(scaleStepper, "Scale");
+		addLabelOn(scaleStepper, translate("scale"));
 
 		singTimeStepper = new UINumericStepper(scaleStepper.x + 74 - 32 + 36, scaleStepper.y, character.holdTime, 0.001, 2, null, null, 74);
 		add(singTimeStepper);
-		addLabelOn(singTimeStepper, "Sing Duration (Steps)");
+		addLabelOn(singTimeStepper, translate("singDuration"));
 
 		customPropertiesButtonList = new UIButtonList<PropertyButton>(singTimeStepper.x + singTimeStepper.width + 200, singTimeStepper.y, 290, 200, '', FlxPoint.get(280, 35), null, 5);
 		customPropertiesButtonList.frames = Paths.getFrames('editors/ui/inputbox');
@@ -113,27 +116,25 @@ class CharacterInfoScreen extends UISubstateWindow {
 		for (prop=>val in character.extra)
 			customPropertiesButtonList.add(new PropertyButton(prop, val, customPropertiesButtonList));
 		add(customPropertiesButtonList);
-		addLabelOn(customPropertiesButtonList, "Custom Values (Advanced)");
+		addLabelOn(customPropertiesButtonList, translate("customValues"));
 
-		isPlayerCheckbox = new UICheckbox(positionXStepper.x, positionXStepper.y + 10 + 32 + 28, "isPlayer", character.playerOffsets);
+		isPlayerCheckbox = new UICheckbox(positionXStepper.x, positionXStepper.y + 10 + 32 + 28, translate("isPlayer"), character.playerOffsets);
 		add(isPlayerCheckbox);
-		addLabelOn(isPlayerCheckbox, "Is Player");
 
-		isGFCheckbox = new UICheckbox(isPlayerCheckbox.x + 128, positionXStepper.y + 10 + 32 + 28, "isGF", false);
+		isGFCheckbox = new UICheckbox(isPlayerCheckbox.x + 128, positionXStepper.y + 10 + 32 + 28, translate("isGF"), false);
 		add(isGFCheckbox);
-		addLabelOn(isGFCheckbox, "Is GF");
 
 		for (checkbox in [isPlayerCheckbox, isGFCheckbox, antialiasingCheckbox, flipXCheckbox])
 			{checkbox.y += 4; checkbox.x += 6;}
 
-		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight- 20, "Save & Close", function() {
+		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight- 20, TU.translate("editor.saveClose"), function() {
 			saveCharacterInfo();
 			close();
 		}, 125);
 		saveButton.x -= saveButton.bWidth;
 		saveButton.y -= saveButton.bHeight;
 
-		closeButton = new UIButton(saveButton.x - 20, saveButton.y, "Close", function() {
+		closeButton = new UIButton(saveButton.x - 20, saveButton.y, TU.translate("editor.close"), function() {
 			if (onSave != null) onSave(null);
 			close();
 		}, 125);

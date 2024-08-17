@@ -8,6 +8,9 @@ import funkin.options.type.OptionType;
 
 class CharacterSelection extends EditorTreeMenu
 {
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("characterSelection." + id, args);
+
 	public override function create()
 	{
 		bgType = "charter";
@@ -17,19 +20,20 @@ class CharacterSelection extends EditorTreeMenu
 
 		var list:Array<OptionType> = [
 			for (char in (modsList.length == 0 ? Character.getList(false) : modsList))
-				new IconOption(char, "Press ACCEPT to edit this character.", Character.getIconFromCharName(char),
+				new IconOption(char, translate("acceptCharacter"), Character.getIconFromCharName(char),
 			 	function() {
 					FlxG.switchState(new CharacterEditor(char));
 				})
 		];
 
-		list.insert(0, new NewOption("New Character", "New Character", function() {
-			openSubState(new UIWarningSubstate("New Character: Feature Not Implemented!", "This feature isnt implemented yet. Please wait for more cne updates to have this functional.\n\n\n- Codename Devs", [
-				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
+		var newChar = translate("newCharacter");
+		list.insert(0, new NewOption(newChar, newChar, function() {
+			openSubState(new UIWarningSubstate(translate("warnings.notImplemented-title"), translate("warnings.notImplemented-body"), [
+				{label: TU.translate("editor.ok"), color: 0xFFFF0000, onClick: function(t) {}}
 			]));
 		}));
 
-		main = new OptionsScreen("Character Editor", "Select a character to edit", list);
+		main = new OptionsScreen(TU.translate("characterEditor.name"), translate("desc"), list);
 
 		DiscordUtil.call("onEditorTreeLoaded", ["Character Editor"]);
 	}

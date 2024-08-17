@@ -9,7 +9,7 @@ class GameplayOptions extends OptionsScreen {
 	var offsetSetting:NumOption;
 
 	public override function new(title:String, desc:String) {
-		super(title, desc, "GameplayOptions");
+		super(title, desc, "GameplayOptions.");
 		add(new Checkbox(
 			getName("downscroll"),
 			getDesc("downscroll"),

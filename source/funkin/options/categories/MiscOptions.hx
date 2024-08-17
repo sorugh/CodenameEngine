@@ -3,7 +3,7 @@ package funkin.options.categories;
 
 class MiscOptions extends OptionsScreen {
 	public override function new(title:String, desc:String) {
-		super(title, desc, "MiscOptions");
+		super(title, desc, "MiscOptions.");
 
 		{ // Language Option
 			var lanArray:Array<String> = TranslationUtil.foundLanguages;

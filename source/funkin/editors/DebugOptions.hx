@@ -26,7 +26,7 @@ class DebugOptions extends TreeMenu {
 
 class DebugOptionsScreen extends OptionsScreen {
 	public override function new() {
-		prefix = "DebugOptions";
+		prefix = "DebugOptions.";
 		super(translate("title"), translate("desc"), prefix);
 		#if windows
 		add(new TextOption(

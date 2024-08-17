@@ -2,7 +2,7 @@ package funkin.options.categories;
 
 class AppearanceOptions extends OptionsScreen {
 	public override function new(title:String, desc:String) {
-		super(title, desc, "AppearanceOptions");
+		super(title, desc, "AppearanceOptions.");
 		add(new NumOption(
 			getName("framerate"),
 			getDesc("framerate"),

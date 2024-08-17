@@ -18,16 +18,19 @@ class OptionsMenu extends TreeMenu {
 		{
 			name: 'optionsTree.gameplay-name',
 			desc: 'optionsTree.gameplay-desc',
+			suffix: " >",
 			state: GameplayOptions
 		},
 		{
 			name: 'optionsTree.appearance-name',
 			desc: 'optionsTree.appearance-desc',
+			suffix: " >",
 			state: AppearanceOptions
 		},
 		{
 			name: 'optionsTree.miscellaneous-name',
 			desc: 'optionsTree.miscellaneous-desc',
+			suffix: " >",
 			state: MiscOptions
 		}
 	];
@@ -53,7 +56,9 @@ class OptionsMenu extends TreeMenu {
 			var desc = o.desc;
 			if(TU.exists(name)) name = TU.translate(name);
 			if(TU.exists(desc)) desc = TU.translate(desc);
-			new TextOption(name, desc, function() {
+			var visualName = name;
+			if (o.suffix != null) visualName += o.suffix;
+			new TextOption(visualName, desc, function() {
 				if (o.substate != null) {
 					persistentUpdate = false;
 					persistentDraw = true;

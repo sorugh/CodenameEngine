@@ -114,6 +114,7 @@ typedef OptionCategory = {
 	var desc:String;
 	var state:OneOfTwo<OptionsScreen, Class<OptionsScreen>>;
 	var ?substate:OneOfTwo<MusicBeatSubstate, Class<MusicBeatSubstate>>;
+	var ?suffix:String;
 }
 
 typedef OptionTypeDef = {

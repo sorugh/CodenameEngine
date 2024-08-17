@@ -7,13 +7,13 @@
 		<str id="optionsTree.controls-name">Controls</str>
 		<str id="optionsTree.controls-desc">Change Controls for Player 1 and Player 2!</str>
 
-		<str id="optionsTree.gameplay-name">Gameplay &gt;</str>
+		<str id="optionsTree.gameplay-name">Gameplay</str>
 		<str id="optionsTree.gameplay-desc">Change Gameplay options such as Downscroll, Scroll Speed, Naughtyness...</str>
 
-		<str id="optionsTree.appearance-name">Appearance &gt;</str>
+		<str id="optionsTree.appearance-name">Appearance</str>
 		<str id="optionsTree.appearance-desc">Change Appearance options such as Flashing menus...</str>
 
-		<str id="optionsTree.miscellaneous-name">Miscellaneous &gt;</str>
+		<str id="optionsTree.miscellaneous-name">Miscellaneous</str>
 		<str id="optionsTree.miscellaneous-desc">Use this menu to reset save data or engine settings.</str>
 
 		<!-- cant have debug here -->

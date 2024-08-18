@@ -21,6 +21,7 @@ class HashLinkFixer {
 
 	public static function init() {
 		#if !display
+		if(Context.defined("display")) return;
 		if(Context.defined("hl")) {
 			for(apply in applyOn) {
 				compile(apply);

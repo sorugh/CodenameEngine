@@ -75,18 +75,18 @@ const int EFFECT_TYPE_FLAG = 4;
 uniform int effectType;
 
 /**
-	* How fast the waves move over time
-	*/
+* How fast the waves move over time
+*/
 uniform float uSpeed;
 
 /**
-	* Number of waves over time
-	*/
+* Number of waves over time
+*/
 uniform float uFrequency;
 
 /**
-	* How much the pixels are going to stretch over the waves
-	*/
+* How much the pixels are going to stretch over the waves
+*/
 uniform float uWaveAmplitude;
 
 vec2 sineWave(vec2 pt)

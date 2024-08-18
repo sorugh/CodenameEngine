@@ -1,0 +1,41 @@
+Here are guides on writing shaders for flixel and openfl.
+
+And to make sure that the shaders works on as many devices as possible.
+
+-------
+
+Always have numbers be 0.0 not 0. or .0
+
+Don't use Switch cases, use if statements instead
+
+Use floats where its expected, such as vec2,3,4
+
+Don't use "texture" use "flixel_texture2D" or "texture2D"
+
+(These might work, but its not recommended)
+Don't use ivec2,3,4
+Don't use bvec2,3,4
+Don't use uvec2,3,4
+Don't use uint
+
+Don't name variables starting with "gl_"
+
+Don't have default values for uniforms, set it in the constructor if a class, or after loading the shader
+
+Don't use <number>u, like 8u
+Don't use the variable name "input"
+Don't use the variable name "sample"
+
+-------
+
+Common Practice:
+
+Use texture2D for camera shaders, and FlxGame shaders, and flixel_texture2D for everything else
+flixel_texture2D applies the .colorTransform.
+texture2D doesn't apply it.
+
+-------
+
+Extra:
+
+Use tabs for indentation

@@ -9,10 +9,13 @@ class CharterStrumLineGroup extends FlxTypedGroup<CharterStrumline> {
 	var draggingOffset:Float = 0;
 
 	public var totalKeyCount(get, never):Int;
+	private var __totalKeyCount:Int = -1;
 	public function get_totalKeyCount():Int {
+		if (__totalKeyCount != -1) return __totalKeyCount;
+
 		var v:Int = 0;
 		for (strumLine in members) v += strumLine.keyCount;
-		return v;
+		return __totalKeyCount = v;
 	}
 
 	public var draggable:Bool = false;
@@ -40,6 +43,7 @@ class CharterStrumLineGroup extends FlxTypedGroup<CharterStrumline> {
 		if (isDragging) {
 			draggingObj.x = __mousePos.x - draggingOffset;
 			this.sort(function(o, a, b) return FlxSort.byValues(o, a.x, b.x), -1);
+			refreshStrumlineIDs();
 		}
 
 		for (i=>strum in members)
@@ -69,6 +73,7 @@ class CharterStrumLineGroup extends FlxTypedGroup<CharterStrumline> {
 		members.remove(strumLine);
 		members.insert(newID, strumLine);
 
+		refreshStrumlineIDs();
 		finishDrag(false);
 	}
 
@@ -85,6 +90,7 @@ class CharterStrumLineGroup extends FlxTypedGroup<CharterStrumline> {
 
 		draggingObj = null;
 		fixEvents();
+		refreshStrumlineIDs();
 	}
 
 	public inline function fixEvents() {
@@ -98,6 +104,12 @@ class CharterStrumLineGroup extends FlxTypedGroup<CharterStrumline> {
 			}
 		}
 		__pastStrumlines = null;
+	}
+
+	public inline function refreshStrumlineIDs() {
+		__totalKeyCount = -1;
+		@:privateAccess
+		for (strumLine in members) strumLine.__startingID = -1;
 	}
 
 	public function getStrumlineFromID(id:Int) {

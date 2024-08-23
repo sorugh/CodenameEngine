@@ -25,13 +25,16 @@ class CharterStrumline extends UISprite {
 
 	public var keyCount:Int = 4;
 	public var startingID(get, null):Int;
+	private var __startingID:Int = -1;
 	public function get_startingID():Int {
+		if (__startingID != -1) return __startingID;
+
 		var index = Charter.instance.strumLines.members.indexOf(this);
-		if (index < 1) return 0; //-1 or 0
+		if (index < 1) return __startingID = 0; //-1 or 0
 
 		var v:Int = 0;
 		for (i in 0...index) v += Charter.instance.strumLines.members[i].keyCount;
-		return v;
+		return __startingID = v;
 	}
 
 	public var selectedWaveform(default, set):Int = -1;

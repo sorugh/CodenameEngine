@@ -1060,6 +1060,7 @@ class Charter extends UIState {
 	public function createStrumline(strumLineID:Int, strL:ChartStrumLine, addToUndo:Bool = true, ?__createNotes:Bool = true) {
 		var cStr = new CharterStrumline(strL);
 		strumLines.insert(strumLineID, cStr);
+		strumLines.refreshStrumlineIDs();
 		strumLines.snapStrums();
 
 		if (__createNotes) {
@@ -1093,6 +1094,7 @@ class Charter extends UIState {
 		var strL = strumLines.members[strumLineID].strumLine;
 		strumLines.members[strumLineID].destroy();
 		strumLines.members.remove(strumLines.members[strumLineID]);
+		strumLines.refreshStrumlineIDs();
 		strumLines.snapStrums();
 
 		if (addToUndo) {
@@ -1132,6 +1134,7 @@ class Charter extends UIState {
 		FlxG.state.openSubState(new CharterStrumlineScreen(strID, strL, (_) -> {
 			strumLines.members[strID].strumLine = _;
 			strumLines.members[strID].updateInfo();
+			strumLines.refreshStrumlineIDs();
 
 			undos.addToUndo(CEditStrumLine(strID, oldData, _));
 
@@ -1465,6 +1468,7 @@ class Charter extends UIState {
 			case CEditStrumLine(strumLineID, oldStrumLine, newStrumLine):
 				strumLines.members[strumLineID].strumLine = oldStrumLine;
 				strumLines.members[strumLineID].updateInfo();
+				strumLines.refreshStrumlineIDs();
 			case CCreateSelection(selection):
 				deleteSelection(selection, false);
 			case CDeleteSelection(selection):
@@ -1511,6 +1515,7 @@ class Charter extends UIState {
 			case CEditStrumLine(strumLineID, oldStrumLine, newStrumLine):
 				strumLines.members[strumLineID].strumLine = newStrumLine;
 				strumLines.members[strumLineID].updateInfo();
+				strumLines.refreshStrumlineIDs();
 			case CCreateSelection(selection):
 				createSelection(selection, false);
 			case CDeleteSelection(selection):

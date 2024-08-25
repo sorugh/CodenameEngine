@@ -28,6 +28,8 @@ class UIState extends MusicBeatState {
 	private var __rect:FlxRect;
 	private var __mousePos:FlxPoint;
 
+	static var __point:FlxPoint = new FlxPoint();
+
 	private inline static function get_state()
 		return FlxG.state is UIState ? cast FlxG.state : null;
 
@@ -70,17 +72,15 @@ class UIState extends MusicBeatState {
 
 	public function isOverlapping(spr:UISprite, rect:FlxRect) {
 		for(camera in spr.__lastDrawCameras) {
-			var pos = FlxG.mouse.getScreenPosition(camera, FlxPoint.get());
+			var pos = FlxG.mouse.getScreenPosition(camera, __point);
 			__rect.copyFrom(rect);
 
 			__rect.x -= camera.scroll.x * spr.scrollFactor.x;
 			__rect.y -= camera.scroll.y * spr.scrollFactor.y;
 
 			if (((pos.x > __rect.x) && (pos.x < __rect.x + __rect.width)) && ((pos.y > __rect.y) && (pos.y < __rect.y + __rect.height))) {
-				pos.put();
 				return true;
 			}
-			pos.put();
 		}
 		return false;
 	}

@@ -5,6 +5,37 @@ import flixel.graphics.FlxGraphic;
 import funkin.backend.system.Conductor;
 import openfl.geom.Rectangle;
 
+class FlxFastTypedGroup<T:FlxBasic> extends FlxTypedGroup<T> {
+	public function new(?maxSize:Int = 0) {
+		super(maxSize);
+	}
+
+	override public function add(Object:T):T
+	{
+		if (Object == null)
+		{
+			FlxG.log.warn("Cannot add a `null` object to a FlxGroup.");
+			return null;
+		}
+
+		// removed the check for multiple
+		// removed the check for null reuse
+
+		// If the group is full, return the Object
+		if (maxSize > 0 && length >= maxSize)
+			return Object;
+
+		// If we made it this far, we need to add the object to the group.
+		members.push(Object);
+		length++;
+
+		if (_memberAdded != null)
+			_memberAdded.dispatch(Object);
+
+		return Object;
+	}
+}
+
 class CharterBackdropGroup extends FlxTypedGroup<CharterBackdrop> {
 	public var strumLineGroup:CharterStrumLineGroup;
 	public var notesGroup:CharterNoteGroup;
@@ -68,9 +99,11 @@ class CharterBackdropGroup extends FlxTypedGroup<CharterBackdrop> {
 
 			grid.notesGroup.clear();
 			notesGroup.forEach((n) -> {
-				var onStr:Bool = (n.snappedToStrumline ? n.strumLineID : CoolUtil.boundInt(Std.int((n.x+n.width)/(40*4)), 0, strumLineGroup.members.length-1)) == i;
-				if(n.exists && n.visible && onStr)
-					grid.notesGroup.add(n);
+				if(n.exists && n.visible) {
+					var onStr:Bool = (n.snappedToStrumline ? n.strumLineID : CoolUtil.boundInt(Std.int((n.x+n.width)/(40*4)), 0, strumLineGroup.members.length-1)) == i;
+					if(onStr)
+						grid.notesGroup.add(n);
+				}
 			});
 
 			grid.active = grid.visible = true;
@@ -109,7 +142,7 @@ class CharterBackdropGroup extends FlxTypedGroup<CharterBackdrop> {
 	}
 }
 
-class CharterBackdrop extends FlxTypedGroup<Dynamic> {
+class CharterBackdrop extends FlxTypedGroup<FlxBasic> {
 	public var gridBackDrop:FlxBackdrop;
 	public var topLimit:FlxSprite;
 	public var topSeparator:FlxSprite;
@@ -122,7 +155,7 @@ class CharterBackdrop extends FlxTypedGroup<Dynamic> {
 	public var beatSeparator:FlxBackdrop;
 	public var sectionSeparator:FlxBackdrop;
 
-	public var notesGroup:FlxTypedGroup<CharterNote> = new FlxTypedGroup<CharterNote>();
+	public var notesGroup:FlxFastTypedGroup<CharterNote> = new FlxFastTypedGroup<CharterNote>();
 	public var strumLine:CharterStrumline;
 
 	public function new(gridGraphic:FlxGraphic) {

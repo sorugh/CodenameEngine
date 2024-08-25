@@ -4,7 +4,7 @@ import flixel.util.FlxColor;
 import flixel.math.FlxAngle;
 import flixel.math.FlxPoint;
 
-class DrawUtil {
+final class DrawUtil {
 	public static var line:FlxSprite = null;
 	public static var dot:FlxSprite = null;
 

@@ -23,6 +23,7 @@ class Setup {
 		var CHECK_VSTUDIO = !args.existsOption("no-vscheck");
 		var REINSTALL_ALL = args.existsOption("reinstall");
 		var SILENT = args.existsOption("silent-progress");
+		// TODO: add only install missing libs
 
 		// to prevent messing with currently installed libs
 		if (!FileSystem.exists('.haxelib'))

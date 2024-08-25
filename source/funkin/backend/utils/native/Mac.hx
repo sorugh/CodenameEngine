@@ -5,7 +5,8 @@ import funkin.backend.utils.NativeAPI.CodeCursor;
 import openfl.ui.Mouse;
 
 @:headerInclude('sys/sysctl.h')
-class Mac
+@:dox(hide)
+final class Mac
 {
 	@:functionCode('
 	int mib [] = { CTL_HW, HW_MEMSIZE };

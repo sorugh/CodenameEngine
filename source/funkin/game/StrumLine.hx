@@ -148,6 +148,11 @@ class StrumLine extends FlxTypedGroup<Strum> {
 			}
 		}
 		notes.sortNotes();
+
+		var scrollSpeed = strumLine.scrollSpeed;
+		if(scrollSpeed == null) if (PlayState.instance != null) scrollSpeed = PlayState.instance.scrollSpeed;
+		if(scrollSpeed == null) scrollSpeed = 1;
+		notes.limit = 1500 / scrollSpeed;
 	}
 
 	public override function update(elapsed:Float) {
@@ -179,10 +184,11 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		if (__updateNote_event.cancelled) return;
 
 		if (__updateNote_event.__updateHitWindow) {
-			daNote.canBeHit = (daNote.strumTime > __updateNote_songPos - (PlayState.instance.hitWindow * daNote.latePressWindow)
-				&& daNote.strumTime < __updateNote_songPos + (PlayState.instance.hitWindow * daNote.earlyPressWindow));
+			var hitWindow = PlayState.instance.hitWindow;
+			daNote.canBeHit = (daNote.strumTime > __updateNote_songPos - (hitWindow * daNote.latePressWindow)
+				&& daNote.strumTime < __updateNote_songPos + (hitWindow * daNote.earlyPressWindow));
 
-			if (daNote.strumTime < __updateNote_songPos - PlayState.instance.hitWindow && !daNote.wasGoodHit)
+			if (daNote.strumTime < __updateNote_songPos - hitWindow && !daNote.wasGoodHit)
 				daNote.tooLate = true;
 		}
 
@@ -303,6 +309,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 			animPrefix = strumAnimPrefix[i % strumAnimPrefix.length];
 		var babyArrow:Strum = new Strum(startingPos.x + ((Note.swagWidth * strumScale * (4 / (data.keyCount != null ? data.keyCount : 4))) * i), startingPos.y);
 		babyArrow.ID = i;
+		babyArrow.strumLine = this;
 
 		if(data.scrollSpeed != null)
 			babyArrow.scrollSpeed = data.scrollSpeed;

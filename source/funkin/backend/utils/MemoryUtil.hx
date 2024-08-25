@@ -14,7 +14,7 @@ import openfl.system.System;
 
 using StringTools;
 
-class MemoryUtil {
+final class MemoryUtil {
 	public static var disableCount:Int = 0;
 
 	public static function askDisable() {

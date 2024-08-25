@@ -5,7 +5,7 @@ import openfl.display.BitmapData;
 import openfl.geom.Point;
 import openfl.geom.Rectangle;
 
-class BitmapUtil {
+final class BitmapUtil {
 	/**
 	 * Returns the most present color in a Bitmap.
 	 * @param bmap Bitmap

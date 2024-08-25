@@ -11,7 +11,7 @@ import sys.FileSystem;
 
 using StringTools;
 
-class Chart {
+final class Chart {
 	/**
 	 * Default background colors for songs without bg color
 	 */

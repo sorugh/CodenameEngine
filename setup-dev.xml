@@ -27,7 +27,7 @@
 		</cmd>
 	</if>
 
-	<if cond="lime || all">
+	<!-- <if cond="lime || all">
 		<cmd>
 			<line>cd dev-libs</line>
 			<line>git clone https://github.com/FNF-CNE-Devs/lime lime</line>
@@ -35,10 +35,10 @@
 			<line>haxelib dev lime dev-libs/lime</line>
 		</cmd>
 
-		<!-- Build lime -->
+		<!- - Build lime - ->
 		<cmd inLib="lime" cmd="haxelib run lime rebuild . $PLATFORM -clean" />
 		<cmd inLib="lime" dir="tools" cmd="haxe tools.hxml" />
-	</if>
+	</if> -->
 
 	<if cond="flixel || all">
 		<cmd>
@@ -91,6 +91,21 @@
 			<line>git clone https://github.com/FNF-CNE-Devs/away3d away3d</line>
 			<line>cd ..</line>
 			<line>haxelib dev away3d dev-libs/away3d</line>
+		</cmd>
+	</if>
+
+	<if cond="ne_eo">
+		<!-- Ignore this its only for Ne_Eo -->
+		<cmd>
+			<line>haxelib dev lime ../../lime</line>
+			<line>haxelib dev openfl ../../openfl</line>
+			<line>haxelib dev flixel ../../flixel</line>
+			<line>haxelib dev flixel-addons ../../flixel-addons</line>
+			<line>haxelib dev hscript-improved ../../hscript-improved</line>
+			<line>haxelib dev flxanimate ../../flxanimate</line>
+			<!-- <line>haxelib dev hxdiscord_rpc ../../hxdiscord_rpc</line> -->
+			<line>haxelib dev away3d ../../away3d</line>
+			<line>haxelib dev hxcpp ../../../hxcpp</line>
 		</cmd>
 	</if>
 

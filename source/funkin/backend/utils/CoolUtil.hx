@@ -42,7 +42,7 @@ import flixel.math.FlxPoint;
 using StringTools;
 
 @:allow(funkin.game.PlayState)
-class CoolUtil
+final class CoolUtil
 {
 	public static function getLastExceptionStack():String {
 		return CallStack.toString(CallStack.exceptionStack());

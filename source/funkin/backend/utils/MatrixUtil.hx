@@ -9,7 +9,7 @@ interface IPrePostDraw {
 	public function postDraw():Void;
 }
 
-class MatrixUtil {
+final class MatrixUtil {
 	public static function getMatrixPosition(sprite:FlxSprite, points:OneOfTwo<FlxPoint, Array<FlxPoint>>, ?camera:FlxCamera, _width:Float = 1, _height:Float = 1):Array<FlxPoint>
 	{
 		//if(_width == -1) _width = sprite.width;

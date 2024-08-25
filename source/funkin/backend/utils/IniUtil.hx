@@ -3,7 +3,7 @@ package funkin.backend.utils;
 /**
  * DOESNT SUPPORT CATEGORIES YET!!
  */
-class IniUtil {
+final class IniUtil {
 	public static inline function parseAsset(assetPath:String, ?defaultVariables:Map<String, String>)
 		return parseString(Assets.getText(assetPath), defaultVariables);
 

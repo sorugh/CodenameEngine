@@ -28,6 +28,8 @@ class CharterNote extends UISprite implements ICharterSelectable {
 	public var selected:Bool = false;
 	public var draggable:Bool = true;
 
+	static var noteTypeTexts:Array<UIText> = [];
+
 	public function new() {
 		super();
 
@@ -42,7 +44,7 @@ class CharterNote extends UISprite implements ICharterSelectable {
 		sustainSpr.scale.set(10, 0);
 		members.push(sustainSpr);
 
-		typeText = new UIText(x, y, 0, Std.string(type));
+		this.type = 0;
 
 		cursor = sustainSpr.cursor = CLICK;
 		moves = false;
@@ -56,7 +58,21 @@ class CharterNote extends UISprite implements ICharterSelectable {
 	public var step:Float;
 	public var id:Int;
 	public var susLength:Float;
-	public var type:Int;
+	public var type(default, set):Null<Int> = null;
+	public var typeVisible:Bool = true;
+	public var typeAlpha:Float = 1;
+
+	function set_type(v:Null<Int>) {
+		if(v != this.type) {
+			if(noteTypeTexts[v] == null || noteTypeTexts[v].graphic.isDestroyed) {
+				noteTypeTexts[v] = new UIText(x, y, 0, Std.string(v));
+				noteTypeTexts[v].exists = v != 0;
+			}
+
+			typeText = noteTypeTexts[v];
+		}
+		return this.type = v;
+	}
 
 	public var strumLine:CharterStrumline;
 	public var strumLineID(get, default):Int = -1;
@@ -76,9 +92,8 @@ class CharterNote extends UISprite implements ICharterSelectable {
 		this.type = type;
 		if (strumLine != null) this.strumLine = strumLine;
 
-		typeText.exists = type != 0;
-		typeText.text = Std.string(this.type);
-		typeText.follow(this, 20 - (typeText.frameWidth/2), 20 - (typeText.frameHeight/2));
+		//
+		//typeText.text = Std.string(this.type);
 
 		y = step * 40;
 
@@ -140,9 +155,6 @@ class CharterNote extends UISprite implements ICharterSelectable {
 			sustainDraggable = UIState.state.isOverlapping(sustainSpr, @:privateAccess sustainSpr.__rect);
 		}
 
-		if (typeText.exists)
-			typeText.follow(this, 20 - (typeText.frameWidth/2), 20 - (typeText.frameHeight/2));
-
 		if (__passed != (__passed = step < Conductor.curStepFloat)) {
 			if (__passed && FlxG.sound.music.playing && Charter.instance.hitsoundsEnabled(strumLineID))
 				Charter.instance.hitsound.replay();
@@ -150,7 +162,7 @@ class CharterNote extends UISprite implements ICharterSelectable {
 
 		if (strumLine != null) {
 			sustainSpr.alpha = alpha = !strumLine.strumLine.visible ? (__passed ? 0.2 : 0.4) : (__passed ? 0.6 : 1);
-			typeText.alpha = !strumLine.strumLine.visible ? (__passed ? 0.4 : 0.6) : (__passed ? 0.8 : 1);
+			typeAlpha = !strumLine.strumLine.visible ? (__passed ? 0.4 : 0.6) : (__passed ? 0.8 : 1);
 		}
 
 		colorTransform.redMultiplier = colorTransform.greenMultiplier = colorTransform.blueMultiplier = selected ? 0.75 : 1;
@@ -182,6 +194,10 @@ class CharterNote extends UISprite implements ICharterSelectable {
 
 		drawMembers();
 		drawSuper();
-		if(typeText.exists && typeText.visible) typeText.draw();
+		if(typeText.exists && typeText.visible && typeVisible) {
+			typeText.alpha = typeAlpha;
+			typeText.follow(this, 20 - (typeText.frameWidth/2), 20 - (typeText.frameHeight/2));
+			typeText.draw();
+		}
 	}
 }

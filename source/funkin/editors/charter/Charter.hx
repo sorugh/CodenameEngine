@@ -1,6 +1,7 @@
 package funkin.editors.charter;
 // ! FUCK YOU CHUF (your biggest fan -lunar) <3
 
+import flixel.FlxLayer;
 import funkin.editors.extra.CameraHoverDummy;
 import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxPoint;
@@ -87,6 +88,8 @@ class Charter extends UIState {
 
 	public static var clipboard:Array<CharterCopyboardObject> = [];
 	public static var waveformHandler:CharterWaveformHandler;
+
+	public var textLayer:FlxLayer;
 
 	public function new(song:String, diff:String, reload:Bool = true) {
 		super();
@@ -468,6 +471,7 @@ class Charter extends UIState {
 
 		// adds grid and notes so that they're ALWAYS behind the UI
 		add(gridBackdrops);
+		add(textLayer = new FlxLayer());
 		add(eventsBackdrop);
 		add(addEventSpr);
 		add(eventsGroup);

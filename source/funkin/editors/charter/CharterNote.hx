@@ -67,6 +67,7 @@ class CharterNote extends UISprite implements ICharterSelectable {
 			if(noteTypeTexts[v] == null || noteTypeTexts[v].graphic.isDestroyed) {
 				noteTypeTexts[v] = new UIText(x, y, 0, Std.string(v));
 				noteTypeTexts[v].exists = v != 0;
+				noteTypeTexts[v].layer = (Charter.instance != null) ? Charter.instance.textLayer : null;
 			}
 
 			typeText = noteTypeTexts[v];
@@ -92,8 +93,7 @@ class CharterNote extends UISprite implements ICharterSelectable {
 		this.type = type;
 		if (strumLine != null) this.strumLine = strumLine;
 
-		//
-		//typeText.text = Std.string(this.type);
+		sustainSpr.exists = susLength != 0;
 
 		y = step * 40;
 
@@ -144,10 +144,12 @@ class CharterNote extends UISprite implements ICharterSelectable {
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		var sprLength:Float = (40 * (susLength+tempSusLength)) + ((susLength+tempSusLength) != 0 ? (height/2) : 0);
-		sustainSpr.scale.set(10, __susInstaLerp ? sprLength : CoolUtil.fpsLerp(sustainSpr.scale.y, sprLength, 1/2));
-		sustainSpr.updateHitbox();
-		sustainSpr.follow(this, 15, 20);
+		if(susLength != 0) {
+			var sprLength:Float = (40 * (susLength+tempSusLength)) + ((susLength+tempSusLength) != 0 ? (height/2) : 0);
+			sustainSpr.scale.set(10, __susInstaLerp ? sprLength : CoolUtil.fpsLerp(sustainSpr.scale.y, sprLength, 1/2));
+			sustainSpr.updateHitbox();
+			sustainSpr.follow(this, 15, 20);
+		}
 
 		sustainDraggable = false;
 		if (!hovered && susLength != 0) {

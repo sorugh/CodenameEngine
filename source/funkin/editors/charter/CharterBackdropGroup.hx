@@ -133,7 +133,7 @@ class CharterBackdrop extends FlxTypedGroup<Dynamic> {
 
 		waveformSprite = new FlxSprite().makeSolid(1, 1, 0xFF000000);
 		waveformSprite.scale.set(160, 1);
-		waveformSprite.updateHitbox(); 
+		waveformSprite.updateHitbox();
 		add(waveformSprite);
 
 		sectionSeparator = new FlxBackdrop(null, Y, 0, 0);

@@ -67,7 +67,7 @@ class CharterNote extends UISprite implements ICharterSelectable {
 			if(noteTypeTexts[v] == null || noteTypeTexts[v].graphic.isDestroyed) {
 				noteTypeTexts[v] = new UIText(x, y, 0, Std.string(v));
 				noteTypeTexts[v].exists = v != 0;
-				noteTypeTexts[v].layer = (Charter.instance != null) ? Charter.instance.textLayer : null;
+				//noteTypeTexts[v].layer = (Charter.instance != null) ? Charter.instance.textLayer : null;
 			}
 
 			typeText = noteTypeTexts[v];

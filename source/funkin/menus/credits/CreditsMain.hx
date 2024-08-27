@@ -59,7 +59,7 @@ class CreditsMain extends TreeMenu {
 
 			if (node.name == "github") {
 				if (!node.has.user) {
-					Logs.trace("[CreditsMain] A github node requires a user attribute.", WARNING);
+					Logs.trace("A github node requires a user attribute.", WARNING);
 					continue;
 				}
 
@@ -78,7 +78,7 @@ class CreditsMain extends TreeMenu {
 				credsMenus.push(opt);
 			} else {
 				if (!node.has.name) {
-					Logs.trace("[CreditsMain] A credit node requires a name attribute.", WARNING);
+					Logs.trace("A credit node requires a name attribute.", WARNING);
 					continue;
 				}
 				var name = node.getAtt("name");

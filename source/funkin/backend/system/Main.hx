@@ -166,13 +166,19 @@ class Main extends Sprite
 		initTransition();
 	}
 
-	public static function refreshAssets() {
-		FlxSoundTray.volumeChangeSFX = Paths.sound('menu/volume');
-		FlxSoundTray.volumeUpChangeSFX = null;
-		FlxSoundTray.volumeDownChangeSFX = null;
+	public static function refreshAssets() @:privateAccess {
+		var game = FlxG.game; var daSndTray = Type.createInstance(game._customSoundTray = funkin.menus.ui.FunkinSoundTray, []);
+		var index:Int = game.numChildren - 1;
 
-		if (FlxG.game.soundTray != null)
-			FlxG.game.soundTray.text.setTextFormat(new TextFormat(Paths.font("vcr.ttf")));
+		if(game.soundTray != null)
+		{
+			var newIndex:Int = game.getChildIndex(game.soundTray);
+			if(newIndex != -1) index = newIndex;
+			game.removeChild(game.soundTray);
+			game.soundTray.__cleanup();
+		}
+
+		game.addChildAt(game.soundTray = daSndTray, index);
 	}
 
 	public static function initTransition() {

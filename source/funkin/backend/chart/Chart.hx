@@ -17,6 +17,8 @@ final class Chart {
 	 */
 	public inline static var defaultColor:FlxColor = 0xFF9271FD;
 
+	public static final version:String = "1.6.0";
+
 	public static function loadEventsJson(songName:String) {
 		var path = Paths.file('songs/${songName.toLowerCase()}/events.json');
 		var data:Array<ChartEvent> = null;

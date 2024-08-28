@@ -11,6 +11,7 @@ typedef ChartData = {
 	public var scrollSpeed:Float;
 	public var noteTypes:Array<String>;
 
+	public var ?chartVersion:String;
 	public var ?fromMods:Bool;
 }
 

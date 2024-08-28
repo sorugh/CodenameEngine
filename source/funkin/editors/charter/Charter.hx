@@ -1818,6 +1818,7 @@ class Charter extends UIState {
 	public function buildChart() {
 		PlayState.SONG.strumLines = [];
 		PlayState.SONG.noteTypes = this.noteTypes;
+		PlayState.SONG.chartVersion = Chart.version;
 		for(s in strumLines) {
 			s.strumLine.notes = [];
 			PlayState.SONG.strumLines.push(s.strumLine);

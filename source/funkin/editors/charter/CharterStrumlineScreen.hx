@@ -3,7 +3,10 @@ package funkin.editors.charter;
 import flixel.math.FlxPoint;
 import funkin.backend.chart.ChartData.ChartStrumLine;
 import funkin.game.Character;
+import funkin.game.Note;
+import funkin.game.HudCamera;
 import funkin.game.HealthIcon;
+import flixel.tweens.FlxTween;
 
 class CharterStrumlineScreen extends UISubstateWindow {
 	public var strumLineID:Int = -1;
@@ -25,6 +28,9 @@ class CharterStrumlineScreen extends UISubstateWindow {
 
 	public var saveButton:UIButton;
 	public var closeButton:UIButton;
+
+	public var strumLineCam:HudCamera;
+	public var previewStrumLine:CharterPreviewStrumLine;
 
 	private var onSave:ChartStrumLine -> Void = null;
 
@@ -159,9 +165,20 @@ class CharterStrumlineScreen extends UISubstateWindow {
 		add(vocalsSuffixDropDown);
 		addLabelOn(vocalsSuffixDropDown, "Vocal Suffix");
 
-		keyCountStepper = new UINumericStepper(vocalsSuffixDropDown.x + 200 + 26, vocalsSuffixDropDown.y, strumLine.keyCount != null ? strumLine.keyCount : 4, 1, 0, 1, null, 84);
+		keyCountStepper = new UINumericStepper(vocalsSuffixDropDown.x + 200 + 26, vocalsSuffixDropDown.y, strumLine.keyCount != null ? strumLine.keyCount : 4, 1, 0, 1, 1000, 84);
 		add(keyCountStepper);
 		addLabelOn(keyCountStepper, "Key Count");
+
+
+		strumLineCam = new HudCamera();
+		strumLineCam.downscroll = Options.downscroll;
+		strumLineCam.bgColor = 0;
+		strumLineCam.alpha = 0;
+		FlxG.cameras.add(strumLineCam, false);
+		previewStrumLine = new CharterPreviewStrumLine(0, 0, 0, 4, 0);
+		previewStrumLine.camera = strumLineCam;
+		add(previewStrumLine);
+		FlxTween.tween(strumLineCam, {alpha: 1}, 0.25, {ease: FlxEase.cubeOut});
 	}
 
 	function saveStrumline() {
@@ -185,6 +202,23 @@ class CharterStrumlineScreen extends UISubstateWindow {
 		};
 		if(!usesChartscrollSpeed.checked) newStrumLine.scrollSpeed = scrollSpeedStepper.value;
 		if (onSave != null) onSave(newStrumLine);
+	}
+
+	override public function update(elapsed:Float) {
+		var scrollSpeed:Float = 0.0;
+		if (usesChartscrollSpeed.hovered || scrollSpeedStepper.hovered || scrollSpeedStepper.focused)
+			scrollSpeed = scrollSpeedStepper.value;
+
+		previewStrumLine.visible = visibleCheckbox.checked;
+		var xOffset:Float = (FlxG.width * hudXStepper.value) - (Note.swagWidth * hudScaleStepper.value * 2);
+		previewStrumLine.updatePos(xOffset, hudYStepper.value, hudScaleStepper.value, Std.int(keyCountStepper.value), scrollSpeed);
+
+		super.update(elapsed);
+	}
+	override public function destroy() {
+		super.destroy();
+		FlxTween.cancelTweensOf(strumLineCam);
+		FlxG.cameras.remove(strumLineCam);
 	}
 }
 

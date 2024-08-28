@@ -23,14 +23,16 @@ function onNoteCreation(event) {
 	event.cancel();
 
 	var note = event.note;
-	var strumID = event.strumID % 4;
+	var strumID = event.strumID;
 	if (event.note.isSustainNote) {
 		note.loadGraphic(Paths.image('stages/school/ui/arrowEnds'), true, 7, 6);
-		note.animation.add("hold", [strumID]);
-		note.animation.add("holdend", [4 + strumID]);
+		var maxCol = Math.floor(note.graphic.width / 7);
+		note.animation.add("hold", [strumID%maxCol]);
+		note.animation.add("holdend", [maxCol + strumID%maxCol]);
 	} else {
 		note.loadGraphic(Paths.image('stages/school/ui/arrows-pixels'), true, 17, 17);
-		note.animation.add("scroll", [4 + strumID]);
+		var maxCol = Math.floor(note.graphic.width / 17);
+		note.animation.add("scroll", [maxCol + strumID%maxCol]);
 	}
 	var strumScale = event.note.strumLine.strumScale;
 	note.scale.set(daPixelZoom*strumScale, daPixelZoom*strumScale);
@@ -50,11 +52,13 @@ function onStrumCreation(event) {
 	event.cancel();
 
 	var strum = event.strum;
-	var strumID = event.strumID % 4;
 	strum.loadGraphic(Paths.image('stages/school/ui/arrows-pixels'), true, 17, 17);
+	var maxCol = Math.floor(strum.graphic.width / 17);
+	var strumID = event.strumID % maxCol;
+
 	strum.animation.add("static", [strumID]);
-	strum.animation.add("pressed", [4 + strumID, 8 + strumID], 12, false);
-	strum.animation.add("confirm", [12 + strumID, 16 + strumID], 24, false);
+	strum.animation.add("pressed", [maxCol + strumID, (maxCol*2) + strumID], 12, false);
+	strum.animation.add("confirm", [(maxCol*3) + strumID, (maxCol*4) + strumID], 24, false);
 
 	var strumScale = strumLines.members[event.player].strumScale;
 	strum.scale.set(daPixelZoom*strumScale, daPixelZoom*strumScale);

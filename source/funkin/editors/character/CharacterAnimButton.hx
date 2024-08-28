@@ -117,15 +117,9 @@ class CharacterAnimButton extends UIButton {
 
 		loopedCheckbox.x += 8; loopedCheckbox.y += 6;
 
-		indicesTextBox = new UITextBox(nameTextBox.x, nameTextBox.y, animData.indices.getDefault([]).join(","), 278, 22, false, true);
-		indicesTextBox.onChange = (text:String)  -> {
-			var indices:Array<Int> = [];
-			for(indice in text.split(",")) {
-				var i = Std.parseInt(indice.trim());
-				if (i != null) indices.push(i);
-			}
-
-			this.changeIndicies(indices);
+		indicesTextBox = new UITextBox(nameTextBox.x, nameTextBox.y, CoolUtil.formatNumberRange(animData.indices.getDefault([]), ", "), 278, 22, false, true);
+		indicesTextBox.onChange = (text:String) -> {
+			this.changeIndicies(CoolUtil.parseNumberRange(text));
 		}
 		members.push(indicesTextBox);
 		foldableButtons.push(indicesTextBox);

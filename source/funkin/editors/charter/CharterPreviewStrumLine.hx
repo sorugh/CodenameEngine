@@ -52,7 +52,7 @@ class CharterPreviewStrumLine extends FlxTypedGroup<FlxSprite>
 			var strum = members[i];
 
 			strum.x = CoolUtil.fpsLerp(strum.x, x + (Note.swagWidth * scale * spacing * i), 0.2);
-			strum.y = CoolUtil.fpsLerp(strum.y, y, 0.2);
+			strum.y = CoolUtil.fpsLerp(strum.y, y + (Note.swagWidth*0.5) - (Note.swagWidth * scale * 0.5), 0.2);
 			strum.scale.x = strum.scale.y = CoolUtil.fpsLerp(strum.scale.x, 0.7 * scale, 0.2);
 			strum.updateHitbox();
 		}

@@ -654,9 +654,13 @@ class PlayState extends MusicBeatState
 			}
 
 			var strOffset:Float = strumLine.strumLinePos == null ? (strumLine.type == 1 ? 0.75 : 0.25) : strumLine.strumLinePos;
+			var strumScale:Float = (strumLine.strumScale == null ? 1 : strumLine.strumScale);
+			var strumSpacing:Float = (strumLine.strumSpacing == null ? 1 : strumLine.strumSpacing);
+			var keyCount:Int = (strumLine.keyCount == null ? 4 : strumLine.keyCount);
+
 			var startingPos:FlxPoint = strumLine.strumPos == null ?
-				FlxPoint.get((FlxG.width * strOffset) - ((Note.swagWidth * (strumLine.strumScale == null ? 1 : strumLine.strumScale)) * 2), this.strumLine.y) :
-				FlxPoint.get(strumLine.strumPos[0] == 0 ? ((FlxG.width * strOffset) - ((Note.swagWidth * (strumLine.strumScale == null ? 1 : strumLine.strumScale)) * 2)) : strumLine.strumPos[0], strumLine.strumPos[1]);
+				FlxPoint.get(StrumLine.calculateStartingXPos(strOffset, strumScale, strumSpacing, keyCount), this.strumLine.y) :
+				FlxPoint.get(strumLine.strumPos[0] == 0 ? StrumLine.calculateStartingXPos(strOffset, strumScale, strumSpacing, keyCount) : strumLine.strumPos[0], strumLine.strumPos[1]);
 			var strLine = new StrumLine(chars,
 				startingPos,
 				strumLine.strumScale == null ? 1 : strumLine.strumScale,

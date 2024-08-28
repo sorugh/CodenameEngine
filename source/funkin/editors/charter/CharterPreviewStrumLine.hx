@@ -4,14 +4,14 @@ import funkin.game.Note;
 
 class CharterPreviewStrumLine extends FlxTypedGroup<FlxSprite>
 {
-	public function new(x:Float, y:Float, scale:Float, keyCount:Int, scrollSpeed:Float){
+	public function new(x:Float, y:Float, scale:Float, spacing:Float, keyCount:Int, scrollSpeed:Float){
 		super();
-		updatePos(x, y, scale, keyCount, scrollSpeed);
+		updatePos(x, y, scale, spacing, keyCount, scrollSpeed);
 	}
 
 	private var note:FlxSprite;
 
-	public function generateStrums(x:Float, y:Float, scale:Float, keyCount:Int, scrollSpeed:Float){
+	public function generateStrums(x:Float, y:Float, scale:Float, spacing:Float, keyCount:Int, scrollSpeed:Float){
 		for (member in members){
 			member.destroy();
 		}
@@ -44,14 +44,14 @@ class CharterPreviewStrumLine extends FlxTypedGroup<FlxSprite>
 	var noteTime:Float = FlxG.height;
 	var scroll:Float = 1.0;
 
-	public function updatePos(x:Float, y:Float, scale:Float, keyCount:Int, scrollSpeed:Float){
+	public function updatePos(x:Float, y:Float, scale:Float, spacing:Float, keyCount:Int, scrollSpeed:Float){
 		if (members.length-1 != keyCount) //strumline + note
-			generateStrums(x, y, scale, keyCount, scrollSpeed);
+			generateStrums(x, y, scale, spacing, keyCount, scrollSpeed);
 
 		for (i in 0...keyCount){
 			var strum = members[i];
 
-			strum.x = CoolUtil.fpsLerp(strum.x, x + ((Note.swagWidth * scale * (4 / keyCount)) * i), 0.2);
+			strum.x = CoolUtil.fpsLerp(strum.x, x + (Note.swagWidth * scale * spacing * i), 0.2);
 			strum.y = CoolUtil.fpsLerp(strum.y, y, 0.2);
 			strum.scale.x = strum.scale.y = CoolUtil.fpsLerp(strum.scale.x, 0.7 * scale, 0.2);
 			strum.updateHitbox();

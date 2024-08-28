@@ -307,7 +307,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 	public function createStrum(i:Int, ?animPrefix:String) {
 		if (animPrefix == null)
 			animPrefix = strumAnimPrefix[i % strumAnimPrefix.length];
-		var babyArrow:Strum = new Strum(startingPos.x + ((Note.swagWidth * strumScale * (4 / (data.keyCount != null ? data.keyCount : 4))) * i), startingPos.y);
+		var babyArrow:Strum = new Strum(startingPos.x + (Note.swagWidth * strumScale * (data.strumSpacing != null ? data.strumSpacing : 1) * i), startingPos.y);
 		babyArrow.ID = i;
 		babyArrow.strumLine = this;
 
@@ -365,6 +365,10 @@ class StrumLine extends FlxTypedGroup<Strum> {
 			notes.remove(note, true);
 			note.destroy();
 		}
+	}
+
+	public static inline function calculateStartingXPos(hudXRatio:Float, scale:Float, spacing:Float, keyCount:Int) {
+		return (FlxG.width * hudXRatio) - ((Note.swagWidth * scale * ((keyCount/2)-0.5) * spacing) + Note.swagWidth * 0.5 * scale);
 	}
 
 	/**

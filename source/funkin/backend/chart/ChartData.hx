@@ -40,6 +40,7 @@ typedef ChartStrumLine = {
 	var ?visible:Null<Bool>;
 	var ?strumPos:Array<Float>;
 	var ?strumScale:Float;
+	var ?strumSpacing:Float;
 	var ?scrollSpeed:Float;
 	var ?vocalsSuffix:String;
 	var ?keyCount:Int; // default=4

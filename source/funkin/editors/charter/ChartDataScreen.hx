@@ -69,7 +69,7 @@ class ChartDataScreen extends UISubstateWindow {
 		strumLineCam.bgColor = 0;
 		strumLineCam.alpha = 0;
 		FlxG.cameras.add(strumLineCam, false);
-		previewStrumLine = new CharterPreviewStrumLine(96, 50, 1, 4, 0);
+		previewStrumLine = new CharterPreviewStrumLine(96, 50, 1, 1, 4, 0);
 		previewStrumLine.camera = strumLineCam;
 		add(previewStrumLine);
 	}
@@ -92,7 +92,7 @@ class ChartDataScreen extends UISubstateWindow {
 			scrollSpeed = scrollSpeedStepper.value;
 
 		strumLineCam.alpha = CoolUtil.fpsLerp(strumLineCam.alpha, scrollSpeed == 0.0 ? 0.0 : 1.0, 0.2);
-		previewStrumLine.updatePos(96, 50, 1, 4, scrollSpeed);
+		previewStrumLine.updatePos(96, 50, 1, 1, 4, scrollSpeed);
 
 		super.update(elapsed);
 	}

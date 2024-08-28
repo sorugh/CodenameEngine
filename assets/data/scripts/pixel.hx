@@ -23,15 +23,17 @@ function onNoteCreation(event) {
 	event.cancel();
 
 	var note = event.note;
+	var strumID = event.strumID % 4;
 	if (event.note.isSustainNote) {
 		note.loadGraphic(Paths.image('stages/school/ui/arrowEnds'), true, 7, 6);
-		note.animation.add("hold", [event.strumID]);
-		note.animation.add("holdend", [4 + event.strumID]);
+		note.animation.add("hold", [strumID]);
+		note.animation.add("holdend", [4 + strumID]);
 	} else {
 		note.loadGraphic(Paths.image('stages/school/ui/arrows-pixels'), true, 17, 17);
-		note.animation.add("scroll", [4 + event.strumID]);
+		note.animation.add("scroll", [4 + strumID]);
 	}
-	note.scale.set(daPixelZoom, daPixelZoom);
+	var strumScale = event.note.strumLine.strumScale;
+	note.scale.set(daPixelZoom*strumScale, daPixelZoom*strumScale);
 	note.updateHitbox();
 }
 
@@ -48,12 +50,14 @@ function onStrumCreation(event) {
 	event.cancel();
 
 	var strum = event.strum;
+	var strumID = event.strumID % 4;
 	strum.loadGraphic(Paths.image('stages/school/ui/arrows-pixels'), true, 17, 17);
-	strum.animation.add("static", [event.strumID]);
-	strum.animation.add("pressed", [4 + event.strumID, 8 + event.strumID], 12, false);
-	strum.animation.add("confirm", [12 + event.strumID, 16 + event.strumID], 24, false);
+	strum.animation.add("static", [strumID]);
+	strum.animation.add("pressed", [4 + strumID, 8 + strumID], 12, false);
+	strum.animation.add("confirm", [12 + strumID, 16 + strumID], 24, false);
 
-	strum.scale.set(daPixelZoom, daPixelZoom);
+	var strumScale = strumLines.members[event.player].strumScale;
+	strum.scale.set(daPixelZoom*strumScale, daPixelZoom*strumScale);
 	strum.updateHitbox();
 }
 

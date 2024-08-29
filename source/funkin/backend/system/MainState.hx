@@ -26,6 +26,7 @@ class MainState extends FlxState {
 		#end
 		Options.save();
 
+		ControlsUtil.resetCustomControls();
 		FlxG.bitmap.reset();
 		FlxG.sound.destroy(true);
 
@@ -57,6 +58,7 @@ class MainState extends FlxState {
 		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder);
 		DiscordUtil.init();
 		EventsData.reloadEvents();
+		ControlsUtil.loadCustomControls();
 		TitleState.initialized = false;
 
 		if (betaWarningShown)

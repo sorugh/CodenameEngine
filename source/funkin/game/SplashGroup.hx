@@ -46,6 +46,10 @@ class SplashGroup extends FlxTypedGroup<FunkinSprite> {
 		maxSize = 8;
 	}
 
+	var _scale:Float = 1.0;
+	var _alpha:Float = 1.0;
+	var _antialiasing:Bool = true;
+
 	function createSplash(imagePath:String) {
 		var splash = new FunkinSprite();
 		splash.antialiasing = true;
@@ -54,6 +58,9 @@ class SplashGroup extends FlxTypedGroup<FunkinSprite> {
 		if (xml.has.scale) splash.scale.scale(Std.parseFloat(xml.att.scale).getDefault(1));
 		if (xml.has.alpha) splash.alpha = Std.parseFloat(xml.att.alpha).getDefault(1);
 		if (xml.has.antialiasing) splash.antialiasing = xml.att.antialiasing == "true";
+		_scale = splash.scale.x;
+		_alpha = splash.alpha;
+		_antialiasing = splash.antialiasing;
 		return splash;
 	}
 
@@ -108,6 +115,11 @@ class SplashGroup extends FlxTypedGroup<FunkinSprite> {
 	public function showOnStrum(strum:Strum) {
 		if (!valid) return null;
 		__splash = recycle();
+
+		@:privateAccess
+		__splash.scale.x = __splash.scale.y = _scale * strum.strumLine.strumScale;
+		__splash.alpha = _alpha;
+		__splash.antialiasing = _antialiasing;
 
 		__splash.cameras = strum.lastDrawCameras;
 		__splash.setPosition(strum.x + ((strum.width - __splash.width) / 2), strum.y + ((strum.height - __splash.height) / 2));

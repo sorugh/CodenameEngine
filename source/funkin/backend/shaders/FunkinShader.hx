@@ -482,36 +482,24 @@ uniform sampler2D bitmap;
 uniform bool hasTransform;
 uniform bool hasColorTransform;
 
-vec4 flixel_texture2D(sampler2D bitmap, vec2 coord)
-{
+vec4 flixel_texture2D(sampler2D bitmap, vec2 coord) {
 	vec4 color = texture2D(bitmap, coord);
-	if (!hasTransform)
-	{
+	if (!hasTransform) {
 		return color;
 	}
 
-	if (color.a == 0.0)
-	{
+	if (color.a == 0.0) {
 		return vec4(0.0, 0.0, 0.0, 0.0);
 	}
 
-	if (!hasColorTransform)
-	{
+	if (!hasColorTransform) {
 		return color * openfl_Alphav;
 	}
 
 	color = vec4(color.rgb / color.a, color.a);
+	color = clamp(openfl_ColorOffsetv + (color * openfl_ColorMultiplierv), 0.0, 1.0);
 
-	mat4 colorMultiplier = mat4(0);
-	colorMultiplier[0][0] = openfl_ColorMultiplierv.x;
-	colorMultiplier[1][1] = openfl_ColorMultiplierv.y;
-	colorMultiplier[2][2] = openfl_ColorMultiplierv.z;
-	colorMultiplier[3][3] = openfl_ColorMultiplierv.w;
-
-	color = clamp(openfl_ColorOffsetv + (color * colorMultiplier), 0.0, 1.0);
-
-	if (color.a > 0.0)
-	{
+	if (color.a > 0.0) {
 		return vec4(color.rgb * color.a * openfl_Alphav, color.a * openfl_Alphav);
 	}
 	return vec4(0.0, 0.0, 0.0, 0.0);
@@ -535,39 +523,7 @@ vec4 textureCam(sampler2D bitmap, vec2 pos) {
 	return flixel_texture2D(bitmap, camToOg(pos));
 }";
 
-	public static final fragBody:String = "vec4 color = texture2D (bitmap, openfl_TextureCoordv);
-
-if (color.a == 0.0) {
-
-	gl_FragColor = vec4 (0.0, 0.0, 0.0, 0.0);
-
-} else if (openfl_HasColorTransform) {
-
-	color = vec4 (color.rgb / color.a, color.a);
-
-	mat4 colorMultiplier = mat4 (0);
-	colorMultiplier[0][0] = openfl_ColorMultiplierv.x;
-	colorMultiplier[1][1] = openfl_ColorMultiplierv.y;
-	colorMultiplier[2][2] = openfl_ColorMultiplierv.z;
-	colorMultiplier[3][3] = 1.0; // openfl_ColorMultiplierv.w;
-
-	color = clamp (openfl_ColorOffsetv + (color * colorMultiplier), 0.0, 1.0);
-
-	if (color.a > 0.0) {
-
-		gl_FragColor = vec4 (color.rgb * color.a * openfl_Alphav, color.a * openfl_Alphav);
-
-	} else {
-
-		gl_FragColor = vec4 (0.0, 0.0, 0.0, 0.0);
-
-	}
-
-} else {
-
-	gl_FragColor = color * openfl_Alphav;
-
-}";
+	public static final fragBody:String = "gl_FragColor = flixel_texture2D(bitmap, openfl_TextureCoordv);";
 	public static final vertHeader:String = "attribute float openfl_Alpha;
 attribute vec4 openfl_ColorMultiplier;
 attribute vec4 openfl_ColorOffset;
@@ -587,10 +543,8 @@ uniform vec2 openfl_TextureSize;";
 openfl_TextureCoordv = openfl_TextureCoord;
 
 if (openfl_HasColorTransform) {
-
 	openfl_ColorMultiplierv = openfl_ColorMultiplier;
 	openfl_ColorOffsetv = openfl_ColorOffset / 255.0;
-
 }
 
 gl_Position = openfl_Matrix * openfl_Position;";
@@ -603,14 +557,12 @@ attribute vec4 colorMultiplier;
 attribute vec4 colorOffset;
 uniform bool hasColorTransform;
 
-void main(void)
-{
+void main(void) {
 	#pragma body
 
 	openfl_Alphav = openfl_Alpha * alpha;
 
-	if (hasColorTransform)
-	{
+	if (hasColorTransform) {
 		openfl_ColorOffsetv = colorOffset / 255.0;
 		openfl_ColorMultiplierv = colorMultiplier;
 	}
@@ -620,9 +572,8 @@ void main(void)
 	// TODO: camera stuff
 	public static final defaultFragmentSource:String = "#pragma header
 
-void main(void)
-{
-	gl_FragColor = flixel_texture2D(bitmap, openfl_TextureCoordv);
+void main(void) {
+	#pragma body
 }";
 }
 

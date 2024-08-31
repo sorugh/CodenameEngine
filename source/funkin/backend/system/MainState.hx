@@ -18,8 +18,8 @@ class MainState extends FlxState {
 	public override function create() {
 		super.create();
 		if (!initiated) {
-			Main.loadGameSettings();
 			Constants.init();
+			Main.loadGameSettings();
 		}
 
 		initiated = true;

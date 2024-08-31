@@ -68,7 +68,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 			}
 
 			if (PlayState.instance != null) {
-				var event = PlayState.instance.scripts.event("onStageXMLParsed", EventManager.get(StageXMLEvent).recycle(this, stageXML, elems));
+				var event = PlayState.instance.gameAndCharsEvent("onStageXMLParsed", EventManager.get(StageXMLEvent).recycle(this, stageXML, elems));
 				elems = event.elems;
 			}
 
@@ -138,7 +138,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 				}
 
 				if(PlayState.instance != null) {
-					sprite = PlayState.instance.scripts.event("onStageNodeParsed", EventManager.get(StageNodeEvent).recycle(this, node, sprite, node.name)).sprite;
+					sprite = PlayState.instance.gameAndCharsEvent("onStageNodeParsed", EventManager.get(StageNodeEvent).recycle(this, node, sprite, node.name)).sprite;
 				}
 
 				if (sprite != null) {

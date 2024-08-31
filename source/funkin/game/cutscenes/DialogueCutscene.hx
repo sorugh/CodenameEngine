@@ -13,7 +13,7 @@ import haxe.xml.Access;
 /**
  * Substate made for dialogue cutscenes. To use it in a scripted cutscene, call `startDialogue`.
  */
-class DialogueCutscene extends Cutscene {
+class DialogueCutscene extends ScriptedCutscene {
 	public var dialoguePath:String;
 	public var dialogueData:Access;
 
@@ -28,23 +28,29 @@ class DialogueCutscene extends Cutscene {
 	public var curMusic:FlxSound = null;
 
 	public static var cutscene:DialogueCutscene;
-	public var dialogueScript:Script;
+	public var dialogueScript(get, set):Script;
 
 	public function set_curLine(val:DialogueLine) {
 		lastLine = curLine;
 		return curLine = val;
 	}
 
+	// Backwards comapt funcs  - Nex
+	public function set_dialogueScript(val:Script) return script = val;
+	public function get_dialogueScript() return script;
+
 	public function new(dialoguePath:String, callback:Void->Void) {
-		super(callback);
-		this.dialoguePath = dialoguePath;
+		super(this.dialoguePath = dialoguePath, callback);
+
 		camera = dialogueCamera = new FlxCamera();
 		dialogueCamera.bgColor = 0;
 		FlxG.cameras.add(dialogueCamera, false);
 
-		dialogueScript = Script.create(Paths.script(Path.withoutExtension(dialoguePath), null, dialoguePath.startsWith('assets')));
-		dialogueScript.setParent(cutscene = this);
-		dialogueScript.load();
+		cutscene = this;
+	}
+
+	public override function onErrorScriptLoading() {
+		Logs.trace('Could not find script for dialogue cutscene at "${scriptPath}"', WARNING, YELLOW);
 	}
 
 	var parentDisabler:FunkinParentDisabler;
@@ -110,22 +116,21 @@ class DialogueCutscene extends Cutscene {
 
 			next(true);
 		} catch(e) {
-			Logs.trace('Error while loading dialogue at ${dialoguePath}: ${e.toString()}', ERROR);
-			trace(CoolUtil.getLastExceptionStack());
+			var message:String = e.toString();
+			Logs.trace('Error while loading dialogue at ${dialoguePath}: $message', ERROR, RED);
+			dialogueScript.call("loadingError", [message]);
 			close();
 		}
+
 		dialogueScript.call("postCreate");
 	}
 
-	public override function beatHit(curBeat:Int) {
-		super.beatHit(curBeat);
-		dialogueScript.call("beatHit", [curBeat]);
+	public override function pauseCheck():Bool {
+		return super.pauseCheck() && !controls.ACCEPT;  // Avoids next() and pause() being called at the same time  - Nex
 	}
 
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
-		dialogueScript.call("update", [elapsed]);
-
 		if(controls.ACCEPT) {
 			if(dialogueBox.dialogueEnded) next();
 			else dialogueBox.text.skip();
@@ -193,8 +198,6 @@ class DialogueCutscene extends Cutscene {
 
 	public override function destroy() {
 		if(curMusic != null && !curMusic.persist) curMusic.destroy();
-		dialogueScript.call("destroy");
-		dialogueScript.destroy();
 
 		super.destroy();
 		cutscene = null;

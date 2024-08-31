@@ -247,7 +247,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 			__justReleased.push(s.__getJustReleased(this));
 		}
 
-		var event = PlayState.instance.scripts.event("onInputUpdate", EventManager.get(InputSystemEvent).recycle(__pressed, __justPressed, __justReleased, this, id));
+		var event = PlayState.instance.gameAndCharsEvent("onInputUpdate", EventManager.get(InputSystemEvent).recycle(__pressed, __justPressed, __justReleased, this, id));
 		if (event.cancelled) return;
 
 		__pressed = CoolUtil.getDefault(event.pressed, []);
@@ -282,7 +282,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		forEach(function(str:Strum) {
 			str.updatePlayerInput(str.__getPressed(this), str.__getJustPressed(this), str.__getJustReleased(this));
 		});
-		PlayState.instance.scripts.call("onPostInputUpdate");
+		PlayState.instance.gameAndCharsCall("onPostInputUpdate");
 	}
 
 	public inline function addHealth(health:Float)
@@ -317,7 +317,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 
 		var event = EventManager.get(StrumCreationEvent).recycle(babyArrow, PlayState.instance.strumLines.members.indexOf(this), i, animPrefix);
 		event.__doAnimation = !MusicBeatState.skipTransIn;
-		event = PlayState.instance.scripts.event("onStrumCreation", event);
+		event = PlayState.instance.gameAndCharsEvent("onStrumCreation", event);
 
 		if (!event.cancelled) {
 			babyArrow.frames = Paths.getFrames(event.sprite);
@@ -348,7 +348,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 
 		insert(i, babyArrow);
 
-		PlayState.instance.scripts.event("onPostStrumCreation", event);
+		PlayState.instance.gameAndCharsEvent("onPostStrumCreation", event);
 
 		return babyArrow;
 	}

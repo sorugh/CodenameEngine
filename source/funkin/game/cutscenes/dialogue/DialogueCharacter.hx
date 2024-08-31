@@ -54,9 +54,10 @@ class DialogueCharacter extends FunkinSprite {
 			x = 0; y = 0;
 		} catch(e) {
 			var message:String = e.toString();
-			Logs.trace('Failed to load dialogue character $name: ${message}', ERROR);
+			Logs.trace('Failed to load dialogue character $name: ${message}', ERROR, RED);
 			dialogueCharScript.call("loadingError", [message]);
 		}
+
 		visible = false;
 		dialogueCharScript.call("postCreate");
 	}

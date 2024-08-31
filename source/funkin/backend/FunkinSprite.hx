@@ -43,6 +43,8 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 	public var debugMode:Bool = false;
 	public var animDatas:Map<String, AnimData> = [];
 
+	public var globalCurFrame(get, set):Int;
+
 	/**
 	 * ODD interval -> asynced; EVEN interval -> synced
 	 */
@@ -373,5 +375,12 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 			v = 1;
 
 		return beatInterval = v;
+	}
+
+	@:noCompletion private inline function get_globalCurFrame() {
+		return animateAtlas != null ? (animateAtlas.anim.curFrame) : (animation.curAnim != null ? animation.curAnim.curFrame : 0);
+	}
+	@:noCompletion private inline function set_globalCurFrame(val:Int) {
+		return animateAtlas != null ? (animateAtlas.anim.curFrame = val) : (animation.curAnim != null ? animation.curAnim.curFrame = val : val);
 	}
 }

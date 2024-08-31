@@ -87,8 +87,11 @@ class DialogueBox extends FunkinSprite {
 			}
 		} catch(e) {
 			active = false;
-			Logs.trace('Couldn\'t load dialogue box "$name": ${e.toString()}', ERROR);
+			var message:String = e.toString();
+			Logs.trace('Couldn\'t load dialogue box "$name": $message', ERROR, RED);
+			dialogueBoxScript.call("loadingError", [message]);
 		}
+
 		defaultTextTypeSFX = [FlxG.sound.load(textTypeSFX)];
 		FlxG.sound.cache(nextSFX);
 		dialogueBoxScript.call("postCreate");

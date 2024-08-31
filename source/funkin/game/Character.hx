@@ -9,10 +9,12 @@ import funkin.backend.FunkinSprite;
 import funkin.backend.scripting.DummyScript;
 import funkin.backend.scripting.Script;
 import funkin.backend.scripting.events.DanceEvent;
+import funkin.backend.scripting.events.CancellableEvent;
 import funkin.backend.scripting.events.DirectionAnimEvent;
 import funkin.backend.scripting.events.PlayAnimContext;
 import funkin.backend.scripting.events.PlayAnimEvent;
 import funkin.backend.scripting.events.PointEvent;
+import funkin.backend.scripting.events.DrawEvent;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.backend.system.interfaces.IOffsetCompatible;
@@ -147,6 +149,11 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	}
 
 	public function tryDance() {
+		var event = new CancellableEvent();
+		script.call("onTryDance", [event]);
+		if (event.cancelled)
+			return;
+
 		switch (lastAnimContext) {
 			case SING | MISS:
 				if (lastHit + (Conductor.stepCrochet * holdTime) < Conductor.songPosition)
@@ -173,6 +180,9 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 			tryDance();
 	}
 
+	public override function measureHit(curMeasure:Int)
+		script.call("measureHit", [curMeasure]);
+
 	public override function stepHit(curStep:Int)
 		script.call("stepHit", [curStep]);
 
@@ -196,17 +206,24 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		return (isPlayer != playerOffsets) != (flipX != __baseFlipped);
 
 	public override function draw() {
-		if (isFlippedOffsets()) {
-			__reverseDrawProcedure = true;
-			flipX = !flipX;
-			scale.x *= -1;
+		var e = EventManager.get(DrawEvent).recycle();
+		script.call("draw", [e]);
 
-			super.draw();
+		if(!e.cancelled) {
+			if (isFlippedOffsets()) {
+				__reverseDrawProcedure = true;
+				flipX = !flipX;
+				scale.x *= -1;
 
-			flipX = !flipX;
-			scale.x *= -1;
-			__reverseDrawProcedure = false;
-		} else super.draw();
+				super.draw();
+
+				flipX = !flipX;
+				scale.x *= -1;
+				__reverseDrawProcedure = false;
+			} else super.draw();
+		}
+
+		script.call("postDraw", [e]);
 	}
 
 	public var singAnims = ["singLEFT", "singDOWN", "singUP", "singRIGHT"];

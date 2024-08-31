@@ -130,7 +130,7 @@ class Note extends FlxSprite
 			(this.noteType != null && customTypePathExists(customType)) ? 'game/notes/${this.noteType}' : 'game/notes/default', @:privateAccess strumLine.strumScale * Constants.DEFAULT_NOTE_SCALE, animSuffix);
 
 		if (PlayState.instance != null)
-			event = PlayState.instance.scripts.event("onNoteCreation", event);
+			event = PlayState.instance.gameAndCharsEvent("onNoteCreation", event);
 
 		this.animSuffix = event.animSuffix;
 		if (!event.cancelled) {
@@ -184,7 +184,7 @@ class Note extends FlxSprite
 
 		if (PlayState.instance != null) {
 			PlayState.instance.splashHandler.getSplashGroup(splash);
-			PlayState.instance.scripts.event("onPostNoteCreation", event);
+			PlayState.instance.gameAndCharsEvent("onPostNoteCreation", event);
 		}
 	}
 

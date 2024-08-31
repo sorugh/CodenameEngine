@@ -1,6 +1,5 @@
 package funkin.editors.charter;
 
-import haxe.macro.Expr.Constant;
 import flixel.text.FlxText.FlxTextFormat;
 import flixel.text.FlxText.FlxTextFormatMarkerPair;
 import funkin.backend.chart.ChartData;

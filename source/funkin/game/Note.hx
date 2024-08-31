@@ -86,7 +86,7 @@ class Note extends FlxSprite
 		return PlayState.instance.getNoteType(noteTypeID);
 	}
 
-	public static var swagWidth:Float = 160 * 0.7;
+	public static var swagWidth:Float = 160 * 0.7; // TODO: remove this
 
 	private static var __customNoteTypeExists:Map<String, Bool> = [];
 

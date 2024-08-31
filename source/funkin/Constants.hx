@@ -6,10 +6,17 @@ import flixel.util.FlxColor;
 
 using StringTools;
 
+@:build(funkin.backend.system.macros.ConstantsMacro.build())
 class Constants {
+	// these arent good since someone could easily change through meta.set()  - Nex
+	// @:lazy public static var WINDOW_TITLE:String = Application.current.meta.get('name');
+	// @:lazy public static var BUILD_FILENAME:String = Application.current.meta.get('file');
+	// @:lazy public static var VERSION:String = Application.current.meta.get('version');
+
 	public static var COMMIT_NUMBER = GitCommitMacro.commitNumber;
 	public static var COMMIT_HASH = GitCommitMacro.commitHash;
 	public static var COMMIT_MESSAGE = 'Commit $COMMIT_NUMBER ($COMMIT_HASH)';
+	@:lazy public static var VERSION_MESSAGE:String = 'Codename Engine v${Application.current.meta.get('version')}';
 
 	public static var REPO_NAME = "CodenameEngine";
 	public static var REPO_OWNER = "FNF-CNE-Devs";

@@ -429,9 +429,10 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	@:noCompletion private function get_danceInterval()
 		return beatInterval;
 
-
+	// these wont update when you change the constants!!! they just start from the constant for qol if we'll ever edit them in the future  - Nex
 	public static var FALLBACK_CHARACTER:String = Constants.DEFAULT_CHARACTER;
 	public static var FALLBACK_DEAD_CHARACTER:String = Constants.DEFAULT_GAMEOVER_CHARACTER;
+
 	public static function getXMLFromCharName(character:OneOfTwo<String, Character>):Access {
 		var char:Character = null;
 		if (character is Character) {

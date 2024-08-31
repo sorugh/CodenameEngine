@@ -22,7 +22,7 @@ class UpdateUtil {
 	}
 
 	public static function checkForUpdates():UpdateCheckCallback {
-		var curTag = 'v${Constants.VERSION}';
+		var curTag = 'v${Application.current.meta.get('version')}';
 		trace(curTag);
 
 		var error = false;

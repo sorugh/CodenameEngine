@@ -72,7 +72,7 @@ class MainMenuState extends MusicBeatState
 
 		FlxG.camera.follow(camFollow, null, 0.06);
 
-		versionText = new FunkinText(5, FlxG.height - 2, 0, 'Codename Engine v${Application.current.meta.get('version')}\n${Constants.COMMIT_MESSAGE}\n[${controls.getKeyName(SWITCHMOD)}] Open Mods menu\n');
+		versionText = new FunkinText(5, FlxG.height - 2, 0, '${Constants.VERSION_MESSAGE}\n${Constants.COMMIT_MESSAGE}\n[${controls.getKeyName(SWITCHMOD)}] Open Mods menu\n');
 		versionText.y -= versionText.height;
 		versionText.scrollFactor.set();
 		add(versionText);

@@ -17,9 +17,13 @@ class MainState extends FlxState {
 	public static var betaWarningShown:Bool = false;
 	public override function create() {
 		super.create();
-		if (!initiated)
+		if (!initiated) {
 			Main.loadGameSettings();
+			Constants.init();
+		}
+
 		initiated = true;
+		Constants.reset();
 
 		#if sys
 		CoolUtil.deleteFolder('./.temp/'); // delete temp folder

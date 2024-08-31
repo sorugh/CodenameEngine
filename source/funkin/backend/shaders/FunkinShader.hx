@@ -2,10 +2,12 @@ package funkin.backend.shaders;
 
 import haxe.Exception;
 import hscript.IHScriptCustomBehaviour;
+import flixel.util.FlxSignal.FlxTypedSignal;
 import flixel.system.FlxAssets.FlxShader;
 
 import lime.utils.Float32Array;
 
+import openfl.display3D._internal.GLProgram;
 import openfl.display.ShaderParameterType;
 import openfl.display.ShaderParameter;
 import openfl.display.BitmapData;
@@ -19,7 +21,15 @@ using StringTools;
 class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 	private static var __instanceFields = Type.getInstanceFields(FunkinShader);
 
+	public var onGLUpdate:FlxTypedSignal<Void->Void> = new FlxTypedSignal<Void->Void>();
+	public var onProcessGLData:FlxTypedSignal<(String, String)->Void> = new FlxTypedSignal<(String, String)->Void>();
+
 	public var glslVer:String = "120";
+	public var fileName:String = "FunkinShader";
+
+	public var shaderPrefix:String = "";
+	public var fragmentPrefix:String = "";
+	public var vertexPrefix:String = "";
 
 	/**
 	 * Creates a new shader from the specified fragment and vertex source.
@@ -38,11 +48,32 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 		super();
 	}
 
+	static var IMPORT_REGEX = ~/#import\s+<(.*)>/;
+
+	private function processImports(value:String):String
+	{
+		while(IMPORT_REGEX.match(value))
+		{
+			var importPath = IMPORT_REGEX.matched(1);
+			var importSource = Assets.getText("assets/shaders/" + importPath);
+			if(importSource == null) {
+				Logs.traceColored([
+					Logs.logText('[Shader] ', RED),
+					Logs.logText('Failed to import shader ${importPath} in ${fileName}', RED),
+				]);
+			} else {
+				value = value.replace(IMPORT_REGEX.matched(0), importSource);
+			}
+		}
+		return value;
+	}
+
 	@:noCompletion override private function set_glFragmentSource(value:String):String
 	{
 		if(value == null)
 			value = ShaderTemplates.defaultFragmentSource;
 		value = value.replace("#pragma header", ShaderTemplates.fragHeader).replace("#pragma body", ShaderTemplates.fragBody);
+		value = processImports(value);
 		if (value != __glFragmentSource)
 		{
 			__glSourceDirty = true;
@@ -56,12 +87,36 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 		if(value == null)
 			value = ShaderTemplates.defaultVertexSource;
 		value = value.replace("#pragma header", ShaderTemplates.vertHeader).replace("#pragma body", ShaderTemplates.vertBody);
+		value = processImports(value);
 		if (value != __glVertexSource)
 		{
 			__glSourceDirty = true;
 		}
 
 		return __glVertexSource = value;
+	}
+
+	override function __createGLProgram(vertexSource:String, fragmentSource:String):GLProgram
+	{
+		var program:GLProgram = null;
+		try
+		{
+			program = super.__createGLProgram(vertexSource, fragmentSource);
+		}
+		catch (error:Dynamic)
+		{
+			Logs.traceColored([
+				Logs.logText('[Shader] ', BLUE),
+				Logs.logText('Failed to compile shader ${fileName}: ', RED),
+				Logs.logText(Std.string(error))
+			], TRACE);
+		}
+		return program;
+	}
+
+	override function __updateGL():Void {
+		onGLUpdate.dispatch();
+		super.__updateGL();
 	}
 
 	@:noCompletion private override function __initGL():Void
@@ -83,7 +138,7 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 
 		if (__context != null && program == null)
 		{
-			var prefix = '#version ${glslVer}\n';
+			var prefix = '#version ${glslVer}\n' + shaderPrefix;
 
 			var gl = __context.gl;
 
@@ -98,8 +153,8 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 				#endif
 				";
 
-			var vertex = prefix + glVertexSource;
-			var fragment = prefix + glFragmentSource;
+			var vertex = prefix + vertexPrefix + glVertexSource;
+			var fragment = prefix + fragmentPrefix + glFragmentSource;
 
 			var id = vertex + fragment;
 
@@ -178,8 +233,12 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 		}
 	}
 
+	var __cancelNextProcessGLData:Bool = false;
 	@:noCompletion private override function __processGLData(source:String, storageType:String):Void
 	{
+		onProcessGLData.dispatch(source, storageType);
+		if (__cancelNextProcessGLData != (__cancelNextProcessGLData = false))
+			return;
 		var lastMatch = 0, position, regex, name, type;
 
 		if (storageType == "uniform")
@@ -202,157 +261,143 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 			}
 
 			var isUniform = (storageType == "uniform");
-
-			if (StringTools.startsWith(type, "sampler"))
-			{
-				var input = new ShaderInput<BitmapData>();
-				input.name = name;
-				@:privateAccess
-				input.__isUniform = isUniform;
-				__inputBitmapData.push(input);
-
-				switch (name)
-				{
-					case "openfl_Texture":
-						__texture = input;
-					case "bitmap":
-						__bitmap = input;
-					default:
-				}
-
-				Reflect.setField(__data, name, input);
-				try{Reflect.setField(this, name, input);} catch(e) {}
-			}
-			else if (!Reflect.hasField(__data, name) || Reflect.field(__data, name) == null)
-			{
-				var parameterType:ShaderParameterType = switch (type)
-				{
-					case "bool": BOOL;
-					case "double", "float": FLOAT;
-					case "int", "uint": INT;
-					case "bvec2": BOOL2;
-					case "bvec3": BOOL3;
-					case "bvec4": BOOL4;
-					case "ivec2", "uvec2": INT2;
-					case "ivec3", "uvec3": INT3;
-					case "ivec4", "uvec4": INT4;
-					case "vec2", "dvec2": FLOAT2;
-					case "vec3", "dvec3": FLOAT3;
-					case "vec4", "dvec4": FLOAT4;
-					case "mat2", "mat2x2": MATRIX2X2;
-					case "mat2x3": MATRIX2X3;
-					case "mat2x4": MATRIX2X4;
-					case "mat3x2": MATRIX3X2;
-					case "mat3", "mat3x3": MATRIX3X3;
-					case "mat3x4": MATRIX3X4;
-					case "mat4x2": MATRIX4X2;
-					case "mat4x3": MATRIX4X3;
-					case "mat4", "mat4x4": MATRIX4X4;
-					default: null;
-				}
-
-				var length = switch (parameterType)
-				{
-					case BOOL2, INT2, FLOAT2: 2;
-					case BOOL3, INT3, FLOAT3: 3;
-					case BOOL4, INT4, FLOAT4, MATRIX2X2: 4;
-					case MATRIX3X3: 9;
-					case MATRIX4X4: 16;
-					default: 1;
-				}
-
-				var arrayLength = switch (parameterType)
-				{
-					case MATRIX2X2: 2;
-					case MATRIX3X3: 3;
-					case MATRIX4X4: 4;
-					default: 1;
-				}
-
-				switch (parameterType)
-				{
-					case BOOL, BOOL2, BOOL3, BOOL4:
-						var parameter = new ShaderParameter<Bool>();
-						parameter.name = name;
-						@:privateAccess
-						parameter.type = parameterType;
-						@:privateAccess
-						parameter.__arrayLength = arrayLength;
-						@:privateAccess
-						parameter.__isBool = true;
-						@:privateAccess
-						parameter.__isUniform = isUniform;
-						@:privateAccess
-						parameter.__length = length;
-						__paramBool.push(parameter);
-
-						if (name == "openfl_HasColorTransform")
-						{
-							__hasColorTransform = parameter;
-						}
-
-						Reflect.setField(__data, name, parameter);
-						try{Reflect.setField(this, name, parameter);} catch(e) {}
-
-					case INT, INT2, INT3, INT4:
-						var parameter = new ShaderParameter<Int>();
-						parameter.name = name;
-						@:privateAccess
-						parameter.type = parameterType;
-						@:privateAccess
-						parameter.__arrayLength = arrayLength;
-						@:privateAccess
-						parameter.__isInt = true;
-						@:privateAccess
-						parameter.__isUniform = isUniform;
-						@:privateAccess
-						parameter.__length = length;
-						@:privateAccess
-						__paramInt.push(parameter);
-						Reflect.setField(__data, name, parameter);
-						try{Reflect.setField(this, name, parameter);} catch(e) {}
-
-					default:
-						var parameter = new ShaderParameter<Float>();
-						parameter.name = name;
-						@:privateAccess
-						parameter.type = parameterType;
-						@:privateAccess
-						parameter.__arrayLength = arrayLength;
-						#if lime
-						@:privateAccess
-						if (arrayLength > 0) parameter.__uniformMatrix = new Float32Array(arrayLength * arrayLength);
-						#end
-						@:privateAccess
-						parameter.__isFloat = true;
-						@:privateAccess
-						parameter.__isUniform = isUniform;
-						@:privateAccess
-						parameter.__length = length;
-						__paramFloat.push(parameter);
-
-						if (StringTools.startsWith(name, "openfl_"))
-						{
-							switch (name)
-							{
-								case "openfl_Alpha": __alpha = parameter;
-								case "openfl_ColorMultiplier": __colorMultiplier = parameter;
-								case "openfl_ColorOffset": __colorOffset = parameter;
-								case "openfl_Matrix": __matrix = parameter;
-								case "openfl_Position": __position = parameter;
-								case "openfl_TextureCoord": __textureCoord = parameter;
-								case "openfl_TextureSize": __textureSize = parameter;
-								default:
-							}
-						}
-
-						Reflect.setField(__data, name, parameter);
-						try{Reflect.setField(this, name, parameter);} catch(e) {}
-				}
-			}
+			registerParameter(name, type, isUniform);
 
 			position = regex.matchedPos();
 			lastMatch = position.pos + position.len;
+		}
+	}
+
+	function registerParameter(name:String, type:String, isUniform:Bool):Void
+	{
+		if (StringTools.startsWith(type, "sampler"))
+		{
+			var input = new ShaderInput<BitmapData>();
+			input.name = name;
+			input.__isUniform = isUniform;
+			__inputBitmapData.push(input);
+
+			switch (name)
+			{
+				case "openfl_Texture":
+					__texture = input;
+				case "bitmap":
+					__bitmap = input;
+				default:
+			}
+
+			Reflect.setField(__data, name, input);
+			try{Reflect.setField(this, name, input);} catch(e) {}
+		}
+		else if (!Reflect.hasField(__data, name) || Reflect.field(__data, name) == null)
+		{
+			var parameterType:ShaderParameterType = switch (type)
+			{
+				case "bool": BOOL;
+				case "double", "float": FLOAT;
+				case "int", "uint": INT;
+				case "bvec2": BOOL2;
+				case "bvec3": BOOL3;
+				case "bvec4": BOOL4;
+				case "ivec2", "uvec2": INT2;
+				case "ivec3", "uvec3": INT3;
+				case "ivec4", "uvec4": INT4;
+				case "vec2", "dvec2": FLOAT2;
+				case "vec3", "dvec3": FLOAT3;
+				case "vec4", "dvec4": FLOAT4;
+				case "mat2", "mat2x2": MATRIX2X2;
+				case "mat2x3": MATRIX2X3;
+				case "mat2x4": MATRIX2X4;
+				case "mat3x2": MATRIX3X2;
+				case "mat3", "mat3x3": MATRIX3X3;
+				case "mat3x4": MATRIX3X4;
+				case "mat4x2": MATRIX4X2;
+				case "mat4x3": MATRIX4X3;
+				case "mat4", "mat4x4": MATRIX4X4;
+				default: null;
+			}
+
+			var length = switch (parameterType)
+			{
+				case BOOL2, INT2, FLOAT2: 2;
+				case BOOL3, INT3, FLOAT3: 3;
+				case BOOL4, INT4, FLOAT4, MATRIX2X2: 4;
+				case MATRIX3X3: 9;
+				case MATRIX4X4: 16;
+				default: 1;
+			}
+
+			var arrayLength = switch (parameterType)
+			{
+				case MATRIX2X2: 2;
+				case MATRIX3X3: 3;
+				case MATRIX4X4: 4;
+				default: 1;
+			}
+
+			switch (parameterType)
+			{
+				case BOOL, BOOL2, BOOL3, BOOL4:
+					var parameter = new ShaderParameter<Bool>();
+					parameter.name = name;
+					parameter.type = parameterType;
+					parameter.__arrayLength = arrayLength;
+					parameter.__isBool = true;
+					parameter.__isUniform = isUniform;
+					parameter.__length = length;
+					__paramBool.push(parameter);
+
+					if (name == "openfl_HasColorTransform")
+					{
+						__hasColorTransform = parameter;
+					}
+
+					Reflect.setField(__data, name, parameter);
+					try{Reflect.setField(this, name, parameter);} catch(e) {}
+
+				case INT, INT2, INT3, INT4:
+					var parameter = new ShaderParameter<Int>();
+					parameter.name = name;
+					parameter.type = parameterType;
+					parameter.__arrayLength = arrayLength;
+					parameter.__isInt = true;
+					parameter.__isUniform = isUniform;
+					parameter.__length = length;
+					__paramInt.push(parameter);
+					Reflect.setField(__data, name, parameter);
+					try{Reflect.setField(this, name, parameter);} catch(e) {}
+
+				default:
+					var parameter = new ShaderParameter<Float>();
+					parameter.name = name;
+					parameter.type = parameterType;
+					parameter.__arrayLength = arrayLength;
+					#if lime
+					if (arrayLength > 0) parameter.__uniformMatrix = new Float32Array(arrayLength * arrayLength);
+					#end
+					parameter.__isFloat = true;
+					parameter.__isUniform = isUniform;
+					parameter.__length = length;
+					__paramFloat.push(parameter);
+
+					if (StringTools.startsWith(name, "openfl_"))
+					{
+						switch (name)
+						{
+							case "openfl_Alpha": __alpha = parameter;
+							case "openfl_ColorMultiplier": __colorMultiplier = parameter;
+							case "openfl_ColorOffset": __colorOffset = parameter;
+							case "openfl_Matrix": __matrix = parameter;
+							case "openfl_Position": __position = parameter;
+							case "openfl_TextureCoord": __textureCoord = parameter;
+							case "openfl_TextureSize": __textureSize = parameter;
+							default:
+						}
+					}
+
+					Reflect.setField(__data, name, parameter);
+					try{Reflect.setField(this, name, parameter);} catch(e) {}
+			}
 		}
 	}
 
@@ -394,7 +439,6 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 		var cl:String = Type.getClassName(Type.getClass(field));
 		// cant do "field is ShaderInput" for some reason
 		if (cl.startsWith("openfl.display.ShaderParameter")) {
-			@:privateAccess
 			if (field.__length <= 1) {
 				if ((val is Array))
 					return field.value = val;
@@ -457,7 +501,14 @@ vec4 flixel_texture2D(sampler2D bitmap, vec2 coord)
 	}
 
 	color = vec4(color.rgb / color.a, color.a);
-	color = clamp(openfl_ColorOffsetv + (color * openfl_ColorMultiplierv), 0.0, 1.0);
+
+	mat4 colorMultiplier = mat4(0);
+	colorMultiplier[0][0] = openfl_ColorMultiplierv.x;
+	colorMultiplier[1][1] = openfl_ColorMultiplierv.y;
+	colorMultiplier[2][2] = openfl_ColorMultiplierv.z;
+	colorMultiplier[3][3] = openfl_ColorMultiplierv.w;
+
+	color = clamp(openfl_ColorOffsetv + (color * colorMultiplier), 0.0, 1.0);
 
 	if (color.a > 0.0)
 	{
@@ -484,9 +535,39 @@ vec4 textureCam(sampler2D bitmap, vec2 pos) {
 	return flixel_texture2D(bitmap, camToOg(pos));
 }";
 
-	public static final fragBody:String = "vec4 color = flixel_texture2D (bitmap, openfl_TextureCoordv);
-	gl_FragColor = color;
-";
+	public static final fragBody:String = "vec4 color = texture2D (bitmap, openfl_TextureCoordv);
+
+if (color.a == 0.0) {
+
+	gl_FragColor = vec4 (0.0, 0.0, 0.0, 0.0);
+
+} else if (openfl_HasColorTransform) {
+
+	color = vec4 (color.rgb / color.a, color.a);
+
+	mat4 colorMultiplier = mat4 (0);
+	colorMultiplier[0][0] = openfl_ColorMultiplierv.x;
+	colorMultiplier[1][1] = openfl_ColorMultiplierv.y;
+	colorMultiplier[2][2] = openfl_ColorMultiplierv.z;
+	colorMultiplier[3][3] = 1.0; // openfl_ColorMultiplierv.w;
+
+	color = clamp (openfl_ColorOffsetv + (color * colorMultiplier), 0.0, 1.0);
+
+	if (color.a > 0.0) {
+
+		gl_FragColor = vec4 (color.rgb * color.a * openfl_Alphav, color.a * openfl_Alphav);
+
+	} else {
+
+		gl_FragColor = vec4 (0.0, 0.0, 0.0, 0.0);
+
+	}
+
+} else {
+
+	gl_FragColor = color * openfl_Alphav;
+
+}";
 	public static final vertHeader:String = "attribute float openfl_Alpha;
 attribute vec4 openfl_ColorMultiplier;
 attribute vec4 openfl_ColorOffset;

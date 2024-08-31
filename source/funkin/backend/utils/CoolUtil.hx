@@ -392,7 +392,7 @@ class CoolUtil
 	 * @param Looped Whenever the music loops (true)
 	 * @param Group A group that this music belongs to (default)
 	 */
-	@:noUsing public static function playMusic(path:String, Persist:Bool = false, Volume:Int = 1, Looped:Bool = true, DefaultBPM:Int = 102, ?Group:FlxSoundGroup) {
+	@:noUsing public static function playMusic(path:String, Persist:Bool = false, Volume:Int = 1, Looped:Bool = true, DefaultBPM:Float = 102, ?Group:FlxSoundGroup) {
 		Conductor.reset();
 		FlxG.sound.playMusic(path, Volume, Looped, Group);
 		if (FlxG.sound.music != null) {
@@ -403,17 +403,17 @@ class CoolUtil
 		if (Assets.exists(infoPath)) {
 			var musicInfo = IniUtil.parseAsset(infoPath, [
 				"BPM" => null,
-				"TimeSignature" => "4/4"
+				"TimeSignature" => Constants.DEFAULT_BEATS_PER_MEASURE + "/" + Constants.DEFAULT_STEPS_PER_BEAT
 			]);
 
 			var timeSignParsed:Array<Null<Float>> = musicInfo["TimeSignature"] == null ? [] : [for(s in musicInfo["TimeSignature"].split("/")) Std.parseFloat(s)];
-			var beatsPerMeasure:Float = 4;
-			var stepsPerBeat:Float = 4;
+			var beatsPerMeasure:Float = Constants.DEFAULT_BEATS_PER_MEASURE;
+			var stepsPerBeat:Float = Constants.DEFAULT_STEPS_PER_BEAT;
 
 			// Check later, i dont think timeSignParsed can contain null, only nan
 			if (timeSignParsed.length == 2 && !timeSignParsed.contains(null)) {
-				beatsPerMeasure = timeSignParsed[0] == null || timeSignParsed[0] <= 0 ? 4 : cast timeSignParsed[0];
-				stepsPerBeat = timeSignParsed[1] == null || timeSignParsed[1] <= 0 ? 4 : cast timeSignParsed[1];
+				beatsPerMeasure = timeSignParsed[0] == null || timeSignParsed[0] <= 0 ? Constants.DEFAULT_BEATS_PER_MEASURE : cast timeSignParsed[0];
+				stepsPerBeat = timeSignParsed[1] == null || timeSignParsed[1] <= 0 ? Constants.DEFAULT_STEPS_PER_BEAT : cast timeSignParsed[1];
 			}
 
 			var bpm:Null<Float> = Std.parseFloat(musicInfo["BPM"]).getDefault(DefaultBPM);

@@ -29,8 +29,8 @@ using StringTools;
 @:allow(funkin.game.PlayState)
 class Character extends FunkinSprite implements IBeatReceiver implements IOffsetCompatible {
 	public var isPlayer:Bool = false;
-	public var curCharacter:String = 'bf';
-	public var sprite:String = 'bf';
+	public var curCharacter:String = Constants.DEFAULT_CHARACTER;
+	public var sprite:String = Constants.DEFAULT_CHARACTER;
 
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	public var holdTime:Float = 4;
@@ -55,12 +55,12 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 	@:noCompletion var __switchAnims:Bool = true;
 
-	public function new(x:Float, y:Float, ?character:String = "bf", isPlayer:Bool = false, switchAnims:Bool = true, disableScripts:Bool = false)
+	public function new(x:Float, y:Float, ?character:String, isPlayer:Bool = false, switchAnims:Bool = true, disableScripts:Bool = false)
 	{
 		super(x, y);
 
 		animOffsets = new Map<String, FlxPoint>();
-		curCharacter = character;
+		curCharacter = character != null ? character : Constants.DEFAULT_CHARACTER;
 		this.isPlayer = isPlayer;
 		__switchAnims = switchAnims;
 
@@ -121,7 +121,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		script.call("update", [elapsed]);
 		if (stunned) {
 			__stunnedTime += elapsed;
-			if (__stunnedTime > 5 / 60)
+			if (__stunnedTime > Constants.STUNNED_TIME)
 				stunned = false;
 		}
 
@@ -430,8 +430,8 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		return beatInterval;
 
 
-	public static var FALLBACK_CHARACTER:String = "bf";
-	public static var FALLBACK_DEAD_CHARACTER:String = "bf-dead";
+	public static var FALLBACK_CHARACTER:String = Constants.DEFAULT_CHARACTER;
+	public static var FALLBACK_DEAD_CHARACTER:String = Constants.DEFAULT_GAMEOVER_CHARACTER;
 	public static function getXMLFromCharName(character:OneOfTwo<String, Character>):Access {
 		var char:Character = null;
 		if (character is Character) {
@@ -468,7 +468,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	}
 
 	public static function getIconFromCharName(?character:String) {
-		if(character == null) return "face";
+		if(character == null) return Constants.DEFAULT_HEALTH_ICON;
 		var icon:String = character;
 
 		var xml:Access = getXMLFromCharName(character);

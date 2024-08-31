@@ -82,7 +82,7 @@ class SongCreationScreen extends UISubstateWindow {
 
 		var voicesUIText:UIText = null;
 
-		instExplorer = new UIFileExplorer(songNameTextBox.x, songNameTextBox.y + 32 + 36, null, null, Paths.SOUND_EXT, function (res) {
+		instExplorer = new UIFileExplorer(songNameTextBox.x, songNameTextBox.y + 32 + 36, null, null, Constants.SOUND_EXT, function (res) {
 			var audioPlayer:UIAudioPlayer = new UIAudioPlayer(instExplorer.x + 8, instExplorer.y + 8, res);
 			instExplorer.members.push(audioPlayer);
 			instExplorer.uiElement = audioPlayer;
@@ -92,7 +92,7 @@ class SongCreationScreen extends UISubstateWindow {
 			"Inst Audio File $* Required$",
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
-		voicesExplorer = new UIFileExplorer(instExplorer.x + 320 + 26, instExplorer.y, null, null, Paths.SOUND_EXT, function (res) {
+		voicesExplorer = new UIFileExplorer(instExplorer.x + 320 + 26, instExplorer.y, null, null, Constants.SOUND_EXT, function (res) {
 			var audioPlayer:UIAudioPlayer = new UIAudioPlayer(voicesExplorer.x + 8, voicesExplorer.y + 8, res);
 			voicesExplorer.members.push(audioPlayer);
 			voicesExplorer.uiElement = audioPlayer;
@@ -217,7 +217,7 @@ class SongCreationScreen extends UISubstateWindow {
 		@:privateAccess iconSprite.animation.clearAnimations();
 
 		var path:String = Paths.image('icons/$icon');
-		if (!Assets.exists(path)) path = Paths.image('icons/face');
+		if (!Assets.exists(path)) path = Paths.image('icons/' + Constants.DEFAULT_HEALTH_ICON);
 
 		iconSprite.loadGraphic(path, true, 150, 150);
 		iconSprite.animation.add(icon, [0], 0, false);

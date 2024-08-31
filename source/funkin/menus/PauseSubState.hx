@@ -20,7 +20,7 @@ class PauseSubState extends MusicBeatSubstate
 
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
-	var menuItems:Array<String> = ['Resume', 'Restart Song', 'Change Controls', 'Change Options', 'Exit to menu', "Exit to charter"];
+	var menuItems:Array<String> = Constants.DEFAULT_PAUSE_ITEMS;
 	var curSelected:Int = 0;
 
 	var pauseMusic:FlxSound;

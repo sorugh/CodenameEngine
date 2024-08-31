@@ -129,7 +129,7 @@ class CharterMetaDataScreen extends UISubstateWindow {
 		@:privateAccess iconSprite.animation.clearAnimations();
 
 		var path:String = Paths.image('icons/$icon');
-		if (!Assets.exists(path)) path = Paths.image('icons/face');
+		if (!Assets.exists(path)) path = Paths.image('icons/' + Constants.DEFAULT_HEALTH_ICON);
 
 		iconSprite.loadGraphic(path, true, 150, 150);
 		iconSprite.animation.add(icon, [0], 0, false);

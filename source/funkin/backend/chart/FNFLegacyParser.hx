@@ -45,7 +45,7 @@ class FNFLegacyParser {
 
 		var camFocusedBF:Bool = false;
 		var altAnims:Bool = false;
-		var beatsPerMeasure:Float = data.beatsPerMeasure.getDefault(4);
+		var beatsPerMeasure:Float = data.beatsPerMeasure.getDefault(Constants.DEFAULT_BEATS_PER_MEASURE);
 		var curBPM:Float = data.bpm;
 		var curTime:Float = 0;
 		var curCrochet:Float = ((60 / curBPM) * 1000);
@@ -156,9 +156,9 @@ class FNFLegacyParser {
 		for (strumLine in chart.strumLines)
 			switch (strumLine.type) {
 				case OPPONENT:
-					if (base.player2 == null) base.player2 = strumLine.characters.getDefault(["dad"])[0];
+					if (base.player2 == null) base.player2 = strumLine.characters.getDefault([Constants.DEFAULT_OPPONENT])[0];
 				case PLAYER:
-					if (base.player1 == null) base.player1 = strumLine.characters.getDefault(["bf"])[0];
+					if (base.player1 == null) base.player1 = strumLine.characters.getDefault([Constants.DEFAULT_CHARACTER])[0];
 				case ADDITIONAL: // do nothing
 			}
 

@@ -12,7 +12,7 @@ class NoteGroup extends FlxTypedGroup<Note> {
 	/**
 	 * How many ms it should show a note before it should be hit
 	 **/
-	public var limit:Float = 1500;
+	public var limit:Float = Constants.DEFAULT_NOTE_MS_LIMIT;
 
 	/**
 	 * Preallocates the members array with nulls, but if theres anything in the array already it clears it

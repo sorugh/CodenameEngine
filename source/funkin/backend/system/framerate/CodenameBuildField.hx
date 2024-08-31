@@ -9,6 +9,6 @@ class CodenameBuildField extends TextField {
 		defaultTextFormat = Framerate.textFormat;
 		autoSize = LEFT;
 		multiline = wordWrap = false;
-		text = 'Codename Engine ${Main.releaseCycle}\nCommit ${GitCommitMacro.commitNumber} (${GitCommitMacro.commitHash})';
+		text = 'Codename Engine ${Constants.RELEASE_CYCLE}\n${Constants.COMMIT_MESSAGE}';
 	}
 }

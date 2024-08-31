@@ -13,12 +13,6 @@ using StringTools;
 
 class Paths
 {
-	/**
-	 * Preferred sound extension for the game's audio files.
-	 * Currently is set to `mp3` for web targets, and `ogg` for other targets.
-	 */
-	inline public static final SOUND_EXT = #if web "mp3" #else "ogg" #end;
-
 	public static var assetsTree:AssetsLibraryList;
 
 	public static var tempFramesCache:Map<String, FlxFramesCollection> = [];
@@ -32,8 +26,8 @@ class Paths
 	public static inline function getPath(file:String, ?library:String)
 		return library != null ? '$library:assets/$library/$file' : 'assets/$file';
 
-	public static inline function video(key:String, ?ext:String = "mp4")
-		return getPath('videos/$key.$ext');
+	public static inline function video(key:String, ?ext:String)
+		return getPath('videos/$key.${ext != null ? ext : Constants.VIDEO_EXT}');
 
 	public static inline function ndll(key:String)
 		return getPath('ndlls/$key.ndll');
@@ -66,28 +60,31 @@ class Paths
 		return getPath('data/$key.ps1', library);
 
 	static public function sound(key:String, ?library:String)
-		return getPath('sounds/$key.$SOUND_EXT', library);
+		return getPath('sounds/$key.${Constants.SOUND_EXT}', library);
 
 	inline static public function soundRandom(key:String, min:Int, max:Int, ?library:String)
 		return sound(key + FlxG.random.int(min, max), library);
 
 	inline static public function music(key:String, ?library:String)
-		return getPath('music/$key.$SOUND_EXT', library);
+		return getPath('music/$key.${Constants.SOUND_EXT}', library);
 
-	inline static public function voices(song:String, difficulty:String = "normal", ?prefix:String = "")
+	inline static public function voices(song:String, ?difficulty:String, ?prefix:String = "")
 	{
-		var diff = getPath('songs/${song.toLowerCase()}/song/Voices$prefix-${difficulty.toLowerCase()}.$SOUND_EXT', null);
-		return OpenFlAssets.exists(diff) ? diff : getPath('songs/${song.toLowerCase()}/song/Voices$prefix.$SOUND_EXT', null);
+		if (difficulty == null) difficulty = Constants.DEFAULT_DIFFICULTY;
+		var diff = getPath('songs/${song.toLowerCase()}/song/Voices$prefix-${difficulty.toLowerCase()}.${Constants.SOUND_EXT}', null);
+		return OpenFlAssets.exists(diff) ? diff : getPath('songs/${song.toLowerCase()}/song/Voices$prefix.${Constants.SOUND_EXT}', null);
 	}
 
-	inline static public function inst(song:String, difficulty:String = "normal", ?prefix:String = "")
+	inline static public function inst(song:String, ?difficulty:String, ?prefix:String = "")
 	{
-		var diff = getPath('songs/${song.toLowerCase()}/song/Inst$prefix-${difficulty.toLowerCase()}.$SOUND_EXT', null);
-		return OpenFlAssets.exists(diff) ? diff : getPath('songs/${song.toLowerCase()}/song/Inst$prefix.$SOUND_EXT', null);
+		if (difficulty == null) difficulty = Constants.DEFAULT_DIFFICULTY;
+		var diff = getPath('songs/${song.toLowerCase()}/song/Inst$prefix-${difficulty.toLowerCase()}.${Constants.SOUND_EXT}', null);
+		return OpenFlAssets.exists(diff) ? diff : getPath('songs/${song.toLowerCase()}/song/Inst$prefix.${Constants.SOUND_EXT}', null);
 	}
 
-	static public function image(key:String, ?library:String, checkForAtlas:Bool = false, ?ext:String = "png")
+	static public function image(key:String, ?library:String, checkForAtlas:Bool = false, ?ext:String)
 	{
+		if (ext == null) ext = Constants.IMAGE_EXT;
 		if (checkForAtlas) {
 			var atlasPath = getPath('images/$key/spritemap.$ext', library);
 			var multiplePath = getPath('images/$key/1.$ext', library);
@@ -112,8 +109,8 @@ class Paths
 		return scriptPath;
 	}
 
-	static public function chart(song:String, ?difficulty:String = "normal"):String {
-		difficulty = difficulty.toLowerCase();
+	static public function chart(song:String, ?difficulty:String):String {
+		difficulty = (difficulty != null ? difficulty : Constants.DEFAULT_DIFFICULTY).toLowerCase();
 		song = song.toLowerCase();
 
 		return getPath('songs/$song/charts/$difficulty.json', null);
@@ -152,19 +149,19 @@ class Paths
 		return FlxAtlasFrames.fromSparrow(image(key, library), file('images/$key.xml', library));
 
 	inline static public function getSparrowAtlasAlt(key:String)
-		return FlxAtlasFrames.fromSparrow('$key.png', '$key.xml');
+		return FlxAtlasFrames.fromSparrow('$key.${Constants.IMAGE_EXT}', '$key.xml');
 
 	inline static public function getPackerAtlas(key:String, ?library:String)
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(key, library), file('images/$key.txt', library));
 
 	inline static public function getPackerAtlasAlt(key:String)
-		return FlxAtlasFrames.fromSpriteSheetPacker('$key.png', '$key.txt');
+		return FlxAtlasFrames.fromSpriteSheetPacker('$key.${Constants.IMAGE_EXT}', '$key.txt');
 
 	inline static public function getAsepriteAtlas(key:String, ?library:String)
 		return FlxAtlasFrames.fromAseprite(image(key, library), file('images/$key.json', library));
 
 	inline static public function getAsepriteAtlasAlt(key:String)
-		return FlxAtlasFrames.fromAseprite('$key.png', '$key.json');
+		return FlxAtlasFrames.fromAseprite('$key.${Constants.IMAGE_EXT}', '$key.json');
 
 	inline static public function getAssetsRoot():String
 		return  ModsFolder.currentModFolder != null ? '${ModsFolder.modsPath}${ModsFolder.currentModFolder}' : './assets';
@@ -197,7 +194,7 @@ class Paths
 	static function loadFrames(path:String, Unique:Bool = false, Key:String = null, SkipAtlasCheck:Bool = false):FlxFramesCollection {
 		var noExt = Path.withoutExtension(path);
 
-		if (Assets.exists('$noExt/1.png')) {
+		if (Assets.exists('$noExt/1.${Constants.IMAGE_EXT}')) {
 			// MULTIPLE SPRITESHEETS!!
 
 			var graphic = FlxG.bitmap.add("flixel/images/logo/default.png", false, '$noExt/mult');
@@ -208,8 +205,8 @@ class Paths
 			trace("no frames yet for multiple atlases!!");
 			var cur = 1;
 			var finalFrames = new MultiFramesCollection(graphic);
-			while(Assets.exists('$noExt/$cur.png')) {
-				var spr = loadFrames('$noExt/$cur.png');
+			while(Assets.exists('$noExt/$cur.${Constants.IMAGE_EXT}')) {
+				var spr = loadFrames('$noExt/$cur.${Constants.IMAGE_EXT}');
 				finalFrames.addFrames(spr);
 				cur++;
 			}

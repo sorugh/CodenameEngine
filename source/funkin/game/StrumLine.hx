@@ -152,7 +152,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		var scrollSpeed = strumLine.scrollSpeed;
 		if(scrollSpeed == null) if (PlayState.instance != null) scrollSpeed = PlayState.instance.scrollSpeed;
 		if(scrollSpeed == null) scrollSpeed = 1;
-		notes.limit = 1500 / scrollSpeed;
+		notes.limit = Constants.DEFAULT_NOTE_MS_LIMIT / scrollSpeed;
 	}
 
 	public override function update(elapsed:Float) {
@@ -288,7 +288,8 @@ class StrumLine extends FlxTypedGroup<Strum> {
 	public inline function addHealth(health:Float)
 		PlayState.instance.health += health * (opponentSide ? -1 : 1);
 
-	public inline function generateStrums(amount:Int = 4) {
+	public inline function generateStrums(amount:Int = -1) {
+		if(amount == -1) amount = Constants.DEFAULT_STRUM_AMOUNT;
 		for (i in 0...amount)
 			add(createStrum(i));
 	}
@@ -326,7 +327,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 			babyArrow.animation.addByPrefix('red', 'arrowRIGHT');
 
 			babyArrow.antialiasing = true;
-			babyArrow.setGraphicSize(Std.int((babyArrow.width * 0.7) * strumScale));
+			babyArrow.setGraphicSize(Std.int((babyArrow.width * Constants.DEFAULT_NOTE_SCALE) * strumScale));
 
 			babyArrow.animation.addByPrefix('static', 'arrow${event.animPrefix.toUpperCase()}');
 			babyArrow.animation.addByPrefix('pressed', '${event.animPrefix} press', 24, false);

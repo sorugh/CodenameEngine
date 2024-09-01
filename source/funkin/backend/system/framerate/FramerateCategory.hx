@@ -39,6 +39,8 @@ class FramerateCategory extends Sprite {
 		this.text.y = this.title.y + this.title.height + 2;
 	}
 
+	public function reload() {}
+
 	public override function __enterFrame(t:Int) {
 		if (alpha <= 0.05) return;
 		super.__enterFrame(t);

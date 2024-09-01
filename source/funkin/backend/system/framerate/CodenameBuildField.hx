@@ -9,6 +9,11 @@ class CodenameBuildField extends TextField {
 		defaultTextFormat = Framerate.textFormat;
 		autoSize = LEFT;
 		multiline = wordWrap = false;
-		text = 'Codename Engine ${Main.releaseCycle}\nCommit ${GitCommitMacro.commitNumber} (${GitCommitMacro.commitHash})';
+		reload();
+	}
+
+	public function reload() {
+		var buildText = Flags.FPS_BUILD_TEXT.replace("${build}", Std.string(GitCommitMacro.commitNumber)).replace("${commit}", GitCommitMacro.commitHash);
+		text = 'Codename Engine ${Main.releaseCycle}\n' + buildText;
 	}
 }

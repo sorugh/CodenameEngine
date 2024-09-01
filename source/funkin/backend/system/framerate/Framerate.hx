@@ -82,6 +82,16 @@ class Framerate extends Sprite {
 		#end
 	}
 
+	public function reload() {
+		for(c in categories)
+			c.reload();
+		#if SHOW_BUILD_ON_FPS
+		codenameBuildField.reload();
+		#end
+		memoryCounter.reload();
+		fpsCounter.reload();
+	}
+
 	private function __addCategory(category:FramerateCategory) {
 		categories.push(category);
 		__addToList(category);

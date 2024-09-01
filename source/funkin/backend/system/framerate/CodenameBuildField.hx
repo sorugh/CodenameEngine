@@ -9,6 +9,9 @@ class CodenameBuildField extends TextField {
 		defaultTextFormat = Framerate.textFormat;
 		autoSize = LEFT;
 		multiline = wordWrap = false;
-		text = 'Codename Engine ${Constants.RELEASE_CYCLE}\n${Constants.COMMIT_MESSAGE}';
+		reload();
 	}
+
+	public function reload()
+		text = 'Codename Engine ${Constants.RELEASE_CYCLE}\n${Constants.COMMIT_MESSAGE}';
 }

@@ -22,6 +22,7 @@ import flixel.math.FlxMath;
 import flixel.tweens.FlxEase;
 import flixel.util.FlxDestroyUtil;
 
+import funkin.backend.system.Flags;
 import funkin.Constants;
 
 import funkin.menus.ui.Alphabet;

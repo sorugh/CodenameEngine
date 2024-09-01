@@ -233,8 +233,18 @@ class StoryMenuState extends MusicBeatState {
 	public function loadXMLs() {
 		// CoolUtil.coolTextFile(Paths.txt('freeplaySonglist'));
 		var weeks:Array<String> = [];
-		if (getWeeksFromSource(weeks, MODS))
-			getWeeksFromSource(weeks, SOURCE);
+
+		switch(Flags.WEEKS_LIST_MOD_MODE) {
+			case 'prepend':
+				getWeeksFromSource(weeks, MODS);
+				getWeeksFromSource(weeks, SOURCE);
+			case 'append':
+				getWeeksFromSource(weeks, SOURCE);
+				getWeeksFromSource(weeks, MODS);
+			default /*case 'override'*/:
+				if (getWeeksFromSource(weeks, MODS))
+					getWeeksFromSource(weeks, SOURCE);
+		}
 
 		for(k=>weekName in weeks) {
 			var week:Access = null;

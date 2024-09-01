@@ -45,7 +45,7 @@ class GameOverSubstate extends MusicBeatSubstate
 		this.player = player;
 		this.characterName = character != null ? character : Constants.DEFAULT_GAMEOVER_CHARACTER;
 		this.gameOverSong = gameOverSong != null ? gameOverSong : Constants.DEFAULT_GAMEOVER_SONG;
-		this.lossSFXName = lossSFX != null ? lossSFXName : Constants.DEFAULT_GAMEOVER_LOSS_SFX;
+		this.lossSFXName = lossSFX != null ? lossSFX : Constants.DEFAULT_GAMEOVER_LOSS_SFX;
 		this.retrySFX = retrySFX != null ? retrySFX : Constants.DEFAULT_GAMEOVER_RETRY_SFX;
 	}
 

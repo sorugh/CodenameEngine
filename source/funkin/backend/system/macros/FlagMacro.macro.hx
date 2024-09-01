@@ -95,6 +95,21 @@ class FlagMacro {
 								}
 							}
 
+							var didFind = false;
+							for(v in values) {
+								switch(expr.expr) {
+									case EConst(CString(s, kind)):
+										if(v == s)
+											didFind = true;
+									case EConst(CInt(num)):
+										if(v == num)
+											didFind = true;
+									default:
+								}
+							}
+							if(!didFind)
+								Context.error("Flags Allow<> must have a default value that is allowed, " + expr.toString() + " is not allowed", field.pos);
+
 							if(chosenType == NONE)
 								Context.error("Flags Allow<> must have a type", field.pos);
 

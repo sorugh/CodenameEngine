@@ -10,6 +10,8 @@ import funkin.backend.assets.ScriptedAssetLibrary;
 class Flags {
 	public static var FPS_BUILD_TEXT:String = "Commit ${build} (${commit})";
 
+	// Internal stuff
+
 	@:bypass public static var customFlags:Map<String, String> = [];
 
 	public static function load() {

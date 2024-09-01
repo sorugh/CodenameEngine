@@ -15,6 +15,9 @@ class StoryMenuState extends MusicBeatState {
 	public var characters:Map<String, Access> = [];
 	public var weeks:Array<WeekData> = [];
 
+	// yes it supports parameters  - Nex
+	public var scoreMessage:String = "WEEK SCORE:{0}";
+
 	public var scoreText:FlxText;
 	public var tracklist:FlxText;
 	public var weekTitle:FlxText;
@@ -126,7 +129,7 @@ class StoryMenuState extends MusicBeatState {
 		super.update(elapsed);
 
 		lerpScore = lerp(lerpScore, intendedScore, 0.5);
-		scoreText.text = 'WEEK SCORE:${Math.round(lerpScore)}';
+		scoreText.text = scoreMessage.replace("{0}", Std.string(Math.round(lerpScore)));
 
 		if (canSelect) {
 			if (leftArrow != null && leftArrow.exists) leftArrow.animation.play(controls.LEFT ? 'press' : 'idle');

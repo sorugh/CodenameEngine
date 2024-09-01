@@ -28,6 +28,7 @@ class GameOverSubstate extends MusicBeatSubstate
 
 	public var gameoverScript:Script;
 	public var game:PlayState = PlayState.instance; // shortcut
+	public static var instance:GameOverSubstate = null;
 
 	private var __cancelDefault:Bool = false;
 
@@ -56,7 +57,7 @@ class GameOverSubstate extends MusicBeatSubstate
 			FlxG.sound.music.stop();
 
 		gameoverScript = Script.create(Paths.script(script));
-		gameoverScript.setParent(this);
+		gameoverScript.setParent(instance = this);
 		gameoverScript.load();
 
 		var event = EventManager.get(GameOverCreationEvent).recycle(x, y, characterName, player, gameOverSong, gameOverSongBPM, lossSFXName, retrySFX);
@@ -198,5 +199,6 @@ class GameOverSubstate extends MusicBeatSubstate
 		gameoverScript.destroy();
 
 		super.destroy();
+		instance = null;
 	}
 }

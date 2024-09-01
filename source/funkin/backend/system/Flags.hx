@@ -60,20 +60,4 @@ class Flags {
 				customFlags.set(name, value);
 			}
 	}
-
-	public static function getCleanLibraryName(e:AssetLibrary) {
-		var l = e;
-		if (l is openfl.utils.AssetLibrary) {
-			var al = cast(l, openfl.utils.AssetLibrary);
-			@:privateAccess
-			if (al.__proxy != null) l = al.__proxy;
-		}
-
-		if (l is ScriptedAssetLibrary)
-			return '${cast(l, ScriptedAssetLibrary).scriptName} (${cast(l, ScriptedAssetLibrary).modName})';
-		else if (l is IModsAssetLibrary)
-			return '${cast(l, IModsAssetLibrary).modName}';
-		else
-			return Std.string(e);
-	}
 }

@@ -34,13 +34,13 @@ class FlagMacro {
 			switch (field.kind) {
 				case FVar(type, expr):
 					if(expr == null)
-						Context.error('Flags must be initialized', field.pos);
+						Context.error('Flag ' + field.name + ' must have a default value', field.pos);
 					switch(expr.expr) {
 						case EConst(CIdent("true")) | EConst(CIdent("false")):
 							type = macro: Bool;
 						default:
 							if(type == null)
-								Context.error('Flags must have a type', field.pos);
+								Context.error('Flag ' + field.name + ' must have a type', field.pos);
 					}
 
 					var parser:Expr = null;
@@ -77,21 +77,21 @@ class FlagMacro {
 										switch(e.expr) {
 											case EConst(CString(s, kind)):
 												if(chosenType != NONE && chosenType != STRING)
-													Context.error("Flags Allow<> can only have one type", field.pos);
+													Context.error("Flag " + field.name + " Allow<> can only have one type", field.pos);
 												chosenType = STRING;
 
 												values.push(s);
 											case EConst(CInt(num)):
 												if(chosenType != NONE && chosenType != INT)
-													Context.error("Flags Allow<> can only have one type", field.pos);
+													Context.error("Flag " + field.name + " Allow<> can only have one type", field.pos);
 												chosenType = INT;
 
 												values.push(num);
 											default:
-												Context.error("Flags Allow<> unknown type", field.pos);
+												Context.error("Flag " + field.name + " Allow<> unknown type", field.pos);
 										}
 									default:
-										Context.error("Flags must be either a Bool, Int, String, Array<String>, Array<Bool> or Array<TrimmedString>", field.pos);
+										Context.error("Flag " + field.name + " Unknown type when using Allow<>", field.pos);
 								}
 							}
 
@@ -108,12 +108,12 @@ class FlagMacro {
 								}
 							}
 							if(!didFind)
-								Context.error("Flags Allow<> must have a default value that is allowed, " + expr.toString() + " is not allowed", field.pos);
+								Context.error("Flag " + field.name + "'s Allow<> must have a default value that is allowed, " + expr.toString() + " is not allowed", field.pos);
 
 							if(chosenType == NONE)
-								Context.error("Flags Allow<> must have a type", field.pos);
+								Context.error("Flag " + field.name + "'s Allow<> must have atleast one value", field.pos);
 
-							var errorMessage = 'Flags ${field.name} must be one of ${values.join(", ")}';
+							var errorMessage = 'Flag ${field.name} must be one of ${values.join(", ")}';
 
 							var checkExpr = macro value == $v{values.shift()};
 							for(v in values)
@@ -141,15 +141,15 @@ class FlagMacro {
 							}
 
 						case TPath({name: "Array", pack: []}):
-							Context.error('Flags cannot be an Array that isnt a String or Bool or TrimmedString', field.pos);
+							Context.error("Flag " + field.name + " cannot be an Array that isnt a String or Bool or TrimmedString", field.pos);
 						case TPath({name: "Map", pack: []}):
-							Context.error('Flags cannot be a Map<K, V>', field.pos);
+							Context.error("Flag " + field.name + " cannot be a Map<K, V>", field.pos);
 						default:
-							Context.error("Flags must be either a Bool, Int, String, Array<String>, Array<Bool> or Array<TrimmedString>", field.pos);
+							Context.error("Flag " + field.name + " must be either a Bool, Int, String, Array<String>, Array<Bool> or Array<TrimmedString>", field.pos);
 					}
 
 					if(parser == null) {
-						Context.error("Flags must be either a Bool, Int, String, Array<String>, Array<Bool> or Array<TrimmedString>", field.pos);
+						Context.error("Flag " + field.name + " must be either a Bool, Int, String, Array<String>, Array<Bool> or Array<TrimmedString>", field.pos);
 						continue;
 					}
 

@@ -6,9 +6,15 @@ import lime.utils.AssetType;
 import funkin.backend.assets.IModsAssetLibrary;
 import funkin.backend.assets.ScriptedAssetLibrary;
 
+/**
+ * A class that reads the `flags.ini` file, allowing to read settable Flags (customs too).
+ */
 @:build(funkin.backend.system.macros.FlagMacro.build())
 class Flags {
-	public static var FPS_BUILD_TEXT:String = "Commit ${build} (${commit})";
+	public static var SONGS_LIST_MOD_MODE:Allow<"prepend", "override", "append"> = "override";
+	public static var WEEKS_LIST_MOD_MODE:Allow<"prepend", "override", "append"> = "override";
+
+	// Internal stuff
 
 	@:bypass public static var customFlags:Map<String, String> = [];
 
@@ -53,21 +59,5 @@ class Flags {
 			if(!parse(name, value)) {
 				customFlags.set(name, value);
 			}
-	}
-
-	public static function getCleanLibraryName(e:AssetLibrary) {
-		var l = e;
-		if (l is openfl.utils.AssetLibrary) {
-			var al = cast(l, openfl.utils.AssetLibrary);
-			@:privateAccess
-			if (al.__proxy != null) l = al.__proxy;
-		}
-
-		if (l is ScriptedAssetLibrary)
-			return '${cast(l, ScriptedAssetLibrary).scriptName} (${cast(l, ScriptedAssetLibrary).modName})';
-		else if (l is IModsAssetLibrary)
-			return '${cast(l, IModsAssetLibrary).modName}';
-		else
-			return Std.string(e);
 	}
 }

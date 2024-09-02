@@ -465,8 +465,17 @@ class FreeplaySonglist {
 	public static function get(useTxt:Bool = true) {
 		var songList = new FreeplaySonglist();
 
-		if (songList.getSongsFromSource(MODS, useTxt))
-			songList.getSongsFromSource(SOURCE, useTxt);
+		switch(Flags.SONGS_LIST_MOD_MODE) {
+			case 'prepend':
+				songList.getSongsFromSource(MODS, useTxt);
+				songList.getSongsFromSource(SOURCE, useTxt);
+			case 'append':
+				songList.getSongsFromSource(SOURCE, useTxt);
+				songList.getSongsFromSource(MODS, useTxt);
+			default /*case 'override'*/:
+				if (songList.getSongsFromSource(MODS, useTxt))
+					songList.getSongsFromSource(SOURCE, useTxt);
+		}
 
 		return songList;
 	}

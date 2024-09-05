@@ -40,7 +40,7 @@ class CharterNote extends UISprite implements ICharterSelectable {
 		this.setUnstretchedGraphicSize(40, 40, false);
 
 		sustainSpr = new UISprite(10, 20);
-		sustainSpr.makeSolid(1, 1, -1);
+		sustainSpr.makeSolid(1, 1, -1, false, "note-sustain");
 		sustainSpr.scale.set(10, 0);
 		members.push(sustainSpr);
 

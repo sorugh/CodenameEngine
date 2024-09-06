@@ -80,7 +80,7 @@ class Strum extends FlxSprite {
 		super.draw();
 	}
 
-	@:noCompletion public static final PIX180:Float = 565.4866776461628; // 180 * Math.PI
+	@:noCompletion public static inline final PIX180:Float = 565.4866776461628; // 180 * Math.PI
 	@:noCompletion public static final N_WIDTHDIV2:Float = Note.swagWidth / 2;
 
 	public function updateNotePosition(daNote:Note) {

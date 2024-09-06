@@ -281,12 +281,13 @@ class FreeplayState extends MusicBeatState
 	function updateCoopModes() {
 		__opponentMode = false;
 		__coopMode = false;
-		if (songs[curSelected].coopAllowed && songs[curSelected].opponentModeAllowed) {
+		var curSong = songs[curSelected];
+		if (curSong.coopAllowed && curSong.opponentModeAllowed) {
 			__opponentMode = curCoopMode % 2 == 1;
 			__coopMode = curCoopMode >= 2;
-		} else if (songs[curSelected].coopAllowed) {
+		} else if (curSong.coopAllowed) {
 			__coopMode = curCoopMode == 1;
-		} else if (songs[curSelected].opponentModeAllowed) {
+		} else if (curSong.opponentModeAllowed) {
 			__opponentMode = curCoopMode == 1;
 		}
 	}
@@ -315,9 +316,10 @@ class FreeplayState extends MusicBeatState
 	}
 
 	public function convertChart() {
-		trace('Converting ${songs[curSelected].name} (${songs[curSelected].difficulties[curDifficulty]}) to Codename format...');
-		var chart = Chart.parse(songs[curSelected].name, songs[curSelected].difficulties[curDifficulty]);
-		Chart.save('${Main.pathBack}assets/songs/${songs[curSelected].name}', chart, songs[curSelected].difficulties[curDifficulty].toLowerCase());
+		var curSong = songs[curSelected];
+		trace('Converting ${curSong.name} (${curSong.difficulties[curDifficulty]}) to Codename format...');
+		var chart = Chart.parse(curSong.name, curSong.difficulties[curDifficulty]);
+		Chart.save('${Main.pathBack}assets/songs/${curSong.name}', chart, curSong.difficulties[curDifficulty].toLowerCase());
 	}
 
 	/**

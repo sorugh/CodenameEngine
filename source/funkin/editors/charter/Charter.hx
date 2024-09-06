@@ -111,10 +111,10 @@ class Charter extends UIState {
 			{
 				label: "File",
 				childs: [
-					{
+					/*{
 						label: "New"
 					},
-					null,
+					null,*/
 					{
 						label: "Save",
 						keybind: [CONTROL, S],
@@ -362,9 +362,9 @@ class Charter extends UIState {
 						onSelect: _playback_metronome,
 						icon: Options.charterMetronomeEnabled ? 1 : 0
 					},
-					{
+					/*{
 						label: "Visual metronome"
-					},
+					},*/
 				]
 			}
 		];
@@ -420,7 +420,7 @@ class Charter extends UIState {
 		};
 		uiGroup.add(scrollBar);
 
-		songPosInfo = new UIText(FlxG.width - 30 - 400, scrollBar.y + 10, 400, "00:00\nBeat: 0\nStep: 0\nMeasure: 0\nBPM: 0\nTime Signature: 4/4");
+		songPosInfo = new UIText(FlxG.width - 30 - 400, scrollBar.y + 10, 400, "00:00 / 00:00\nBeat: 0\nStep: 0\nMeasure: 0\nBPM: 0\nTime Signature: 4/4");
 		songPosInfo.alignment = RIGHT;
 		uiGroup.add(songPosInfo);
 
@@ -1164,7 +1164,6 @@ class Charter extends UIState {
 				var snapButton:UITopMenuButton = cast topMenuSpr.members[snapIndex];
 				var lastButtonX = playBackButton.x-10;
 
-				var buttonI:Int = 0;
 				for (button in quantButtons) {
 					button.visible = ((button.quant == quant) ||
 						(button.quant == quants[FlxMath.wrap(quants.indexOf(quant)-1, 0, quants.length-1)]) ||

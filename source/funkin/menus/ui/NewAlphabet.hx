@@ -144,9 +144,10 @@ class NewAlphabet extends FlxSprite {
 		var ogRed:Float = colorTransform.redMultiplier;
 		var ogGreen:Float = colorTransform.greenMultiplier;
 		var ogBlue:Float = colorTransform.blueMultiplier;
+		var ogAlpha:Float = colorTransform.alphaMultiplier;
 
 		for (i in 0...daText.length) {
-			__renderData.reset(this, daText.charAt(i));
+			__renderData.reset(this, ogRed, ogGreen, ogBlue, ogAlpha, daText.charAt(i));
 			for (effect in effects) {
 				if (effect.willModify(i, i - lastLine, __renderData))
 					effect.modify(i, i - lastLine, __renderData);
@@ -164,7 +165,7 @@ class NewAlphabet extends FlxSprite {
 			var anim = getLetterAnim(letter);
 			var advance:Float = getAdvance(letter, anim);
 
-			if (anim == null) {
+			if (anim == null || __renderData.alpha <= 0.0) {
 				frameOffset.x -= advance;
 			} else {
 				var frameToGet = Math.floor(__animTime * fps) % anim.numFrames;
@@ -184,7 +185,7 @@ class NewAlphabet extends FlxSprite {
 					shader.setCamSize(_frame.frame.x, _frame.frame.y, _frame.frame.width, _frame.frame.height);
 
 				setColorTransform(
-					__renderData.red * transformMult, __renderData.green * transformMult, __renderData.blue * transformMult, colorTransform.alphaMultiplier,
+					__renderData.red * transformMult, __renderData.green * transformMult, __renderData.blue * transformMult, __renderData.alpha,
 					Math.round(__renderData.red * offsetMult), Math.round(__renderData.green * offsetMult), Math.round(__renderData.blue * offsetMult), 0
 				);
 				super.drawComplex(camera);
@@ -192,11 +193,9 @@ class NewAlphabet extends FlxSprite {
 				frameOffset.x -= offsetX;
 				frameOffset.x -= advance;
 			}
-			colorTransform.redMultiplier = ogRed;
-			colorTransform.greenMultiplier = ogGreen;
-			colorTransform.blueMultiplier = ogBlue;
 		}
-
+		
+		setColorTransform(ogRed, ogGreen, ogBlue, ogAlpha, 0, 0, 0, 0);
 		frameOffset.set(ogOffX, ogOffY);
 	}
 
@@ -279,6 +278,42 @@ class NewAlphabet extends FlxSprite {
 		return animation.getByName(char);
 	}
 
+	function checkNode(node:Xml) {
+		switch (node.nodeName) {
+			case "spritesheet":
+				if (frames == null)
+					frames = Paths.getFrames(node.firstChild().nodeValue);
+				else {
+					for (frame in Paths.getFrames(node.firstChild().nodeValue).frames)
+						frames.pushFrame(frame);
+				}
+			case "defaultAnim":
+				defaults.set(node.get("casing").getDefault("<NORMAL>").toUpperCase(), node.firstChild().nodeValue);
+			case "anim":
+				var char = node.get("char");
+				anims.set(char, node.firstChild().nodeValue);
+				if (node.exists("advance")) {
+					var advance = Std.parseFloat(node.get("advance")).getDefault(defaultAdvance);
+					advances.set(char, advance);
+				}
+				if (node.exists("x")) {
+					// negative since flixel is weird
+					var xOff = -Std.parseFloat(node.get("x")).getDefault(0.0);
+					xOffset.set(char, xOff);
+				}
+				if (node.exists("y")) {
+					var yOff = Std.parseFloat(node.get("y")).getDefault(0.0);
+					yOffset.set(char, yOff);
+				}
+			case "languageSection":
+				var langs = [for (lang in node.get("langs").split(",")) lang.trim()];
+				if (langs.contains(Options.language)) {
+					for (langNode in node.elements())
+						checkNode(langNode);
+				}
+		}
+	}
+
 	function loadFont(value:String) {
 		__queueResize = true;
 
@@ -298,30 +333,10 @@ class NewAlphabet extends FlxSprite {
 		forceCase = xml.get("forceCasing").getDefault("none").toLowerCase();
 		transformMult = (xml.get("useColorOffsets") == "true") ? 0 : 1;
 
-		for (node in xml.elements()) {
-			switch (node.nodeName) {
-				case "spritesheet":
-					frames = Paths.getFrames(node.firstChild().nodeValue);
-				case "defaultAnim":
-					defaults.set(node.get("casing").getDefault("<NORMAL>").toUpperCase(), node.firstChild().nodeValue);
-				case "anim":
-					var char = node.get("char");
-					anims.set(char, node.firstChild().nodeValue);
-					if (node.exists("advance")) {
-						var advance = Std.parseFloat(node.get("advance")).getDefault(defaultAdvance);
-						advances.set(char, advance);
-					}
-					if (node.exists("x")) {
-						// negative since flixel is weird
-						var xOff = -Std.parseFloat(node.get("x")).getDefault(0.0);
-						xOffset.set(char, xOff);
-					}
-					if (node.exists("y")) {
-						var yOff = Std.parseFloat(node.get("y")).getDefault(0.0);
-						yOffset.set(char, yOff);
-					}
-			}
-		}
+		frames = null;
+
+		for (node in xml.elements())
+			checkNode(node);
 	}
 
 	override function destroy() {

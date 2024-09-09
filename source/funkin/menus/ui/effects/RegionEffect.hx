@@ -11,17 +11,21 @@ class AlphabetRenderData {
 	public var red:Float = 0;
 	public var green:Float = 0;
 	public var blue:Float = 0;
+	public var alpha:Float = 1;
 
 	public function new(parent:NewAlphabet) {
 		this.parent = parent;
 	}
 
-	public function reset(parent:NewAlphabet, letter:String) {
+	public function reset(parent:NewAlphabet, red:Float, green:Float, blue:Float, alpha:Float, letter:String) {
 		this.parent = parent;
 		this.letter = letter;
-		offsetX = 0;
-		offsetY = 0;
-		color = 0xFFFFFFFF;
+		this.offsetX = 0;
+		this.offsetY = 0;
+		this.red = red;
+		this.green = green;
+		this.blue = blue;
+		this.alpha = alpha;
 	}
 
 	function get_color():FlxColor {

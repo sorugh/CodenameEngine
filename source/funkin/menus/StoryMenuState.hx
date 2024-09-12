@@ -199,14 +199,24 @@ class StoryMenuState extends MusicBeatState {
 			}
 		}
 
-		intendedScore = FunkinSave.getWeekHighscore(weeks[curWeek].name, weeks[curWeek].difficulties[curDifficulty]).score;
+		intendedScore = FunkinSave.getWeekHighscore(weeks[curWeek].id, weeks[curWeek].difficulties[curDifficulty]).score;
 	}
 
 	public function loadXMLs() {
 		// CoolUtil.coolTextFile(Paths.txt('freeplaySonglist'));
 		var weeks:Array<String> = [];
-		if (getWeeksFromSource(weeks, MODS))
-			getWeeksFromSource(weeks, SOURCE);
+
+		switch(Flags.WEEKS_LIST_MOD_MODE) {
+			case 'prepend':
+				getWeeksFromSource(weeks, MODS);
+				getWeeksFromSource(weeks, SOURCE);
+			case 'append':
+				getWeeksFromSource(weeks, SOURCE);
+				getWeeksFromSource(weeks, MODS);
+			default /*case 'override'*/:
+				if (getWeeksFromSource(weeks, MODS))
+					getWeeksFromSource(weeks, SOURCE);
+		}
 
 		for(k=>weekName in weeks) {
 			var week:Access = null;
@@ -344,8 +354,8 @@ class StoryMenuState extends MusicBeatState {
 }
 
 typedef WeekData = {
-	var name:String;
-	var id:String;
+	var name:String;  // name SHOULD NOT be used for loading week highscores, its just the name on the right side of the week, remember that next time!!  - Nex
+	var id:String;  // id IS instead for saving and loading!!  - Nex
 	var sprite:String;
 	var chars:Array<String>;
 	var songs:Array<WeekSong>;

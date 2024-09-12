@@ -14,8 +14,9 @@ final class EventManager {
 		var index = eventKeys.indexOf(c);
 		if (index < 0) {
 			eventKeys.push(c);
-			eventValues.push(Type.createInstance(c, []));
-			return cast eventValues.last();
+			var ret;
+			eventValues.push(ret = Type.createInstance(c, []));
+			return cast ret;
 		}
 
 		return cast eventValues[index];

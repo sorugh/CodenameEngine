@@ -29,6 +29,8 @@ class MemoryCounter extends Sprite {
 		memoryPeakText.alpha = 0.5;
 	}
 
+	public function reload() {}
+
 	public override function __enterFrame(t:Int) {
 		if (alpha <= 0.05) return;
 		super.__enterFrame(t);

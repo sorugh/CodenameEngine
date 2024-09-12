@@ -172,8 +172,11 @@ class CharterStrumlineScreen extends UISubstateWindow {
 		addLabelOn(vocalsSuffixDropDown, "Vocal Suffix");
 
 		keyCountStepper = new UINumericStepper(stagePositionDropdown.x, vocalsSuffixDropDown.y, strumLine.keyCount != null ? strumLine.keyCount : 4, 1, 0, 1, 1000, 84);
-		add(keyCountStepper);
-		addLabelOn(keyCountStepper, "Key Count");
+		if (Flags.CHARTER_ADVANCED_SETTINGS) {
+			add(keyCountStepper);
+			addLabelOn(keyCountStepper, "Key Count");
+		}
+
 
 
 		strumLineCam = new HudCamera();

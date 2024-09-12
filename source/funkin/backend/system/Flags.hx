@@ -14,6 +14,8 @@ class Flags {
 	public static var SONGS_LIST_MOD_MODE:Allow<"prepend", "override", "append"> = "override";
 	public static var WEEKS_LIST_MOD_MODE:Allow<"prepend", "override", "append"> = "override";
 
+	public static var CHARTER_ADVANCED_SETTINGS:Bool = false;
+
 	// Internal stuff
 
 	@:bypass public static var customFlags:Map<String, String> = [];

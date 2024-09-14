@@ -721,7 +721,7 @@ class CoolUtil
 	 */
 	@:noUsing public static inline function openURL(url:String) {
 		#if linux
-		Sys.command('/usr/bin/xdg-open', [url, "&"]);
+		Sys.command('/usr/bin/xdg-open', [url]);
 		#else
 		FlxG.openURL(url);
 		#end
@@ -905,6 +905,19 @@ class CoolUtil
 		}
 
 		return result.join(seperator);
+	}
+
+	public static function deepFlatten(arr:Array<Dynamic>, ?result:Array<Dynamic>):Array<Dynamic> {
+		if(arr == null) return [];
+		if(result == null) result = [];
+		for (e in arr) {
+			if (Std.isOfType(e, Array)) {
+				deepFlatten(e, result);
+			} else {
+				result.push(e);
+			}
+		}
+		return result;
 	}
 }
 

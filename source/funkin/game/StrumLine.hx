@@ -152,7 +152,12 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		var scrollSpeed = strumLine.scrollSpeed;
 		if(scrollSpeed == null) if (PlayState.instance != null) scrollSpeed = PlayState.instance.scrollSpeed;
 		if(scrollSpeed == null) scrollSpeed = 1;
-		notes.limit = Constants.DEFAULT_NOTE_MS_LIMIT / scrollSpeed;
+
+		// TODO: Make this work by accounting zoom and scrollspeed changes  - Nex
+		/*var limit = FlxG.height / 0.45;
+		notes.limit = limit / scrollSpeed;
+			OR
+		notes.limit = Constants.DEFAULT_NOTE_MS_LIMIT / scrollSpeed;*/
 	}
 
 	public override function update(elapsed:Float) {

@@ -98,11 +98,7 @@ class SongCreationScreen extends UISubstateWindow {
 			voicesExplorer.uiElement = audioPlayer;
 		});
 		songDataGroup.add(voicesExplorer);
-
-		voicesUIText = addLabelOn(voicesExplorer, "Vocal Audio File");
-		voicesUIText.applyMarkup(
-			"Vocal Audio File $* Required$",
-			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
+		addLabelOn(voicesExplorer, "Vocal Audio File");
 
 		var menuTitle:UIText;
 		menuDataGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Menus Data (Freeplay/Story)", 28));

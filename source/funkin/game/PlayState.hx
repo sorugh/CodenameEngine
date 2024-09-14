@@ -675,10 +675,12 @@ class PlayState extends MusicBeatState
 				chars.push(char);
 			}
 
-			var strOffset:Float = strumLine.strumLinePos == null ? (strumLine.type == 1 ? 0.75 : 0.25) : strumLine.strumLinePos;
-			var startingPos:FlxPoint = strumLine.strumPos == null ?
-				FlxPoint.get((FlxG.width * strOffset) - ((Note.swagWidth * (strumLine.strumScale == null ? 1 : strumLine.strumScale)) * 2), this.strumLine.y) :
-				FlxPoint.get(strumLine.strumPos[0] == 0 ? ((FlxG.width * strOffset) - ((Note.swagWidth * (strumLine.strumScale == null ? 1 : strumLine.strumScale)) * 2)) : strumLine.strumPos[0], strumLine.strumPos[1]);
+			var strOffset:Float = strumLine.strumLinePos != null ? strumLine.strumLinePos : (strumLine.type == 1 ? 0.75 : 0.25);
+			var strScale:Float = strumLine.strumScale != null ? strumLine.strumScale : 1;
+			var strXPos:Float = (FlxG.width * strOffset) - (Note.swagWidth * strScale * 2);
+			var startingPos:FlxPoint = strumLine.strumPos != null ?
+				FlxPoint.get(strumLine.strumPos[0] == 0 ? strXPos : strumLine.strumPos[0], strumLine.strumPos[1]) :
+				FlxPoint.get(strXPos, this.strumLine.y);
 			var strLine = new StrumLine(chars,
 				startingPos,
 				strumLine.strumScale == null ? 1 : strumLine.strumScale,
@@ -1954,7 +1956,7 @@ class PlayState extends MusicBeatState
 	}
 }
 
-class ComboRating {
+final class ComboRating {
 	public var percent:Float;
 	public var rating:String;
 	public var color:FlxColor;

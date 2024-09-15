@@ -440,25 +440,7 @@ uniform bool hasColorTransform;
 
 vec4 flixel_texture2D(sampler2D bitmap, vec2 coord) {
 	vec4 color = texture2D(bitmap, coord);
-	if (!hasTransform) {
-		return color;
-	}
-
-	if (color.a == 0.0) {
-		return vec4(0.0, 0.0, 0.0, 0.0);
-	}
-
-	if (!hasColorTransform) {
-		return color * openfl_Alphav;
-	}
-
-	color = vec4(color.rgb / color.a, color.a);
-	color = clamp(openfl_ColorOffsetv + (color * openfl_ColorMultiplierv), 0.0, 1.0);
-
-	if (color.a > 0.0) {
-		return vec4(color.rgb * color.a * openfl_Alphav, color.a * openfl_Alphav);
-	}
-	return vec4(0.0, 0.0, 0.0, 0.0);
+	return applyFlixelEffects(color);
 }
 
 vec4 applyFlixelEffects(vec4 color) {
@@ -474,7 +456,7 @@ vec4 applyFlixelEffects(vec4 color) {
 		return color * openfl_Alphav;
 	}
 
-	color = vec4(color.rgb / color.a, color.a);
+	color.rgb = color.rgb / color.a;
 	color = clamp(openfl_ColorOffsetv + (color * openfl_ColorMultiplierv), 0.0, 1.0);
 
 	if (color.a > 0.0) {

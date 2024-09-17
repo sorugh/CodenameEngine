@@ -20,7 +20,7 @@ final class BitmapUtil {
 		for(y in 0...bmap.height) {
 			for(x in 0...bmap.width) {
 				color = bmap.getPixel32(x, y);
-				fixedColor = 0xFF000000 + (color % 0x1000000);
+				fixedColor = 0xFF000000 | (color & 0xFFFFFF);
 				if (!colorMap.exists(fixedColor))
 					colorMap[fixedColor] = 0;
 				colorMap[fixedColor] += color.alphaFloat;
@@ -75,25 +75,33 @@ final class BitmapUtil {
 	 */
 	public static function crop(bitmap:BitmapData) {
 		var bitmapBounds:Rectangle = BitmapUtil.bounds(bitmap);
-		
+
 		var croppedBitmap:BitmapData = new BitmapData(Std.int(bitmapBounds.width), Std.int(bitmapBounds.height), true, 0x00000000);
 		croppedBitmap.copyPixels(bitmap, bitmapBounds, new Point(0,0));
 		return croppedBitmap;
 	}
-	
+
 	/**
 	 * Get bounds of non empty pixels in the bitmap
-	 * @param bitmap 
+	 * @param bitmap
 	 * @return
 	 */
 	public static function bounds(bitmap:BitmapData, ?limit:Rectangle = null):Rectangle {
-		var minX:Int = limit != null ? Std.int(limit.width) : bitmap.width;
-		var minY:Int = limit != null ? Std.int(limit.height) : bitmap.height;
-		var maxX:Int = limit != null ? Std.int(limit.x) : 0; 
-		var maxY:Int = limit != null ? Std.int(limit.y) : 0;
-		
-		for (y in (limit != null ? Std.int(limit.x) : 0)...(limit != null ? Std.int(limit.height) : bitmap.height))
-			for (x in (limit != null ? Std.int(limit.y) : 0)...(limit != null ? Std.int(limit.width) : bitmap.width)) {
+		var hasLimit:Bool = limit != null;
+		// Searching bounds
+		var startX:Int = hasLimit ? Std.int(limit.x) : 0;
+		var startY:Int = hasLimit ? Std.int(limit.y) : 0;
+		var endX:Int = hasLimit ? Std.int(limit.width) : bitmap.width;
+		var endY:Int = hasLimit ? Std.int(limit.height) : bitmap.height;
+
+		// Detected bounds
+		var minX:Int = endX;
+		var minY:Int = endY;
+		var maxX:Int = startX;
+		var maxY:Int = startY;
+
+		for (y in startY...endY) {
+			for (x in startX...endX) {
 				if (bitmap.getPixel32(x, y) != 0x00000000) {
 					if (x < minX) minX = x;
 					if (y < minY) minY = y;
@@ -101,6 +109,7 @@ final class BitmapUtil {
 					if (y > maxY) maxY = y;
 				}
 			}
+		}
 
 		return new Rectangle(minX, minY, maxX-minX+1, maxY-minY+1);
 	}

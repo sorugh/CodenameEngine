@@ -30,6 +30,14 @@ class EditorPicker extends MusicBeatSubstate {
 		},
 		#end
 		{
+			name: "Wiki",
+			iconID: 5,
+			state: null,
+			onClick: function() {
+				CoolUtil.openURL("https://fnf-cne-devs.github.io/");
+			}
+		},
+		{
 			name: "Debug Options",
 			iconID: 4,
 			state: DebugOptions
@@ -96,7 +104,9 @@ class EditorPicker extends MusicBeatSubstate {
 		}
 
 		if (controls.ACCEPT || FlxG.mouse.justReleased) {
-			if (options[curSelected].state != null) {
+			if(options[curSelected].onClick != null)
+				options[curSelected].onClick();
+			else if (options[curSelected].state != null) {
 				selected = true;
 				CoolUtil.playMenuSFX(CONFIRM);
 
@@ -147,6 +157,7 @@ typedef Editor = {
 	var name:String;
 	var iconID:Int;
 	var state:Class<MusicBeatState>;
+	var ?onClick:Void->Void;
 }
 
 class EditorPickerOption extends FlxTypedSpriteGroup<FlxSprite> {
@@ -162,7 +173,6 @@ class EditorPickerOption extends FlxTypedSpriteGroup<FlxSprite> {
 	public var iconRotationCycle:Float = 0;
 	public function new(name:String, iconID:Int, height:Float) {
 		super();
-
 
 		FlxG.mouse.visible = true;
 		iconSpr = new FlxSprite();

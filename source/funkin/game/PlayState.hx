@@ -246,7 +246,7 @@ class PlayState extends MusicBeatState
 	/**
 	 * Current stage name
 	 */
-	public var curStage:String = "";
+	public var curStage(get, set):String;
 
 	/**
 	 * Interval at which Girlfriend dances.
@@ -527,6 +527,14 @@ class PlayState extends MusicBeatState
 			healthBar.setRange(healthBar.min, v);
 		}
 		return this.maxHealth = v;
+	}
+
+	private inline function get_curStage()
+		return stage == null ? "" : stage.stageName;
+
+	private inline function set_curStage(name:String) {
+		if (stage != null) stage.stageName = name;
+		return name;
 	}
 
 	public inline function callOnCharacters(func:String, ?parameters:Array<Dynamic>) {

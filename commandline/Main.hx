@@ -12,7 +12,7 @@ class Main {
 			{
 				names: ["setup"],
 				doc: "Setups (or updates) all libraries required for the engine.",
-				func: Update.main,
+				func: Setup.main,
 				dDoc: [
 					"Usage: setup",
 					"",

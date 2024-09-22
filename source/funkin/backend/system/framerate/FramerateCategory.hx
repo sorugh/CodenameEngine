@@ -29,6 +29,7 @@ class FramerateCategory extends Sprite {
 			label.x = 0;
 			label.y = 0;
 			label.defaultTextFormat = new TextFormat(Framerate.fontName, label == this.title ? 18 : 12, -1);
+			label.selectable = false;
 			addChild(label);
 		}
 		this.title.text = title;
@@ -38,6 +39,8 @@ class FramerateCategory extends Sprite {
 
 		this.text.y = this.title.y + this.title.height + 2;
 	}
+
+	public function reload() {}
 
 	public override function __enterFrame(t:Int) {
 		if (alpha <= 0.05) return;

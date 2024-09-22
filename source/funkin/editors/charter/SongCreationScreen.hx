@@ -86,8 +86,6 @@ class SongCreationScreen extends UISubstateWindow {
 		stepsPerBeatStepper = new UINumericStepper(beatsPerMeasureStepper.x + 30 + 24, beatsPerMeasureStepper.y, 4, 1, 0, 1, null, 54);
 		songDataGroup.add(stepsPerBeatStepper);
 
-		var voicesUIText:UIText = null;
-
 		instExplorer = new UIFileExplorer(songNameTextBox.x, songNameTextBox.y + 32 + 36, null, null, Paths.SOUND_EXT, function (res) {
 			var audioPlayer:UIAudioPlayer = new UIAudioPlayer(instExplorer.x + 8, instExplorer.y + 8, res);
 			instExplorer.members.push(audioPlayer);
@@ -105,10 +103,13 @@ class SongCreationScreen extends UISubstateWindow {
 		});
 		songDataGroup.add(voicesExplorer);
 
-		voicesUIText = addLabelOn(voicesExplorer, "");
+		/*voicesUIText = addLabelOn(voicesExplorer, "");
 		voicesUIText.applyMarkup(
 			translate("voicesAudio"),
-			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
+			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);*/
+
+		addLabelOn(voicesExplorer, "Vocal Audio File");
+
 
 		var menuTitle:UIText;
 		menuDataGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, translateMeta("menusData"), 28));

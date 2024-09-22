@@ -69,7 +69,11 @@ class EventsData {
 		hscriptInterp.variables.set("String", TString);
 		hscriptInterp.variables.set("StrumLine", TStrumLine);
 		hscriptInterp.variables.set("ColorWheel", TColorWheel);
-		hscriptInterp.variables.set("DropDown", Reflect.makeVarArgs((args) -> {return args.length > 0 ? TDropDown([for (arg in args) Std.string(arg)]) : TDropDown(["null"]);}));
+		hscriptInterp.variables.set("DropDown", Reflect.makeVarArgs(function(args:Array<Dynamic>):EventParamType {
+			var flatArgs = CoolUtil.deepFlatten(args);
+			if(flatArgs.length == 0) return TDropDown(["null"]);
+			return TDropDown([for (arg in flatArgs) Std.string(arg)]);
+		}));
 		hscriptInterp.variables.set("Character", TCharacter);
 		hscriptInterp.variables.set("Stage", TStage);
 
@@ -77,11 +81,12 @@ class EventsData {
 		hscriptParser.allowJSON = hscriptParser.allowMetadata = false;
 
 		for (file in Paths.getFolderContent('data/events/', true, BOTH)) {
-			if (Path.extension(file) != "json" && Path.extension(file) != "pack") continue;
-			var eventName:String = Path.withoutExtension(Path.withoutDirectory(file));
+			var ext = Path.extension(file);
+			if (ext != "json" && ext != "pack") continue;
+			var eventName:String = CoolUtil.getFilename(file);
 			var fileTxt:String = Assets.getText(file);
 
-			if (Path.extension(file) == "pack") {
+			if (ext == "pack") {
 				var arr = fileTxt.split("________PACKSEP________");
 				eventName = Path.withoutExtension(arr[0]);
 				fileTxt = arr[2];
@@ -93,13 +98,17 @@ class EventsData {
 			eventsParams.set(eventName, []);
 
 			try {
-				var data:Dynamic = Json.parse(fileTxt);
+				var data:EventInfoFile = cast Json.parse(fileTxt);
 				if (data == null || data.params == null) continue;
 
 				var finalParams:Array<EventParamInfo> = [];
-				for (paramData in cast(data.params, Array<Dynamic>)) {
+				for (paramData in data.params) {
 					try {
-						finalParams.push({name: paramData.name, type: hscriptInterp.expr(hscriptParser.parseString(paramData.type)), defValue: paramData.defaultValue});
+						finalParams.push({
+							name: paramData.name,
+							type: hscriptInterp.expr(hscriptParser.parseString(paramData.type)),
+							defValue: paramData.defaultValue
+						});
 					} catch (e) {trace('Error parsing event param ${paramData.name} - ${eventName}: $e'); finalParams.push(null);}
 				}
 				eventsParams.set(eventName, finalParams);
@@ -108,6 +117,14 @@ class EventsData {
 
 		hscriptInterp = null; hscriptParser = null;
 	}
+}
+
+typedef EventInfoFile = {
+	var params:Array<{
+		var name:String;
+		var type:String;
+		var defaultValue:Dynamic;
+	}>;
 }
 
 typedef EventInfo = {

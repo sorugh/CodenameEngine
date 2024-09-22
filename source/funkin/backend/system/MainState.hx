@@ -8,6 +8,7 @@ import funkin.backend.assets.ModsFolder;
 import funkin.backend.chart.EventsData;
 import funkin.menus.BetaWarningState;
 import funkin.menus.TitleState;
+import funkin.backend.system.framerate.Framerate;
 
 /**
  * Simple state used for loading the game
@@ -57,9 +58,13 @@ class MainState extends FlxState {
 		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder);
 		TranslationUtil.findAllLanguages();
 		TranslationUtil.setLanguage();
+		Flags.load();
 		DiscordUtil.init();
 		EventsData.reloadEvents();
 		TitleState.initialized = false;
+
+		if(Framerate.isLoaded)
+			Framerate.instance.reload();
 
 		if (betaWarningShown)
 			FlxG.switchState(new TitleState());

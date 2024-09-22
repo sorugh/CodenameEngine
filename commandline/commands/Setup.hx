@@ -6,7 +6,7 @@ import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
 
-class Update {
+class Setup {
 	private static function recursiveDelete(path:String) {
 		for(file in FileSystem.readDirectory(path)) {
 			var p = '$path/$file';
@@ -54,10 +54,10 @@ class Update {
 				case "lib" | "git":
 					var lib:Library = {
 						name: libNode.att.name,
-						type: libNode.name
+						type: libNode.name,
+						skipDeps: libNode.has.skipDeps ? libNode.att.skipDeps == "true" : false,
 					};
 					if (libNode.has.global) lib.global = libNode.att.global;
-					if (libNode.has.skipDeps) lib.skipDeps = libNode.att.skipDeps;
 					switch (lib.type) {
 						case "lib":
 							if (libNode.has.version) lib.version = libNode.att.version;
@@ -139,7 +139,7 @@ class Update {
 				case INSTALL:
 					var lib:Library = event.data;
 					var globalSuffix:Null<String> = lib.global == "true" ? " --global" : "";
-					var skipDeps = lib.skipDeps == "true" ? " --skip-dependencies" : "";
+					var skipDeps = lib.skipDeps ? " --skip-dependencies" : "";
 					var commandPrefix = commandSuffix + globalSuffix + skipDeps;// + " --no-timeout";
 					switch(lib.type) {
 						case "lib":
@@ -276,8 +276,8 @@ class Update {
 typedef Library = {
 	var name:String;
 	var type:String;
+	var skipDeps:Bool;
 	var ?global:String;
-	var ?skipDeps:String;
 	var ?recursive:String;
 	var ?version:String;
 	var ?ref:String;

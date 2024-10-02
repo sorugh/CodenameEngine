@@ -226,7 +226,7 @@ typedef SwagSong =
 
 typedef SwagSection =
 {
-	var sectionNotes:Array<Dynamic>;
+	var sectionNotes:Array<Array<Dynamic>>;
 	var lengthInSteps:Int;
 	var ?sectionBeats:Float;
 	var ?typeOfSection:Int;

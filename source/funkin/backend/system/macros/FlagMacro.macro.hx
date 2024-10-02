@@ -151,7 +151,7 @@ class FlagMacro {
 						case TPath({name: "Map", pack: []}):
 							Context.error("Flag " + field.name + " cannot be a Map<K, V>", field.pos);
 						default:
-							Context.error("Flag " + field.name + " must be either a Bool, Int, String, Array<String>, Array<Bool> or Array<TrimmedString>", field.pos);
+							Context.error("Flag " + field.name + " must be either a Bool, Int, Float, String, Array<String>, Array<Int>, Array<Float>, Array<Bool> or Array<TrimmedString>", field.pos);
 					}
 
 					if(parser == null) {

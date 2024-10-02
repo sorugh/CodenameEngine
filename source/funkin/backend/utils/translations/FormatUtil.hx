@@ -28,7 +28,7 @@ class FormatUtil {
 		return fi;
 	}
 
-	public inline static function clear() {
+	public inline static function clear():Void {
 		cache.clear();
 		cacheStr.clear();
 	}

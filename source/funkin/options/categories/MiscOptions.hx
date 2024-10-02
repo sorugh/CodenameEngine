@@ -11,7 +11,7 @@ class MiscOptions extends OptionsScreen {
 			// TODO: add credits based on the config file
 			add(new ArrayOption(
 				getName("language"),
-				getDesc("language", [TranslationUtil.DEFAULT_LANGUAGE]),
+				getDesc("language", [Flags.DEFAULT_LANGUAGE]),
 				[for(lan in lanArray) lan.split("/").first()],
 				[for(lan in lanArray) lan.split("/").last()],
 				"language",

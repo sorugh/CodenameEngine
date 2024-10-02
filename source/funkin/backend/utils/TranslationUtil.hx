@@ -12,26 +12,28 @@ import funkin.backend.utils.translations.FormatUtil;
 /**
  * The class used for translations based on the XMLs inside the translations folders.
  *
- * Made by @NexIsDumb originally for the Poldhub mod.
+ * Made by @NexIsDumb originally for the Poldhub mod and improved thanks to him and @NeeEoo.
  */
 @:allow(funkin.backend.assets.TranslatedAssetLibrary)
 final class TranslationUtil
 {
 	/**
-	 * The current language selected translation map; If the current language it's english, this map will be empty.
+	 * The current language selected translation map.
 	 *
 	 * It'll never be `null`.
 	 */
 	public static var stringMap(default, set):Map<String, IFormatInfo> = [];
 
 	/**
-	 * The default language folder used inside of the source code.
-	 */
-	public static var DEFAULT_LANGUAGE:String = 'en';  // no inline so psychopathic mods can edit it  - Nex
-	/**
-	 * The default language used inside of the source code.
-	 */
-	public static var DEFAULT_LANGUAGE_NAME:String = 'English';
+	 * The alternative language selected translation map.
+	 * It is filled with the default language.
+	 *
+	 * This is filled in if the current language is not the same as the default language.
+	 * Its used when showMissingIds is false.
+	 *
+	 * It'll never be `null`.
+	**/
+	public static var alternativeStringMap(default, set):Map<String, IFormatInfo> = [];
 
 	/**
 	 * Returns the current language config.
@@ -68,10 +70,10 @@ final class TranslationUtil
 	private static var langConfigs:Map<String, IniMap> = [];
 	private static var nameMap:Map<String, String> = [];
 	private static inline function getDefaultNameMap():Map<String, String> {
-		return [DEFAULT_LANGUAGE => DEFAULT_LANGUAGE_NAME];
+		return [Flags.DEFAULT_LANGUAGE => Flags.DEFAULT_LANGUAGE_NAME];
 	}
 	private static inline function getDefaultLangConfigs():Map<String, IniMap> {
-		return [DEFAULT_LANGUAGE => getDefaultConfig(DEFAULT_LANGUAGE)];
+		return [Flags.DEFAULT_LANGUAGE => getDefaultConfig(Flags.DEFAULT_LANGUAGE)];
 	}
 	@:noUsing private static inline function getDefaultConfig(name:String):IniMap {
 		return ["name" => getLanguageName(name), "credits" => "", "version" => "1.0.0"];
@@ -84,15 +86,29 @@ final class TranslationUtil
 	 * If `name` is `null`, its gonna use the current language.
 	 * If `name` is not `null`, it will load the translations for the given language.
 	 */
-	public static function setLanguage(?name:String) {
+	public static function setLanguage(?name:String):Void {
 		#if TRANSLATIONS_SUPPORT
 		if(name == null) name = curLanguage;
+		if(!langConfigs.exists(name)) name = Flags.DEFAULT_LANGUAGE;
+		if(!langConfigs.exists(name)) name = foundLanguages[0];
 
-		Logs.traceColored([
-			Logs.getPrefix("Language"),
-			Logs.logText("Setting Language To: "),
-			Logs.logText('${getLanguageName(name)} ($name)', GREEN)
-		], VERBOSE);
+		if(curLanguage != name) {
+			Logs.traceColored([
+				Logs.getPrefix("Language"),
+				Logs.logText("Changing saved language to: "),
+				Logs.logText('${getLanguageName(name)} ($name)', GREEN)
+			], INFO);
+			// todo: make this into a notification system for the user
+			// notification would be in previous language
+			// but only if the user didnt manually change it.
+			curLanguage = name;
+		} else {
+			Logs.traceColored([
+				Logs.getPrefix("Language"),
+				Logs.logText("Setting Language To: "),
+				Logs.logText('${getLanguageName(name)} ($name)', GREEN)
+			], VERBOSE);
+		}
 
 		for(mod in ModsFolder.getLoadedModsLibs(false))
 			if(mod is TranslatedAssetLibrary)
@@ -120,11 +136,7 @@ final class TranslationUtil
 		return get("diff." + id.toLowerCase(), params, id);
 
 	public static inline function exists(id:String):Bool
-		#if TRANSLATIONS_SUPPORT
-		return stringMap.exists(id);
-		#else
-		return false;
-		#end
+		return #if TRANSLATIONS_SUPPORT stringMap.exists(id) #else false #end;
 
 	public static function getRaw(id:String, ?def:String):IFormatInfo
 	{
@@ -137,7 +149,7 @@ final class TranslationUtil
 
 		return FormatUtil.getStr("{" + id + "}");
 
-		/*if(curLanguage == DEFAULT_LANGUAGE) {
+		/*if(curLanguage == Flags.DEFAULT_LANGUAGE) {
 			return FormatUtil.getStr("{" + id + "}");
 		} else {
 
@@ -153,15 +165,25 @@ final class TranslationUtil
 	 */
 	public static function raw2Id(str:String):String
 	{
-		var result:String = "";
-		for(i => s in str.split(" ")) result += (i == 0 ? s.charAt(0).toLowerCase() : s.charAt(0).toUpperCase()) + s.substr(1).toLowerCase();
-		return result.length == 0 ? str : result;
+		str = str.toLowerCase();
+		return [for(i => s in str.split(" "))
+			i != 0 ? s.charAt(0).toUpperCase() + s.substr(1) : s
+		].join("");
 	}
+
+	public static inline function isBlacklisted(lang:String):Bool
+		return Flags.BLACKLISTED_LANGUAGES.contains(lang);
+
+	public static inline function isWhitelisted(lang:String):Bool
+		return Flags.WHITELISTED_LANGUAGES.length == 0 || Flags.WHITELISTED_LANGUAGES.contains(lang);
+
+	public static inline function isAllowed(lang:String):Bool
+		return isWhitelisted(lang) && !isBlacklisted(lang);
 
 	/**
 	 * Returns an array that specifies which languages were found.
 	 */
-	public static function findAllLanguages()
+	public static function findAllLanguages():Void
 	{
 		#if TRANSLATIONS_SUPPORT
 		foundLanguages = [];
@@ -170,8 +192,9 @@ final class TranslationUtil
 		var mainPath:String = translationsMain("");
 		var langName:String = null;
 		for (lang in Paths.assetsTree.getFolders("assets/" + mainPath)) {
-			var path:String = Path.join([mainPath, lang, "config.ini"]);
+			if (!isAllowed(lang)) continue;
 
+			var path:String = Path.join([mainPath, lang, "config.ini"]);
 			var config = getDefaultConfig(lang);
 
 			if(Assets.exists(path)) {
@@ -191,11 +214,11 @@ final class TranslationUtil
 		}
 
 		// Ensure that the default language is always first
-		var englishName = DEFAULT_LANGUAGE + "/" + getLanguageName(DEFAULT_LANGUAGE);
-		if(foundLanguages.contains(englishName)) foundLanguages.remove(englishName);
-		foundLanguages.insert(0, englishName);
+		var defaultName = Flags.DEFAULT_LANGUAGE + "/" + getLanguageName(Flags.DEFAULT_LANGUAGE);
+		if(foundLanguages.contains(defaultName)) foundLanguages.remove(defaultName);
+		foundLanguages.insert(0, defaultName);
 
-		if(!nameMap.exists(curLanguage)) curLanguage = DEFAULT_LANGUAGE;
+		if(!nameMap.exists(curLanguage)) curLanguage = Flags.DEFAULT_LANGUAGE;
 		Logs.trace("Found languages: " + foundLanguages.join(", "), "Language");
 		#end
 	}
@@ -210,17 +233,21 @@ final class TranslationUtil
 		var mainPath:String = translationsMain(lang);
 		var leMap:Map<String, IFormatInfo> = [];
 		var translations:Array<TranslationPair> = [];
+
+		final NODE_NAMES = ["text", "trans", "lang", "string", "str"];
 		function parseXml(xml:Access, prefix:String = "") {
 			for(node in xml.elements) {
 				if (node.name == "group") // Cosmetic name
 					parseXml(node, prefix + (node.has.prefix ? node.att.prefix : ""));
-				else if(["text", "trans", "lang", "string", "str"].contains(node.name))
+				else if(NODE_NAMES.contains(node.name))
 					translations.push({
 						prefix: prefix,
 						node: node
 					});
 			}
 		}
+
+		// todo make it load the default languages in a second string map
 
 		for(mod in ModsFolder.getLoadedModsLibs(true)) for(file in mod.getFiles("assets/" + mainPath).sortAlphabetically().map((v)->'$mainPath/$v')) {
 			if(Path.extension(file).toLowerCase() != "xml") continue;
@@ -273,11 +300,11 @@ final class TranslationUtil
 
 	// Utils
 
-	public static function getLanguageName(lang:String) {
+	public static function getLanguageName(lang:String):String {
 		return nameMap.exists(lang) ? nameMap.get(lang) : lang;
 	}
 
-	public static function getLanguageFromName(name:String) {
+	public static function getLanguageFromName(name:String):String {
 		var reverseMap = new Map<String, String>();
 		for(key => val in nameMap) reverseMap.set(val, key);
 		return reverseMap.exists(name) ? reverseMap.get(name) : name;
@@ -287,10 +314,10 @@ final class TranslationUtil
 		return langConfigs.exists(lang) ? langConfigs.get(lang) : getDefaultConfig(lang);
 	}
 
-	public static inline function translationsMain(key:String)
+	public static inline function translationsMain(key:String):String
 		return '$LANG_FOLDER/$key';
 
-	public static inline function translations(key:String)
+	public static inline function translations(key:String):String
 		return translationsMain('$curLanguage/$key');
 
 	// getters & setters
@@ -298,6 +325,11 @@ final class TranslationUtil
 	@:noCompletion private static function set_stringMap(value:Map<String, IFormatInfo>):Map<String, IFormatInfo> {
 		if (value == null) value = [];
 		return stringMap = value;
+	}
+
+	@:noCompletion private static function set_alternativeStringMap(value:Map<String, IFormatInfo>):Map<String, IFormatInfo> {
+		if (value == null) value = [];
+		return alternativeStringMap = value;
 	}
 
 	@:noCompletion private static function get_curLanguage():String {
@@ -315,7 +347,7 @@ final class TranslationUtil
 	}
 
 	@:noCompletion private static function get_isDefaultLanguage():Bool
-		return Options.language == DEFAULT_LANGUAGE;
+		return Options.language == Flags.DEFAULT_LANGUAGE;
 
 	@:noCompletion private static function get_isLanguageLoaded():Bool
 		return Lambda.count(stringMap) > 0;

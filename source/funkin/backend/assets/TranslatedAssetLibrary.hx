@@ -20,7 +20,7 @@ class TranslatedAssetLibrary extends AssetLibrary implements IModsAssetLibrary {
 		return libName;
 	}
 	@:noCompletion private inline function set_langFolder(value:String):String {
-		basePath = prefix + (libName = modName = (value != null ? value : TranslationUtil.DEFAULT_LANGUAGE)) + "/";
+		basePath = prefix + (libName = modName = (value != null ? value : Flags.DEFAULT_LANGUAGE)) + "/";
 		return libName;
 	}
 

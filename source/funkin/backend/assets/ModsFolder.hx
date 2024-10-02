@@ -60,6 +60,9 @@ class ModsFolder {
 	public static function switchMod(mod:String) {
 		Options.lastLoadedMod = currentModFolder = mod;
 		reloadMods();
+		if(mod == null) {
+			mod = "(default)";
+		}
 		Logs.traceColored([
 			Logs.logText('Switched to mod: '),
 			Logs.logText(mod, GREEN)

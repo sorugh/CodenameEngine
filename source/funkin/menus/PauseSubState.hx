@@ -79,7 +79,7 @@ class PauseSubState extends MusicBeatSubstate
 		var levelDifficulty:FunkinText = new FunkinText(20, 15, 0, TU.translateDiff(PlayState.difficulty).toUpperCase(), 32, false);
 		var deathCounter:FunkinText = new FunkinText(20, 15, 0, TU.translate("pause.deathCounter", [PlayState.deathCounter]), 32, false);
 		var multiplayerText:FunkinText = null;
-		if(multiplayerInfo != "")
+		if(multiplayerInfo != null)
 			multiplayerText = new FunkinText(20, 15, 0, TU.translate(multiplayerInfo), 32, false);
 
 		for(k=>label in [levelInfo, levelDifficulty, deathCounter, multiplayerText]) {

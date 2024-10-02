@@ -74,14 +74,18 @@ class Paths
 	public static inline function music(key:String, ?library:String)
 		return getPath('music/$key.$SOUND_EXT', library);
 
-	public static inline function voices(song:String, difficulty:String = "normal", ?prefix:String = "") {
-		var diff = getPath('songs/${song.toLowerCase()}/song/Voices$prefix-${difficulty.toLowerCase()}.$SOUND_EXT', null);
-		return OpenFlAssets.exists(diff) ? diff : getPath('songs/${song.toLowerCase()}/song/Voices$prefix.$SOUND_EXT', null);
+	inline static public function voices(song:String, difficulty:String = "normal", ?prefix:String = "")
+	{
+		song = song.toLowerCase();
+		var diff = getPath('songs/${song}/song/Voices$prefix-${difficulty.toLowerCase()}.$SOUND_EXT', null);
+		return OpenFlAssets.exists(diff) ? diff : getPath('songs/${song}/song/Voices$prefix.$SOUND_EXT', null);
 	}
 
-	public static inline function inst(song:String, difficulty:String = "normal", ?prefix:String = "") {
-		var diff = getPath('songs/${song.toLowerCase()}/song/Inst$prefix-${difficulty.toLowerCase()}.$SOUND_EXT', null);
-		return OpenFlAssets.exists(diff) ? diff : getPath('songs/${song.toLowerCase()}/song/Inst$prefix.$SOUND_EXT', null);
+	inline static public function inst(song:String, difficulty:String = "normal", ?prefix:String = "")
+	{
+		song = song.toLowerCase();
+		var diff = getPath('songs/${song}/song/Inst$prefix-${difficulty.toLowerCase()}.$SOUND_EXT', null);
+		return OpenFlAssets.exists(diff) ? diff : getPath('songs/${song}/song/Inst$prefix.$SOUND_EXT', null);
 	}
 
 	public static function image(key:String, ?library:String, checkForAtlas:Bool = false, ?ext:String = "png") {

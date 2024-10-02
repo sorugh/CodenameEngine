@@ -52,6 +52,10 @@ class FlagMacro {
 							parser = macro value.split(",").map((e) -> e.trim());
 						case macro: Array<String>:
 							parser = macro value.split(",");
+						case macro: Array<Int>:
+							parser = macro value.split(",").map((e) -> Std.parseInt(e));
+						case macro: Array<Float>:
+							parser = macro value.split(",").map((e) -> Std.parseFloat(e));
 						case macro: Array<Bool>:
 							parser = macro value.split(",").map((e) -> {
 								e = e.trim();
@@ -59,6 +63,8 @@ class FlagMacro {
 							});
 						case macro: Int:
 							parser = macro Std.parseInt(value);
+						case macro: Float:
+							parser = macro Std.parseFloat(value);
 						case macro: String:
 							parser = macro value;
 						case macro: Bool:

@@ -111,7 +111,9 @@ class ModsFolder {
 		var libs = [];
 		for (i in Paths.assetsTree.libraries) {
 			var l = AssetsLibraryList.getCleanLibrary(i);
+			#if TRANSLATIONS_SUPPORT
 			if(skipTranslated && (l is TranslatedAssetLibrary)) continue;
+			#end
 			if (l is ScriptedAssetLibrary || l is IModsAssetLibrary) libs.push(cast(l, IModsAssetLibrary));
 		}
 		return libs;

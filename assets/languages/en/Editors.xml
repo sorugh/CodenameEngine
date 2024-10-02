@@ -380,6 +380,10 @@
 		<str id="uiDebug.name">UI Debug State</str>
 	</group>
 
+	<group name="Wiki">
+		<str id="wiki.name">Wiki</str>
+	</group>
+
 	<group name="DebugOptions">
 		<str id="debugOptions.name">Debug Options</str>
 	</group>

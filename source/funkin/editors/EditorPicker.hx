@@ -35,6 +35,7 @@ class EditorPicker extends MusicBeatSubstate {
 		#end
 		{
 			name: "Wiki",
+			id: "wiki",
 			iconID: 5,
 			state: null,
 			onClick: function() {

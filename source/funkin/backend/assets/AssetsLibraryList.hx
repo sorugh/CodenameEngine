@@ -1,6 +1,8 @@
 package funkin.backend.assets;
 
+#if TRANSLATIONS_SUPPORT
 import funkin.backend.assets.TranslatedAssetLibrary;
+#end
 import funkin.backend.assets.IModsAssetLibrary;
 import lime.utils.AssetLibrary;
 
@@ -17,8 +19,23 @@ class AssetsLibraryList extends AssetLibrary {
 	#end
 
 	public function removeLibrary(lib:AssetLibrary) {
-		if (lib != null)
+		if (lib != null) {
 			libraries.remove(lib);
+			#if TRANSLATIONS_SUPPORT
+			// TODO: improve this code
+			for(k=>l in libraries) {
+				if(l == null) continue;
+				if(l is TranslatedAssetLibrary) {
+					var tlib = cast(l, TranslatedAssetLibrary);
+					var lib:Dynamic = lib;
+					if(tlib.forLibrary == lib) {
+						libraries.remove(tlib);
+						break;
+					}
+				}
+			}
+			#end
+		}
 		return lib;
 	}
 	public function existsSpecific(id:String, type:String, source:AssetSource = BOTH) {
@@ -130,9 +147,6 @@ class AssetsLibraryList extends AssetLibrary {
 
 	public function new(?base:AssetLibrary) {
 		super();
-		#if TRANSLATIONS_SUPPORT
-		__defaultLibraries.push(addLibrary(transLib = new TranslatedAssetLibrary(), BOTH));
-		#end
 		__defaultLibraries.push(addLibrary(this.base = (base == null ? Assets.getLibrary("default") : base), SOURCE));
 	}
 
@@ -152,14 +166,25 @@ class AssetsLibraryList extends AssetLibrary {
 			addLibrary(d);
 	}
 
-	public function addLibrary(lib:AssetLibrary, ?tag:AssetSource) {
-		libraries.insert(#if TRANSLATIONS_SUPPORT libraries.indexOf(transLib) + 1 #else 0 #end, lib);
+	public function addLibrary(lib:AssetLibrary, ?tag:AssetSource, ?addTransLib:Bool = true) {
+		libraries.insert(0, lib);
 		if(tag != null)
 			lib.tag = tag;
-		if(lib.tag == null) {
+
+		if(lib.tag == null) { // if tag is null, set it to MODS, so it doesnt set the tag on the libs that exists
 			lib.tag = MODS;
 			//trace('AssetLibrary ${getCleanLibrary(lib)} tag not set, defaulting to MODS');
 		}
+		#if TRANSLATIONS_SUPPORT
+		if(addTransLib) {
+			var cleanLib = getCleanLibrary(lib);
+			if(cleanLib != null && (cleanLib is IModsAssetLibrary)) {
+				var transLib = new TranslatedAssetLibrary(cast(cleanLib, IModsAssetLibrary));
+				transLib.tag = cleanLib.tag;
+				libraries.insert(0, transLib);
+			}
+		}
+		#end
 		return lib;
 	}
 

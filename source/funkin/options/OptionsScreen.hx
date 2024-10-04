@@ -14,13 +14,26 @@ class OptionsScreen extends FlxTypedSpriteGroup<OptionType> {
 
 	public var name:String;
 	public var desc:String;
+	/**
+	 * The prefix to add to the translations ids.
+	**/
 	public var prefix:String = "";
 
+	private var rawName(default, set):String;
+	private var rawDesc(default, set):String;
+
+	public inline function getNameID(name):String {
+		return prefix + name + "-name";
+	}
+	public inline function getDescID(name):String {
+		return prefix + name + "-desc";
+	}
+
 	public function getName(name:String, ?args:Array<Dynamic>):String {
-		return TU.translate(prefix + name + "-name", args);
+		return TU.translate(getNameID(name), args);
 	}
 	public function getDesc(name:String, ?args:Array<Dynamic>):String {
-		return TU.translate(prefix + name + "-desc", args);
+		return TU.translate(getDescID(name), args);
 	}
 	public function translate(name:String, ?args:Array<Dynamic>):String {
 		return TU.translate(prefix + name, args);
@@ -28,10 +41,31 @@ class OptionsScreen extends FlxTypedSpriteGroup<OptionType> {
 
 	public function new(name:String, desc:String, ?prefix:String, ?options:Array<OptionType>) {
 		super();
-		this.name = name;
-		this.desc = desc;
-		if (prefix != null) this.prefix = prefix;
+		rawName = name;
+		rawDesc = desc;
+		this.prefix = prefix != null ? prefix : "";
 		if (options != null) for(o in options) add(o);
+	}
+
+	function set_rawName(v:String) {
+		rawName = v;
+		this.name = TU.exists(rawName) ? TU.translate(rawName) : rawName;
+		return v;
+	}
+
+	function set_rawDesc(v:String) {
+		rawDesc = v;
+		this.desc = TU.exists(rawDesc) ? TU.translate(rawDesc) : rawDesc;
+		return v;
+	}
+
+	public function reloadStrings() {
+		this.rawName = rawName;
+		this.rawDesc = rawDesc;
+
+		for(o in members) {
+			o.reloadStrings();
+		}
 	}
 
 	public override function update(elapsed:Float) {

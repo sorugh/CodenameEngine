@@ -15,6 +15,8 @@ class ArrayOption extends OptionType {
 
 	public var parent:Dynamic;
 
+	private var rawText(default, set):String;
+
 	public var text(get, set):String;
 	private function get_text() {return __text.text;}
 	private function set_text(v:String) {return __text.text = v;}
@@ -37,6 +39,19 @@ class ArrayOption extends OptionType {
 
 		add(__text = new Alphabet(100, 20, text, true));
 		add(__selectiontext = new Alphabet(__text.width + 120, -30, formatTextOption(), false));
+
+		rawText = text;
+	}
+
+	override function reloadStrings() {
+		super.reloadStrings();
+		this.rawText = rawText;
+	}
+
+	function set_rawText(v:String) {
+		rawText = v;
+		__text.text = TU.exists(rawText) ? TU.translate(rawText) : rawText;
+		return v;
 	}
 
 	public override function draw() {

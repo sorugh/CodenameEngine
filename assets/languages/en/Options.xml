@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <language>
+	<str id="optionsMenu.desc-missing">No Description</str>
+
 	<group name="OptionsMenu">
 		<str id="optionsMenu.header.title">Options Menu</str>
 		<str id="optionsMenu.header.desc">Select a category to continue.</str>
@@ -12,6 +14,9 @@
 
 		<str id="optionsTree.appearance-name">Appearance</str>
 		<str id="optionsTree.appearance-desc">Change Appearance options such as Flashing menus...</str>
+
+		<str id="optionsTree.language-name">Language</str>
+		<str id="optionsTree.language-desc">Change the language that the engine uses.</str>
 
 		<str id="optionsTree.miscellaneous-name">Miscellaneous</str>
 		<str id="optionsTree.miscellaneous-desc">Use this menu to reset save data or engine settings.</str>
@@ -65,10 +70,12 @@
 		<str id="camZoomOnBeat-desc">If unchecked, will stop the camera from zooming in every 4 beats</str>
 	</group>
 
-	<group name="MiscOptions" prefix="MiscOptions.">
+	<group name="LanguageOptions" prefix="LanguageOptions.">
 		<str id="language-name">Language</str>
-		<str id="language-desc">The language that the engine currently uses (the default one is {0}).</str>
+		<str id="language-desc">Language by {0} (Version: {1})</str>
+	</group>
 
+	<group name="MiscOptions" prefix="MiscOptions.">
 		<str id="forceCrash-name">Force Crash</str>
 		<str id="forceCrash-desc">Select this option to force a crash.</str>
 

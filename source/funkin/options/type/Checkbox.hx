@@ -42,7 +42,9 @@ class Checkbox extends TextOption {
 		baseCheckboxOffset.set(checkbox.offset.x, checkbox.offset.y);
 
 		this.optionName = optionName;
-		checked = Reflect.field(parent, optionName);
+		if(optionName != null) {
+			checked = Reflect.field(parent, optionName);
+		}
 	}
 
 	public override function update(elapsed:Float) {
@@ -58,7 +60,10 @@ class Checkbox extends TextOption {
 	}
 
 	public override function onSelect() {
-		Reflect.setField(parent, optionName, checked = !checked);
+		checked = !checked;
+		if(optionName != null) {
+			Reflect.setField(parent, optionName, checked);
+		}
 		checkbox.animation.play("checking", true, !checked);
 	}
 

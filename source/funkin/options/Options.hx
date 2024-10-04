@@ -127,7 +127,12 @@ class Options
 
 		if (!__eventAdded) {
 			Lib.application.onExit.add(function(i:Int) {
-				trace("Saving settings...");
+				Logs.traceColored([
+					Logs.getPrefix("Options"),
+					Logs.logText("Saving "),
+					Logs.logText("settings", GREEN),
+					Logs.logText("...")
+				], VERBOSE);
 				save();
 			});
 			__eventAdded = true;

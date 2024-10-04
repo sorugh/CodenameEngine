@@ -32,7 +32,12 @@ class FunkinSave {
 
 		if (!__eventAdded) {
 			Lib.application.onExit.add(function(i:Int) {
-				trace("Saving savedata...");
+				Logs.traceColored([
+					Logs.getPrefix("FunkinSave"),
+					Logs.logText("Saving "),
+					Logs.logText("savedata", GREEN),
+					Logs.logText("...")
+				], VERBOSE);
 				flush();
 			});
 			__eventAdded = true;

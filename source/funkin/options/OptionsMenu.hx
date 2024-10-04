@@ -13,7 +13,9 @@ class OptionsMenu extends TreeMenu {
 			name: 'optionsTree.controls-name',
 			desc: 'optionsTree.controls-desc',
 			state: null,
-			substate: funkin.options.keybinds.KeybindsOptions
+			substate: (name:String, desc:String) -> {
+				return new funkin.options.keybinds.KeybindsOptions();
+			}
 		},
 		{
 			name: 'optionsTree.gameplay-name',
@@ -27,6 +29,14 @@ class OptionsMenu extends TreeMenu {
 			suffix: " >",
 			state: AppearanceOptions
 		},
+		#if TRANSLATIONS_SUPPORT
+		{
+			name: 'optionsTree.language-name',
+			desc: 'optionsTree.language-desc',
+			suffix: " >",
+			state: LanguageOptions
+		},
+		#end
 		{
 			name: 'optionsTree.miscellaneous-name',
 			desc: 'optionsTree.miscellaneous-desc',
@@ -51,27 +61,27 @@ class OptionsMenu extends TreeMenu {
 		bg.antialiasing = true;
 		add(bg);
 
-		main = new OptionsScreen(TU.translate("optionsMenu.header.title"), TU.translate("optionsMenu.header.desc"), [for(o in mainOptions) {
-			var name = o.name;
-			var desc = o.desc;
-			if(TU.exists(name)) name = TU.translate(name);
-			if(TU.exists(desc)) desc = TU.translate(desc);
-			var visualName = name;
-			if (o.suffix != null) visualName += o.suffix;
-			new TextOption(visualName, desc, function() {
+		main = new OptionsScreen("optionsMenu.header.title", "optionsMenu.header.desc", [for(o in mainOptions) {
+			new TextOption(o.name, o.desc, o.suffix, function() {
 				if (o.substate != null) {
 					persistentUpdate = false;
 					persistentDraw = true;
 					if (o.substate is MusicBeatSubstate) {
 						openSubState(o.substate);
-					} else {
-						openSubState(Type.createInstance(o.substate, [name, desc]));
+					} else if(Reflect.isFunction(o.substate)) {
+						var substate:(name:String, desc:String) -> MusicBeatSubstate = o.substate;
+						openSubState(substate(o.name, o.desc));
+					} else { // o.substate is Class<OptionsScreen>
+						openSubState(Type.createInstance(o.substate, [o.name, o.desc]));
 					}
 				} else {
 					if (o.state is OptionsScreen) {
 						optionsTree.add(o.state);
-					} else {
-						optionsTree.add(Type.createInstance(o.state, [name, desc]));
+					} else if(Reflect.isFunction(o.state)) {
+						var state:(name:String, desc:String) -> OptionsScreen = o.state;
+						optionsTree.add(state(o.name, o.desc));
+					} else { // o.state is Class<OptionsScreen>
+						optionsTree.add(Type.createInstance(o.state, [o.name, o.desc]));
 					}
 				}
 			});
@@ -92,7 +102,14 @@ class OptionsMenu extends TreeMenu {
 						main.add(o);
 			}
 		}
+	}
 
+	public function reloadStrings() {
+		for(o in main.members) {
+			o.reloadStrings();
+		}
+		optionsTree.reloadStrings();
+		reloadLabels();
 	}
 
 	public override function exit() {
@@ -113,7 +130,7 @@ class OptionsMenu extends TreeMenu {
 				continue;
 			}
 			var name = node.getAtt("name");
-			var desc = node.getAtt("desc").getDefault("No Description");
+			var desc = node.getAtt("desc").getDefault("optionsMenu.desc-missing");
 
 			switch(node.name) {
 				case "checkbox":

@@ -29,7 +29,7 @@ final class TranslationUtil
 	 * It is filled with the default language.
 	 *
 	 * This is filled in if the current language is not the same as the default language.
-	 * Its used when showMissingIds is false.
+	 * Its used when showMissingIds in the config is false (or is not present).
 	 *
 	 * It'll never be `null`.
 	**/
@@ -62,8 +62,6 @@ final class TranslationUtil
 	 * Returns an array has a list of the languages that were found.
 	 */
 	public static var foundLanguages:Array<String> = [];
-
-	public static var showMissingIds:Bool = false;
 
 	// Private
 	private static inline var LANG_FOLDER:String = "languages";
@@ -116,8 +114,7 @@ final class TranslationUtil
 
 		config = getConfig(name);
 		stringMap = loadLanguage(name);
-
-		showMissingIds = config.get("showMissingIds").getDefault("false") == "true";
+		alternativeStringMap = name == Flags.DEFAULT_LANGUAGE || config.get("showMissingIds").getDefault("false") == "true" ? [] : loadLanguage(Flags.DEFAULT_LANGUAGE);
 		#end
 	}
 
@@ -135,13 +132,18 @@ final class TranslationUtil
 	public static inline function translateDiff(?id:String, ?params:Array<Dynamic>):String
 		return get("diff." + id.toLowerCase(), params, id);
 
-	public static inline function exists(id:String):Bool
-		return #if TRANSLATIONS_SUPPORT stringMap.exists(id) #else false #end;
+	public static function exists(id:String):Bool {
+		#if TRANSLATIONS_SUPPORT
+		for (map in [stringMap, alternativeStringMap]) if (map.exists(id)) return true;
+		#end
+		return false;
+	}
 
 	public static function getRaw(id:String, ?def:String):IFormatInfo
 	{
 		#if TRANSLATIONS_SUPPORT
-		if (stringMap.exists(id)) return stringMap.get(id);
+		for (map in [stringMap, alternativeStringMap]) if (map.exists(id))
+			return map.get(id);
 		#end
 
 		if(def != null)
@@ -314,6 +316,10 @@ final class TranslationUtil
 		return langConfigs.exists(lang) ? langConfigs.get(lang) : getDefaultConfig(lang);
 	}
 
+	public static inline function isShowingMissingIds():Bool {
+		return alternativeStringMap != [];
+	}
+
 	public static inline function translationsMain(key:String):String
 		return '$LANG_FOLDER/$key';
 
@@ -350,7 +356,7 @@ final class TranslationUtil
 		return Options.language == Flags.DEFAULT_LANGUAGE;
 
 	@:noCompletion private static function get_isLanguageLoaded():Bool
-		return Lambda.count(stringMap) > 0;
+		return Lambda.count(stringMap) > 0 || (isShowingMissingIds() && Lambda.count(alternativeStringMap) > 0);
 }
 
 @:structInit

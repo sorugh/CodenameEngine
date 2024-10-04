@@ -209,6 +209,10 @@ class Alphabet extends FlxSpriteGroup
 			addText();
 		}
 	}
+
+	override function draw() {
+		super.draw();
+	}
 }
 
 class AlphaCharacter extends FlxSprite

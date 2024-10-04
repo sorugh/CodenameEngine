@@ -7,10 +7,21 @@ class OptionType extends FlxSpriteGroup {
 	public var controls(get, null):Controls;
 	public var selected:Bool = false;
 	public var desc:String;
+	public var rawDesc(default, set):String;
 
 	public function new(desc:String) {
 		super();
-		this.desc = desc;
+		rawDesc = desc;
+	}
+
+	function set_rawDesc(v:String) {
+		rawDesc = v;
+		this.desc = TU.exists(rawDesc) ? TU.translate(rawDesc) : rawDesc;
+		return v;
+	}
+
+	public function reloadStrings() {
+		this.rawDesc = rawDesc;
 	}
 
 	private function get_controls() {return PlayerSettings.solo.controls;}

@@ -94,7 +94,7 @@ class KeybindSetting extends FlxTypedSpriteGroup<FlxSprite> {
 	}
 
 	public function updateText() {
-		bind1.text = '${CoolUtil.keyToString(option1)}';
-		bind2.text = '${CoolUtil.keyToString(option2)}';
+		bind1.text = CoolUtil.keyToString(option1);
+		bind2.text = CoolUtil.keyToString(option2);
 	}
 }

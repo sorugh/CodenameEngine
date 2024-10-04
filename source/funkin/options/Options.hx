@@ -67,7 +67,7 @@ class Options
 	public static var charterAutoSaves:Bool = true;
 	public static var charterAutoSaveTime:Float = 60*5;
 	public static var charterAutoSaveWarningTime:Float = 5;
-	public static var charterAutoSavesSeperateFolder:Bool = false;
+	public static var charterAutoSavesSeparateFolder:Bool = false;
 
 	/**
 	 * PLAYER 1 CONTROLS

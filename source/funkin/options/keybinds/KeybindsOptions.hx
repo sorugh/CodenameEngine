@@ -4,78 +4,22 @@ import flixel.util.FlxColor;
 
 using StringTools;
 
+typedef KeybindCategory = {
+	var name:String;
+	var settings:Array<{
+		var name:String;
+		var control:String;
+		var ?icon:Array<String>;
+	}>;
+}
+
 class KeybindsOptions extends MusicBeatSubstate {
 	public static var instance:KeybindsOptions;
 
-	public var categories = [
-		{
-			name: 'Notes',
-			settings: [
-				{
-					name: '{noteLeft}',
-					control: 'NOTE_LEFT'
-				},
-				{
-					name: '{noteDown}',
-					control: 'NOTE_DOWN'
-				},
-				{
-					name: '{noteUp}',
-					control: 'NOTE_UP'
-				},
-				{
-					name: '{noteRight}',
-					control: 'NOTE_RIGHT'
-				},
-			]
-		},
-		{
-			name: 'UI',
-			settings: [
-				{
-					name: 'Left',
-					control: 'LEFT'
-				},
-				{
-					name: 'Down',
-					control: 'DOWN'
-				},
-				{
-					name: 'Up',
-					control: 'UP'
-				},
-				{
-					name: 'Right',
-					control: 'RIGHT'
-				},
-				{
-					name: 'Accept',
-					control: 'ACCEPT'
-				},
-				{
-					name: 'Back',
-					control: 'BACK'
-				},
-				{
-					name: 'Reset',
-					control: 'RESET'
-				},
-				{
-					name: 'Pause',
-					control: 'PAUSE'
-				},
-			]
-		},
-		{
-			name: 'Engine',
-			settings: [
-				{
-					name: 'Switch Mod',
-					control: 'SWITCHMOD'
-				},
-			]
-		}
-	];
+	public var categories:Array<KeybindCategory> = [];
+
+	public function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("Keybinds." + id, args);
 
 	public var settingCam:FlxCamera;
 
@@ -96,6 +40,80 @@ class KeybindsOptions extends MusicBeatSubstate {
 	var isSubState:Bool = false;
 
 	public override function create() {
+		categories = [
+			{
+				name: translate("category.notes"),
+				settings: [
+					{
+						icon: ["game/notes/default", "purple0"],
+						name: translate("left"),
+						control: 'NOTE_LEFT'
+					},
+					{
+						icon: ['game/notes/default', 'blue0'],
+						name: translate("down"),
+						control: 'NOTE_DOWN'
+					},
+					{
+						icon: ['game/notes/default', 'green0'],
+						name: translate("up"),
+						control: 'NOTE_UP'
+					},
+					{
+						icon: ['game/notes/default', 'red0'],
+						name: translate("right"),
+						control: 'NOTE_RIGHT'
+					},
+				]
+			},
+			{
+				name: translate("category.ui"),
+				settings: [
+					{
+						name: translate("left"),
+						control: 'LEFT'
+					},
+					{
+						name: translate("down"),
+						control: 'DOWN'
+					},
+					{
+						name: translate("up"),
+						control: 'UP'
+					},
+					{
+						name: translate("right"),
+						control: 'RIGHT'
+					},
+					{
+						name: translate("ui.accept"),
+						control: 'ACCEPT'
+					},
+					{
+						name: translate("ui.back"),
+						control: 'BACK'
+					},
+					{
+						name: translate("ui.reset"),
+						control: 'RESET'
+					},
+					{
+						name: translate("ui.pause"),
+						control: 'PAUSE'
+					},
+				]
+			},
+			{
+				name: translate("category.engine"),
+				settings: [
+					{
+						name: translate("engine.switchMod"),
+						control: 'SWITCHMOD'
+					},
+				]
+			}
+		];
+
 		super.create();
 		instance = this;
 
@@ -138,19 +156,9 @@ class KeybindsOptions extends MusicBeatSubstate {
 			for(e in category.settings) {
 				var sparrowIcon:String = null;
 				var sparrowAnim:String = null;
-				if (e.name.startsWith('{note')) {// is actually a note!!
-					sparrowIcon = "game/notes/default";
-					sparrowAnim = switch(e.name) {
-						case '{noteLeft}':
-							"purple0";
-						case '{noteDown}':
-							"blue0";
-						case '{noteUp}':
-							"green0";
-						default:
-							"red0";
-					};
-					e.name = e.name.substring(5, e.name.length - 1);
+				if(e.icon != null) {
+					sparrowIcon = e.icon[0];
+					sparrowAnim = e.icon[1];
 				}
 
 				var text = new KeybindSetting(100, k * 75, e.name, e.control, sparrowIcon, sparrowAnim);

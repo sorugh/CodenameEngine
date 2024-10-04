@@ -24,6 +24,28 @@
 		<!-- cant have debug here -->
 	</group>
 
+	<group name="KeybindOptions" prefix="KeybindsOptions.">
+		<str id="left">Left</str>
+		<str id="down">Down</str>
+		<str id="up">Up</str>
+		<str id="right">Right</str>
+
+		<str id="category.notes">Notes</str>
+
+		<str id="category.ui">UI</str>
+		<group name="ui" prefix="ui.">
+			<str id="accept">Accept</str>
+			<str id="back">Back</str>
+			<str id="reset">Reset</str>
+			<str id="pause">Pause</str>
+		</group>
+
+		<str id="category.engine">Engine</str>
+		<group name="engine" prefix="engine.">
+			<str id="switchMod">Switch Mod</str>
+		</group>
+	</group>
+
 	<group name="AppearanceOptions" prefix="AppearanceOptions.">
 		<str id="framerate-name">Framerate</str>
 		<str id="framerate-desc">Pretty self explanatory, isn't it?</str>
@@ -32,7 +54,7 @@
 		<str id="antialiasing-desc">If unchecked, will disable antialiasing on every sprite. Can boost performances at the cost of sharper, more pixely sprites.</str>
 
 		<str id="colorHealthBar-name">Colored Healthbar</str>
-		<str id="colorHealthBar-desc">If unchecked, the game will use the orginal red/green health bar from the week 6 fnf game.</str>
+		<str id="colorHealthBar-desc">If unchecked, the game will use the original red/green health bar from the week 6 fnf game.</str>
 
 		<str id="week6PixelPerfect-name">Pixel Perfect Effect</str>
 		<str id="week6PixelPerfect-desc">If checked, Week 6 will have a pixel perfect effect to it enabled, aligning every pixel on the screen.</str>
@@ -115,8 +137,8 @@
 		<str id="charterAutoSaveWarningTime-name">Save Warning Time</str>
 		<str id="charterAutoSaveWarningTime-desc">This controls how long the editor will warn you before it autosaves (in seconds..., 0 to disable)</str>
 
-		<str id="charterAutoSavesSeperateFolder-name">Autosaves Folder</str>
-		<str id="charterAutoSavesSeperateFolder-desc">If checked, this will autosave your file in a seperate folder with a time stamp instead of overriding your current file. (song/autosaves/)</str>
+		<str id="charterAutoSavesSeparateFolder-name">Autosaves Folder</str>
+		<str id="charterAutoSavesSeparateFolder-desc">If checked, this will autosave your file in a separate folder with a time stamp instead of overriding your current file. (song/autosaves/)</str>
 	</group>
 
 </language>

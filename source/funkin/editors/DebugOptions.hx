@@ -65,8 +65,8 @@ class DebugOptionsScreen extends OptionsScreen {
 			"charterAutoSaveWarningTime"
 		));
 		add(new Checkbox(
-			getName("charterAutoSavesSeperateFolder"),
-			getDesc("charterAutoSavesSeperateFolder"),
-			"charterAutoSavesSeperateFolder"));
+			getName("charterAutoSavesSeparateFolder"),
+			getDesc("charterAutoSavesSeparateFolder"),
+			"charterAutoSavesSeparateFolder"));
 	}
 }

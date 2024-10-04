@@ -695,9 +695,9 @@ class Charter extends UIState {
 		autoSaveTimer -= elapsed;
 
 		if (autoSaveTimer < Options.charterAutoSaveWarningTime && !autoSaveNotif.cancelled && !autoSaveNotif.showedAnimation) {
-			if (Options.charterAutoSavesSeperateFolder)
+			if (Options.charterAutoSavesSeparateFolder)
 				__autoSaveLocation = __diff.toLowerCase() + DateTools.format(Date.now(), "%m-%d_%H-%M");
-			var filename = !Options.charterAutoSavesSeperateFolder ? '${__diff.toLowerCase()}.json' : '${__autoSaveLocation}.json';
+			var filename = !Options.charterAutoSavesSeparateFolder ? '${__diff.toLowerCase()}.json' : '${__autoSaveLocation}.json';
 			autoSaveNotif.startAutoSave(autoSaveTimer,
 				TU.translate("charter.popup.savedChartAt", [filename])
 			);
@@ -708,7 +708,7 @@ class Charter extends UIState {
 				buildChart();
 				var songPath:String = '${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}';
 
-				if (Options.charterAutoSavesSeperateFolder)
+				if (Options.charterAutoSavesSeparateFolder)
 					Chart.save(songPath, PlayState.SONG, __autoSaveLocation, {saveMetaInChart: false, folder: "autosaves", prettyPrint: Options.editorPrettyPrint});
 				else
 					Chart.save(songPath, PlayState.SONG, __diff.toLowerCase(), {saveMetaInChart: false, prettyPrint: Options.editorPrettyPrint});

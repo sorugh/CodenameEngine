@@ -45,7 +45,6 @@
 
 	<group name="Pause">
 		<group name="PauseOptions">
-			<!-- These are actually the only strings that dont require an english translation, you can still translate them though -->
 			<str id="pause.resume">Resume</str>
 			<str id="pause.restartSong">Restart Song</str>
 			<str id="pause.changeControls">Change Controls</str>

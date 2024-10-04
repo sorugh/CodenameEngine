@@ -43,6 +43,14 @@
 		<str id="scrollSpeed">Scroll Speed</str>
 	</group>
 
+	<group name="SongPosInfo" prefix="songPosInfo.">
+		<str id="step">Step: {0}</str>
+		<str id="beat">Beat: {0}</str>
+		<str id="measure">Measure: {0}</str>
+		<str id="bpm">BPM: {0}</str>
+		<str id="timeSignature">Time Signature: {0}/{1}</str>
+	</group>
+
 	<group name="CharterEventScreen" prefix="charterEventScreen.">
 		<str id="title-creating">Create Event Group</str>
 		<str id="title-editing">Edit Event Group</str>
@@ -386,5 +394,31 @@
 
 	<group name="DebugOptions">
 		<str id="debugOptions.name">Debug Options</str>
+	</group>
+
+	<!-- PlayTesting and SaveWarning are almost the same but with some small differences -->
+	<!-- PlayTesting allows color in the description by doing *hello* -->
+	<!-- SaveWarning doesnt allow color in the description -->
+	<group name="PlayTesting" prefix="playtesting.">
+		<str id="chartPlaytesting" notrim="true"> (Chart Playtesting)</str>
+		<str id="exitGame">Exit Game</str>
+		<str id="exitToMenu">Exit To Menu</str>
+		<str id="saveAndExitGame">Save &amp; Exit Game</str>
+		<str id="saveAndExitToMenu">Save &amp; Exit To Menu</str>
+		<str id="cancel">Cancel</str>
+
+		<str id="warningTitle">UNSAVED CHANGES!</str>
+		<str id="warningDesc">Your changes will be *lost* if you don't save them. (Can't be recovered)\n\n\nWould you like to Cancel?</str>
+	</group>
+
+	<group name="SaveWarning" prefix="saveWarning.">
+		<str id="warningTitle">Unsaved Changes!</str>
+		<str id="warningDesc">Your changes will be lost if you don't save them. (Can't be recovered)\n\n\nWould you like to Cancel?</str>
+
+		<str id="exitGame">Exit Game</str>
+		<str id="exitToMenu">Exit To Menu</str>
+		<str id="saveAndExitGame">Save &amp; Exit Game</str>
+		<str id="saveAndExitToMenu">Save &amp; Exit To Menu</str>
+		<str id="cancel">Cancel</str>
 	</group>
 </language>

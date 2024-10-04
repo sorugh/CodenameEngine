@@ -88,6 +88,12 @@ class Charter extends UIState {
 	public static var clipboard:Array<CharterCopyboardObject> = [];
 	public static var waveformHandler:CharterWaveformHandler;
 
+	private var SONGPOSINFO_STEP = TU.getRaw("songPosInfo.step");
+	private var SONGPOSINFO_BEAT = TU.getRaw("songPosInfo.beat");
+	private var SONGPOSINFO_MEASURE = TU.getRaw("songPosInfo.measure");
+	private var SONGPOSINFO_BPM = TU.getRaw("songPosInfo.bpm");
+	private var SONGPOSINFO_TIMESIGNATURE = TU.getRaw("songPosInfo.timeSignature");
+
 	public function new(song:String, diff:String, reload:Bool = true) {
 		super();
 		if (song != null) {
@@ -1220,13 +1226,15 @@ class Charter extends UIState {
 			for (strumLine in strumLines.members) strumLine.vocals.pause();
 		}
 
-		// TODO: make this translatable?
-		songPosInfo.text = '${CoolUtil.timeToStr(Conductor.songPosition)} / ${CoolUtil.timeToStr(songLength)}'
-		+ '\nStep: ${curStep}'
-		+ '\nBeat: ${curBeat}'
-		+ '\nMeasure: ${curMeasure}'
-		+ '\nBPM: ${Conductor.bpm}'
-		+ '\nTime Signature: ${Conductor.beatsPerMeasure}/${Conductor.stepsPerBeat}';
+		songPosInfo.text = [
+			// no need to translate the time text since it has no text only numbers
+			'${CoolUtil.timeToStr(Conductor.songPosition)} / ${CoolUtil.timeToStr(songLength)}',
+			SONGPOSINFO_STEP.format([curStep]),
+			SONGPOSINFO_BEAT.format([curBeat]),
+			SONGPOSINFO_MEASURE.format([curMeasure]),
+			SONGPOSINFO_BPM.format([Conductor.bpm]),
+			SONGPOSINFO_TIMESIGNATURE.format([Conductor.beatsPerMeasure, Conductor.stepsPerBeat])
+		].join("\n");
 
 		if (charterCamera.zoom != (charterCamera.zoom = lerp(charterCamera.zoom, __camZoom, __firstFrame ? 1 : 0.125)))
 			updateDisplaySprites();

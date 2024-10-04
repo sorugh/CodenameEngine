@@ -202,6 +202,8 @@ class FreeplayState extends MusicBeatState
 	public var autoplayShouldPlay:Bool = true;
 	#end
 
+	private var TEXT_FREEPLAY_SCORE = TU.getRaw("freeplay.score");
+
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -224,7 +226,7 @@ class FreeplayState extends MusicBeatState
 			updateOptionsAlpha();
 		}
 
-		scoreText.text = TU.translate("freeplay.score", [Math.round(lerpScore)]);
+		scoreText.text = TEXT_FREEPLAY_SCORE.format([Math.round(lerpScore)]);
 		scoreBG.scale.set(Math.max(Math.max(diffText.width, scoreText.width), coopText.width) + 8, (coopText.visible ? coopText.y + coopText.height : 66));
 		scoreBG.updateHitbox();
 		scoreBG.x = FlxG.width - scoreBG.width;
@@ -425,19 +427,22 @@ class FreeplayState extends MusicBeatState
 		var event = event("onUpdateOptionsAlpha", EventManager.get(FreeplayAlphaUpdateEvent).recycle(0.6, 0.45, 1, 1, 0.25));
 		if (event.cancelled) return;
 
-		for (i in 0...iconArray.length)
-			iconArray[i].alpha = lerp(iconArray[i].alpha, #if PRELOAD_ALL songInstPlaying ? event.idlePlayingAlpha : #end event.idleAlpha, event.lerp);
+		final idleAlpha = #if PRELOAD_ALL songInstPlaying ? event.idlePlayingAlpha : #end event.idleAlpha;
+		final selectedAlpha = #if PRELOAD_ALL songInstPlaying ? event.selectedPlayingAlpha : #end event.selectedAlpha;
 
-		iconArray[curSelected].alpha = #if PRELOAD_ALL songInstPlaying ? event.selectedPlayingAlpha : #end event.selectedAlpha;
+		for (i in 0...iconArray.length)
+			iconArray[i].alpha = lerp(iconArray[i].alpha, idleAlpha, event.lerp);
+
+		iconArray[curSelected].alpha = selectedAlpha;
 
 		for (i=>item in grpSongs.members)
 		{
 			item.targetY = i - curSelected;
 
-			item.alpha = lerp(item.alpha, #if PRELOAD_ALL songInstPlaying ? event.idlePlayingAlpha : #end event.idleAlpha, event.lerp);
+			item.alpha = lerp(item.alpha, idleAlpha, event.lerp);
 
 			if (item.targetY == 0)
-				item.alpha =  #if PRELOAD_ALL songInstPlaying ? event.selectedPlayingAlpha : #end event.selectedAlpha;
+				item.alpha = selectedAlpha;
 		}
 	}
 }

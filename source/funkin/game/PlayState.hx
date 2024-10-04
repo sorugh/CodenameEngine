@@ -741,9 +741,9 @@ class PlayState extends MusicBeatState
 			add(icon);
 		}
 
-		scoreTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), TU.translate("game.score", [songScore]), 16);
-		missesTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), TU.translate("game.misses", [misses]), 16);
-		accuracyTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), TU.translate("game.accuracy", ["-%", "(N/A)"]), 16);
+		scoreTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), TEXT_GAME_SCORE.format([songScore]), 16);
+		missesTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), TEXT_GAME_MISSES.format([misses]), 16);
+		accuracyTxt = new FunkinText(healthBarBG.x + 50, healthBarBG.y + 30, Std.int(healthBarBG.width - 100), TEXT_GAME_ACCURACY.format(["-%", "(N/A)"]), 16);
 		accuracyTxt.addFormat(accFormat, 0, 1);
 
 		for(text in [scoreTxt, missesTxt, accuracyTxt]) {
@@ -1211,16 +1211,22 @@ class PlayState extends MusicBeatState
 		iconP2.health = 1 - (healthBar.percent / 100);
 	}
 
+	// bypass the caching in FormatUtil by doing it manually so its faster
+	private var TEXT_GAME_SCORE = TU.getRaw("game.score");
+	private var TEXT_GAME_MISSES = TU.getRaw("game.misses");
+	private var TEXT_GAME_COMBOBREAKS = TU.getRaw("game.comboBreaks");
+	private var TEXT_GAME_ACCURACY = TU.getRaw("game.accuracy");
+
 	function updateRatingStuff() {
-		scoreTxt.text = TU.translate("game.score", [songScore]);
-		missesTxt.text = TU.translate(comboBreaks ? "game.comboBreaks" : "game.misses", [misses]);
+		scoreTxt.text = TEXT_GAME_SCORE.format([songScore]);
+		missesTxt.text = (comboBreaks ? TEXT_GAME_COMBOBREAKS : TEXT_GAME_MISSES).format([misses]);
 
 		if (curRating == null)
 			curRating = new ComboRating(0, "[N/A]", 0xFF888888);
 
 		@:privateAccess {
 			accFormat.format.color = curRating.color;
-			accuracyTxt.text = TU.translate("game.accuracy", [accuracy < 0 ? "-%" : '${CoolUtil.quantize(accuracy * 100, 100)}%', curRating.rating]);
+			accuracyTxt.text = TEXT_GAME_ACCURACY.format([accuracy < 0 ? "-%" : '${CoolUtil.quantize(accuracy * 100, 100)}%', curRating.rating]);
 
 			accuracyTxt._formatRanges[0].range.start = accuracyTxt.text.length - curRating.rating.length;
 			accuracyTxt._formatRanges[0].range.end = accuracyTxt.text.length;

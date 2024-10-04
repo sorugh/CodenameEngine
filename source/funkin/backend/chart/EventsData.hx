@@ -129,7 +129,6 @@ typedef EventInfoFile = {
 
 typedef EventInfo = {
 	var params:Array<EventParamInfo>;
-	var paramValues:Array<Dynamic>;
 }
 
 typedef EventParamInfo = {

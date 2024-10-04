@@ -119,12 +119,20 @@ class CharterEventScreen extends UISubstateWindow {
 		if (id >= 0 && id < events.length) {
 			curEvent = id;
 			var curEvent = events[curEvent];
-			eventName.text = curEvent.name;
+
+			var visualName = curEvent.name;
+			var tuId = "charter.events." + TU.raw2Id(curEvent.name);
+			if(TU.exists(tuId))
+				visualName = TU.translate(tuId);
+
+			eventName.text = visualName;
 			// add new elements
 			var y:Float = eventName.y + eventName.height + 10;
 			for(k=>param in EventsData.getEventParams(curEvent.name)) {
 				function addLabel() {
-					var label:UIText = new UIText(eventName.x, y, 0, param.name);
+					var visualName = param.name;
+					// TODO: add translations
+					var label:UIText = new UIText(eventName.x, y, 0, visualName);
 					y += label.height + 4;
 					paramsPanel.add(label);
 				};
@@ -152,7 +160,11 @@ class CharterEventScreen extends UISubstateWindow {
 						numericStepper;
 					case TStrumLine:
 						addLabel();
-						var dropdown = new UIDropDown(eventName.x, y, 320, 32, [for(k=>s in cast(FlxG.state, Charter).strumLines.members) 'Strumline #${k+1} (${s.strumLine.characters[0]})'], cast value);
+						var strumlineFormat = TU.getRaw("charterEventScreen.strumLine.format");
+						var dropdown = new UIDropDown(eventName.x, y, 320, 32, [
+							for(k=>s in cast(FlxG.state, Charter).strumLines.members)
+								strumlineFormat.format([k+1, s.strumLine.characters[0]])
+						], cast value);
 						paramsPanel.add(dropdown); paramsFields.push(dropdown);
 						dropdown;
 					case TColorWheel:

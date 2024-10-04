@@ -75,6 +75,27 @@
 		<str id="betaWarning.desc">This engine is still in a *{0}* state. That means *majority of the features* are either *buggy* or *non finished*. If you find any bugs, please report them to the Codename Engine GitHub.\n\nPress {1} to continue</str>
 	</group>
 
+	<group name="Updater">
+		<group name="UpdateAvailable">
+			<str id="updateAvailable.title">NEW UPDATE</str>
+			<str id="updateAvailable.install">INSTALL</str>
+			<str id="updateAvailable.skip">SKIP</str>
+		</group>
+		<group name="UpdateScreen">
+			<str id="updateScreen.general-1">Preparing update installation...</str>
+			<str id="updateScreen.part-1">Creating installation folder and cleaning old update files...</str>
+
+			<str id="updateScreen.general-2">Downloading update assets...</str>
+			<str id="updateScreen.part-2">Downloading file {0}</str>
+
+			<str id="updateScreen.general-3">Downloading new engine executable...</str>
+			<str id="updateScreen.part-3">Downloading {0}</str>
+
+			<str id="updateScreen.general-4">Installing new files...</str>
+			<str id="updateScreen.part-4">Installing {0}</str>
+		</group>
+	</group>
+
 	<group name="Difficulties">
 		<str id="diff.easy">Easy</str>
 		<str id="diff.normal">Normal</str>

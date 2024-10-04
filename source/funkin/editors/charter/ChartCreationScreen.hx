@@ -117,7 +117,8 @@ class ChartCreationScreen extends UISubstateWindow {
 			TU.translate("chartCreation.strumLineList"),
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
-		strumLineList.dragCallback = (object:StrumLineButton, oldIndex:Int, newIndex:Int) -> {object.idText.text = 'Strumline - #${newIndex}';};
+		var strumlineFormat = TU.getRaw("chartCreation.strumLine.format");
+		strumLineList.dragCallback = (object:StrumLineButton, oldIndex:Int, newIndex:Int) -> {object.idText.text = strumlineFormat.format([newIndex]);};
 		scrollSpeedTextBox.onChange(scrollSpeedTextBox.label.text);
 
 		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, TU.translate("editor.saveClose"), function() {
@@ -217,7 +218,7 @@ class StrumLineButton extends UIButton {
 			charactersList.add(new CompactCharacterButton(character, subState.charFileList, charactersList));
 
 		members.push(charactersList);
-		idText = addLabelOn(charactersList, 'Strumline - #$id');
+		idText = addLabelOn(charactersList, TU.translate("chartCreation.strumLine.format", [id]));
 
 		cameraClipShader = new CustomShader("engine/cameraClip");
 		cameraClipShader.hset("clipRect", [0, 0, 100, 100]);

@@ -597,7 +597,7 @@ class PlayState extends MusicBeatState
 					for(folder in scriptsFolders) {
 						for(file in Paths.getFolderContent(folder, true, fromMods ? MODS : BOTH)) {
 							if (folder == 'data/charts/')
-								Logs.warn('data/charts/ is deprecrated and will be removed in the future. Please move script $file to songs/', WARNING, DARKYELLOW, "PlayState");
+								Logs.warn('data/charts/ is deprecrated and will be removed in the future. Please move script $file to songs/', DARKYELLOW, "PlayState");
 
 							addScript(file);
 						}
@@ -1248,9 +1248,9 @@ class PlayState extends MusicBeatState
 				FlxG.switchState(new funkin.editors.charter.Charter(SONG.meta.name, difficulty, false));
 			}
 			if (FlxG.keys.justPressed.F5) {
-				Logs.warn('Reloading scripts...', WARNING, YELLOW, "PlayState");
+				Logs.warn('Reloading scripts...', YELLOW, "PlayState");
 				scripts.reload();
-				Logs.warn('Song scripts successfully reloaded.', WARNING, GREEN, "PlayState");
+				Logs.warn('Song scripts successfully reloaded.', GREEN, "PlayState");
 			}
 		}
 

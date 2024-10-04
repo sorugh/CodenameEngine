@@ -108,16 +108,20 @@ class Logs {
 		return logText('[${prefix}] ', BLUE);
 	}
 
-	public inline static function verbose(text:String, level:Level = VERBOSE, color:ConsoleColor = LIGHTGRAY, ?prefix:String) {
-		Logs.trace(text, level, color, prefix);
+	public inline static function infos(text:String, color:ConsoleColor = LIGHTGRAY, ?prefix:String) {
+		Logs.trace(text, INFO, color, prefix);
 	}
 
-	public inline static function warn(text:String, level:Level = WARNING, color:ConsoleColor = YELLOW, ?prefix:String) {
-		Logs.trace(text, level, color, prefix);
+	public inline static function verbose(text:String, color:ConsoleColor = LIGHTGRAY, ?prefix:String) {
+		Logs.trace(text, VERBOSE, color, prefix);
 	}
 
-	public inline static function error(text:String, level:Level = ERROR, color:ConsoleColor = RED, ?prefix:String) {
-		Logs.trace(text, level, color, prefix);
+	public inline static function warn(text:String, color:ConsoleColor = YELLOW, ?prefix:String) {
+		Logs.trace(text, WARNING, color, prefix);
+	}
+
+	public inline static function error(text:String, color:ConsoleColor = RED, ?prefix:String) {
+		Logs.trace(text, ERROR, color, prefix);
 	}
 }
 

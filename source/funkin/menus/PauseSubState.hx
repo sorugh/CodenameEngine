@@ -21,7 +21,13 @@ class PauseSubState extends MusicBeatSubstate
 
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
-	// TODO: make it possible to translate these
+	// to translate these you need to convert them into ids
+	// Resume -> pause.resume
+	// Restart Song -> pause.restart
+	// Change Controls -> pause.changeControls
+	// Change Options -> pause.changeOptions
+	// Exit to menu -> pause.exitToMenu
+	// Exit to charter -> pause.exitToCharter
 	var menuItems:Array<String> = ['Resume', 'Restart Song', 'Change Controls', 'Change Options', 'Exit to menu', "Exit to charter"];
 	var curSelected:Int = 0;
 

@@ -79,7 +79,7 @@ class StoryMenuState extends MusicBeatState {
 		}
 		rightArrow.x -= rightArrow.width;
 
-		tracklist = new FunkinText(16, weekBG.y + weekBG.height + 44, Std.int(((FlxG.width - 400) / 2) - 80), "TRACKS", 32);
+		tracklist = new FunkinText(16, weekBG.y + weekBG.height + 44, Std.int(((FlxG.width - 400) / 2) - 80), TU.translate("story.tracks"), 32);
 		tracklist.alignment = CENTER;
 		tracklist.color = 0xFFE55777;
 

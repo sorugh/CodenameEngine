@@ -219,7 +219,7 @@ class FreeplayState extends MusicBeatState
 		if (canSelect) {
 			changeSelection((controls.UP_P ? -1 : 0) + (controls.DOWN_P ? 1 : 0));
 			changeDiff((controls.LEFT_P ? -1 : 0) + (controls.RIGHT_P ? 1 : 0));
-			changeCoopMode((FlxG.keys.justPressed.TAB ? 1 : 0));
+			changeCoopMode((FlxG.keys.justPressed.TAB ? 1 : 0)); // TODO: make this configurable
 			// putting it before so that its actually smooth
 			updateOptionsAlpha();
 		}
@@ -362,10 +362,10 @@ class FreeplayState extends MusicBeatState
 	 * Array containing all labels for Co-Op / Opponent modes.
 	 */
 	public var coopLabels:Array<String> = [
-		"[TAB] " + TU.translate("freeplay.solo"),
-		"[TAB] " + TU.translate("freeplay.opponentMode"),
-		"[TAB] " + TU.translate("freeplay.coopMode"),
-		"[TAB] " + TU.translate("freeplay.coopModeSwitched")
+		TU.translate("freeplay.solo"),
+		TU.translate("freeplay.opponentMode"),
+		TU.translate("freeplay.coopMode"),
+		TU.translate("freeplay.coopModeSwitched")
 	];
 
 	/**
@@ -386,10 +386,12 @@ class FreeplayState extends MusicBeatState
 
 		updateScore();
 
+		var key = "[TAB] "; // TODO: make this configurable
+
 		if (bothEnabled) {
-			coopText.text = coopLabels[curCoopMode];
+			coopText.text = key + coopLabels[curCoopMode];
 		} else {
-			coopText.text = coopLabels[curCoopMode * (songs[curSelected].coopAllowed ? 2 : 1)];
+			coopText.text = key + coopLabels[curCoopMode * (songs[curSelected].coopAllowed ? 2 : 1)];
 		}
 	}
 

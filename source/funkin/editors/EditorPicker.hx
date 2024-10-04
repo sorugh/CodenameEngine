@@ -6,6 +6,7 @@ import flixel.math.FlxPoint;
 class EditorPicker extends MusicBeatSubstate {
 	public var bg:FlxSprite;
 
+	// Name is for backwards compatability, dont use it, use id instead
 	public var options:Array<Editor> = [
 		{
 			name: "Chart Editor",
@@ -80,7 +81,8 @@ class EditorPicker extends MusicBeatSubstate {
 
 		optionHeight = FlxG.height / options.length;
 		for(k=>o in options) {
-			var visualName = o.name;
+			var id = o.id + ".name";
+			var visualName = TU.translate(id);
 			var spr = new EditorPickerOption(visualName, o.iconID, optionHeight);
 			spr.y = k * optionHeight;
 			add(spr);

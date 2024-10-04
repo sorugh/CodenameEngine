@@ -317,7 +317,7 @@ final class TranslationUtil
 	}
 
 	public static inline function isShowingMissingIds():Bool {
-		return alternativeStringMap != [];
+		return Lambda.count(alternativeStringMap) > 0;
 	}
 
 	public static inline function translationsMain(key:String):String
@@ -356,7 +356,7 @@ final class TranslationUtil
 		return Options.language == Flags.DEFAULT_LANGUAGE;
 
 	@:noCompletion private static function get_isLanguageLoaded():Bool
-		return Lambda.count(stringMap) > 0 || (isShowingMissingIds() && Lambda.count(alternativeStringMap) > 0);
+		return Lambda.count(stringMap) > 0 || isShowingMissingIds();
 }
 
 @:structInit

@@ -60,6 +60,8 @@ class Logs {
 				case ERROR:		logText('    ERROR    ', DARKRED);
 				case TRACE:		logText('    TRACE    ', GRAY);
 				case VERBOSE:	logText('   VERBOSE   ', DARKMAGENTA);
+				case SUCCESS:	logText('   SUCCESS   ', GREEN);
+				case FAILURE:	logText('   FAILURE   ', RED);
 				default:		logText(' INFORMATION ', CYAN);
 			},
 			logText('] ')
@@ -123,6 +125,14 @@ class Logs {
 	public inline static function error(text:String, color:ConsoleColor = RED, ?prefix:String) {
 		Logs.trace(text, ERROR, color, prefix);
 	}
+
+	public inline static function success(text:String, color:ConsoleColor = GREEN, ?prefix:String) {
+		Logs.trace(text, SUCCESS, color, prefix);
+	}
+
+	public inline static function failure(text:String, color:ConsoleColor = RED, ?prefix:String) {
+		Logs.trace(text, FAILURE, color, prefix);
+	}
 }
 
 enum abstract Level(Int) {
@@ -131,6 +141,8 @@ enum abstract Level(Int) {
 	var ERROR = 2;
 	var TRACE = 3;
 	var VERBOSE = 4;
+	var SUCCESS = 5;
+	var FAILURE = 6;
 }
 typedef LogText = {
 	var text:String;

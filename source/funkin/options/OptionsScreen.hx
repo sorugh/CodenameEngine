@@ -91,8 +91,10 @@ class OptionsScreen extends FlxTypedSpriteGroup<OptionType> {
 
 		if (members.length > 0) {
 			members[curSelected].selected = true;
-			if (controls.ACCEPT || FlxG.mouse.justReleased)
+			if (controls.ACCEPT || FlxG.mouse.justReleased) {
 				members[curSelected].onSelect();
+				onSelect(members[curSelected]);
+			}
 			if (controls.LEFT_P)
 				members[curSelected].onChangeSelection(-1);
 			if (controls.RIGHT_P)
@@ -121,4 +123,17 @@ class OptionsScreen extends FlxTypedSpriteGroup<OptionType> {
 	}
 
 	public dynamic function onClose(o:OptionsScreen) {}
+	public dynamic function onSelect(o:OptionType) {
+		if(o is funkin.options.type.RadioButton) {
+			var orb:funkin.options.type.RadioButton = cast o;
+			for(e in members) {
+				if(e is funkin.options.type.RadioButton) {
+					var rb:funkin.options.type.RadioButton = cast e;
+					if(rb.forId == orb.forId && rb != o) {
+						rb.checked = false;
+					}
+				}
+			}
+		}
+	}
 }

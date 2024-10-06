@@ -167,7 +167,7 @@ final class TranslationUtil
 	 */
 	public static function raw2Id(str:String):String
 	{
-		str = str.toLowerCase();
+		str = str.trim().toLowerCase();
 		return [for(i => s in str.split(" "))
 			i != 0 ? s.charAt(0).toUpperCase() + s.substr(1) : s
 		].join("");

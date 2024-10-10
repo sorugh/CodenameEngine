@@ -160,6 +160,11 @@ class PlayState extends MusicBeatState
 	 * Boyfriend character
 	 */
 	public var boyfriend(get, set):Character;
+	/**
+	 * Boyfriend character
+	 * Same as boyfriend, just shorter
+	**/
+	public var bf(get, set):Character;
 
 	/**
 	 * Strum line position
@@ -1851,6 +1856,16 @@ class PlayState extends MusicBeatState
 		if (strumLines != null && strumLines.members[1] != null)
 			strumLines.members[1].characters = [bf];
 		return bf;
+	}
+	private function set_bf(bf:Character):Character {
+		if (strumLines != null && strumLines.members[1] != null)
+			strumLines.members[1].characters = [bf];
+		return bf;
+	}
+	private function get_bf():Character {
+		if (strumLines != null && strumLines.members[1] != null)
+			return strumLines.members[1].characters[0];
+		return null;
 	}
 	private function get_dad():Character {
 		if (strumLines != null && strumLines.members[0] != null)

@@ -5,13 +5,33 @@ import funkin.menus.ui.effects.RegionEffect;
 import flixel.animation.FlxAnimation;
 import flixel.util.FlxDirectionFlags;
 import flixel.math.FlxPoint;
+import flixel.FlxTypes;
 
 import haxe.xml.Access;
 
 using StringTools;
 using flixel.util.FlxColorTransformUtil;
 
-enum abstract AlphabetAlignment(Int) from Int to Int {
+@:structInit
+class AlphabetLetterData {
+	@:optional public var isDefault:Bool = false;
+	public var anim:String; // should this be FlxAnimation?
+	public var x:Float;
+	public var y:Float;
+	public var advance:Null<Float>;
+	// Precalculated values for angle
+	public var sin:Float;
+	public var cos:Float;
+	public var scaleX:Float;
+	public var scaleY:Float;
+
+	// If null, render spooping as usual I see
+	public var components:Array<AlphabetLetterData>; // components with components lol
+}
+
+// we also need to store components somehow
+
+enum abstract AlphabetAlignment(ByteUInt) from ByteUInt to ByteUInt {
 	var LEFT;
 	var CENTER;
 	var RIGHT;
@@ -34,7 +54,7 @@ enum abstract AlphabetAlignment(Int) from Int to Int {
 		}
 }
 
-enum abstract CaseMode(Int) from Int to Int {
+enum abstract CaseMode(ByteUInt) from ByteUInt to ByteUInt {
 	var NONE;
 	var UPPER;
 	var LOWER;
@@ -52,7 +72,7 @@ enum abstract CaseMode(Int) from Int to Int {
 class NewAlphabet extends FlxSprite {
 	public var effects:Array<RegionEffect> = [];
 	var __renderData:AlphabetRenderData;
-	
+
 	public var text(default, set):String = "";
 	@:isVar public var textWidth(get, set):Float;
 	public var textHeight(get, null):Float;
@@ -73,12 +93,10 @@ class NewAlphabet extends FlxSprite {
 	var defaultAdvance:Float = 40.0;
 	var lineGap:Float = 75.0;
 	var fps:Float = 24.0;
-	var defaults:Map<String, String> = [];
-	var anims:Map<String, String> = [];
+	var letterData:Map<String, AlphabetLetterData> = [];
+	var defaults:Array<AlphabetLetterData> = [null, null, null];
+	var loaded:Array<Array<String>> = [[], [], []];
 	var failedLetters:Array<String> = [];
-	var xOffset:Map<String, Float> = [];
-	var yOffset:Map<String, Float> = [];
-	var advances:Map<String, Float> = [];
 
 	public function new(?x:Float, ?y:Float, ?font:String = "bold") {
 		super(x, y);
@@ -86,7 +104,7 @@ class NewAlphabet extends FlxSprite {
 		this.__renderData = new AlphabetRenderData(this);
 	}
 
-	override function update(elapsed:Float) {
+	override function update(elapsed:Float):Void {
 		//super.update(elapsed);
 		// FLXOBJECT UPDATE
 		#if FLX_DEBUG
@@ -107,10 +125,10 @@ class NewAlphabet extends FlxSprite {
 
 		__animTime += elapsed;
 		for (effect in effects)
-			effect.effectTime += FlxG.elapsed * effect.speed;
+			effect.effectTime += elapsed * effect.speed;
 	}
 
-	override function draw() {
+	override function draw():Void {
 		__ogForceScreen = forceIsOnScreen;
 		forceIsOnScreen = true;
 		super.draw();
@@ -120,7 +138,7 @@ class NewAlphabet extends FlxSprite {
 		return false; // maybe ill get simple render working another time??? not right now tho.
 	}
 
-	override function drawComplex(camera:FlxCamera) {
+	override function drawComplex(camera:FlxCamera):Void {
 		forceIsOnScreen = __ogForceScreen;
 
 		if (__queueResize)
@@ -140,11 +158,13 @@ class NewAlphabet extends FlxSprite {
 		frameOffset.x -= (textWidth - __laneWidths[0]) * alignmentMultiplier;
 
 		var isGraphicsShader = shader != null && shader is flixel.graphics.tile.FlxGraphicsShader;
-		var offsetMult = (1 - transformMult) * 255; 
+		var offsetMult = (1 - transformMult) * 255;
 		var ogRed:Float = colorTransform.redMultiplier;
 		var ogGreen:Float = colorTransform.greenMultiplier;
 		var ogBlue:Float = colorTransform.blueMultiplier;
 		var ogAlpha:Float = colorTransform.alphaMultiplier;
+
+		var frameTime = Math.floor(__animTime * fps);
 
 		for (i in 0...daText.length) {
 			__renderData.reset(this, ogRed, ogGreen, ogBlue, ogAlpha, daText.charAt(i));
@@ -162,17 +182,18 @@ class NewAlphabet extends FlxSprite {
 				continue;
 			}
 
-			var anim = getLetterAnim(letter);
-			var advance:Float = getAdvance(letter, anim);
+			var data = getData(letter);
+			var anim = getLetterAnim(letter, data);
+			var advance:Float = getAdvance(letter, anim, data);
 
 			if (anim == null || __renderData.alpha <= 0.0) {
 				frameOffset.x -= advance;
 			} else {
-				var frameToGet = Math.floor(__animTime * fps) % anim.numFrames;
+				var frameToGet = frameTime % anim.numFrames;
 				frame = frames.frames[anim.frames[frameToGet]];
 
-				var offsetX = (xOffset.exists(letter) ? xOffset.get(letter) : 0) + __renderData.offsetX;
-				var offsetY = frame.sourceSize.y - lineGap + (yOffset.exists(letter) ? yOffset.get(letter) : 0) + __renderData.offsetY;
+				var offsetX = data.x + __renderData.offsetX;
+				var offsetY = frame.sourceSize.y - lineGap + data.y + __renderData.offsetY;
 				frameOffset.x += offsetX;
 				frameOffset.y += offsetY;
 				if (!isOnScreen(camera)) {
@@ -194,12 +215,12 @@ class NewAlphabet extends FlxSprite {
 				frameOffset.x -= advance;
 			}
 		}
-		
+
 		setColorTransform(ogRed, ogGreen, ogBlue, ogAlpha, 0, 0, 0, 0);
 		frameOffset.set(ogOffX, ogOffY);
 	}
 
-	override function updateHitbox() {
+	override function updateHitbox():Void {
 		width = Math.abs(scale.x) * textWidth;
 		height = Math.abs(scale.y) * textHeight;
 		offset.set(-0.5 * (width - textWidth), -0.5 * (height - textHeight));
@@ -226,50 +247,61 @@ class NewAlphabet extends FlxSprite {
 				continue;
 			}
 
-			__laneWidths[curLine] += getAdvance(letter);
+			var data = getData(letter);
+			__laneWidths[curLine] += getAdvance(letter, getLetterAnim(letter, data), data);
 			@:bypassAccessor textWidth = Math.max(textWidth, __laneWidths[curLine]);
 		}
 
 		origin.set(textWidth * 0.5 + originOffset.x, textHeight * 0.5 + originOffset.y);
 	}
 
-	function getAdvance(letter:String, ?anim:FlxAnimation):Float {
-		var advance:Null<Float> = defaultAdvance;
-		if(advances.exists(letter)) {
-			advance = advances.get(letter);
-		} else {
-			var anim = anim != null ? anim : getLetterAnim(letter);
-			if(anim != null)
-				advance = frames.frames[anim.frames[0]].sourceSize.x;
-			advances.set(letter, advance);
+	function getAdvance(letter:String, anim:FlxAnimation, ?data:AlphabetLetterData):Float {
+		// we should calculate this in checkNode
+		if (anim == null)
+			return defaultAdvance;
+		// t
+		if(data != null) {
+			if (data.advance != null)
+				return data.advance;
+			return data.advance = frames.frames[anim.frames[0]].sourceSize.x;
 		}
-		return advance;
+		return defaultAdvance;
 	}
 
-	function getLetterAnim(char:String):FlxAnimation {
+	function getData(char:String):AlphabetLetterData {
 		if (failedLetters.contains(char)) return null;
-		if (animation.exists(char)) return animation.getByName(char);
-
-		var charCode:Int = char.charCodeAt(0);
-
-		var anim:String = null;
-		if (anims.exists(char))
-			anim = anims.get(char);
-
-		if (anim == null) {
-			if (charCode >= 'A'.code && charCode <= 'A'.code && defaults.exists("UPPER"))
-				anim = defaults.get("UPPER").replace("LETTER", char);
-			else if (charCode >= 'a'.code && charCode <= 'z'.code && defaults.exists("LOWER"))
-				anim = defaults.get("LOWER").replace("LETTER", char);
-			else
-				anim = defaults.get("<NORMAL>").replace("LETTER", char);
+		for (i in 0...3) { // this feels wrong
+			if (loaded[i].contains(char))
+				return defaults[i];
 		}
 
-		if(anim == null) {
+		var data:AlphabetLetterData = null;
+		if (letterData.exists(char))
+			data = letterData.get(char);
+
+		if (data == null) {
+			var charCode:Int = char.charCodeAt(0);
+			if (charCode >= 'A'.code && charCode <= 'Z'.code && defaults[CaseMode.UPPER] != null)
+				data = defaults[CaseMode.UPPER];
+			else if (charCode >= 'a'.code && charCode <= 'z'.code && defaults[CaseMode.LOWER] != null)
+				data = defaults[CaseMode.LOWER];
+			else
+				data = defaults[CaseMode.NONE];
+		}
+
+		if(data == null) {
 			failedLetters.push(char);
 			return null;
-		}
+		} else if (data.isDefault)
+			loaded[defaults.indexOf(data)].push(char);
+		return data;
+	}
 
+	function getLetterAnim(char:String, data:AlphabetLetterData):FlxAnimation {
+		if (data == null) return null;
+		if (animation.exists(char)) return animation.getByName(char);
+
+		var anim = (data.isDefault) ? data.anim.replace("LETTER", char) : data.anim;
 		animation.addByPrefix(char, anim, fps);
 		if (!animation.exists(char)) {
 			failedLetters.push(char);
@@ -278,7 +310,7 @@ class NewAlphabet extends FlxSprite {
 		return animation.getByName(char);
 	}
 
-	function checkNode(node:Xml) {
+	function checkNode(node:Xml):Void {
 		switch (node.nodeName) {
 			case "spritesheet":
 				if (frames == null)
@@ -288,25 +320,65 @@ class NewAlphabet extends FlxSprite {
 						frames.pushFrame(frame);
 				}
 			case "defaultAnim":
-				defaults.set(node.get("casing").getDefault("<NORMAL>").toUpperCase(), node.firstChild().nodeValue);
+				var idx = ["UPPER", "LOWER"].indexOf(node.get("casing").toUpperCase()) + 1;
+
+				var angle:Float = Std.parseFloat(node.get("angle")).getDefault(0.0);
+				var angleCos = Math.cos(angle);
+				var angleSin = Math.sin(angle);
+
+				defaults[idx] = {
+					isDefault: true,
+					anim: node.firstChild().nodeValue,
+
+					x: 0.0,
+					y: 0.0,
+					advance: defaultAdvance,
+
+					scaleX: Std.parseFloat(node.get("scaleX")).getDefault(1.0),
+					scaleY: Std.parseFloat(node.get("scaleY")).getDefault(1.0),
+
+					cos: angleCos,
+					sin: angleSin,
+
+					components: null
+				};
 			case "anim":
+				if(!node.exists("char")) throw "[Alphabet] <anim> must have a char attribute";
 				var char = node.get("char");
-				anims.set(char, node.firstChild().nodeValue);
-				if (node.exists("advance")) {
-					var advance = Std.parseFloat(node.get("advance")).getDefault(defaultAdvance);
-					advances.set(char, advance);
-				}
-				if (node.exists("x")) {
-					// negative since flixel is weird
-					var xOff = -Std.parseFloat(node.get("x")).getDefault(0.0);
-					xOffset.set(char, xOff);
-				}
-				if (node.exists("y")) {
-					var yOff = Std.parseFloat(node.get("y")).getDefault(0.0);
-					yOffset.set(char, yOff);
-				}
-			case "languageSection":
+
+				var angle:Float = Std.parseFloat(node.get("angle")).getDefault(0.0);
+				var angleCos = Math.cos(angle);
+				var angleSin = Math.sin(angle);
+
+				var xOff:Float = -Std.parseFloat(node.get("x")).getDefault(0.0);
+				var yOff:Float = Std.parseFloat(node.get("y")).getDefault(0.0);
+				var advance:Null<Float> = (node.exists("advance")) ? {
+					var _:Null<Float> = Std.parseFloat(node.get("advance"));
+					if(CoolUtil.isNaN(_))
+						_ = null;
+					_;
+				} : null;
+
+				letterData.set(char, {
+					isDefault: false,
+					anim: node.firstChild().nodeValue,
+
+					x: xOff,
+					y: yOff,
+					advance: advance,
+
+					scaleX: Std.parseFloat(node.get("scaleX")).getDefault(1.0),
+					scaleY: Std.parseFloat(node.get("scaleY")).getDefault(1.0),
+
+					cos: angleCos,
+					sin: angleSin,
+
+					components: null
+				});
+			case "languageSection": // used to only parse characters if a specific language is selected
+				if(!node.exists("langs")) throw "[Alphabet] <languageSection> must have a langs attribute";
 				var langs = [for (lang in node.get("langs").split(",")) lang.trim()];
+				// maybe add a way to toggle this off? like force it to add all
 				if (langs.contains(Options.language)) {
 					for (langNode in node.elements())
 						checkNode(langNode);
@@ -314,17 +386,15 @@ class NewAlphabet extends FlxSprite {
 		}
 	}
 
-	function loadFont(value:String) {
+	function loadFont(value:String):Void {
 		__queueResize = true;
 
 		var xml:Xml = Xml.parse(Assets.getText(Paths.xml("alphabet/" + value))).firstElement();
 
 		// reset old values
-		defaults = new Map();
-		anims = new Map();
-		advances = new Map();
-		xOffset = new Map();
-		yOffset = new Map();
+		letterData = new Map();
+		defaults = [null, null, null];
+		loaded = [[], [], []];
 		failedLetters = [];
 
 		defaultAdvance = Std.parseFloat(xml.get("advance")).getDefault(40.0);
@@ -339,7 +409,7 @@ class NewAlphabet extends FlxSprite {
 			checkNode(node);
 	}
 
-	override function destroy() {
+	override function destroy():Void {
 		originOffset = FlxDestroyUtil.destroy(originOffset);
 		failedLetters = [];
 		super.destroy();

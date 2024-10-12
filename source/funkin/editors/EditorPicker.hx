@@ -81,9 +81,7 @@ class EditorPicker extends MusicBeatSubstate {
 
 		optionHeight = FlxG.height / options.length;
 		for(k=>o in options) {
-			var id = o.id + ".name";
-			var visualName = TU.translate(id);
-			if(o.id == null) visualName = o.name;
+			var visualName = (o.id != null) ? TU.translate(o.id + ".name") : o.name;
 			var spr = new EditorPickerOption(visualName, o.iconID, optionHeight);
 			spr.y = k * optionHeight;
 			add(spr);

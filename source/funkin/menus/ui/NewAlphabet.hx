@@ -18,7 +18,8 @@ class AlphabetLetterData {
 	public var anim:String; // should this be FlxAnimation?
 	public var x:Float;
 	public var y:Float;
-	public var advance:Null<Float>;
+	public var advance:Float;
+	public var advanceEmpty:Bool;
 	// Precalculated values for angle
 	public var sin:Float;
 	public var cos:Float;
@@ -256,16 +257,14 @@ class NewAlphabet extends FlxSprite {
 	}
 
 	function getAdvance(letter:String, anim:FlxAnimation, ?data:AlphabetLetterData):Float {
-		// we should calculate this in checkNode
 		if (anim == null)
 			return defaultAdvance;
-		// t
-		if(data != null) {
-			if (data.advance != null)
-				return data.advance;
-			return data.advance = frames.frames[anim.frames[0]].sourceSize.x;
+
+		if (data.advanceEmpty && !data.isDefault) {
+			data.advanceEmpty = false;
+			data.advance = frames.frames[anim.frames[0]].sourceSize.x;
 		}
-		return defaultAdvance;
+		return (data.isDefault) ? frames.frames[anim.frames[0]].sourceSize.x : data.advance;
 	}
 
 	function getData(char:String):AlphabetLetterData {
@@ -332,7 +331,8 @@ class NewAlphabet extends FlxSprite {
 
 					x: 0.0,
 					y: 0.0,
-					advance: defaultAdvance,
+					advance: 0.0,
+					advanceEmpty: true,
 
 					scaleX: Std.parseFloat(node.get("scaleX")).getDefault(1.0),
 					scaleY: Std.parseFloat(node.get("scaleY")).getDefault(1.0),
@@ -352,12 +352,7 @@ class NewAlphabet extends FlxSprite {
 
 				var xOff:Float = -Std.parseFloat(node.get("x")).getDefault(0.0);
 				var yOff:Float = Std.parseFloat(node.get("y")).getDefault(0.0);
-				var advance:Null<Float> = (node.exists("advance")) ? {
-					var _:Null<Float> = Std.parseFloat(node.get("advance"));
-					if(CoolUtil.isNaN(_))
-						_ = null;
-					_;
-				} : null;
+				var advance:Float = Std.parseFloat(node.get("advance"));
 
 				letterData.set(char, {
 					isDefault: false,
@@ -366,6 +361,7 @@ class NewAlphabet extends FlxSprite {
 					x: xOff,
 					y: yOff,
 					advance: advance,
+					advanceEmpty: Math.isNaN(advance),
 
 					scaleX: Std.parseFloat(node.get("scaleX")).getDefault(1.0),
 					scaleY: Std.parseFloat(node.get("scaleY")).getDefault(1.0),

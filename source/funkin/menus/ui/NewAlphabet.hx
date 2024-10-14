@@ -13,24 +13,25 @@ using StringTools;
 using flixel.util.FlxColorTransformUtil;
 
 @:structInit
-class AlphabetLetterData {
-	@:optional public var isDefault:Bool = false;
-	public var anim:String; // should this be FlxAnimation?
+class AlphabetComponent {
+	public var anim:String;
 	public var x:Float;
 	public var y:Float;
-	public var advance:Float;
-	public var advanceEmpty:Bool;
+
 	// Precalculated values for angle
 	public var sin:Float;
 	public var cos:Float;
 	public var scaleX:Float;
 	public var scaleY:Float;
-
-	// If null, render spooping as usual I see
-	public var components:Array<AlphabetLetterData>; // components with components lol
 }
 
-// we also need to store components somehow
+@:structInit
+class AlphabetLetterData {
+	@:optional public var isDefault:Bool = false;
+	public var advance:Float;
+	public var advanceEmpty:Bool;
+	public var components:Array<AlphabetComponent>;
+}
 
 enum abstract AlphabetAlignment(ByteUInt) from ByteUInt to ByteUInt {
 	var LEFT;
@@ -184,24 +185,34 @@ class NewAlphabet extends FlxSprite {
 			}
 
 			var data = getData(letter);
-			var anim = getLetterAnim(letter, data);
-			var advance:Float = getAdvance(letter, anim, data);
+			var advance:Float = Math.NaN;
 
-			if (anim == null || __renderData.alpha <= 0.0) {
-				frameOffset.x -= advance;
-			} else {
+			if (data == null) {
+				frameOffset.x -= defaultAdvance;
+				continue;
+			}
+
+			for (i => com in data.components) {
+				var anim = getLetterAnim(letter, data, com, i);
+				advance = (Math.isNaN(advance)) ? getAdvance(letter, anim, data) : advance;
+
+				if (anim == null || __renderData.alpha <= 0.0) {
+					frameOffset.x -= advance;
+					break;
+				}
+
 				var frameToGet = frameTime % anim.numFrames;
 				frame = frames.frames[anim.frames[frameToGet]];
 
-				var offsetX = data.x + __renderData.offsetX;
-				var offsetY = frame.sourceSize.y - lineGap + data.y + __renderData.offsetY;
+				var offsetX = com.x + __renderData.offsetX;
+				var offsetY = frame.sourceSize.y - lineGap + com.y + __renderData.offsetY;
 				frameOffset.x += offsetX;
 				frameOffset.y += offsetY;
 				if (!isOnScreen(camera)) {
 					frameOffset.y -= offsetY;
 					frameOffset.x -= offsetX;
 					frameOffset.x -= advance;
-					continue;
+					break;
 				}
 				if (isGraphicsShader)
 					shader.setCamSize(_frame.frame.x, _frame.frame.y, _frame.frame.width, _frame.frame.height);
@@ -249,7 +260,7 @@ class NewAlphabet extends FlxSprite {
 			}
 
 			var data = getData(letter);
-			__laneWidths[curLine] += getAdvance(letter, getLetterAnim(letter, data), data);
+			__laneWidths[curLine] += (data != null) ? getAdvance(letter, getLetterAnim(letter, data, data.components[0], 0), data) : defaultAdvance;
 			@:bypassAccessor textWidth = Math.max(textWidth, __laneWidths[curLine]);
 		}
 
@@ -296,17 +307,18 @@ class NewAlphabet extends FlxSprite {
 		return data;
 	}
 
-	function getLetterAnim(char:String, data:AlphabetLetterData):FlxAnimation {
+	function getLetterAnim(char:String, data:AlphabetLetterData, component:AlphabetComponent, index:Int):FlxAnimation {
 		if (data == null) return null;
-		if (animation.exists(char)) return animation.getByName(char);
+		var name = char + Std.string(index);
+		if (animation.exists(name)) return animation.getByName(name);
 
-		var anim = (data.isDefault) ? data.anim.replace("LETTER", char) : data.anim;
-		animation.addByPrefix(char, anim, fps);
-		if (!animation.exists(char)) {
+		var anim = (data.isDefault) ? component.anim.replace("LETTER", char) : component.anim;
+		animation.addByPrefix(name, anim, fps);
+		if (!animation.exists(name)) {
 			failedLetters.push(char);
 			return null;
 		}
-		return animation.getByName(char);
+		return animation.getByName(name);
 	}
 
 	function checkNode(node:Xml):Void {
@@ -327,23 +339,64 @@ class NewAlphabet extends FlxSprite {
 
 				defaults[idx] = {
 					isDefault: true,
-					anim: node.firstChild().nodeValue,
-
-					x: 0.0,
-					y: 0.0,
 					advance: 0.0,
 					advanceEmpty: true,
+					components: [{
+						anim: node.firstChild().nodeValue,
 
-					scaleX: Std.parseFloat(node.get("scaleX")).getDefault(1.0),
-					scaleY: Std.parseFloat(node.get("scaleY")).getDefault(1.0),
-
-					cos: angleCos,
-					sin: angleSin,
-
-					components: null
+						x: 0.0,
+						y: 0.0,
+						scaleX: Std.parseFloat(node.get("scaleX")).getDefault(1.0),
+						scaleY: Std.parseFloat(node.get("scaleY")).getDefault(1.0),
+	
+						cos: angleCos,
+						sin: angleSin
+					}]
 				};
+			case "composite":
+				if(!node.exists("char")) {
+					Log.error("<composite> must have a char attribute", "Alphabet");
+					return;
+				}
+				var char = node.get("char");
+				var advance:Float = Std.parseFloat(node.get("advance"));
+				var components:Array<AlphabetComponent> = [];
+				for (component in node.elementsNamed("component")) {
+					if(!component.exists("anim")) {
+						Log.error("<component> must have a anim attribute", "Alphabet");
+						return;
+					}
+
+					var angle:Float = Std.parseFloat(component.get("angle")).getDefault(0.0);
+					var angleCos = Math.cos(angle);
+					var angleSin = Math.sin(angle);
+	
+					var xOff:Float = -Std.parseFloat(component.get("x")).getDefault(0.0);
+					var yOff:Float = Std.parseFloat(component.get("y")).getDefault(0.0);
+
+					components.push({
+						anim: component.get("anim"),
+
+						x: xOff,
+						y: yOff,
+						scaleX: Std.parseFloat(component.get("scaleX")).getDefault(1.0),
+						scaleY: Std.parseFloat(component.get("scaleY")).getDefault(1.0),
+	
+						cos: angleCos,
+						sin: angleSin
+					});
+				}
+				letterData.set(char, {
+					isDefault: false,
+					advance: advance,
+					advanceEmpty: Math.isNaN(advance),
+					components: components
+				});
 			case "anim":
-				if(!node.exists("char")) throw "[Alphabet] <anim> must have a char attribute";
+				if(!node.exists("char")) {
+					Log.error("<anim> must have a char attribute", "Alphabet");
+					return;
+				}
 				var char = node.get("char");
 
 				var angle:Float = Std.parseFloat(node.get("angle")).getDefault(0.0);
@@ -356,20 +409,19 @@ class NewAlphabet extends FlxSprite {
 
 				letterData.set(char, {
 					isDefault: false,
-					anim: node.firstChild().nodeValue,
-
-					x: xOff,
-					y: yOff,
 					advance: advance,
 					advanceEmpty: Math.isNaN(advance),
+					components: [{
+						anim: node.firstChild().nodeValue,
 
-					scaleX: Std.parseFloat(node.get("scaleX")).getDefault(1.0),
-					scaleY: Std.parseFloat(node.get("scaleY")).getDefault(1.0),
-
-					cos: angleCos,
-					sin: angleSin,
-
-					components: null
+						x: xOff,
+						y: yOff,
+						scaleX: Std.parseFloat(node.get("scaleX")).getDefault(1.0),
+						scaleY: Std.parseFloat(node.get("scaleY")).getDefault(1.0),
+	
+						cos: angleCos,
+						sin: angleSin
+					}]
 				});
 			case "languageSection": // used to only parse characters if a specific language is selected
 				if(!node.exists("langs")) throw "[Alphabet] <languageSection> must have a langs attribute";

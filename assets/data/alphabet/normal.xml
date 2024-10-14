@@ -14,6 +14,7 @@
 	<anim char="↓" y="5">down arrow</anim>
 	<anim char="↑" y="4">up arrow</anim>
 	<anim char="," y="-9">comma</anim>
+	<anim char="'" y="28">comma</anim>
 	<anim char=".">period</anim>
 	<anim char="?">question mark</anim>
 	<anim char="&#34;" y="22">start parentheses</anim>

@@ -1,5 +1,6 @@
 package funkin.menus.ui;
 
+import haxe.ds.Vector;
 import funkin.menus.ui.effects.RegionEffect;
 
 import flixel.animation.FlxAnimation;
@@ -13,8 +14,22 @@ using StringTools;
 using flixel.util.FlxColorTransformUtil;
 
 @:structInit
-class AlphabetComponent {
+final class AlphabetOutline {
 	public var anim:String;
+	public var x:Float;
+	public var y:Float;
+}
+
+@:structInit
+final class AlphabetComponentData {
+	public var anim:String;
+
+	@:optional public var outline:AlphabetOutline;
+}
+
+@:structInit
+final class AlphabetComponent {
+	public var data:AlphabetComponentData;
 	public var x:Float;
 	public var y:Float;
 
@@ -26,7 +41,7 @@ class AlphabetComponent {
 }
 
 @:structInit
-class AlphabetLetterData {
+final class AlphabetLetterData {
 	@:optional public var isDefault:Bool = false;
 	public var advance:Float;
 	public var advanceEmpty:Bool;
@@ -91,13 +106,26 @@ class NewAlphabet extends FlxSprite {
 	public var originOffset:FlxPoint = FlxPoint.get();
 
 	public var font(default, set):String;
-	var transformMult:Int = 1; // 1 if multipliers (tint), 0 if offset.
+	var transformMult:ByteUInt = 1; // 1 if multipliers (tint), 0 if offset.
 	var defaultAdvance:Float = 40.0;
 	var lineGap:Float = 75.0;
 	var fps:Float = 24.0;
 	var letterData:Map<String, AlphabetLetterData> = [];
-	var defaults:Array<AlphabetLetterData> = [null, null, null];
-	var loaded:Array<Array<String>> = [[], [], []];
+	var allComponents:Map<String, AlphabetComponentData> = [];
+	var defaults:Vector<AlphabetLetterData> = {
+		var v = new Vector(3);
+		v[0] = null;
+		v[1] = null;
+		v[2] = null;
+		v;
+	};
+	var loaded:Vector<Array<String>> = {
+		var v = new Vector(3);
+		v[0] = [];
+		v[1] = [];
+		v[2] = [];
+		v;
+	};
 	var failedLetters:Array<String> = [];
 
 	public function new(?x:Float, ?y:Float, ?font:String = "bold") {
@@ -185,12 +213,13 @@ class NewAlphabet extends FlxSprite {
 			}
 
 			var data = getData(letter);
-			var advance:Float = Math.NaN;
 
 			if (data == null) {
 				frameOffset.x -= defaultAdvance;
 				continue;
 			}
+
+			var advance:Float = Math.NaN;
 
 			for (i => com in data.components) {
 				var anim = getLetterAnim(letter, data, com, i);
@@ -198,7 +227,7 @@ class NewAlphabet extends FlxSprite {
 
 				if (anim == null || __renderData.alpha <= 0.0) {
 					frameOffset.x -= advance;
-					break;
+					break; // shouldnt this be like continue?
 				}
 
 				var frameToGet = frameTime % anim.numFrames;
@@ -210,8 +239,7 @@ class NewAlphabet extends FlxSprite {
 				frameOffset.y += offsetY;
 				if (!isOnScreen(camera)) {
 					frameOffset.y -= offsetY;
-					frameOffset.x -= offsetX;
-					frameOffset.x -= advance;
+					frameOffset.x -= offsetX + advance;
 					break;
 				}
 				if (isGraphicsShader)
@@ -223,8 +251,7 @@ class NewAlphabet extends FlxSprite {
 				);
 				super.drawComplex(camera);
 				frameOffset.y -= offsetY;
-				frameOffset.x -= offsetX;
-				frameOffset.x -= advance;
+				frameOffset.x -= offsetX + advance;
 			}
 		}
 
@@ -267,7 +294,7 @@ class NewAlphabet extends FlxSprite {
 		origin.set(textWidth * 0.5 + originOffset.x, textHeight * 0.5 + originOffset.y);
 	}
 
-	function getAdvance(letter:String, anim:FlxAnimation, ?data:AlphabetLetterData):Float {
+	function getAdvance(letter:String, anim:FlxAnimation, data:AlphabetLetterData):Float {
 		if (anim == null)
 			return defaultAdvance;
 
@@ -303,8 +330,17 @@ class NewAlphabet extends FlxSprite {
 			failedLetters.push(char);
 			return null;
 		} else if (data.isDefault)
-			loaded[defaults.indexOf(data)].push(char);
+			loaded[defaultsIndexOf(data)].push(char);
 		return data;
+	}
+
+	final function defaultsIndexOf(data:AlphabetLetterData):Int {
+		//while(i < defaults.length) {
+		for(i in 0...3) {
+			if(defaults[i] == data)
+				return i;
+		}
+		return -1;
 	}
 
 	function getLetterAnim(char:String, data:AlphabetLetterData, component:AlphabetComponent, index:Int):FlxAnimation {
@@ -312,7 +348,9 @@ class NewAlphabet extends FlxSprite {
 		var name = char + Std.string(index);
 		if (animation.exists(name)) return animation.getByName(name);
 
-		var anim = (data.isDefault) ? component.anim.replace("LETTER", char) : component.anim;
+		var anim = (data.isDefault) ?
+			component.data.anim.replace("LETTER", char) :
+			component.data.anim;
 		animation.addByPrefix(name, anim, fps);
 		if (!animation.exists(name)) {
 			failedLetters.push(char);
@@ -333,55 +371,94 @@ class NewAlphabet extends FlxSprite {
 			case "defaultAnim":
 				var idx = ["UPPER", "LOWER"].indexOf(node.get("casing").toUpperCase()) + 1;
 
-				var angle:Float = Std.parseFloat(node.get("angle")).getDefault(0.0);
+				var angle:Float = Std.parseFloat(node.get("angle")).getDefaultFloat(0.0);
 				var angleCos = Math.cos(angle);
 				var angleSin = Math.sin(angle);
 
-				defaults[idx] = {
+				// register character as component
+				allComponents.set("DEFAULT_" + idx, {
+					anim: node.firstChild().nodeValue.trim(),
+					outline: null
+				});
+
+				var res:AlphabetLetterData = {
 					isDefault: true,
 					advance: 0.0,
 					advanceEmpty: true,
 					components: [{
-						anim: node.firstChild().nodeValue,
+						data: allComponents.get("DEFAULT_" + idx),
 
 						x: 0.0,
 						y: 0.0,
-						scaleX: Std.parseFloat(node.get("scaleX")).getDefault(1.0),
-						scaleY: Std.parseFloat(node.get("scaleY")).getDefault(1.0),
-	
+						scaleX: Std.parseFloat(node.get("scaleX")).getDefaultFloat(1.0),
+						scaleY: Std.parseFloat(node.get("scaleY")).getDefaultFloat(1.0),
+
 						cos: angleCos,
 						sin: angleSin
 					}]
-				};
+				}
+
+				defaults[idx] = res;
+			case "component-data":
+				if(!node.exists("id")) {
+					Logs.error("<component-data> must have an id attribute", "Alphabet");
+					return;
+				}
+
+				var id = node.get("id");
+				var anim = node.firstChild().nodeValue.trim();
+				var outline:AlphabetOutline = null;
+				if(node.firstElement() != null) {
+					var outlineNode = node.firstElement();
+					switch(outlineNode.nodeName) {
+						case "outline":
+							outline = {
+								anim: outlineNode.firstChild().nodeValue.trim(),
+								x: Std.parseFloat(outlineNode.get("x")).getDefaultFloat(0.0),
+								y: Std.parseFloat(outlineNode.get("y")).getDefaultFloat(0.0)
+							};
+					}
+				}
+
+				allComponents.set(id, {
+					anim: anim,
+					outline: outline
+				});
 			case "composite":
 				if(!node.exists("char")) {
-					Log.error("<composite> must have a char attribute", "Alphabet");
+					Logs.error("<composite> must have a char attribute", "Alphabet");
 					return;
 				}
 				var char = node.get("char");
 				var advance:Float = Std.parseFloat(node.get("advance"));
 				var components:Array<AlphabetComponent> = [];
 				for (component in node.elementsNamed("component")) {
-					if(!component.exists("anim")) {
-						Log.error("<component> must have a anim attribute", "Alphabet");
+					if(!component.exists("id")) {
+						Logs.error("<component> must have a id attribute", "Alphabet");
 						return;
 					}
 
-					var angle:Float = Std.parseFloat(component.get("angle")).getDefault(0.0);
+					var angle:Float = Std.parseFloat(component.get("angle")).getDefaultFloat(0.0);
 					var angleCos = Math.cos(angle);
 					var angleSin = Math.sin(angle);
-	
-					var xOff:Float = -Std.parseFloat(component.get("x")).getDefault(0.0);
-					var yOff:Float = Std.parseFloat(component.get("y")).getDefault(0.0);
+
+					var xOff:Float = -Std.parseFloat(component.get("x")).getDefaultFloat(0.0);
+					var yOff:Float = Std.parseFloat(component.get("y")).getDefaultFloat(0.0);
+
+					var componentId = component.get("id").trim();
+					if(!allComponents.exists(componentId)) {
+						Logs.error("Component with id '" + componentId + "' does not exist", "Alphabet");
+						return;
+					}
 
 					components.push({
-						anim: component.get("anim"),
+						data: allComponents.get(componentId),
 
 						x: xOff,
 						y: yOff,
-						scaleX: Std.parseFloat(component.get("scaleX")).getDefault(1.0),
-						scaleY: Std.parseFloat(component.get("scaleY")).getDefault(1.0),
-	
+						scaleX: Std.parseFloat(component.get("scaleX")).getDefaultFloat(1.0),
+						scaleY: Std.parseFloat(component.get("scaleY")).getDefaultFloat(1.0),
+
 						cos: angleCos,
 						sin: angleSin
 					});
@@ -394,37 +471,46 @@ class NewAlphabet extends FlxSprite {
 				});
 			case "anim":
 				if(!node.exists("char")) {
-					Log.error("<anim> must have a char attribute", "Alphabet");
+					Logs.error("<anim> must have a char attribute", "Alphabet");
 					return;
 				}
 				var char = node.get("char");
 
-				var angle:Float = Std.parseFloat(node.get("angle")).getDefault(0.0);
+				var angle:Float = Std.parseFloat(node.get("angle")).getDefaultFloat(0.0);
 				var angleCos = Math.cos(angle);
 				var angleSin = Math.sin(angle);
 
-				var xOff:Float = -Std.parseFloat(node.get("x")).getDefault(0.0);
-				var yOff:Float = Std.parseFloat(node.get("y")).getDefault(0.0);
+				var xOff:Float = -Std.parseFloat(node.get("x")).getDefaultFloat(0.0);
+				var yOff:Float = Std.parseFloat(node.get("y")).getDefaultFloat(0.0);
 				var advance:Float = Std.parseFloat(node.get("advance"));
+
+				// register character as component
+				allComponents.set(char, {
+					anim: node.firstChild().nodeValue,
+					outline: null
+				});
 
 				letterData.set(char, {
 					isDefault: false,
 					advance: advance,
 					advanceEmpty: Math.isNaN(advance),
 					components: [{
-						anim: node.firstChild().nodeValue,
+						data: allComponents.get(char),
 
 						x: xOff,
 						y: yOff,
-						scaleX: Std.parseFloat(node.get("scaleX")).getDefault(1.0),
-						scaleY: Std.parseFloat(node.get("scaleY")).getDefault(1.0),
-	
+						scaleX: Std.parseFloat(node.get("scaleX")).getDefaultFloat(1.0),
+						scaleY: Std.parseFloat(node.get("scaleY")).getDefaultFloat(1.0),
+
 						cos: angleCos,
 						sin: angleSin
 					}]
 				});
 			case "languageSection": // used to only parse characters if a specific language is selected
-				if(!node.exists("langs")) throw "[Alphabet] <languageSection> must have a langs attribute";
+				if(!node.exists("langs")) {
+					Logs.error("<languageSection> must have a langs attribute", "Alphabet");
+					return;
+				}
 				var langs = [for (lang in node.get("langs").split(",")) lang.trim()];
 				// maybe add a way to toggle this off? like force it to add all
 				if (langs.contains(Options.language)) {
@@ -441,13 +527,25 @@ class NewAlphabet extends FlxSprite {
 
 		// reset old values
 		letterData = new Map();
-		defaults = [null, null, null];
-		loaded = [[], [], []];
+		defaults = {
+			var v = new Vector(3);
+			v[0] = null;
+			v[1] = null;
+			v[2] = null;
+			v;
+		}
+		loaded = {
+			var v = new Vector(3);
+			v[0] = [];
+			v[1] = [];
+			v[2] = [];
+			v;
+		}
 		failedLetters = [];
 
-		defaultAdvance = Std.parseFloat(xml.get("advance")).getDefault(40.0);
-		lineGap = Std.parseFloat(xml.get("lineGap")).getDefault(75.0);
-		fps = Std.parseFloat(xml.get("fps")).getDefault(24.0);
+		defaultAdvance = Std.parseFloat(xml.get("advance")).getDefaultFloat(40.0);
+		lineGap = Std.parseFloat(xml.get("lineGap")).getDefaultFloat(75.0);
+		fps = Std.parseFloat(xml.get("fps")).getDefaultFloat(24.0);
 		forceCase = xml.get("forceCasing").getDefault("none").toLowerCase();
 		transformMult = (xml.get("useColorOffsets") == "true") ? 0 : 1;
 

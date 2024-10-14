@@ -67,6 +67,16 @@ class CoolUtil
 	}
 
 	/**
+	 * For use when using Std.parseFloat, if not using that then use `getDefault`.
+	 * @param v The value
+	 * @param defaultValue The default value
+	 * @return The return value
+	 */
+	public static inline function getDefaultFloat(v:Float, defaultValue:Float):Float {
+		return (Math.isNaN(v)) ? defaultValue : v;
+	}
+
+	/**
 	 * Applies the % operator, but without any negatives.
 	 * 
 	 * @param dividend The intial value. The left side of the equation.

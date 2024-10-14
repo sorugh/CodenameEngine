@@ -351,7 +351,7 @@ class CharacterAnimButton extends UIButton {
 		}
 	}
 
-	public inline function refreshSymbolKeyFrames(symbol:/*SymbolStuff*/Dynamic, animData:AnimData) @:privateAccess {
+	public inline function refreshSymbolKeyFrames(symbol:FlxSymbolAnimation, animData:AnimData) @:privateAccess {
 		if (animData.indices.length > 0) {
 			// keeps on crashing, look at flxanimate FlxAnim.hx for refrence
 		} else {

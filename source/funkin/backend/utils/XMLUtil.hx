@@ -143,10 +143,10 @@ class XMLUtil {
 		if (node.has.updateHitbox && node.att.updateHitbox == "true") spr.updateHitbox();
 
 		if (node.has.zoomfactor)
-			spr.zoomFactor = Std.parseFloat(node.getAtt("zoomfactor")).getDefault(spr.zoomFactor);
+			spr.zoomFactor = Std.parseFloat(node.getAtt("zoomfactor")).getDefaultFloat(spr.zoomFactor);
 
 		if (node.has.alpha)
-			spr.alpha = Std.parseFloat(node.getAtt("alpha")).getDefault(spr.alpha);
+			spr.alpha = Std.parseFloat(node.getAtt("alpha")).getDefaultFloat(spr.alpha);
 
 		if(node.has.color)
 			spr.color = FlxColor.fromString(node.getAtt("color")).getDefault(0xFFFFFFFF);
@@ -203,9 +203,9 @@ class XMLUtil {
 		if (anim.has.name) animData.name = anim.att.name;
 		if (anim.has.type) animData.animType = XMLAnimType.fromString(anim.att.type, animData.animType);
 		if (anim.has.anim) animData.anim = anim.att.anim;
-		if (anim.has.fps) animData.fps = Std.parseFloat(anim.att.fps).getDefault(animData.fps);
-		if (anim.has.x) animData.x = Std.parseFloat(anim.att.x).getDefault(animData.x);
-		if (anim.has.y) animData.y = Std.parseFloat(anim.att.y).getDefault(animData.y);
+		if (anim.has.fps) animData.fps = Std.parseFloat(anim.att.fps).getDefaultFloat(animData.fps);
+		if (anim.has.x) animData.x = Std.parseFloat(anim.att.x).getDefaultFloat(animData.x);
+		if (anim.has.y) animData.y = Std.parseFloat(anim.att.y).getDefaultFloat(animData.y);
 		if (anim.has.loop) animData.loop = anim.att.loop == "true";
 		if (anim.has.forced) animData.forced = anim.att.forced == "true";
 		if (anim.has.indices) animData.indices = CoolUtil.parseNumberRange(anim.att.indices);

@@ -90,8 +90,8 @@ class Stage extends FlxBasic implements IBeatReceiver {
 						if (!node.has.name || !node.has.width || !node.has.height) continue;
 
 						var spr = new FlxSprite(
-							(node.has.x) ? Std.parseFloat(node.att.x).getDefault(0) : 0,
-							(node.has.y) ? Std.parseFloat(node.att.y).getDefault(0) : 0
+							(node.has.x) ? Std.parseFloat(node.att.x).getDefaultFloat(0) : 0,
+							(node.has.y) ? Std.parseFloat(node.att.y).getDefaultFloat(0) : 0
 						);
 
 						(node.name == "solid" ? spr.makeSolid : spr.makeGraphic)(
@@ -130,8 +130,8 @@ class Stage extends FlxBasic implements IBeatReceiver {
 					case "ratings" | "combo":
 						if (PlayState.instance == null) continue;
 						PlayState.instance.comboGroup.setPosition(
-							Std.parseFloat(node.getAtt("x")).getDefault(PlayState.instance.comboGroup.x),
-							Std.parseFloat(node.getAtt("y")).getDefault(PlayState.instance.comboGroup.y)
+							Std.parseFloat(node.getAtt("x")).getDefaultFloat(PlayState.instance.comboGroup.x),
+							Std.parseFloat(node.getAtt("y")).getDefaultFloat(PlayState.instance.comboGroup.y)
 						);
 						PlayState.instance.add(PlayState.instance.comboGroup);
 						PlayState.instance.comboGroup;
@@ -219,16 +219,16 @@ class Stage extends FlxBasic implements IBeatReceiver {
 		}
 
 		if (node != null) {
-			charPos.x = Std.parseFloat(node.getAtt("x")).getDefault(charPos.x);
-			charPos.y = Std.parseFloat(node.getAtt("y")).getDefault(charPos.y);
-			charPos.camxoffset = Std.parseFloat(node.getAtt("camxoffset")).getDefault(charPos.camxoffset);
-			charPos.camyoffset = Std.parseFloat(node.getAtt("camyoffset")).getDefault(charPos.camyoffset);
-			charPos.skewX = Std.parseFloat(node.getAtt("skewx")).getDefault(charPos.skewX);
-			charPos.skewY = Std.parseFloat(node.getAtt("skewy")).getDefault(charPos.skewY);
-			charPos.alpha = Std.parseFloat(node.getAtt("alpha")).getDefault(charPos.alpha);
+			charPos.x = Std.parseFloat(node.getAtt("x")).getDefaultFloat(charPos.x);
+			charPos.y = Std.parseFloat(node.getAtt("y")).getDefaultFloat(charPos.y);
+			charPos.camxoffset = Std.parseFloat(node.getAtt("camxoffset")).getDefaultFloat(charPos.camxoffset);
+			charPos.camyoffset = Std.parseFloat(node.getAtt("camyoffset")).getDefaultFloat(charPos.camyoffset);
+			charPos.skewX = Std.parseFloat(node.getAtt("skewx")).getDefaultFloat(charPos.skewX);
+			charPos.skewY = Std.parseFloat(node.getAtt("skewy")).getDefaultFloat(charPos.skewY);
+			charPos.alpha = Std.parseFloat(node.getAtt("alpha")).getDefaultFloat(charPos.alpha);
 			charPos.flipX = (node.has.flip || node.has.flipX) ? (node.getAtt("flip") == "true" || node.getAtt("flipX") == "true") : charPos.flipX;
 
-			var scale = Std.parseFloat(node.getAtt("scale")).getDefault(charPos.scale.x);
+			var scale = Std.parseFloat(node.getAtt("scale")).getDefaultFloat(charPos.scale.x);
 			charPos.scale.set(scale, scale);
 
 			if (node.has.scroll) {

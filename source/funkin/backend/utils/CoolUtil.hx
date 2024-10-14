@@ -446,7 +446,7 @@ class CoolUtil
 				stepsPerBeat = timeSignParsed[1] == null || timeSignParsed[1] <= 0 ? 4 : cast timeSignParsed[1];
 			}
 
-			var bpm:Null<Float> = Std.parseFloat(musicInfo["BPM"]).getDefault(DefaultBPM);
+			var bpm:Null<Float> = Std.parseFloat(musicInfo["BPM"]).getDefaultFloat(DefaultBPM);
 			Conductor.changeBPM(bpm, beatsPerMeasure, stepsPerBeat);
 		} else
 			Conductor.changeBPM(DefaultBPM);

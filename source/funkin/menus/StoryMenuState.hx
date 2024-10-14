@@ -308,11 +308,11 @@ class StoryMenuState extends MusicBeatState {
 		if (characters[charName] != null) return;
 		var charObj:MenuCharacter = {
 			spritePath: Paths.image(char.getAtt('sprite').getDefault('menus/storymenu/characters/${charName}')),
-			scale: Std.parseFloat(char.getAtt('scale')).getDefault(1),
+			scale: Std.parseFloat(char.getAtt('scale')).getDefaultFloat(1),
 			xml: char,
 			offset: FlxPoint.get(
-				Std.parseFloat(char.getAtt('x')).getDefault(0),
-				Std.parseFloat(char.getAtt('y')).getDefault(0)
+				Std.parseFloat(char.getAtt('x')).getDefaultFloat(0),
+				Std.parseFloat(char.getAtt('y')).getDefaultFloat(0)
 			)
 		};
 		characters[charName] = charObj;

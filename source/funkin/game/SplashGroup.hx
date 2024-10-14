@@ -50,8 +50,8 @@ class SplashGroup extends FlxTypedGroup<FunkinSprite> {
 		splash.antialiasing = true;
 		splash.active = splash.visible = false;
 		splash.loadSprite(Paths.image(imagePath));
-		if (xml.has.scale) splash.scale.scale(Std.parseFloat(xml.att.scale).getDefault(1));
-		if (xml.has.alpha) splash.alpha = Std.parseFloat(xml.att.alpha).getDefault(1);
+		if (xml.has.scale) splash.scale.scale(Std.parseFloat(xml.att.scale).getDefaultFloat(1));
+		if (xml.has.alpha) splash.alpha = Std.parseFloat(xml.att.alpha).getDefaultFloat(1);
 		if (xml.has.antialiasing) splash.antialiasing = xml.att.antialiasing == "true";
 		return splash;
 	}

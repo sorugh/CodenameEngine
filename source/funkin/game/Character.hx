@@ -319,7 +319,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		if (xml.x.exists("icon")) icon = xml.x.get("icon");
 		if (xml.x.exists("color")) iconColor = FlxColor.fromString(xml.x.get("color"));
 		if (xml.x.exists("scale")) {
-			var scale:Float = Std.parseFloat(xml.x.get("scale")).getDefault(1);
+			var scale:Float = Std.parseFloat(xml.x.get("scale")).getDefaultFloat(1);
 			this.scale.set(scale, scale);
 			updateHitbox();
 		}

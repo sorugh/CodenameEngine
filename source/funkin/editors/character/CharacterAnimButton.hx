@@ -1,12 +1,12 @@
 package funkin.editors.character;
 
+import flxanimate.animate.FlxAnim.FlxSymbolAnimation;
 import flxanimate.animate.FlxSymbol;
 import flxanimate.animate.FlxElement;
 import flxanimate.animate.SymbolParameters;
 import flxanimate.animate.FlxKeyFrame;
 import flxanimate.animate.FlxTimeline;
 import flixel.graphics.frames.FlxFrame;
-import flxanimate.animate.FlxAnim.SymbolStuff;
 import flixel.animation.FlxAnimation;
 import openfl.geom.Rectangle;
 import funkin.backend.utils.XMLUtil.AnimData;
@@ -215,7 +215,7 @@ class CharacterAnimButton extends UIButton {
 		}
 
 		if (parent.character.animateAtlas != null) {
-			var animSymbol:SymbolStuff = parent.character.animateAtlas.anim.animsMap[anim];
+			var animSymbol:FlxSymbolAnimation = parent.character.animateAtlas.anim.animsMap[anim];
 
 			parent.character.animateAtlas.anim.animsMap.remove(anim);
 			parent.character.animateAtlas.anim.animsMap.set(newName, animSymbol);
@@ -251,7 +251,7 @@ class CharacterAnimButton extends UIButton {
 
 		animData.anim = newAnim;
 		if (parent.character.animateAtlas != null) {
-			var animSymbol:SymbolStuff = parent.character.animateAtlas.anim.animsMap[anim];
+			var animSymbol:FlxSymbolAnimation = parent.character.animateAtlas.anim.animsMap[anim];
 			refreshSymbolKeyFrames(animSymbol, animData);
 		} else {
 			var flxAnimation:FlxAnimation = parent.character.animation._animations[anim];
@@ -287,7 +287,7 @@ class CharacterAnimButton extends UIButton {
 		animData.fps = newFPS;
 
 		if (parent.character.animateAtlas != null) {
-			var animSymbol:SymbolStuff = parent.character.animateAtlas.anim.animsMap[anim];
+			var animSymbol:FlxSymbolAnimation = parent.character.animateAtlas.anim.animsMap[anim];
 			animSymbol.frameRate = newFPS;
 		} else {
 			var flxAnimation:FlxAnimation = parent.character.animation._animations[anim];
@@ -303,7 +303,7 @@ class CharacterAnimButton extends UIButton {
 		animData.loop = newLooping;
 
 		if (parent.character.animateAtlas != null) {
-			var animSymbol:SymbolStuff = parent.character.animateAtlas.anim.animsMap[anim];
+			var animSymbol:FlxSymbolAnimation = parent.character.animateAtlas.anim.animsMap[anim];
 			animSymbol.instance.symbol.loop = animData.loop ? Loop : PlayOnce;
 		} else {
 			var flxAnimation:FlxAnimation = parent.character.animation._animations[anim];
@@ -319,7 +319,7 @@ class CharacterAnimButton extends UIButton {
 		animData.indices = indicies;
 
 		if (parent.character.animateAtlas != null) {
-			var animSymbol:SymbolStuff = parent.character.animateAtlas.anim.animsMap[anim];
+			var animSymbol:FlxSymbolAnimation = parent.character.animateAtlas.anim.animsMap[anim];
 			refreshSymbolKeyFrames(animSymbol, animData);
 		} else {
 			var flxAnimation:FlxAnimation = parent.character.animation._animations[anim];
@@ -351,7 +351,7 @@ class CharacterAnimButton extends UIButton {
 		}
 	}
 
-	public inline function refreshSymbolKeyFrames(symbol:SymbolStuff, animData:AnimData) @:privateAccess {
+	public inline function refreshSymbolKeyFrames(symbol:FlxSymbolAnimation, animData:AnimData) @:privateAccess {
 		if (animData.indices.length > 0) {
 			// keeps on crashing, look at flxanimate FlxAnim.hx for refrence
 		} else {

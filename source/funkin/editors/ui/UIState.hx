@@ -75,8 +75,8 @@ class UIState extends MusicBeatState {
 			var pos = FlxG.mouse.getScreenPosition(camera, __point);
 			__rect.copyFrom(rect);
 
-			__rect.x -= camera.scroll.x * spr.scrollFactor.x;
-			__rect.y -= camera.scroll.y * spr.scrollFactor.y;
+			__rect.x = __rect.x - camera.scroll.x * spr.scrollFactor.x;
+			__rect.y = __rect.y - camera.scroll.y * spr.scrollFactor.y;
 
 			if (((pos.x > __rect.x) && (pos.x < __rect.x + __rect.width)) && ((pos.y > __rect.y) && (pos.y < __rect.y + __rect.height))) {
 				return true;

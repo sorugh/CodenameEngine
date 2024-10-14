@@ -117,7 +117,17 @@ final class MemoryUtil {
 			22 => "DDR2 FB-DIMM",
 			24 => "DDR3",
 			25 => "FBD2",
-			26 => "DDR4"
+			26 => "DDR4",
+			27 => "LPDDR",
+			28 => "LPDDR2",
+			29 => "LPDDR3",
+			30 => "LPDDR4",
+			31 => "Logical Non-volatile device",
+			32 => "HBM",
+			33 => "HBM2",
+			34 => "DDR5",
+			35 => "LPDDR5",
+			36 => "HBM3",
 		];
 		var memoryOutput:Int = -1;
 

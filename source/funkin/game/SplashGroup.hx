@@ -107,8 +107,9 @@ class SplashGroup extends FlxTypedGroup<FunkinSprite> {
 	public function getSplashAnim(id:Int):String {
 		if (animationNames.length <= 0) return null;
 		id %= animationNames.length;
-		if (animationNames[id] == null || animationNames[id].length <= 0) return null;
-		return animationNames[id][FlxG.random.int(0, animationNames[id].length - 1)];
+		var animNames = animationNames[id];
+		if (animNames == null || animNames.length <= 0) return null;
+		return animNames[FlxG.random.int(0, animNames.length - 1)];
 	}
 
 	var __splash:FunkinSprite;

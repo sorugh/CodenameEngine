@@ -41,7 +41,7 @@ class CharterNote extends UISprite implements ICharterSelectable {
 		this.setUnstretchedGraphicSize(40, 40, false);
 
 		sustainSpr = new UISprite(10, 20);
-		sustainSpr.makeSolid(1, 1, -1);
+		sustainSpr.makeSolid(1, 1, -1, false, "note-sustain");
 		sustainSpr.scale.set(10, 0);
 		members.push(sustainSpr);
 
@@ -166,8 +166,9 @@ class CharterNote extends UISprite implements ICharterSelectable {
 		}
 
 		if (strumLine != null) {
-			sustainSpr.alpha = alpha = !strumLine.strumLine.visible ? (__passed ? 0.2 : 0.4) : (__passed ? 0.6 : 1);
-			typeAlpha = !strumLine.strumLine.visible ? (__passed ? 0.4 : 0.6) : (__passed ? 0.8 : 1);
+			var isVisible = strumLine.strumLine.visible;
+			sustainSpr.alpha = alpha = !isVisible ? (__passed ? 0.2 : 0.4) : (__passed ? 0.6 : 1);
+			typeAlpha = !isVisible ? (__passed ? 0.4 : 0.6) : (__passed ? 0.8 : 1);
 		}
 
 		colorTransform.redMultiplier = colorTransform.greenMultiplier = colorTransform.blueMultiplier = selected ? 0.75 : 1;

@@ -42,7 +42,7 @@ class SplashHandler extends FlxTypedGroup<FunkinSprite> {
 	var __grp:SplashGroup;
 	public function showSplash(name:String, strum:Strum) {
 		__grp = getSplashGroup(name);
-		var event = funkin.backend.scripting.EventManager.get(SplashShowEvent).recycle(name, __grp.showOnStrum(strum), strum, __grp);
+		var event = EventManager.get(SplashShowEvent).recycle(name, __grp.showOnStrum(strum), strum, __grp);
 		event = PlayState.instance.scripts.event("onSplashShown", event);
 		if (!event.cancelled)
 			add(event.splash);

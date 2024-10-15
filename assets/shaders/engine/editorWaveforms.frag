@@ -22,7 +22,8 @@ float getAmplitude(vec2 pixel) {
 	float pixelID = floor((pixel.y+pixelOffset)/3.0);
 
 	// TODO: INVESTIGATE THE 1.+ AND WHY IT WORKS (SRSLY I GOT NO CLUE) -lunar
-	vec2 wavePixel = vec2(mod(pixelID, waveformSize.x), 1.0+floor(pixelID/waveformSize.x));
+	// Somehow using 0.999 instead of 1.0 fixes weird glitches on some systems -Ne_Eo
+	vec2 wavePixel = vec2(mod(pixelID, waveformSize.x), 0.999+floor(pixelID/waveformSize.x));
 	vec4 waveData = texture2D(waveformTexture, wavePixel / waveformSize);
 
 	int id = int(mod(wavePixel.x, 3.0));

@@ -5,6 +5,7 @@ import flixel.util.FlxColor;
 import funkin.backend.shaders.CustomShader;
 import funkin.backend.system.Conductor;
 import openfl.display.BitmapData;
+import openfl.display.ShaderInput;
 
 class CharterWaveformHandler extends FlxBasic {
 	public var ampsNeeded:Float = 0;
@@ -69,7 +70,9 @@ class CharterWaveformHandler extends FlxBasic {
 
 		var waveShader:CustomShader = new CustomShader("engine/editorWaveforms");
 		waveShader.data.waveformSize.value = [waveData.width, waveData.height];
-		waveShader.data.waveformTexture.input = waveData;
+		var waveformInput:ShaderInput<BitmapData> = cast waveShader.data.waveformTexture;
+		waveformInput.input = waveData;
+		waveformInput.filter = NEAREST; // force it to be nearest, incase someone changed it
 		waveShader.data.textureRes.value = [0, 0];
 		waveShader.data.pixelOffset.value = [0];
 		waveShader.data.lowDetail.value = [Options.charterLowDetailWaveforms];

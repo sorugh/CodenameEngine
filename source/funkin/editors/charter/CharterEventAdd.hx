@@ -12,7 +12,7 @@ class CharterEventAdd extends UISliceSprite {
 	public function new(global:Bool) {
 		super(0, 0, 100, 34, 'editors/charter/event-spr-add');
 
-		this.global /*= flipX*/ = global;
+		this.global = flipX = global;
 
 		text = new UIText(0, 0, 0, "");
 		members.push(text);

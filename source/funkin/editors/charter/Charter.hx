@@ -411,12 +411,14 @@ class Charter extends UIState {
 
 		localEventsBackdrop = new EventBackdrop(false);
 		localEventsBackdrop.x = -localEventsBackdrop.width;
-		localEventsBackdrop.cameras = [charterCamera];
+		// thank you neo for pointing out im stupid -lunar
+		localEventsBackdrop.cameras = localEventsGroup.cameras = [charterCamera];
 		localEventsGroup.eventsBackdrop = localEventsBackdrop;
 		
 		globalEventsBackdrop = new EventBackdrop(true);
 		globalEventsBackdrop.x = 0;
-		globalEventsBackdrop.cameras = [charterCamera];
+		// thank you neo for pointing out im stupid -lunar
+		globalEventsBackdrop.cameras = globalEventsGroup.cameras = [charterCamera];
 		globalEventsGroup.eventsBackdrop = globalEventsBackdrop;
 
 		add(gridBackdropDummy = new CameraHoverDummy(gridBackdrops, FlxPoint.weak(1, 0)));

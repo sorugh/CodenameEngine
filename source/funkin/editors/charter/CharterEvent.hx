@@ -31,8 +31,10 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		if (snappedToGrid && eventsBackdrop != null)
-			x = eventsBackdrop.x + eventsBackdrop.width - (bWidth = 37 + (icons.length * 22));
+		if (snappedToGrid && eventsBackdrop != null) {
+			bWidth = 37 + (icons.length * 22);
+			x = eventsBackdrop.x + (global ? 0 : eventsBackdrop.width - bWidth);
+		}
 
 		for(k=>i in icons) {
 			i.follow(this, (k * 22) + 30 - (i.width / 2), (bHeight - i.height) / 2);
@@ -118,6 +120,7 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 				break;
 			}
 
-		x = (snappedToGrid && eventsBackdrop != null ? eventsBackdrop.x : 0) - (bWidth = 37 + (icons.length * 22));
+		bWidth = 37 + (icons.length * 22);
+		x = (snappedToGrid && eventsBackdrop != null && global ? eventsBackdrop.x - bWidth : (global ? 0 : -bWidth));
 	}
 }

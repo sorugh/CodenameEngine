@@ -26,15 +26,17 @@ class CharterEventScreen extends UISubstateWindow {
 	public var saveButton:UIButton;
 	public var closeButton:UIButton;
 
-	public function new(step:Float, ?chartEvent:Null<CharterEvent>) {
+	public var global:Bool = false;
+
+	public function new(step:Float, global:Bool, ?chartEvent:Null<CharterEvent>) {
 		if (chartEvent != null) this.chartEvent = chartEvent;
-		this.step = step;
+		this.step = step; this.global = global;
 		super();
 	}
 
 	public override function create() {
 		var creatingEvent:Bool = chartEvent == null;
-		if (creatingEvent) chartEvent = new CharterEvent(step, []);
+		if (creatingEvent) chartEvent = new CharterEvent(step, [], global);
 
 		winTitle = creatingEvent ? "Create Event Group" : "Edit Event Group";
 		winWidth = 960;

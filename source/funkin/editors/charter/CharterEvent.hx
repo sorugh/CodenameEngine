@@ -17,11 +17,13 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 
 	public var eventsBackdrop:EventBackdrop;
 	public var snappedToGrid:Bool = true;
+	public var global:Bool = false;
 
-	public function new(step:Float, ?events:Array<ChartEvent>) {
+	public function new(step:Float, ?events:Array<ChartEvent>, ?global:Bool = false) {
 		super(-100, (step * 40) - 17, 100, 34, 'editors/charter/event-spr');
 		this.step = step;
 		this.events = events.getDefault([]);
+		this.global = global;
 
 		cursor = CLICK;
 	}

@@ -283,8 +283,11 @@ class EventBackdrop extends FlxBackdrop {
 	public var topSeparator:FlxSprite;
 	public var bottomSeparator:FlxSprite;
 
-	public function new() {
+	public var global:Bool = false;
+
+	public function new(global:Bool) {
 		super(Paths.image('editors/charter/events-grid'), Y, 0, 0);
+		this.global = flipX = flipY = global;
 		alpha = 0.9;
 
 		// Separators
@@ -331,18 +334,18 @@ class EventBackdrop extends FlxBackdrop {
 		eventBeatSeparator.spacing.y = (20 * Conductor.stepsPerBeat) - 1;
 
 		eventSecSeparator.cameras = cameras;
-		eventSecSeparator.x = (x+width) - 20;
+		eventSecSeparator.x = this.global ? x : ((x+width) - 20);
 		if (eventSecSeparator.visible) eventSecSeparator.draw();
 
 		eventBeatSeparator.cameras = cameras;
-		eventBeatSeparator.x = (x+width) - 10;
+		eventBeatSeparator.x = this.global ? x : ((x+width) - 10);
 		if (eventBeatSeparator.visible) eventBeatSeparator.draw();
 
-		topSeparator.x = (x+width) - 20;
+		topSeparator.x = this.global ? x : ((x+width) - 20);
 		topSeparator.cameras = this.cameras;
 		if (!eventSecSeparator.visible) topSeparator.draw();
 
-		bottomSeparator.x = (x+width) - 20;
+		bottomSeparator.x = this.global ? x : ((x+width) - 20);
 		bottomSeparator.cameras = this.cameras;
 		bottomSeparator.draw();
 	}

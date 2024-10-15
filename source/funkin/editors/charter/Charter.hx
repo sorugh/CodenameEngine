@@ -48,8 +48,10 @@ class Charter extends UIState {
 
 	public var topMenuSpr:UITopMenu;
 	public var gridBackdrops:CharterBackdropGroup;
-	public var eventsBackdrop:EventBackdrop;
-	public var addEventSpr:CharterEventAdd;
+	public var localEventsBackdrop:EventBackdrop;
+	public var localAddEventSpr:CharterEventAdd;
+	public var globalEventsBackdrop:EventBackdrop;
+	public var globalAddEventSpr:CharterEventAdd;
 
 	public var gridBackdropDummy:CameraHoverDummy;
 	public var noteHoverer:CharterNoteHoverer;
@@ -73,7 +75,9 @@ class Charter extends UIState {
 
 	public var strumLines:CharterStrumLineGroup = new CharterStrumLineGroup();
 	public var notesGroup:CharterNoteGroup = new CharterNoteGroup();
-	public var eventsGroup:CharterEventGroup = new CharterEventGroup();
+
+	public var localEventsGroup:CharterEventGroup = new CharterEventGroup();
+	public var globalEventsGroup:CharterEventGroup = new CharterEventGroup();
 
 	public var charterCamera:FlxCamera;
 	public var uiCamera:FlxCamera;
@@ -405,10 +409,15 @@ class Charter extends UIState {
 		gridBackdrops = new CharterBackdropGroup(strumLines);
 		gridBackdrops.notesGroup = this.notesGroup;
 
-		eventsBackdrop = new EventBackdrop();
-		eventsBackdrop.x = -eventsBackdrop.width;
-		eventsBackdrop.cameras = [charterCamera];
-		eventsGroup.eventsBackdrop = eventsBackdrop;
+		localEventsBackdrop = new EventBackdrop(false);
+		localEventsBackdrop.x = -localEventsBackdrop.width;
+		localEventsBackdrop.cameras = [charterCamera];
+		localEventsGroup.eventsBackdrop = localEventsBackdrop;
+		
+		globalEventsBackdrop = new EventBackdrop(true);
+		globalEventsBackdrop.x = 0;
+		globalEventsBackdrop.cameras = [charterCamera];
+		globalEventsGroup.eventsBackdrop = globalEventsBackdrop;
 
 		add(gridBackdropDummy = new CameraHoverDummy(gridBackdrops, FlxPoint.weak(1, 0)));
 		selectionBox = new UISliceSprite(0, 0, 2, 2, 'editors/ui/selection');
@@ -480,17 +489,25 @@ class Charter extends UIState {
 		strumlineInfoBG.cameras = [charterCamera];
 		strumLines.cameras = [charterCamera];
 
-		addEventSpr = new CharterEventAdd();
-		addEventSpr.x -= addEventSpr.bWidth;
-		addEventSpr.cameras = [charterCamera];
-		addEventSpr.alpha = 0;
+		localAddEventSpr = new CharterEventAdd(false);
+		localAddEventSpr.x -= localAddEventSpr.bWidth;
+		localAddEventSpr.cameras = [charterCamera];
+		localAddEventSpr.alpha = 0;
+
+		globalAddEventSpr = new CharterEventAdd(true);
+		globalAddEventSpr.x = 0;
+		globalAddEventSpr.cameras = [charterCamera];
+		globalAddEventSpr.alpha = 0;
 
 		// adds grid and notes so that they're ALWAYS behind the UI
 		add(gridBackdrops);
 		//add(textLayer = new FlxLayer());
-		add(eventsBackdrop);
-		add(addEventSpr);
-		add(eventsGroup);
+		add(localEventsBackdrop);
+		add(localAddEventSpr);
+		add(localEventsGroup);
+		add(globalEventsBackdrop);
+		add(globalAddEventSpr);
+		add(globalEventsGroup);
 		add(noteHoverer);
 		add(noteDeleteAnims);
 		add(notesGroup);
@@ -576,7 +593,7 @@ class Charter extends UIState {
 		notesGroup.autoSort = true;
 
 		// create events
-		eventsGroup.autoSort = false;
+		localEventsGroup.autoSort = false;
 		var __last:CharterEvent = null;
 		var __lastTime:Float = Math.NaN;
 		for(e in PlayState.SONG.events) {
@@ -586,14 +603,14 @@ class Charter extends UIState {
 			} else {
 				__last = new CharterEvent(Conductor.getStepForTime(e.time), [e]);
 				__lastTime = e.time;
-				eventsGroup.add(__last);
+				localEventsGroup.add(__last);
 			}
 		}
 
-		eventsGroup.sortEvents();
-		eventsGroup.autoSort = true;
+		localEventsGroup.sortEvents();
+		localEventsGroup.autoSort = true;
 
-		for(e in eventsGroup.members)
+		for(e in localEventsGroup.members)
 			e.refreshEventIcons();
 
 		buildNoteTypesUI();
@@ -613,7 +630,7 @@ class Charter extends UIState {
 		scrollBar.length = __endStep = Conductor.getStepForTime(length);
 
 		gridBackdrops.bottomLimitY = __endStep * 40;
-		eventsBackdrop.bottomSeparator.y = gridBackdrops.bottomLimitY-2;
+		localEventsBackdrop.bottomSeparator.y = globalEventsBackdrop.bottomSeparator.y = gridBackdrops.bottomLimitY-2;
 
 		updateWaveforms();
 	}
@@ -694,7 +711,7 @@ class Charter extends UIState {
 			else selection = [s];
 		}
 
-		for (group in [notesGroup, eventsGroup]) {
+		for (group in [notesGroup, localEventsGroup, globalEventsGroup]) {
 			cast(group, FlxTypedGroup<Dynamic>).forEach(function(s) {
 				s.selected = false;
 				if (gridActionType == NONE) {
@@ -760,18 +777,18 @@ class Charter extends UIState {
 						selectionBox.bHeight = Std.int(Math.abs(mousePos.y - dragStartPos.y));
 					} else {
 						if (FlxG.keys.pressed.SHIFT) {
-							for (group in [notesGroup, eventsGroup])
+							for (group in [notesGroup, localEventsGroup, globalEventsGroup])
 								for(n in cast(group, FlxTypedGroup<Dynamic>))
 									if (n.handleSelection(selectionBox) && selection.contains(n))
 										selection.remove(n);
 						} else if (FlxG.keys.pressed.CONTROL) {
-							for (group in [notesGroup, eventsGroup])
+							for (group in [notesGroup, localEventsGroup, globalEventsGroup])
 								for(n in cast(group, FlxTypedGroup<Dynamic>))
 									if (n.handleSelection(selectionBox) && !selection.contains(n))
 										selection.push(n);
 						} else {
 							selection = [];
-							for (group in [notesGroup, eventsGroup])
+							for (group in [notesGroup, localEventsGroup, globalEventsGroup])
 								for(n in cast(group, FlxTypedGroup<Dynamic>))
 									if (n.handleSelection(selectionBox))
 										selection.push(n);
@@ -834,7 +851,7 @@ class Charter extends UIState {
 						if (s is UISprite) cast(s, UISprite).cursor = CLICK;
 					}
 					if (!(verticalChange == 0 && horizontalChange == 0)) {
-						notesGroup.sortNotes(); eventsGroup.sortEvents();
+						notesGroup.sortNotes(); localEventsGroup.sortEvents(); globalEventsGroup.sortEvents();
 						undos.addToUndo(CSelectionDrag(undoDrags));
 					}
 
@@ -943,18 +960,24 @@ class Charter extends UIState {
 					gridActionType = NONE; deletedNotes = [];
 				}
 		}
-		addEventSpr.selectable = !selectionBox.visible;
+		localAddEventSpr.selectable = !selectionBox.visible;
+		globalAddEventSpr.selectable = !selectionBox.visible;
 
 		var inBoundsY:Bool = (mousePos.y > 0 && mousePos.y < (__endStep)*40);
 
 		// Event Spr
-		if (mousePos.x < 0 && mousePos.x > -addEventSpr.bWidth && gridActionType == NONE && inBoundsY) {
-			addEventSpr.incorporeal = false;
-			addEventSpr.sprAlpha = lerp(addEventSpr.sprAlpha, 0.75, 0.25);
-			var event = getHoveredEvent(mousePos.y);
-			if (event != null) addEventSpr.updateEdit(event);
-			else addEventSpr.updatePos(FlxG.keys.pressed.SHIFT ? ((mousePos.y) / 40) : quantStepRounded(mousePos.y/40));
-		} else  addEventSpr.sprAlpha = lerp(addEventSpr.sprAlpha, 0, 0.25);
+		for (addEventSpr in [localAddEventSpr, globalAddEventSpr]) {
+			if ((!addEventSpr.global ? (mousePos.x < 0 && mousePos.x > -addEventSpr.bWidth) : 
+				(mousePos.x > strumLines.totalKeyCount * 40 && mousePos.x < strumLines.totalKeyCount * 40 + addEventSpr.bWidth)) 
+				&& gridActionType == NONE && inBoundsY) {
+
+				addEventSpr.incorporeal = false;
+				addEventSpr.sprAlpha = lerp(addEventSpr.sprAlpha, 0.75, 0.25);
+				var event = getHoveredEvent(mousePos.y, !addEventSpr.global ? localEventsGroup : globalEventsGroup);
+				if (event != null) addEventSpr.updateEdit(event);
+				else addEventSpr.updatePos(FlxG.keys.pressed.SHIFT ? ((mousePos.y) / 40) : quantStepRounded(mousePos.y/40));
+			} else  addEventSpr.sprAlpha = lerp(addEventSpr.sprAlpha, 0, 0.25);
+		}
 
 		noteHoverer.showHoverer = Charter.instance.gridBackdropDummy.hovered;
 	}
@@ -972,9 +995,9 @@ class Charter extends UIState {
 	public function ratioRound(val:Float, ratio:Float):Int
 		return Math.floor(val) + ((Math.abs(val % 1) > ratio ? 1 : 0) * (val > 0 ? 1 : -1));
 
-	public function getHoveredEvent(y:Float) {
+	public function getHoveredEvent(y:Float, group:CharterEventGroup) {
 		var eventHovered:CharterEvent = null;
-		eventsGroup.forEach(function(e) {
+		group.forEach(function(e) {
 			if (eventHovered != null)
 				return;
 
@@ -995,7 +1018,7 @@ class Charter extends UIState {
 			note.kill();
 		} else if (selected is CharterEvent) {
 			var event:CharterEvent = cast selected;
-			eventsGroup.remove(event);
+			(event.global ? globalEventsGroup : localEventsGroup).remove(event);
 			event.kill();
 		}
 
@@ -1015,7 +1038,7 @@ class Charter extends UIState {
 			notesGroup.add(n);
 		}, function (e:CharterEvent) {
 			e.revive();
-			eventsGroup.add(e);
+			(e.global ? globalEventsGroup : localEventsGroup).add(e);
 			e.refreshEventIcons();
 		}, false);
 		notesGroup.sortNotes();
@@ -1036,7 +1059,7 @@ class Charter extends UIState {
 		if (selection.length <= 0) return [];
 
 		notesGroup.autoSort = false;
-		for (objects in [notesGroup, eventsGroup]) {
+		for (objects in [notesGroup, localEventsGroup, globalEventsGroup]) {
 			var group = cast(objects, FlxTypedGroup<Dynamic>);
 			var member = 0;
 			while(member < group.members.length) {
@@ -1428,7 +1451,7 @@ class Charter extends UIState {
 				case CEvent(step, events):
 					var event = new CharterEvent(minStep + step, events);
 					event.refreshEventIcons();
-					eventsGroup.add(event);
+					(event.global ? globalEventsGroup : localEventsGroup).add(event);
 					sObjects.push(event);
 			}
 		}
@@ -1627,11 +1650,11 @@ class Charter extends UIState {
 	}
 	function _view_showeventSecSeparator(t) {
 		t.icon = (Options.charterShowSections = !Options.charterShowSections) ? 1 : 0;
-		eventsBackdrop.eventSecSeparator.visible = gridBackdrops.sectionsVisible = Options.charterShowSections;
+		localEventsBackdrop.eventSecSeparator.visible = globalEventsBackdrop.eventSecSeparator.visible = gridBackdrops.sectionsVisible = Options.charterShowSections;
 	}
 	function _view_showeventBeatSeparator(t) {
 		t.icon = (Options.charterShowBeats = !Options.charterShowBeats) ? 1 : 0;
-		eventsBackdrop.eventBeatSeparator.visible = gridBackdrops.beatsVisible = Options.charterShowBeats;
+		localEventsBackdrop.eventBeatSeparator.visible = globalEventsBackdrop.eventBeatSeparator.visible = gridBackdrops.beatsVisible = Options.charterShowBeats;
 	}
 	function _view_switchWaveformDetail(t) {
 		t.icon = (Options.charterLowDetailWaveforms = !Options.charterLowDetailWaveforms) ? 1 : 0;
@@ -1832,8 +1855,9 @@ class Charter extends UIState {
 
 	public function buildEvents() {
 		PlayState.SONG.events = [];
-		eventsGroup.sortEvents();
-		for(e in eventsGroup.members) {
+		// TODO!!!!
+		localEventsGroup.sortEvents();
+		for(e in localEventsGroup.members) {
 			for(event in e.events) {
 				event.time = Conductor.getTimeForStep(e.step);
 				PlayState.SONG.events.push(event);
@@ -1864,8 +1888,10 @@ class Charter extends UIState {
 	@:noCompletion public function __relinkSingleSelection(selectable:ICharterSelectable):ICharterSelectable {
 		if (selectable is CharterNote)
 			return selectable.ID == -1 ? cast(selectable, CharterNote) : notesGroup.members[selectable.ID];
-		else if (selectable is CharterEvent)
-			return selectable.ID == -1 ? cast(selectable, CharterEvent) : eventsGroup.members[selectable.ID];
+		else if (selectable is CharterEvent) {
+			var event:CharterEvent = cast(selectable, CharterEvent);
+			return selectable.ID == -1 ? event : (event.global ? globalEventsGroup : localEventsGroup).members[selectable.ID];
+		}
 		return null;
 	}
 

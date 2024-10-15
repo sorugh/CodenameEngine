@@ -7,8 +7,12 @@ class CharterEventAdd extends UISliceSprite {
 
 	public var curCharterEvent:CharterEvent = null;
 
-	public function new() {
+	public var global:Bool = false;
+
+	public function new(global:Bool) {
 		super(0, 0, 100, 34, 'editors/charter/event-spr-add');
+
+		this.global /*= flipX*/ = global;
 
 		text = new UIText(0, 0, 0, "");
 		members.push(text);
@@ -20,9 +24,9 @@ class CharterEventAdd extends UISliceSprite {
 		super.onHovered();
 		if (FlxG.mouse.justReleased) {
 			if (curCharterEvent != null)
-				Charter.instance.openSubState(new CharterEventScreen(step, curCharterEvent));
+				Charter.instance.openSubState(new CharterEventScreen(step, global, curCharterEvent));
 			else
-				Charter.instance.openSubState(new CharterEventScreen(step));
+				Charter.instance.openSubState(new CharterEventScreen(step, global));
 		}
 	}
 
@@ -39,15 +43,15 @@ class CharterEventAdd extends UISliceSprite {
 		this.step = step;
 		this.y = (step * 40) - (bHeight / 2);
 		text.text = "Add event";
-		framesOffset = 0;
-		x = -(bWidth = 37 + Math.ceil(text.width));
+		framesOffset = 0; bWidth = 37 + Math.ceil(text.width);
+		x = global ? Charter.instance.strumLines.members[Charter.instance.strumLines.members.length-1].x + (40*Charter.instance.strumLines.members[Charter.instance.strumLines.members.length-1].keyCount) : -(bWidth);
 	}
 
 	public function updateEdit(event:CharterEvent) {
 		curCharterEvent = event;
 		this.y = event.y;
 		text.text = "Edit";
-		framesOffset = 9;
-		x = -(bWidth = 27 + Math.ceil(text.width) + event.bWidth);
+		framesOffset = 9; bWidth = 27 + Math.ceil(text.width) + event.bWidth;
+		x = global ? Charter.instance.strumLines.members[Charter.instance.strumLines.members.length-1].x + (40*Charter.instance.strumLines.members[Charter.instance.strumLines.members.length-1].keyCount) : -(bWidth);
 	}
 }

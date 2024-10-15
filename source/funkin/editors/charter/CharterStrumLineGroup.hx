@@ -49,8 +49,15 @@ class CharterStrumLineGroup extends FlxTypedGroup<CharterStrumline> {
 		for (i=>strum in members)
 			if (strum != null && !strum.dragging) strum.x = CoolUtil.fpsLerp(strum.x, 40*strum.startingID, 0.225);
 
-		if (Charter.instance.eventsBackdrop != null && members[0] != null)
-			Charter.instance.eventsBackdrop.x = members[0].button.x - Charter.instance.eventsBackdrop.width;
+		if (Charter.instance.localEventsBackdrop != null && members[0] != null) {
+			Charter.instance.localEventsBackdrop.x = members[0].button.x - Charter.instance.localEventsBackdrop.width;
+			Charter.instance.localEventsBackdrop.alpha = members[0].strumLine.visible ? 0.9 : 0.4;
+		}
+		
+		if (Charter.instance.globalEventsBackdrop != null && members[CoolUtil.maxInt(0, members.length-1)] != null) {
+			Charter.instance.globalEventsBackdrop.x = members[members.length-1].x + (40*members[members.length-1].keyCount);
+			Charter.instance.globalEventsBackdrop.alpha = members[CoolUtil.maxInt(0, members.length-1)].strumLine.visible ? 0.9 : 0.4;
+		}
 		if (Charter.instance.strumlineLockButton != null && members[0] != null)
 			Charter.instance.strumlineLockButton.x = members[0].x - (160);
 		if (Charter.instance.strumlineAddButton != null && members[CoolUtil.maxInt(0, members.length-1)] != null)
@@ -94,12 +101,14 @@ class CharterStrumLineGroup extends FlxTypedGroup<CharterStrumline> {
 	}
 
 	public inline function fixEvents() {
-		for (i in Charter.instance.eventsGroup.members) {
-			for (j in i.events) {
-				var paramTypes:Array<EventParamInfo> = EventsData.getEventParams(j.name);
-				for (i => param in paramTypes) {
-					if (param.type != TStrumLine) continue;
-					j.params[i] = members.indexOf(__pastStrumlines[j.params[i]]);
+		for (eventsGroup in [Charter.instance.localEventsGroup, Charter.instance.globalEventsGroup]) {
+			for (i in eventsGroup) {
+				for (j in i.events) {
+					var paramTypes:Array<EventParamInfo> = EventsData.getEventParams(j.name);
+					for (i => param in paramTypes) {
+						if (param.type != TStrumLine) continue;
+						j.params[i] = members.indexOf(__pastStrumlines[j.params[i]]);
+					}
 				}
 			}
 		}

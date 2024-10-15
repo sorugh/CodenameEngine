@@ -26,6 +26,7 @@ class CharterEventGroup extends FlxTypedGroup<CharterEvent> {
 		for (event in members) {
 			event.eventsBackdrop = eventsBackdrop;
 			event.snappedToGrid = true;
+			event.cameras = cameras;
 		}
 		super.draw();
 	}

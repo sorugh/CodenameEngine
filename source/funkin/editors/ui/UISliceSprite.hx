@@ -94,8 +94,8 @@ class UISliceSprite extends UISprite {
 		var topLeft = (flipX ? (flipY ? bottomright : topright) : (flipY ? bottomleft : topleft));
 		var topMiddle = (flipY ? bottom : top);
 		var topRight = (flipX ? (flipY ? bottomleft : topleft) : (flipY ? bottomright : topright));
-		var middleLeft = (flipX ? (flipY ? middleright : middleright) : (flipY ? middleleft : middleleft));
-		var middleRight = (flipX ? (flipY ? middleleft : middleleft) : (flipY ? middleright : middleright));
+		var middleLeft = (flipX ? middleright : middleleft);
+		var middleRight = (flipX ? middleleft : middleright);
 		var bottomLeft = (flipX ? (flipY ? topright : bottomright) : (flipY ? topleft : bottomleft));
 		var bottomMiddle = (flipY ? top : bottom);
 		var bottomRight = (flipX ? (flipY ? topleft : bottomleft) : (flipY ? topright : bottomright));

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<language>
+	<!-- Alphabet Editor -->
+
+	<group name="AlphabetSelection" prefix="alphabetSelection.">
+		<str id="acceptTypeface">Press ACCEPT to edit this typeface.</str>
+		<str id="newTypeface">New Typeface</str>
+		<str id="desc">Select a typeface to edit</str>
+
+		<group name="Warnings" prefix="warnings.">
+			<str id="notImplemented-title">New Typeface: Feature Not Implemented!</str>
+			<str id="notImplemented-body">This feature isn't implemented yet. Please wait for more cne updates to have this functional.\n\n\n- Codename Devs</str>
+		</group>
+	</group>
+
+	<group name="AlphabetEditor" prefix="alphabetEditor.">
+		<str id="name">Alphabet Editor</str>
+
+		<group name="TopBar">
+			<str id="topBar.file">File</str>
+			<group name="FileMenu" prefix="file.">
+				<str id="new">New</str>
+				<str id="save">Save</str>
+				<str id="saveAs">Save As...</str>
+				<str id="exit">Exit</str>
+			</group>
+
+			<str id="topBar.edit">Edit</str>
+			<group name="EditMenu" prefix="edit.">
+				<str id="undo">Undo</str>
+				<str id="redo">Redo</str>
+			</group>
+
+			<str id="topBar.glyph">Glyph</str>
+			<group name="GlyphMenu" prefix="glyph.">
+				<str id="newGlyph">New Glyph</str>
+				<str id="editGlyph">Edit Glyph</str>
+				<str id="deleteGlyph">Delete Glyph</str>
+			</group>
+
+			<str id="topBar.offset">Offsets</str>
+			<group name="OffsetsMenu" prefix="offset.">
+				<str id="moveLeft">Move Left</str>
+				<str id="moveUp">Move Up</str>
+				<str id="moveDown">Move Down</str>
+				<str id="moveRight">Move Right</str>
+				<str id="moveExtraLeft">Move Extra Left</str>
+				<str id="moveExtraUp">Move Extra Up</str>
+				<str id="moveExtraDown">Move Extra Down</str>
+				<str id="moveExtraRight">Move Extra Right</str>
+				<str id="clearOffsets">Clear Offsets</str>
+			</group>
+
+			<str id="topBar.view">View</str>
+			<group name="ViewMenu" prefix="view.">
+				<str id="zoomIn">Zoom in</str>
+				<str id="zoomOut">Zoom out</str>
+				<str id="resetZoom">Reset Zoom</str>
+			</group>
+		</group>
+	</group>
+</language>

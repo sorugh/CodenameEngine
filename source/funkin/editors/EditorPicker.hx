@@ -9,6 +9,12 @@ class EditorPicker extends MusicBeatSubstate {
 	// Name is for backwards compatability, dont use it, use id instead
 	public var options:Array<Editor> = [
 		{
+			name: "Alphabet Editor",
+			id: "alphabetEditor",
+			iconID: -1,
+			state: funkin.editors.alphabet.AlphabetSelection
+		},
+		{
 			name: "Chart Editor",
 			id: "charter",
 			iconID: 0,
@@ -186,8 +192,12 @@ class EditorPickerOption extends FlxTypedSpriteGroup<FlxSprite> {
 		FlxG.mouse.visible = true;
 		iconSpr = new FlxSprite();
 		iconSpr.loadGraphic(Paths.image('editors/icons'), true, 128, 128);
-		iconSpr.animation.add("icon", [iconID], 24, true);
-		iconSpr.animation.play("icon");
+		if(iconID >= 0) {
+			iconSpr.animation.add("icon", [iconID], 24, true);
+			iconSpr.animation.play("icon");
+		} else {
+			iconSpr.exists = false;
+		}
 		iconSpr.antialiasing = true;
 		if (height < 150) {
 			iconSpr.scale.set(height / 150, height / 150);

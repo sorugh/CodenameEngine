@@ -1434,7 +1434,7 @@ class Charter extends UIState {
 				CNote(note.step - minStep, note.id, note.strumLineID, note.susLength, note.type);
 			} else if (s is CharterEvent) {
 				var event = cast(s,CharterEvent);
-				CEvent(event.step - minStep, [for (event in event.events) Reflect.copy(event)]);
+				CEvent(event.step - minStep, event.global, [for (event in event.events) Reflect.copy(event)]);
 			}
 		];
 	}
@@ -1450,10 +1450,10 @@ class Charter extends UIState {
 					note.updatePos(minStep + step, id, susLength, type, strumLines.members[CoolUtil.boundInt(strumLineID, 0, strumLines.length-1)]);
 					notesGroup.add(note);
 					sObjects.push(note);
-				case CEvent(step, events):
-					var event = new CharterEvent(minStep + step, events);
+				case CEvent(step, global, events):
+					var event = new CharterEvent(minStep + step, events, global);
 					event.refreshEventIcons();
-					(event.global ? globalEventsGroup : localEventsGroup).add(event);
+					(global ? globalEventsGroup : localEventsGroup).add(event);
 					sObjects.push(event);
 			}
 		}
@@ -2009,7 +2009,7 @@ enum CharterChange {
 
 enum CharterCopyboardObject {
 	CNote(step:Float, id:Int, strumLineID:Int, susLength:Float, type:Int);
-	CEvent(step:Float, events:Array<ChartEvent>);
+	CEvent(step:Float, global:Bool, events:Array<ChartEvent>);
 }
 
 typedef NoteSustainChange = {

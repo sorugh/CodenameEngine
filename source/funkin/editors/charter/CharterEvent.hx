@@ -23,7 +23,7 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 		super(-100, (step * 40) - 17, 100, 34, 'editors/charter/event-spr');
 		this.step = step;
 		this.events = events.getDefault([]);
-		this.global = global;
+		this.global = this.flipX = global;
 
 		cursor = CLICK;
 	}

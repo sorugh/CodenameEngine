@@ -58,6 +58,7 @@ class CharterStrumLineGroup extends FlxTypedGroup<CharterStrumline> {
 			Charter.instance.globalEventsBackdrop.x = members[members.length-1].x + (40*members[members.length-1].keyCount);
 			Charter.instance.globalEventsBackdrop.alpha = members[CoolUtil.maxInt(0, members.length-1)].strumLine.visible ? 0.9 : 0.4;
 		}
+		
 		if (Charter.instance.strumlineLockButton != null && members[0] != null)
 			Charter.instance.strumlineLockButton.x = members[0].x - (160);
 		if (Charter.instance.strumlineAddButton != null && members[CoolUtil.maxInt(0, members.length-1)] != null)

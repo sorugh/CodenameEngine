@@ -1,5 +1,6 @@
 package funkin.backend.system;
 
+import funkin.backend.utils.translations.FormatUtil;
 import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.transition.TransitionData;
@@ -57,6 +58,12 @@ class Main extends Sprite
 	#if ALLOW_MULTITHREADING
 	public static var gameThreads:Array<Thread> = [];
 	#end
+
+	public static function preInit() {
+		funkin.backend.utils.NativeAPI.registerAsDPICompatible();
+		funkin.backend.system.CommandLineHandler.parseCommandLine(Sys.args());
+		funkin.backend.system.Main.fixWorkingDirectory();
+	}
 
 	public function new()
 	{

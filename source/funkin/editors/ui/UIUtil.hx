@@ -7,7 +7,7 @@ import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
 @:access(flixel.FlxSprite)
 class UIUtil {
 	public static function follow(spr:FlxSprite, target:FlxSprite, x:Float = 0, y:Float = 0) {
-		spr._cameras = target is UISprite ? cast(target, UISprite).__lastDrawCameras : target.cameras;
+		spr._cameras = target is UISprite ? ({var _:UISprite = cast target;_;}).__lastDrawCameras : target.cameras;
 		spr.x = target.x + x;
 		spr.y = target.y + y;
 		spr.scrollFactor.set(target.scrollFactor.x, target.scrollFactor.y);

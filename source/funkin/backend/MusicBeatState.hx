@@ -196,19 +196,19 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 
 	@:dox(hide) public function stepHit(curStep:Int):Void
 	{
-		for(e in members) if (e != null && e is IBeatReceiver) cast(e, IBeatReceiver).stepHit(curStep);
+		for(e in members) if (e != null && e is IBeatReceiver) ({var _:IBeatReceiver=cast e;_;}).stepHit(curStep);
 		call("stepHit", [curStep]);
 	}
 
 	@:dox(hide) public function beatHit(curBeat:Int):Void
 	{
-		for(e in members) if (e != null && e is IBeatReceiver) cast(e, IBeatReceiver).beatHit(curBeat);
+		for(e in members) if (e != null && e is IBeatReceiver) ({var _:IBeatReceiver=cast e;_;}).beatHit(curBeat);
 		call("beatHit", [curBeat]);
 	}
 
 	@:dox(hide) public function measureHit(curMeasure:Int):Void
 	{
-		for(e in members) if (e != null && e is IBeatReceiver) cast(e, IBeatReceiver).measureHit(curMeasure);
+		for(e in members) if (e != null && e is IBeatReceiver) ({var _:IBeatReceiver=cast e;_;}).measureHit(curMeasure);
 		call("measureHit", [curMeasure]);
 	}
 
@@ -282,8 +282,9 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 	public override function resetSubState() {
 		super.resetSubState();
 		if (subState != null && subState is MusicBeatSubstate) {
-			cast(subState, MusicBeatSubstate).parent = this;
-			cast(subState, MusicBeatSubstate).onSubstateOpen();
+			var subState:MusicBeatSubstate = cast subState;
+			subState.parent = this;
+			subState.onSubstateOpen();
 		}
 	}
 }

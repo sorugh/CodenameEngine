@@ -32,9 +32,9 @@ class Flags {
 				var splitContent = [for(e in data.split("\n")) if ((trimmed = e.trim()) != "") trimmed];
 
 				for(line in splitContent) {
-					if (line.startsWith(";")) continue;
-					if (line.startsWith("#")) continue;
-					if (line.startsWith("//")) continue;
+					if(line.startsWith(";")) continue;
+					if(line.startsWith("#")) continue;
+					if(line.startsWith("//")) continue;
 					if(line.length == 0) continue;
 					if(line.charAt(0) == "[" && line.charAt(line.length-1) == "]") continue;
 
@@ -43,10 +43,9 @@ class Flags {
 					var name = line.substr(0, index).trim();
 					var value = line.substr(index+1).trim();
 
-					if (value.length > 1 && value.charCodeAt(0) == '"'.code && value.charCodeAt(value.length-1) == '"'.code)
-						value = value.substr(1, value.length - 2);
-
-					if (value.length == 0 || name.length == 0)
+					var wasQuoted = value.length > 1 && value.charCodeAt(0) == '"'.code && value.charCodeAt(value.length-1) == '"'.code;
+					if(wasQuoted) value = value.substr(1, value.length - 2);
+					if((!wasQuoted && value.length == 0) || name.length == 0)
 						continue;
 
 					if(!flags.exists(name))

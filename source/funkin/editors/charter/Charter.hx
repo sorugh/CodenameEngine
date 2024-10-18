@@ -714,7 +714,8 @@ class Charter extends UIState {
 		}
 
 		for (group in [notesGroup, localEventsGroup, globalEventsGroup]) {
-			cast(group, FlxTypedGroup<Dynamic>).forEach(function(s) {
+			var group:FlxTypedGroup<Dynamic> = cast group;
+			group.forEach(function(s) {
 				s.selected = false;
 				if (gridActionType == NONE) {
 					if (s is CharterNote) {
@@ -779,21 +780,27 @@ class Charter extends UIState {
 						selectionBox.bHeight = Std.int(Math.abs(mousePos.y - dragStartPos.y));
 					} else {
 						if (FlxG.keys.pressed.SHIFT) {
-							for (group in [notesGroup, localEventsGroup, globalEventsGroup])
-								for(n in cast(group, FlxTypedGroup<Dynamic>))
+							for (group in [notesGroup, localEventsGroup, globalEventsGroup]) {
+								var group:FlxTypedGroup<Dynamic> = cast group;
+								for(n in group)
 									if (n.handleSelection(selectionBox) && selection.contains(n))
 										selection.remove(n);
+							}
 						} else if (FlxG.keys.pressed.CONTROL) {
-							for (group in [notesGroup, localEventsGroup, globalEventsGroup])
-								for(n in cast(group, FlxTypedGroup<Dynamic>))
+							for (group in [notesGroup, localEventsGroup, globalEventsGroup]) {
+								var group:FlxTypedGroup<Dynamic> = cast group;
+								for(n in group)
 									if (n.handleSelection(selectionBox) && !selection.contains(n))
 										selection.push(n);
+							}
 						} else {
 							selection = [];
-							for (group in [notesGroup, localEventsGroup, globalEventsGroup])
-								for(n in cast(group, FlxTypedGroup<Dynamic>))
+							for (group in [notesGroup, localEventsGroup, globalEventsGroup]) {
+								var group:FlxTypedGroup<Dynamic> = cast group;
+								for(n in group)
 									if (n.handleSelection(selectionBox))
 										selection.push(n);
+							}
 						}
 
 						selection = __fixSelection(selection);
@@ -849,8 +856,14 @@ class Charter extends UIState {
 							changePoint.put();
 						}
 
-						if (s is CharterNote) cast(s, CharterNote).snappedToStrumline = true;
-						if (s is UISprite) cast(s, UISprite).cursor = CLICK;
+						if (s is CharterNote) {
+							var s:CharterNote = cast s;
+							s.snappedToStrumline = true;
+						}
+						if (s is UISprite) {
+							var s:UISprite = cast s;
+							s.cursor = CLICK;
+						}
 					}
 					if (!(verticalChange == 0 && horizontalChange == 0)) {
 						notesGroup.sortNotes(); localEventsGroup.sortEvents(); globalEventsGroup.sortEvents();
@@ -1061,9 +1074,9 @@ class Charter extends UIState {
 		if (selection.length <= 0) return [];
 
 		notesGroup.autoSort = false;
-		for (objects in [notesGroup, localEventsGroup, globalEventsGroup]) {
-			var group = cast(objects, FlxTypedGroup<Dynamic>);
-			var member = 0;
+		for (group in [notesGroup, localEventsGroup, globalEventsGroup]) {
+			var group:FlxTypedGroup<Dynamic> = cast group;
+			var member:Int = 0;
 			while(member < group.members.length) {
 				var s = group.members[member];
 				if (selection.contains(s))
@@ -1433,7 +1446,7 @@ class Charter extends UIState {
 				var note:CharterNote = cast s;
 				CNote(note.step - minStep, note.id, note.strumLineID, note.susLength, note.type);
 			} else if (s is CharterEvent) {
-				var event = cast(s,CharterEvent);
+				var event:CharterEvent = cast s;
 				CEvent(event.step - minStep, [for (event in event.events) Reflect.copy(event)], event.global);
 			}
 		];
@@ -2031,9 +2044,9 @@ typedef SelectionDragChange = {
 	public inline function loop(onNote:CharterNote->Void, ?onEvent:CharterEvent->Void, ?draggableOnly:Bool = true) {
 		for (s in this) {
 			if (s is CharterNote && onNote != null && (draggableOnly ? s.draggable: true))
-				onNote(cast(s, CharterNote));
+				onNote(cast s);
 			else if (s is CharterEvent && onEvent != null && (draggableOnly ? s.draggable: true))
-				onEvent(cast(s, CharterEvent));
+				onEvent(cast s);
 		}
 	}
 }

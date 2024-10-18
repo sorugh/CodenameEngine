@@ -213,7 +213,7 @@ class Note extends FlxSprite
 	public var strumRelativePos:Bool = true;
 
 	override function drawComplex(camera:FlxCamera) {
-		var downscrollCam = (camera is HudCamera ? cast(camera, HudCamera).downscroll : false);
+		var downscrollCam = (camera is HudCamera ? ({var _:HudCamera=cast camera;_;}).downscroll : false);
 		flipY = (isSustainNote && flipSustain) && (downscrollCam != (__strum != null && __strum.getScrollSpeed(this) < 0));
 		if (downscrollCam) {
 			frameOffset.y += __notePosFrameOffset.y * 2;

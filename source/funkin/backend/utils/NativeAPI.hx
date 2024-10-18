@@ -116,8 +116,8 @@ class NativeAPI {
 		if(backgroundColor == NONE)
 			backgroundColor = BLACK;
 
-		var fg = cast(foregroundColor, Int);
-		var bg = cast(backgroundColor, Int);
+		var fg:Int = cast foregroundColor;
+		var bg:Int = cast backgroundColor;
 		Windows.setConsoleColors((bg * 16) + fg);
 		#elseif sys
 		Sys.print("\x1b[0m");

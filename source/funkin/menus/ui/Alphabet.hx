@@ -42,7 +42,7 @@ class Alphabet extends FlxSpriteGroup
 	private override function set_color(c:Int):Int {
 		for(e in group.members) {
 			if (e is AlphaCharacter) {
-				var char = cast(e, AlphaCharacter);
+				var char:AlphaCharacter = cast e;
 				char.setColor(c, isBold);
 			}
 		}

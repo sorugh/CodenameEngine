@@ -6,6 +6,13 @@ import funkin.backend.FunkinSprite.XMLAnimType;
 import funkin.backend.FunkinSprite;
 import funkin.game.Character;
 import funkin.backend.system.ErrorCode;
+import funkin.backend.FunkinSprite.XMLAnimType;
+import flixel.util.FlxColor;
+import haxe.xml.Access;
+import funkin.backend.scripting.Script;
+import funkin.backend.scripting.DummyScript;
+import funkin.backend.scripting.ScriptPack;
+import flixel.util.typeLimit.OneOfTwo;
 import funkin.backend.system.interfaces.IOffsetCompatible;
 import haxe.xml.Access;
 
@@ -252,7 +259,7 @@ class XMLUtil {
 				cast(sprite, IOffsetCompatible).addOffset(animData.name, animData.x, animData.y);
 
 			if (sprite is FunkinSprite) {
-				var xmlSpr = cast(sprite, FunkinSprite);
+				var xmlSpr:FunkinSprite = cast sprite;
 				var name = animData.name;
 				switch(animData.animType) {
 					case BEAT:
@@ -326,6 +333,51 @@ class XMLUtil {
 
 		return parsedSegments;
 	}
+}
+
+class XMLImportedScriptInfo {
+	public var path:String;
+	public var shortLived:Bool = false;
+	public var loadBefore:Bool = true;
+	public var importStageSprites:Bool = false;  // maybe will change later??  - Nex
+	public var parentScriptPack:ScriptPack = null;
+
+	public function new(path:String, parentScriptPack:ScriptPack) {
+		this.parentScriptPack = parentScriptPack;
+		this.path = path;
+	}
+
+	public function getScript():Script
+		return parentScriptPack == null ? null : parentScriptPack.getByPath(path);
+
+	public static function prepareInfos(node:Access, parentScriptPack:ScriptPack, ?onScriptPreLoad:XMLImportedScriptInfo->Void):XMLImportedScriptInfo {
+		if (!node.has.script || parentScriptPack == null) return null;
+
+		var folder = node.getAtt("folder").getDefault("data/scripts/");
+		if (!folder.endsWith("/")) folder += "/";
+
+		var path = Paths.script(folder + node.getAtt("script"));
+		var daScript = Script.create(path);
+		if (daScript is DummyScript) {
+			Logs.trace('Script Extension at ${path} does not exist.', ERROR);
+			return null;
+		}
+
+		var infos = new XMLImportedScriptInfo(daScript.path, parentScriptPack);
+		infos.shortLived = node.getAtt("isShortLived") == "true" || node.getAtt("shortLived") == "true";
+		infos.importStageSprites = node.getAtt("importStageSprites") == "true";
+		@:privateAccess infos.loadBefore = shouldLoadBefore(node);
+
+		if (onScriptPreLoad != null) onScriptPreLoad(infos);
+		parentScriptPack.add(daScript);
+		daScript.set("scriptInfo", infos);
+		daScript.load();
+
+		return infos;
+	}
+
+	@:dox(hide) public static inline function shouldLoadBefore(node:Access):Bool
+		return node.getAtt("loadBefore") != "false";
 }
 
 typedef AnimData = {

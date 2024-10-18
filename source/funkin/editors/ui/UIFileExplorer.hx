@@ -55,8 +55,10 @@ class UIFileExplorer extends UISliceSprite {
 
 		if (uiElement != null) {
 			uiElement.alpha = alpha;
-			if (uiElement is UIButton)
-				cast(uiElement, UIButton).selectable = selectable;
+			if (uiElement is UIButton) {
+				var uiElement:UIButton = cast uiElement;
+				uiElement.selectable = selectable;
+			}
 		}
 	}
 

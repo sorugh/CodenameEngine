@@ -252,7 +252,7 @@ class XMLUtil {
 				cast(sprite, IOffsetCompatible).addOffset(animData.name, animData.x, animData.y);
 
 			if (sprite is FunkinSprite) {
-				var xmlSpr = cast(sprite, FunkinSprite);
+				var xmlSpr:FunkinSprite = cast sprite;
 				var name = animData.name;
 				switch(animData.animType) {
 					case BEAT:

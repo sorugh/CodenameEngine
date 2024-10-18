@@ -436,7 +436,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	public static function getXMLFromCharName(character:OneOfTwo<String, Character>):Access {
 		var char:Character = null;
 		if (character is Character) {
-			char = cast(character, Character);
+			char = cast character;
 			character = char.curCharacter;
 		}
 

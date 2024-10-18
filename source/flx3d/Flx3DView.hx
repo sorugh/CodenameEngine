@@ -60,7 +60,7 @@ class Flx3DView extends FlxView3D {
 			default:	new OBJParser();
 		}, (event:Asset3DEvent) -> {
 			if (event.asset != null && event.asset.assetType == Asset3DType.MESH) {
-				var mesh:Mesh = cast(event.asset, Mesh);
+				var mesh:Mesh = cast event.asset;
 				if (material != null)
 					mesh.material = material;
 				meshes.push(mesh);

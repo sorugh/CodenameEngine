@@ -14,22 +14,8 @@ using StringTools;
 using flixel.util.FlxColorTransformUtil;
 
 @:structInit
-final class AlphabetOutline {
-	public var anim:String;
-	public var x:Float;
-	public var y:Float;
-}
-
-@:structInit
-final class AlphabetComponentData {
-	public var anim:String;
-
-	@:optional public var outline:AlphabetOutline;
-}
-
-@:structInit
 final class AlphabetComponent {
-	public var data:AlphabetComponentData;
+	public var anim:String;
 	public var x:Float;
 	public var y:Float;
 
@@ -111,7 +97,6 @@ class NewAlphabet extends FlxSprite {
 	var lineGap:Float = 75.0;
 	var fps:Float = 24.0;
 	var letterData:Map<String, AlphabetLetterData> = [];
-	var allComponents:Map<String, AlphabetComponentData> = [];
 	var defaults:Vector<AlphabetLetterData> = {
 		var v = new Vector(3);
 		v[0] = null;
@@ -349,8 +334,8 @@ class NewAlphabet extends FlxSprite {
 		if (animation.exists(name)) return animation.getByName(name);
 
 		var anim = (data.isDefault) ?
-			component.data.anim.replace("LETTER", char) :
-			component.data.anim;
+			component.anim.replace("LETTER", char) :
+			component.anim;
 		animation.addByPrefix(name, anim, fps);
 		if (!animation.exists(name)) {
 			failedLetters.push(char);
@@ -375,18 +360,12 @@ class NewAlphabet extends FlxSprite {
 				var angleCos = Math.cos(angle);
 				var angleSin = Math.sin(angle);
 
-				// register character as component
-				allComponents.set("DEFAULT_" + idx, {
-					anim: node.firstChild().nodeValue.trim(),
-					outline: null
-				});
-
 				var res:AlphabetLetterData = {
 					isDefault: true,
 					advance: 0.0,
 					advanceEmpty: true,
 					components: [{
-						data: allComponents.get("DEFAULT_" + idx),
+						anim: node.firstChild().nodeValue,
 
 						x: 0.0,
 						y: 0.0,
@@ -399,31 +378,6 @@ class NewAlphabet extends FlxSprite {
 				}
 
 				defaults[idx] = res;
-			case "component-data":
-				if(!node.exists("id")) {
-					Logs.error("<component-data> must have an id attribute", "Alphabet");
-					return;
-				}
-
-				var id = node.get("id");
-				var anim = node.firstChild().nodeValue.trim();
-				var outline:AlphabetOutline = null;
-				if(node.firstElement() != null) {
-					var outlineNode = node.firstElement();
-					switch(outlineNode.nodeName) {
-						case "outline":
-							outline = {
-								anim: outlineNode.firstChild().nodeValue.trim(),
-								x: Std.parseFloat(outlineNode.get("x")).getDefaultFloat(0.0),
-								y: Std.parseFloat(outlineNode.get("y")).getDefaultFloat(0.0)
-							};
-					}
-				}
-
-				allComponents.set(id, {
-					anim: anim,
-					outline: outline
-				});
 			case "composite":
 				if(!node.exists("char")) {
 					Logs.error("<composite> must have a char attribute", "Alphabet");
@@ -433,8 +387,8 @@ class NewAlphabet extends FlxSprite {
 				var advance:Float = Std.parseFloat(node.get("advance"));
 				var components:Array<AlphabetComponent> = [];
 				for (component in node.elementsNamed("component")) {
-					if(!component.exists("id")) {
-						Logs.error("<component> must have a id attribute", "Alphabet");
+					if(!component.exists("anim")) {
+						Logs.error("<component> must have a anim attribute", "Alphabet");
 						return;
 					}
 
@@ -445,14 +399,8 @@ class NewAlphabet extends FlxSprite {
 					var xOff:Float = -Std.parseFloat(component.get("x")).getDefaultFloat(0.0);
 					var yOff:Float = Std.parseFloat(component.get("y")).getDefaultFloat(0.0);
 
-					var componentId = component.get("id").trim();
-					if(!allComponents.exists(componentId)) {
-						Logs.error("Component with id '" + componentId + "' does not exist", "Alphabet");
-						return;
-					}
-
 					components.push({
-						data: allComponents.get(componentId),
+						anim: component.get("anim"),
 
 						x: xOff,
 						y: yOff,
@@ -484,18 +432,12 @@ class NewAlphabet extends FlxSprite {
 				var yOff:Float = Std.parseFloat(node.get("y")).getDefaultFloat(0.0);
 				var advance:Float = Std.parseFloat(node.get("advance"));
 
-				// register character as component
-				allComponents.set(char, {
-					anim: node.firstChild().nodeValue,
-					outline: null
-				});
-
 				letterData.set(char, {
 					isDefault: false,
 					advance: advance,
 					advanceEmpty: Math.isNaN(advance),
 					components: [{
-						data: allComponents.get(char),
+						anim: node.firstChild().nodeValue,
 
 						x: xOff,
 						y: yOff,

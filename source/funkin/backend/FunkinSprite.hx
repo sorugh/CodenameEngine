@@ -1,10 +1,13 @@
 package funkin.backend;
 
 import flixel.addons.effects.FlxSkewedSprite;
+import flixel.animation.FlxAnimation;
 import flixel.math.FlxMatrix;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.system.FlxAssets.FlxGraphicAsset;
+import flixel.util.typeLimit.OneOfTwo;
+import flxanimate.animate.FlxAnim.FlxSymbolAnimation;
 import funkin.backend.scripting.events.PlayAnimContext;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.backend.system.interfaces.IOffsetCompatible;
@@ -327,6 +330,12 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 		lastAnimContext = Context;
 	}
 
+	public function getAnim(name:String):OneOfTwo<FlxAnimation, FlxSymbolAnimation> {
+		if(animateAtlas != null)
+			return animateAtlas.anim.getByName(name);
+		return animation.getByName(name);
+	}
+
 	public inline function getAnimOffset(name:String)
 	{
 		if (animOffsets.exists(name))
@@ -368,7 +377,11 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 	}
 
 	public inline function isAnimFinished() {
-		return animateAtlas != null ? (animateAtlas.anim.finished) : (animation.curAnim != null ? animation.curAnim.finished : true);
+		return animateAtlas != null ? animateAtlas.anim.finished : (animation.curAnim != null ? animation.curAnim.finished : true);
+	}
+
+	public inline function isAnimAtEnd() {
+		return animateAtlas != null ? animateAtlas.anim.isAtEnd : (animation.curAnim != null ? animation.curAnim.isAtEnd : false);
 	}
 	#end
 

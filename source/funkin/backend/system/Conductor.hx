@@ -181,7 +181,11 @@ class Conductor
 	private static var __updateMeasure:Bool;
 
 	private static function update() {
-		if (FlxG.state != null && FlxG.state is MusicBeatState && cast(FlxG.state, MusicBeatState).cancelConductorUpdate) return;
+		if (FlxG.state != null && FlxG.state is MusicBeatState) {
+			var state:MusicBeatState = cast FlxG.state;
+			if(state.cancelConductorUpdate)
+				return;
+		}
 
 		__updateSongPos(FlxG.elapsed);
 
@@ -233,7 +237,7 @@ class Conductor
 					var state = FlxG.state;
 					while(state != null) {
 						if (state is IBeatReceiver && (state.subState == null || state.persistentUpdate)) {
-							var st = cast(state, IBeatReceiver);
+							var st:IBeatReceiver = cast state;
 							if (curStep > oldStep) {
 								for(i in oldStep...curStep) {
 									st.stepHit(i+1);

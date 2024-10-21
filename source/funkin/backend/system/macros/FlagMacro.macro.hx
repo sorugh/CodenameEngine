@@ -52,6 +52,10 @@ class FlagMacro {
 							parser = macro value.split(",").map((e) -> e.trim());
 						case macro: Array<String>:
 							parser = macro value.split(",");
+						case macro: Array<Int>:
+							parser = macro value.split(",").map((e) -> Std.parseInt(e));
+						case macro: Array<Float>:
+							parser = macro value.split(",").map((e) -> Std.parseFloat(e));
 						case macro: Array<Bool>:
 							parser = macro value.split(",").map((e) -> {
 								e = e.trim();
@@ -59,6 +63,8 @@ class FlagMacro {
 							});
 						case macro: Int:
 							parser = macro Std.parseInt(value);
+						case macro: Float:
+							parser = macro Std.parseFloat(value);
 						case macro: String:
 							parser = macro value;
 						case macro: Bool:
@@ -145,7 +151,7 @@ class FlagMacro {
 						case TPath({name: "Map", pack: []}):
 							Context.error("Flag " + field.name + " cannot be a Map<K, V>", field.pos);
 						default:
-							Context.error("Flag " + field.name + " must be either a Bool, Int, String, Array<String>, Array<Bool> or Array<TrimmedString>", field.pos);
+							Context.error("Flag " + field.name + " must be either a Bool, Int, Float, String, Array<String>, Array<Int>, Array<Float>, Array<Bool> or Array<TrimmedString>", field.pos);
 					}
 
 					if(parser == null) {

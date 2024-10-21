@@ -252,7 +252,8 @@ class StrumLine extends FlxTypedGroup<Strum> {
 			__justReleased.push(s.__getJustReleased(this));
 		}
 
-		var event = PlayState.instance.gameAndCharsEvent("onInputUpdate", EventManager.get(InputSystemEvent).recycle(__pressed, __justPressed, __justReleased, this, id));
+		var event = EventManager.get(InputSystemEvent).recycle(__pressed, __justPressed, __justReleased, this, id);
+		if (PlayState.instance != null) PlayState.instance.gameAndCharsEvent("onInputUpdate", event);
 		if (event.cancelled) return;
 
 		__pressed = CoolUtil.getDefault(event.pressed, []);
@@ -321,8 +322,8 @@ class StrumLine extends FlxTypedGroup<Strum> {
 			babyArrow.scrollSpeed = data.scrollSpeed;
 
 		var event = EventManager.get(StrumCreationEvent).recycle(babyArrow, PlayState.instance.strumLines.members.indexOf(this), i, animPrefix);
-		event.__doAnimation = !MusicBeatState.skipTransIn;
-		event = PlayState.instance.gameAndCharsEvent("onStrumCreation", event);
+		event.__doAnimation = !MusicBeatState.skipTransIn && (PlayState.instance != null ? PlayState.instance.introLength > 0 : true);
+		if (PlayState.instance != null) event = PlayState.instance.gameAndCharsEvent("onStrumCreation", event);
 
 		if (!event.cancelled) {
 			babyArrow.frames = Paths.getFrames(event.sprite);
@@ -353,7 +354,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 
 		insert(i, babyArrow);
 
-		PlayState.instance.gameAndCharsEvent("onPostStrumCreation", event);
+		if (PlayState.instance != null) PlayState.instance.gameAndCharsEvent("onPostStrumCreation", event);
 
 		return babyArrow;
 	}

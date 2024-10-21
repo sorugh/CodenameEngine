@@ -160,6 +160,11 @@ class PlayState extends MusicBeatState
 	 * Boyfriend character
 	 */
 	public var boyfriend(get, set):Character;
+	/**
+	 * Boyfriend character
+	 * Same as boyfriend, just shorter
+	**/
+	public var bf(get, set):Character;
 
 	/**
 	 * Strum line position
@@ -890,12 +895,12 @@ class PlayState extends MusicBeatState
 		Conductor.songPosition = 0;
 		Conductor.songPosition -= Conductor.crochet * introLength - Conductor.songOffset;
 
-		var swagCounter:Int = 0;
-
-		startTimer = new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
-		{
-			countdown(swagCounter++);
-		}, introLength);
+		if(introLength > 0) {
+			var swagCounter:Int = 0;
+			startTimer = new FlxTimer().start(Conductor.crochet / 1000, (tmr:FlxTimer) -> {
+				countdown(swagCounter++);
+			}, introLength);
+		}
 		gameAndCharsCall("onPostStartCountdown");
 	}
 
@@ -1073,7 +1078,7 @@ class PlayState extends MusicBeatState
 				vocals.pause();
 			}
 
-			if (!startTimer.finished)
+			if (startTimer != null && !startTimer.finished)
 				startTimer.active = false;
 		}
 
@@ -1093,7 +1098,7 @@ class PlayState extends MusicBeatState
 				resyncVocals();
 			}
 
-			if (!startTimer.finished)
+			if (startTimer != null && !startTimer.finished)
 				startTimer.active = true;
 			paused = false;
 
@@ -1879,6 +1884,16 @@ class PlayState extends MusicBeatState
 		if (strumLines != null && strumLines.members[1] != null)
 			strumLines.members[1].characters = [bf];
 		return bf;
+	}
+	private function set_bf(bf:Character):Character {
+		if (strumLines != null && strumLines.members[1] != null)
+			strumLines.members[1].characters = [bf];
+		return bf;
+	}
+	private function get_bf():Character {
+		if (strumLines != null && strumLines.members[1] != null)
+			return strumLines.members[1].characters[0];
+		return null;
 	}
 	private function get_dad():Character {
 		if (strumLines != null && strumLines.members[0] != null)

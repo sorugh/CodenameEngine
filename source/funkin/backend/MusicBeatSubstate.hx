@@ -17,6 +17,10 @@ class MusicBeatSubstate extends FlxSubState implements IBeatReceiver
 	private var lastStep:Float = 0;
 
 	/**
+	 * Whether this specifc substate can open custom transitions
+	 */
+	public var canOpenCustomTransition:Bool = false;
+	/**
 	 * Current step
 	 */
 	public var curStep(get, never):Int;
@@ -250,19 +254,14 @@ class MusicBeatSubstate extends FlxSubState implements IBeatReceiver
 
 	public var parent:FlxState;
 
-	public function onSubstateOpen() {
-
-	}
+	public function onSubstateOpen() {}
 
 	public override function resetSubState() {
+		super.resetSubState();
 		if (subState != null && subState is MusicBeatSubstate) {
 			var subState:MusicBeatSubstate = cast subState;
 			subState.parent = this;
-			super.resetSubState();
-			if (subState != null)
-				cast(subState, MusicBeatSubstate).onSubstateOpen();
-			return;
+			subState.onSubstateOpen();
 		}
-		super.resetSubState();
 	}
 }

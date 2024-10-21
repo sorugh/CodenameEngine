@@ -162,10 +162,36 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 		persistentUpdate = true;
 		call("postCreate");
 		if (!skipTransIn)
-			openSubState(new MusicBeatTransition(null));
+			startTransition(null);
 		skipTransIn = false;
 		skipTransOut = false;
 	}
+
+	public function startTransition(?newState:FlxState, skipSubStates:Bool = false):Bool {
+		if (!skipSubStates) {
+			var curCheckingSub:FlxSubState = subState;
+			var found:FlxSubState = null;  // always gets the last one  - Nex
+
+			while (curCheckingSub != null) {
+				if (curCheckingSub is MusicBeatTransition) {
+					found = null;  // avoiding infinite loops  - Nex
+					break;
+				}
+
+				if (curCheckingSub is MusicBeatSubstate && cast(curCheckingSub, MusicBeatSubstate).canOpenCustomTransition) found = curCheckingSub;
+				curCheckingSub = curCheckingSub.subState;
+			}
+
+			if (found != null) {
+				found.openSubState(new MusicBeatTransition(newState));
+				return true;  // "Started from a substate?"
+			}
+		}
+
+		openSubState(new MusicBeatTransition(newState));
+		return false;
+	}
+
 	public function call(name:String, ?args:Array<Dynamic>, ?defaultVal:Dynamic):Dynamic {
 		// calls the function on the assigned script
 		if(stateScripts != null)
@@ -258,7 +284,7 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 
 		if (skipTransOut || (subState is MusicBeatTransition && cast(subState, MusicBeatTransition).newState != null))
 			return true;
-		openSubState(new MusicBeatTransition(e.substate));
+		startTransition(e.substate);
 		persistentUpdate = false;
 		return false;
 	}

@@ -23,6 +23,8 @@ class Cutscene extends MusicBeatSubstate {
 
 	public function new(callback:Void->Void, allowPause:Bool = true, canSkip:Bool = true) {
 		super();
+		canOpenCustomTransition = true;
+
 		__callback = callback;
 		__pausable = allowPause;
 

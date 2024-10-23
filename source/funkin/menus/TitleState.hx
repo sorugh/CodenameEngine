@@ -25,8 +25,6 @@ class TitleState extends MusicBeatState
 	public var textGroup:FlxGroup;
 	public var ngSpr:FlxSprite;
 
-	public var wackyImage:FlxSprite;
-
 	override public function create():Void
 	{
 		curWacky = FlxG.random.getObject(getIntroTextShit());
@@ -40,9 +38,6 @@ class TitleState extends MusicBeatState
 		DiscordUtil.call("onMenuLoaded", ["Title Screen"]);
 	}
 
-	var logoBl:FlxSprite;
-	var gfDance:FlxSprite;
-	var danceLeft:Bool = false;
 	var titleText:FlxSprite;
 	var titleScreenSprites:MusicBeatGroup;
 

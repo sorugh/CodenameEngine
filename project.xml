@@ -118,9 +118,6 @@
 	<!-- Comment this out to disable multithreading !-->
 	<haxedef name="ALLOW_MULTITHREADING" unless="web || flash" />
 
-	<!-- Comment this out to disable titlescreen.xml !-->
-	<haxedef name="TITLESCREEN_XML" />
-
 	<!-- Comment this out to disable mods folder !-->
 	<haxedef name="MOD_SUPPORT" unless="web"/>
 

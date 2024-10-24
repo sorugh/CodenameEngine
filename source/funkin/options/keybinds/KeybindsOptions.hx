@@ -19,7 +19,7 @@ class KeybindsOptions extends MusicBeatSubstate {
 	public var categories:Array<KeybindCategory> = [];
 
 	public function translate(id:String, ?args:Array<Dynamic>)
-		return TU.translate("Keybinds." + id, args);
+		return TU.translate("KeybindsOptions." + id, args);
 
 	public var settingCam:FlxCamera;
 

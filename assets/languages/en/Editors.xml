@@ -4,10 +4,11 @@
 		<str id="editor.autosavingIn">Autosaving in {0} seconds{1}</str>
 		<str id="editor.autosavingCanceledSuffix">(Canceled)!</str>
 
-		<str id="editor.saveClose">Save &amp; Close</str>
-		<str id="editor.save">Save</str>
-		<str id="editor.close">Close</str>
 		<str id="editor.ok">Ok</str>
+		<str id="editor.cancel">Cancel</str>
+		<str id="editor.save">Save</str>
+		<str id="editor.saveClose">Save &amp; Close</str>
+		<str id="editor.close">Close</str>
 	</group>
 
 	<group name="CharterSelection" prefix="charterSelection.">

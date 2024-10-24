@@ -1201,7 +1201,7 @@ class Charter extends UIState {
 			noteTypeText.x = noteTopButton.x + noteTopButton.bWidth + 6;
 			noteTypeText.y = Std.int((noteTopButton.bHeight - noteTypeText.height) / 2);
 		}
-		noteTypeText.text = '($noteType) ${noteTypes[noteType-1] == null ? TU.translate("noteTypes.default") : noteTypes[noteType-1]}';
+		noteTypeText.text = '($noteType) ' + (noteTypes[noteType-1] == null ? TU.translate("charter.noteTypes.default") : noteTypes[noteType-1]);
 
 		super.update(elapsed);
 

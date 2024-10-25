@@ -216,7 +216,7 @@ final class Conductor
 				//if (beatsPerMeasure == curChange.beatsPerMeasure && stepsPerBeat == curChange.stepsPerBeat) continue;
 				/* TODO: make so time sigs doesnt stop the bpm change if its in the duration of bpm change */
 
-				if (curChange.songTime != time) curChange = mapBPMChange(curChange, time, curChange.bpm, null, prevChange);
+				if (curChange.songTime != time) curChange = mapBPMChange(prevChange = curChange, time, curChange.bpm, null, prevChange);
 				curChange.beatsPerMeasure = params[0];
 				curChange.stepsPerBeat = params[1];
 				
@@ -278,10 +278,16 @@ final class Conductor
 
 		if (curChangeIndex != oldChangeIndex) {
 			var prev = bpmChangeMap[oldChangeIndex];
-			if (beatsPerMeasure != prev.beatsPerMeasure || stepsPerBeat != prev.stepsPerBeat)
-				onTimeSignatureChange.dispatch(beatsPerMeasure, stepsPerBeat);
+			if (prev) {
+				if (beatsPerMeasure != prev.beatsPerMeasure || stepsPerBeat != prev.stepsPerBeat)
+					onTimeSignatureChange.dispatch(beatsPerMeasure, stepsPerBeat);
 
-			if (curChange.bpm != prev.bpm) onBPMChange.dispatch(curChange.bpm, curChange.endSongTime);
+				if (curChange.bpm != prev.bpm) onBPMChange.dispatch(curChange.bpm, curChange.endSongTime);
+			}
+			else {
+				onTimeSignatureChange.dispatch(beatsPerMeasure, stepsPerBeat);
+				onBPMChange.dispatch(curChange.bpm, curChange.endSongTime);
+			}
 		}
 
 		if (curStep != (curStep = CoolUtil.floorInt(curStepFloat))) {

@@ -101,5 +101,7 @@
 		<str id="diff.easy">Easy</str>
 		<str id="diff.normal">Normal</str>
 		<str id="diff.hard">Hard</str>
+		<str id="diff.erect">Erect</str>
+		<str id="diff.nightmare">Nightmare</str>
 	</group>
 </language>

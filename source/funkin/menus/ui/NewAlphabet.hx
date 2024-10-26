@@ -21,6 +21,7 @@ final class AlphabetComponent {
 	public var y:Float;
 
 	// Precalculated values for angle
+	public var shouldRotate:Bool;
 	public var sin:Float;
 	public var cos:Float;
 	public var scaleX:Float;
@@ -248,11 +249,11 @@ class NewAlphabet extends FlxSprite {
 	}
 
 	function drawLetter(camera) {
-		_frame.prepareMatrix(_matrix, flixel.graphics.frames.FlxFrame.FlxFrameAngle.ANGLE_0, checkFlipX() != camera.flipX, checkFlipY() != camera.flipY);
+		_frame.prepareMatrix(_matrix, ANGLE_0, checkFlipX() != camera.flipX, checkFlipY() != camera.flipY);
 
 		_matrix.translate(_frame.frame.width * -0.5, _frame.frame.height * -0.5);
 		_matrix.scale(__component.scaleX, __component.scaleY);
-		_matrix.rotateWithTrig(__component.cos, __component.sin);
+		if(__component.shouldRotate) _matrix.rotateWithTrig(__component.cos, __component.sin);
 		_matrix.translate(_frame.frame.width * 0.5, _frame.frame.height * 0.5);
 
 		_matrix.translate(-origin.x, -origin.y);
@@ -410,9 +411,9 @@ class NewAlphabet extends FlxSprite {
 			case "defaultAnim":
 				var idx = ["UPPER", "LOWER"].indexOf(node.get("casing").toUpperCase()) + 1;
 
-				var angle:Float = Std.parseFloat(node.get("angle")).getDefaultFloat(0.0) * FlxAngle.TO_RAD;
-				var angleCos = Math.cos(angle);
-				var angleSin = Math.sin(angle);
+				var rad:Float = Std.parseFloat(node.get("angle")).getDefaultFloat(0.0) * FlxAngle.TO_RAD;
+				var angleCos = Math.cos(rad);
+				var angleSin = Math.sin(rad);
 
 				var res:AlphabetLetterData = {
 					isDefault: true,
@@ -426,6 +427,7 @@ class NewAlphabet extends FlxSprite {
 						scaleX: Std.parseFloat(node.get("scaleX")).getDefaultFloat(1.0),
 						scaleY: Std.parseFloat(node.get("scaleY")).getDefaultFloat(1.0),
 
+						shouldRotate: rad != 0,
 						cos: angleCos,
 						sin: angleSin
 					}]
@@ -446,9 +448,9 @@ class NewAlphabet extends FlxSprite {
 						return;
 					}
 
-					var angle:Float = Std.parseFloat(component.get("angle")).getDefaultFloat(0.0) * FlxAngle.TO_RAD;
-					var angleCos = Math.cos(angle);
-					var angleSin = Math.sin(angle);
+					var rad:Float = Std.parseFloat(component.get("angle")).getDefaultFloat(0.0) * FlxAngle.TO_RAD;
+					var angleCos = Math.cos(rad);
+					var angleSin = Math.sin(rad);
 
 					var xOff:Float = -Std.parseFloat(component.get("x")).getDefaultFloat(0.0);
 					var yOff:Float = Std.parseFloat(component.get("y")).getDefaultFloat(0.0);
@@ -461,6 +463,7 @@ class NewAlphabet extends FlxSprite {
 						scaleX: Std.parseFloat(component.get("scaleX")).getDefaultFloat(1.0),
 						scaleY: Std.parseFloat(component.get("scaleY")).getDefaultFloat(1.0),
 
+						shouldRotate: rad != 0,
 						cos: angleCos,
 						sin: angleSin
 					});
@@ -478,9 +481,9 @@ class NewAlphabet extends FlxSprite {
 				}
 				var char = node.get("char");
 
-				var angle:Float = Std.parseFloat(node.get("angle")).getDefaultFloat(0.0);
-				var angleCos = Math.cos(angle);
-				var angleSin = Math.sin(angle);
+				var rad:Float = Std.parseFloat(node.get("angle")).getDefaultFloat(0.0) * FlxAngle.TO_RAD;
+				var angleCos = Math.cos(rad);
+				var angleSin = Math.sin(rad);
 
 				var xOff:Float = -Std.parseFloat(node.get("x")).getDefaultFloat(0.0);
 				var yOff:Float = Std.parseFloat(node.get("y")).getDefaultFloat(0.0);
@@ -498,6 +501,7 @@ class NewAlphabet extends FlxSprite {
 						scaleX: Std.parseFloat(node.get("scaleX")).getDefaultFloat(1.0),
 						scaleY: Std.parseFloat(node.get("scaleY")).getDefaultFloat(1.0),
 
+						shouldRotate: rad != 0,
 						cos: angleCos,
 						sin: angleSin
 					}]

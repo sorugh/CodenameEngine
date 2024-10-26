@@ -6,6 +6,7 @@ import funkin.menus.ui.effects.RegionEffect;
 import flixel.animation.FlxAnimation;
 import flixel.util.FlxDirectionFlags;
 import flixel.math.FlxPoint;
+import flixel.math.FlxAngle;
 import flixel.FlxTypes;
 
 import haxe.xml.Access;
@@ -75,6 +76,7 @@ enum abstract CaseMode(ByteUInt) from ByteUInt to ByteUInt {
 class NewAlphabet extends FlxSprite {
 	public var effects:Array<RegionEffect> = [];
 	var __renderData:AlphabetRenderData;
+	var __component:AlphabetComponent;
 
 	public var text(default, set):String = "";
 	@:isVar public var textWidth(get, set):Float;
@@ -206,25 +208,24 @@ class NewAlphabet extends FlxSprite {
 
 			var advance:Float = Math.NaN;
 
-			for (i => com in data.components) {
-				var anim = getLetterAnim(letter, data, com, i);
+			for (i in 0...data.components.length) {
+				__component = data.components[i];
+				var anim = getLetterAnim(letter, data, __component, i);
 				advance = (Math.isNaN(advance)) ? getAdvance(letter, anim, data) : advance;
 
-				if (anim == null || __renderData.alpha <= 0.0) {
-					frameOffset.x -= advance;
+				if (anim == null || __renderData.alpha <= 0.0)
 					break; // shouldnt this be like continue?
-				}
 
 				var frameToGet = frameTime % anim.numFrames;
 				frame = frames.frames[anim.frames[frameToGet]];
 
-				var offsetX = com.x + __renderData.offsetX;
-				var offsetY = frame.sourceSize.y - lineGap + com.y + __renderData.offsetY;
+				var offsetX = __component.x + __renderData.offsetX;
+				var offsetY = frame.sourceSize.y - lineGap + __component.y + __renderData.offsetY;
 				frameOffset.x += offsetX;
 				frameOffset.y += offsetY;
 				if (!isOnScreen(camera)) {
 					frameOffset.y -= offsetY;
-					frameOffset.x -= offsetX + advance;
+					frameOffset.x -= offsetX;
 					break;
 				}
 				if (isGraphicsShader)
@@ -234,14 +235,67 @@ class NewAlphabet extends FlxSprite {
 					__renderData.red * transformMult, __renderData.green * transformMult, __renderData.blue * transformMult, __renderData.alpha,
 					Math.round(__renderData.red * offsetMult), Math.round(__renderData.green * offsetMult), Math.round(__renderData.blue * offsetMult), 0
 				);
-				super.drawComplex(camera);
+				drawLetter(camera);
 				frameOffset.y -= offsetY;
-				frameOffset.x -= offsetX + advance;
+				frameOffset.x -= offsetX;
 			}
+			frameOffset.x -= advance;
 		}
+		__component = null;
 
 		setColorTransform(ogRed, ogGreen, ogBlue, ogAlpha, 0, 0, 0, 0);
 		frameOffset.set(ogOffX, ogOffY);
+	}
+
+	function drawLetter(camera) {
+		_frame.prepareMatrix(_matrix, flixel.graphics.frames.FlxFrame.FlxFrameAngle.ANGLE_0, checkFlipX() != camera.flipX, checkFlipY() != camera.flipY);
+
+		_matrix.translate(_frame.frame.width * -0.5, _frame.frame.height * -0.5);
+		_matrix.scale(__component.scaleX, __component.scaleY);
+		_matrix.rotateWithTrig(__component.cos, __component.sin);
+		_matrix.translate(_frame.frame.width * 0.5, _frame.frame.height * 0.5);
+
+		_matrix.translate(-origin.x, -origin.y);
+
+		if (frameOffsetAngle != null && frameOffsetAngle != angle)
+		{
+			var angleOff = (frameOffsetAngle - angle) * FlxAngle.TO_RAD;
+			var cos = Math.cos(angleOff);
+			var sin = Math.sin(angleOff);
+			// cos doesnt need to be negated
+			_matrix.rotateWithTrig(cos, -sin);
+			_matrix.translate(-frameOffset.x, -frameOffset.y);
+			_matrix.rotateWithTrig(cos, sin);
+		}
+		else
+			_matrix.translate(-frameOffset.x, -frameOffset.y);
+
+		_matrix.scale(scale.x, scale.y);
+
+		if (bakedRotationAngle <= 0)
+		{
+			updateTrig();
+
+			if (angle != 0)
+				_matrix.rotateWithTrig(_cosAngle, _sinAngle);
+		}
+
+		getScreenPosition(_point, camera).subtractPoint(offset);
+		_point.add(origin.x, origin.y);
+		_matrix.translate(_point.x, _point.y);
+
+		if (isPixelPerfectRender(camera))
+		{
+			_matrix.tx = Math.floor(_matrix.tx);
+			_matrix.ty = Math.floor(_matrix.ty);
+		}
+
+		doAdditionalMatrixStuff(_matrix, camera);
+
+		if (layer != null)
+			layer.drawPixels(this, camera, _frame, framePixels, _matrix, colorTransform, blend, antialiasing, shaderEnabled ? shader : null);
+		else
+			camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shaderEnabled ? shader : null);
 	}
 
 	override function updateHitbox():Void {
@@ -356,7 +410,7 @@ class NewAlphabet extends FlxSprite {
 			case "defaultAnim":
 				var idx = ["UPPER", "LOWER"].indexOf(node.get("casing").toUpperCase()) + 1;
 
-				var angle:Float = Std.parseFloat(node.get("angle")).getDefaultFloat(0.0);
+				var angle:Float = Std.parseFloat(node.get("angle")).getDefaultFloat(0.0) * FlxAngle.TO_RAD;
 				var angleCos = Math.cos(angle);
 				var angleSin = Math.sin(angle);
 
@@ -392,7 +446,7 @@ class NewAlphabet extends FlxSprite {
 						return;
 					}
 
-					var angle:Float = Std.parseFloat(component.get("angle")).getDefaultFloat(0.0);
+					var angle:Float = Std.parseFloat(component.get("angle")).getDefaultFloat(0.0) * FlxAngle.TO_RAD;
 					var angleCos = Math.cos(angle);
 					var angleSin = Math.sin(angle);
 

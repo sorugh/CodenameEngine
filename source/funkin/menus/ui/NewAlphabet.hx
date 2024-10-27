@@ -26,6 +26,9 @@ final class AlphabetComponent {
 	public var cos:Float;
 	public var scaleX:Float;
 	public var scaleY:Float;
+
+	public var hasColorMode:Bool;
+	public var colorMode:ColorMode;
 }
 
 @:structInit
@@ -74,6 +77,27 @@ enum abstract CaseMode(ByteUInt) from ByteUInt to ByteUInt {
 		}
 }
 
+enum abstract ColorMode(ByteInt) from ByteInt to ByteInt {
+	var TINT = 0;
+	var OFFSET = 1;
+	var NONE = 2;
+
+	public function setColorTransform(color:openfl.geom.ColorTransform, red:Float, green:Float, blue:Float, alpha:Float) {
+		var moduloWorkaround:Int = this;
+		var tintMult = Math.max(-moduloWorkaround + 1, 0);
+		var tintOffset = Math.min(moduloWorkaround, 1);
+		var offsetMult = (moduloWorkaround % 2) * 255;
+
+		color.redMultiplier = red * tintMult + tintOffset;
+		color.greenMultiplier = green * tintMult + tintOffset;
+		color.blueMultiplier = blue * tintMult + tintOffset;
+		color.redOffset = red * offsetMult;
+		color.greenOffset = green * offsetMult;
+		color.blueOffset = blue * offsetMult;
+		color.alphaMultiplier = alpha;
+	}
+}
+
 class NewAlphabet extends FlxSprite {
 	public var effects:Array<RegionEffect> = [];
 	var __renderData:AlphabetRenderData;
@@ -95,7 +119,7 @@ class NewAlphabet extends FlxSprite {
 	public var originOffset:FlxPoint = FlxPoint.get();
 
 	public var font(default, set):String;
-	var transformMult:ByteUInt = 1; // 1 if multipliers (tint), 0 if offset.
+	var colorMode:ColorMode = TINT;
 	var defaultAdvance:Float = 40.0;
 	var lineGap:Float = 75.0;
 	var fps:Float = 24.0;
@@ -176,7 +200,6 @@ class NewAlphabet extends FlxSprite {
 		frameOffset.x -= (textWidth - __laneWidths[0]) * alignmentMultiplier;
 
 		var isGraphicsShader = shader != null && shader is flixel.graphics.tile.FlxGraphicsShader;
-		var offsetMult = (1 - transformMult) * 255;
 		var ogRed:Float = colorTransform.redMultiplier;
 		var ogGreen:Float = colorTransform.greenMultiplier;
 		var ogBlue:Float = colorTransform.blueMultiplier;
@@ -232,10 +255,11 @@ class NewAlphabet extends FlxSprite {
 				if (isGraphicsShader)
 					shader.setCamSize(_frame.frame.x, _frame.frame.y, _frame.frame.width, _frame.frame.height);
 
-				setColorTransform(
-					__renderData.red * transformMult, __renderData.green * transformMult, __renderData.blue * transformMult, __renderData.alpha,
-					Math.round(__renderData.red * offsetMult), Math.round(__renderData.green * offsetMult), Math.round(__renderData.blue * offsetMult), 0
-				);
+				if (__component.hasColorMode)
+					__component.colorMode.setColorTransform(colorTransform, __renderData.red, __renderData.green, __renderData.blue, __renderData.alpha);
+				else
+					colorMode.setColorTransform(colorTransform, __renderData.red, __renderData.green, __renderData.blue, __renderData.alpha);
+
 				drawLetter(camera);
 				frameOffset.y -= offsetY;
 				frameOffset.x -= offsetX;
@@ -429,7 +453,10 @@ class NewAlphabet extends FlxSprite {
 
 						shouldRotate: rad != 0,
 						cos: angleCos,
-						sin: angleSin
+						sin: angleSin,
+
+						hasColorMode: false,
+						colorMode: 0
 					}]
 				}
 
@@ -455,6 +482,8 @@ class NewAlphabet extends FlxSprite {
 					var xOff:Float = -Std.parseFloat(component.get("x")).getDefaultFloat(0.0);
 					var yOff:Float = Std.parseFloat(component.get("y")).getDefaultFloat(0.0);
 
+					var colorMode = ["tint", "offsets", "none"].indexOf(component.get("colorMode"));
+
 					components.push({
 						anim: component.get("anim"),
 
@@ -465,7 +494,10 @@ class NewAlphabet extends FlxSprite {
 
 						shouldRotate: rad != 0,
 						cos: angleCos,
-						sin: angleSin
+						sin: angleSin,
+
+						hasColorMode: colorMode >= 0,
+						colorMode: colorMode
 					});
 				}
 				letterData.set(char, {
@@ -489,6 +521,8 @@ class NewAlphabet extends FlxSprite {
 				var yOff:Float = Std.parseFloat(node.get("y")).getDefaultFloat(0.0);
 				var advance:Float = Std.parseFloat(node.get("advance"));
 
+				var colorMode = ["tint", "offsets", "none"].indexOf(node.get("colorMode"));
+
 				letterData.set(char, {
 					isDefault: false,
 					advance: advance,
@@ -503,7 +537,10 @@ class NewAlphabet extends FlxSprite {
 
 						shouldRotate: rad != 0,
 						cos: angleCos,
-						sin: angleSin
+						sin: angleSin,
+
+						hasColorMode: colorMode >= 0,
+						colorMode: colorMode
 					}]
 				});
 			case "languageSection": // used to only parse characters if a specific language is selected
@@ -547,7 +584,7 @@ class NewAlphabet extends FlxSprite {
 		lineGap = Std.parseFloat(xml.get("lineGap")).getDefaultFloat(75.0);
 		fps = Std.parseFloat(xml.get("fps")).getDefaultFloat(24.0);
 		forceCase = xml.get("forceCasing").getDefault("none").toLowerCase();
-		transformMult = (xml.get("useColorOffsets") == "true") ? 0 : 1;
+		colorMode = (["offsets", "none"].indexOf(xml.get("colorMode")) + 1);
 
 		frames = null;
 

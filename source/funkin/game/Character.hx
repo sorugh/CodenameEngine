@@ -330,7 +330,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		if (xml.x.exists("gameOverChar")) gameOverCharacter = xml.x.get("gameOverChar");
 		if (xml.x.exists("camx")) cameraOffset.x = Std.parseFloat(xml.x.get("camx"));
 		if (xml.x.exists("camy")) cameraOffset.y = Std.parseFloat(xml.x.get("camy"));
-		if (xml.x.exists("holdTime")) holdTime = CoolUtil.getDefault(Std.parseFloat(xml.x.get("holdTime")), 4);
+		if (xml.x.exists("holdTime")) holdTime = Std.parseFloat(xml.x.get("holdTime")).getDefaultFloat(4);
 		if (xml.x.exists("flipX")) flipX = (xml.x.get("flipX") == "true");
 		if (xml.x.exists("icon")) icon = xml.x.get("icon");
 		if (xml.x.exists("color")) iconColor = FlxColor.fromString(xml.x.get("color"));

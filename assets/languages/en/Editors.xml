@@ -261,9 +261,11 @@
 	<!-- Character Editor -->
 
 	<group name="CharacterSelection" prefix="characterSelection.">
+		<str id="acceptFolder">Press ACCEPT to edit this folder.</str>
 		<str id="acceptCharacter">Press ACCEPT to edit this character.</str>
 		<str id="newCharacter">New Character</str>
 		<str id="desc">Select a character to edit</str>
+		<str id="desc-folder">Select a character to edit in {0}</str>
 
 		<group name="Warnings" prefix="warnings.">
 			<str id="notImplemented-title">New Character: Feature Not Implemented!</str>

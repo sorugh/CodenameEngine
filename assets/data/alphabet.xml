@@ -61,7 +61,6 @@
 		<letter char="~"        anim="character-tilde" />
 		<letter char="_"        anim="character-underscore" />
 		<letter char="|"        anim="character-verticalbar" />
-		<letter char="*"        anim="character-asterisk" />
 
 		<letter char="0"        anim="character-zero" />
 		<letter char="1"        anim="character-one" />

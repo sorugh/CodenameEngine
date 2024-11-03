@@ -6,36 +6,35 @@
 	<anim char="&amp;">character-ampersand</anim>
 	<anim char="&lt;">character-anglebracket-left</anim>
 	<anim char="&gt;">character-anglebracket-right</anim>
-	<anim char="*">character-asterisk</anim>
+	<anim char="*" y="30">character-asterisk</anim>
 	<anim char="@">character-at</anim>
 	<anim char="\">character-backslash</anim>
-	<anim char="`">character-backtick</anim>
-	<anim char="^">character-caret</anim>
-	<anim char=":">character-colon</anim>
-	<anim char=",">character-comma</anim>
+	<anim char="`" y="40">character-backtick</anim>
+	<anim char="^" y="30">character-caret</anim>
+	<anim char=":" y="10">character-colon</anim>
+	<anim char="," y="-15">character-comma</anim>
 	<anim char="{">character-curlybracket-left</anim>
 	<anim char="}">character-curlybracket-right</anim>
 	<anim char="$">character-dollar</anim>
-	<anim char='"'>character-doublequote</anim>
-	<anim char="=">character-equal</anim>
+	<anim char='"' y="35">character-doublequote0</anim>
+	<anim char="=" y="20">character-equal</anim>
 	<anim char="!">character-exclamationmark</anim>
-	<anim char="-">character-hyphen</anim>
+	<anim char="-" y="25">character-hyphen</anim>
 	<anim char="%">character-percent</anim>
 	<anim char=".">character-period</anim>
-	<anim char="+">character-plus</anim>
+	<anim char="+" y="10">character-plus</anim>
 	<anim char="#">character-pound</anim>
-	<anim char="?">character-questionmark</anim>
+	<anim char="?">character-questionmark0</anim>
 	<anim char="(">character-roundbracket-left</anim>
 	<anim char=")">character-roundbracket-right</anim>
-	<anim char=";">character-semicolon</anim>
-	<anim char="'">character-singlequote</anim>
+	<anim char=";" y="-15">character-semicolon</anim>
+	<anim char="'" y="35">character-singlequote</anim>
 	<anim char="/">character-slash</anim>
 	<anim char="[">character-squarebracket-left</anim>
 	<anim char="]">character-squarebracket-right</anim>
-	<anim char="~">character-tilde</anim>
-	<anim char="_">character-underscore</anim>
-	<anim char="|">character-verticalbar</anim>
-	<anim char="*">character-asterisk</anim>
+	<anim char="~" y="20">character-tilde0</anim>
+	<anim char="_">character-underscore0</anim>
+	<anim char="|">character-verticalbar0</anim>
 
 	<anim char="0">character-zero</anim>
 	<anim char="1">character-one</anim>

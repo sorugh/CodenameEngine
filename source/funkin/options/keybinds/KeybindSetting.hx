@@ -20,7 +20,7 @@ class KeybindSetting extends FlxTypedSpriteGroup<FlxSprite> {
 	public function new(x:Float, y:Float, name:String, value:String, ?sparrowIcon:String, ?sparrowAnim:String) {
 		super();
 		this.value = value;
-		title = new Alphabet(0, 0, name, true);
+		title = new Alphabet(0, 0, name, "bold");
 		add(title);
 
 		var controlArrayP1:Array<FlxKey> = Reflect.field(Options, 'P1_${value}');
@@ -31,12 +31,13 @@ class KeybindSetting extends FlxTypedSpriteGroup<FlxSprite> {
 
 		for(i in 1...3) {
 			var b = null;
+			var bx = FlxG.width * (0.25 * (i+1)) - x;
 			if (i == 1)
-				b = bind1 = new Alphabet(0, 0, "", false);
+				b = bind1 = new Alphabet(bx, 0, "", "normal");
 			else
-				b = bind2 = new Alphabet(0, 0, "", false);
+				b = bind2 = new Alphabet(bx, 0, "", "normal");
 
-			b.setPosition(FlxG.width * (0.25 * (i+1)) - x, -60);
+			//b.setPosition(FlxG.width * (0.25 * (i+1)) - x, -60);
 			add(b);
 		}
 		updateText();

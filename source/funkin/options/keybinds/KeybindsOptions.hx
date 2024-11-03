@@ -148,7 +148,7 @@ class KeybindsOptions extends MusicBeatSubstate {
 		var k:Int = 0;
 		for(category in categories) {
 			k++;
-			var title = new Alphabet(0, k * 75, category.name, true);
+			var title = new Alphabet(0, k * 75, category.name, "bold");
 			title.screenCenter(X);
 			add(title);
 

@@ -37,8 +37,8 @@ class ArrayOption extends OptionType {
 
 		this.optionName = optionName;
 
-		add(__text = new Alphabet(100, 20, text, true));
-		add(__selectiontext = new Alphabet(__text.width + 120, -30, formatTextOption(), false));
+		add(__text = new Alphabet(100, 20, text, "bold"));
+		add(__selectiontext = new Alphabet(__text.width + 120, 20, formatTextOption(), "normal"));
 
 		rawText = text;
 	}

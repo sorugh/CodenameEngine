@@ -12,7 +12,6 @@
 	<anim char="q" y="-15">q lowercase</anim>
 	<anim char="y" y="-15">y lowercase</anim>
 	<anim char="$">dollarsign</anim>
-	<anim char="#">hashtag</anim>
 	<anim char="&amp;">amp</anim>
 	<anim char="→" y="9">right arrow</anim>
 	<anim char="←" y="9">left arrow</anim>

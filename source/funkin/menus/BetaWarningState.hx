@@ -13,7 +13,7 @@ class BetaWarningState extends MusicBeatState {
 	public override function create() {
 		super.create();
 
-		titleAlphabet = new Alphabet(0, 0, TU.translate("betaWarning.title"), true);
+		titleAlphabet = new Alphabet(0, 0, TU.translate("betaWarning.title"), "bold");
 		titleAlphabet.screenCenter(X);
 		add(titleAlphabet);
 

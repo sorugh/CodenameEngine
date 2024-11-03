@@ -42,8 +42,7 @@
 
 		<str id="category.engine">Engine</str>
 		<group name="engine" prefix="engine.">
-			<!-- Change this to / when alphabet has it -->
-			<str id="switchMod">Change Mod or Mode</str>
+			<str id="switchMod">Mod/Mode</str>
 		</group>
 	</group>
 

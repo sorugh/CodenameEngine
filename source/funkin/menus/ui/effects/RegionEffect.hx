@@ -3,7 +3,7 @@ package funkin.menus.ui.effects;
 import flixel.util.FlxColor;
 
 class AlphabetRenderData { 
-	public var parent:NewAlphabet;
+	public var parent:Alphabet;
 	public var letter:String;
 	public var offsetX:Float = 0;
 	public var offsetY:Float = 0;
@@ -13,11 +13,11 @@ class AlphabetRenderData {
 	public var blue:Float = 0;
 	public var alpha:Float = 1;
 
-	public function new(parent:NewAlphabet) {
+	public function new(parent:Alphabet) {
 		this.parent = parent;
 	}
 
-	public function reset(parent:NewAlphabet, red:Float, green:Float, blue:Float, alpha:Float, letter:String) {
+	public function reset(parent:Alphabet, red:Float, green:Float, blue:Float, alpha:Float, letter:String) {
 		this.parent = parent;
 		this.letter = letter;
 		this.offsetX = 0;

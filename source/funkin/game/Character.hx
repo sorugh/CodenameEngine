@@ -519,9 +519,10 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		return xml;
 	}
 
-	public static function getIconFromCharName(?character:String) {
+	public static function getIconFromCharName(?character:String, ?defaultIcon:String = null) {
 		if(character == null) return "face";
-		var icon:String = character;
+		if(defaultIcon == null) defaultIcon = character;
+		var icon:String = defaultIcon;
 
 		var xml:Access = getXMLFromCharName(character);
 		if (xml != null && xml.x.exists("icon")) icon = xml.x.get("icon");
@@ -529,9 +530,17 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		return icon;
 	}
 
-	public static function getList(?mods:Bool = false):Array<String>
-		return [
-			for (path in Paths.getFolderContent('data/characters/', true, mods ? MODS : BOTH))
-				if (Path.extension(path) == "xml") CoolUtil.getFilename(path)
-		];
+	public static function getList(?mods:Bool = false, includeFolders:Bool = false, folder:String = 'data/characters/'):Array<String> {
+		var list:Array<String> = [];
+		if(includeFolders) {
+			for (path in Paths.getFolderDirectories(folder, true, mods ? MODS : BOTH)) {
+				if(!path.endsWith("/")) path += "/";
+				list.push(path);
+			}
+		}
+		for (path in Paths.getFolderContent(folder, true, mods ? MODS : BOTH))
+			if (Path.extension(path) == "xml")
+				list.push(CoolUtil.getFilename(path));
+		return list;
+	}
 }

@@ -14,6 +14,7 @@ import funkin.editors.charter.Charter;
 import funkin.menus.StoryMenuState;
 import funkin.options.OptionsMenu;
 import funkin.options.keybinds.KeybindsOptions;
+import funkin.options.TreeMenu;
 
 class PauseSubState extends MusicBeatSubstate
 {
@@ -167,9 +168,10 @@ class PauseSubState extends MusicBeatSubstate
 				persistentDraw = false;
 				openSubState(new KeybindsOptions());
 			case "Change Options":
+				TreeMenu.lastState = PlayState;
 				FlxG.switchState(new OptionsMenu());
 			case "Exit to charter":
-				FlxG.switchState(new funkin.editors.charter.Charter(PlayState.SONG.meta.name, PlayState.difficulty, false));
+				FlxG.switchState(new Charter(PlayState.SONG.meta.name, PlayState.difficulty, false));
 			case "Exit to menu":
 				if (PlayState.chartingMode && Charter.undos.unsaved)
 					game.saveWarn(false);

@@ -23,6 +23,7 @@ final class AlphabetComponent {
 
 	// Precalculated values for angle
 	public var shouldRotate:Bool;
+	public var angle:Float;
 	public var sin:Float;
 	public var cos:Float;
 	public var scaleX:Float;
@@ -99,6 +100,11 @@ enum abstract ColorMode(ByteInt) from ByteInt to ByteInt {
 	}
 }
 
+enum abstract AlphabetRenderMode(ByteUInt) from ByteUInt to ByteUInt {
+	var DEFAULT = 0;
+	var MONOSPACE = 1;
+}
+
 class Alphabet extends FlxSprite {
 	public var effects:Array<RegionEffect> = [];
 	var __renderData:AlphabetRenderData;
@@ -140,6 +146,8 @@ class Alphabet extends FlxSprite {
 		v;
 	};
 	var failedLetters:Array<String> = [];
+
+	public var renderMode:AlphabetRenderMode = DEFAULT;
 
 	// for menu shit
 	public var targetY:Float = 0;
@@ -220,6 +228,8 @@ class Alphabet extends FlxSprite {
 
 		var frameTime = Math.floor(__animTime * fps);
 
+		var isMonospace = renderMode == MONOSPACE;
+
 		for (i in 0...daText.length) {
 			__renderData.reset(this, ogRed, ogGreen, ogBlue, ogAlpha, daText.charAt(i));
 			for (effect in effects) {
@@ -258,6 +268,8 @@ class Alphabet extends FlxSprite {
 
 				var offsetX = __component.x + __renderData.offsetX;
 				var offsetY = frame.sourceSize.y - lineGap + __component.y + __renderData.offsetY;
+				if (isMonospace)
+					offsetX -= (defaultAdvance - advance) * 0.5;
 				frameOffset.x += offsetX;
 				frameOffset.y += offsetY;
 				if (!isOnScreen(camera)) {
@@ -277,7 +289,7 @@ class Alphabet extends FlxSprite {
 				frameOffset.y -= offsetY;
 				frameOffset.x -= offsetX;
 			}
-			frameOffset.x -= advance;
+			frameOffset.x -= isMonospace ? defaultAdvance : advance;
 		}
 		__component = null;
 
@@ -380,16 +392,8 @@ class Alphabet extends FlxSprite {
 		return (data.isDefault) ? frames.frames[anim.frames[0]].sourceSize.x : data.advance;
 	}
 
-	function getData(char:String):AlphabetLetterData {
-		if (failedLetters.contains(char)) return null;
-		for (i in 0...3) { // this feels wrong
-			if (loaded[i].contains(char))
-				return defaults[i];
-		}
-
-		var data:AlphabetLetterData = null;
-		if (letterData.exists(char))
-			data = letterData.get(char);
+	private function fastGetData(char:String):AlphabetLetterData {
+		var data = letterData.get(char);
 
 		if (data == null) {
 			var charCode:Int = char.charCodeAt(0);
@@ -401,7 +405,19 @@ class Alphabet extends FlxSprite {
 				data = defaults[CaseMode.NONE];
 		}
 
-		if(data == null) {
+		return data;
+	}
+
+	function getData(char:String):AlphabetLetterData {
+		if (failedLetters.contains(char)) return null;
+		for (i in 0...3) { // this feels wrong
+			if (loaded[i].contains(char))
+				return defaults[i];
+		}
+
+		var data:AlphabetLetterData = fastGetData(char);
+
+		if (data == null) {
 			failedLetters.push(char);
 			return null;
 		} else if (data.isDefault)
@@ -416,6 +432,16 @@ class Alphabet extends FlxSprite {
 				return i;
 		}
 		return -1;
+	}
+
+	function fastGetLetterAnim(char:String, data:AlphabetLetterData, component:AlphabetComponent, index:Int):FlxAnimation {
+		var name = char + Std.string(index);
+
+		var anim = (data.isDefault) ?
+			component.anim.replace("LETTER", char) :
+			component.anim;
+		animation.addByPrefix(name, anim, fps);
+		return animation.exists(name) ? animation.getByName(name) : null;
 	}
 
 	function getLetterAnim(char:String, data:AlphabetLetterData, component:AlphabetComponent, index:Int):FlxAnimation {
@@ -446,7 +472,8 @@ class Alphabet extends FlxSprite {
 			case "defaultAnim":
 				var idx = ["UPPER", "LOWER"].indexOf(node.get("casing").toUpperCase()) + 1;
 
-				var rad:Float = Std.parseFloat(node.get("angle")).getDefaultFloat(0.0) * FlxAngle.TO_RAD;
+				var angle:Float = Std.parseFloat(node.get("angle")).getDefaultFloat(0.0);
+				var rad = angle * FlxAngle.TO_RAD;
 				var angleCos = Math.cos(rad);
 				var angleSin = Math.sin(rad);
 
@@ -462,7 +489,8 @@ class Alphabet extends FlxSprite {
 						scaleX: Std.parseFloat(node.get("scaleX")).getDefaultFloat(1.0),
 						scaleY: Std.parseFloat(node.get("scaleY")).getDefaultFloat(1.0),
 
-						shouldRotate: rad != 0,
+						shouldRotate: angle != 0,
+						angle: angle,
 						cos: angleCos,
 						sin: angleSin,
 
@@ -486,7 +514,8 @@ class Alphabet extends FlxSprite {
 						return;
 					}
 
-					var rad:Float = Std.parseFloat(component.get("angle")).getDefaultFloat(0.0) * FlxAngle.TO_RAD;
+					var angle:Float = Std.parseFloat(component.get("angle")).getDefaultFloat(0.0);
+					var rad = angle * FlxAngle.TO_RAD;
 					var angleCos = Math.cos(rad);
 					var angleSin = Math.sin(rad);
 
@@ -503,7 +532,8 @@ class Alphabet extends FlxSprite {
 						scaleX: Std.parseFloat(component.get("scaleX")).getDefaultFloat(1.0),
 						scaleY: Std.parseFloat(component.get("scaleY")).getDefaultFloat(1.0),
 
-						shouldRotate: rad != 0,
+						shouldRotate: angle != 0,
+						angle: angle,
 						cos: angleCos,
 						sin: angleSin,
 
@@ -524,7 +554,8 @@ class Alphabet extends FlxSprite {
 				}
 				var char = node.get("char");
 
-				var rad:Float = Std.parseFloat(node.get("angle")).getDefaultFloat(0.0) * FlxAngle.TO_RAD;
+				var angle:Float = Std.parseFloat(node.get("angle")).getDefaultFloat(0.0);
+				var rad = angle * FlxAngle.TO_RAD;
 				var angleCos = Math.cos(rad);
 				var angleSin = Math.sin(rad);
 
@@ -546,7 +577,8 @@ class Alphabet extends FlxSprite {
 						scaleX: Std.parseFloat(node.get("scaleX")).getDefaultFloat(1.0),
 						scaleY: Std.parseFloat(node.get("scaleY")).getDefaultFloat(1.0),
 
-						shouldRotate: rad != 0,
+						shouldRotate: angle != 0,
+						angle: angle,
 						cos: angleCos,
 						sin: angleSin,
 
@@ -596,11 +628,44 @@ class Alphabet extends FlxSprite {
 		fps = Std.parseFloat(xml.get("fps")).getDefaultFloat(24.0);
 		forceCase = xml.get("forceCasing").getDefault("none").toLowerCase();
 		colorMode = (["offsets", "none"].indexOf(xml.get("colorMode")) + 1);
+		antialiasing = xml.get("antialiasing").getDefault("true") == "true";
 
 		frames = null;
 
 		for (node in xml.elements())
 			checkNode(node);
+	}
+
+	private static var alphabetProperties:Array<String> = ["fps", "advance", "lineGap", "forceCasing", "useColorOffsets", "antialiasing"];
+	private static var componentProperties:Array<String> = ["name", "anim", "x", "y", "scaleX", "scaleY", "angle", "offsetX", "offsetY"];
+
+	public function buildXML():Xml {
+		var xml = Xml.createElement("alphabet");
+		xml.set("fps", Std.string(fps));
+		xml.set("advance", Std.string(defaultAdvance));
+		xml.set("lineGap", Std.string(lineGap));
+		xml.set("forceCasing", forceCase);
+		xml.set("useColorOffsets", colorMode == OFFSET ? "true" : "false");
+		xml.set("antialiasing", antialiasing ? "true" : "false");
+
+		xml.attributeOrder = alphabetProperties;
+
+		/*for (component in components) {
+			var componentXml = Xml.createElement("component");
+			componentXml.attributeOrder = componentProperties;
+			componentXml.set("name", component.name);
+			componentXml.set("anim", component.anim);
+			componentXml.set("x", Std.string(component.x));
+			componentXml.set("y", Std.string(component.y));
+			if(component.scaleX != 1) componentXml.set("scaleX", Std.string(component.scaleX));
+			if(component.scaleY != 1) componentXml.set("scaleY", Std.string(component.scaleY));
+			if(component.angle != 0) componentXml.set("angle", Std.string(component.angle));
+			if(component.offsetX != 0) componentXml.set("offsetX", Std.string(component.offsetX));
+			if(component.offsetY != 0) componentXml.set("offsetY", Std.string(component.offsetY));
+			xml.addChild(componentXml);
+		}*/
+
+		return xml;
 	}
 
 	override function destroy():Void {

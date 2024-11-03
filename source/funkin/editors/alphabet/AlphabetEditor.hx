@@ -8,6 +8,7 @@ import funkin.game.Character;
 import haxe.xml.Access;
 import haxe.xml.Printer;
 
+@:access(funkin.menus.ui.Alphabet)
 class AlphabetEditor extends UIState {
 	static var __typeface:String;
 
@@ -31,6 +32,15 @@ class AlphabetEditor extends UIState {
 
 	inline function translate(id:String, ?args:Array<Dynamic>)
 		return TU.translate("alphabetEditor." + id, args);
+
+	public var tape:Alphabet;
+	public var bigletter:Alphabet;
+	public var curLetter:Int = 0;
+	public var targetX:Float = 0;
+
+	public var curSelectedComponent:AlphabetComponent = null;
+
+	public var allChars:Array<String> = [];
 
 	public override function create() {
 		super.create();
@@ -99,31 +109,14 @@ class AlphabetEditor extends UIState {
 				]
 			},
 			{
-				label: "                 ",
-				childs: [
-					{
-						label: "Tape",
-						//onSelect: _tape
-					}
-				]
-			},
-			{
 				label: "Move Tape Left",
-				childs: [
-					{
-						label: "Tape",
-						//onSelect: _tape
-					}
-				]
+				keybind: [LEFT],
+				onSelect: _tape_left
 			},
 			{
 				label: "Move Tape Right",
-				childs: [
-					{
-						label: "Tape",
-						//onSelect: _tape
-					}
-				]
+				keybind: [RIGHT],
+				onSelect: _tape_right
 			}
 		];
 
@@ -132,7 +125,7 @@ class AlphabetEditor extends UIState {
 		uiCamera = new FlxCamera();
 		uiCamera.bgColor = 0;
 
-		FlxG.cameras.add(uiCamera);
+		FlxG.cameras.add(uiCamera, false);
 
 		var bg = new FlxSprite(0, 0).makeSolid(Std.int(FlxG.width + 100), Std.int(FlxG.height + 100), 0xFF7f7f7f);
 		bg.cameras = [editorCamera];
@@ -146,79 +139,51 @@ class AlphabetEditor extends UIState {
 		//var alphabet:Alphabet = new Alphabet(0, 0, __typeface);
 		//add(alphabet);
 
-		var xml = Xml.parse(Assets.getText(Paths.xml('alphabet/$__typeface'))).firstElement();
-		var spritesheet = null;
-		for(node in xml.elements()) {
-			if (node.nodeName == "spritesheet") {
-				spritesheet = node.firstChild().nodeValue;
-				break;
+		allChars = [];
+
+		var helperAlphabet = new Alphabet(0, 0, "meow", __typeface);
+		for(cc in 33...0xffff) {
+			// todo: unicode
+			var letter = String.fromCharCode(cc);
+			var data = helperAlphabet.fastGetData(letter);
+			if(data == null) continue;
+			if(data.components.length == 0) continue;
+
+			var hasAnim = true;
+			var component;
+			for (i in 0...data.components.length) {
+				component = data.components[i];
+				var anim = helperAlphabet.fastGetLetterAnim(letter, data, component, i);
+				if(anim == null) {
+					hasAnim = false;
+					break;
+				}
 			}
+			if(!hasAnim) continue;
+
+			allChars.push(letter);
 		}
 
-		var useColorOffsets = xml.get("useColorOffsets").getDefault("false") == "true";
 
+		trace(allChars.join(" "));
+		tape = new Alphabet(0, 70, allChars.join(" "), __typeface);
+		tape.alignment = CENTER;
+		tape.renderMode = MONOSPACE;
+		tape.x = targetX = FlxG.width * 0.5 - tape.defaultAdvance * 0.5;
+		add(tape);
 
-		// todo fix crash if invalid spritesheet;
-		var alphabetFrames = Paths.getFrames(spritesheet);
-
-		var allChars = "";
-		for(frame in alphabetFrames.frames) {
-			var secondChar = frame.name.charAt(1);
-			if(secondChar != " ") continue;
-			if(allChars.contains(frame.name.charAt(0))) continue;
-			allChars += frame.name.charAt(0);
-		}
-
-		var letterSprites:Array<FlxSprite> = [];
-		for(letter in allChars.split("")) {
-			var spr = new FlxSprite(0, 0);
-			spr.frames = alphabetFrames;
-			spr.antialiasing = true;
-			spr.animation.addByPrefix("letter", letter, 24);
-			spr.animation.play("letter");
-			add(spr);
-			letterSprites.push(spr);
-		}
-
-		var length = letterSprites.length;
-		var letterWidth = 70;
-		var letterHeight = 80;
-		//var width = 10;
-		//var totalWidth = 10 * 70;
-		//for(i in 0...length) {
-		//	var letter = letterSprites[i];
-		//	var x = i % width * 70 + (FlxG.width / 2 - totalWidth / 2);
-		//	var y = Std.int(i / width) * 80 + 100;
-		//	letter.setPosition(x, y);
-		//}
-
-		var randomIndex = FlxG.random.int(0, length-1);
-		for(i in 0...length) {
-			var letter = letterSprites[i];
-			letter.alpha = 0.2;
-		}
-		letterSprites[randomIndex].alpha = 1;
-
-		for(i in 0...length) {
-			var letter = letterSprites[i];
-			letter.x = i * letterWidth - randomIndex * letterWidth + (FlxG.width / 2 - letterWidth / 2);
-			letter.y = 50;
-		}
-
-		var bigletter = new FlxSprite(0, 0);
-		bigletter.frames = alphabetFrames;
-		bigletter.antialiasing = true;
-		bigletter.animation.addByPrefix("letter", allChars.charAt(randomIndex), 24);
-		bigletter.animation.play("letter");
+		bigletter = new Alphabet(0, 0, "A", __typeface);
+		bigletter.alignment = CENTER;
+		bigletter.scale.set(4, 4);
+		// TODO: fix the offset issues
 		bigletter.updateHitbox();
 		bigletter.screenCenter();
-		bigletter.scale.set(4, 4);
 		add(bigletter);
 
 		var infoWindow = new GlyphInfoWindow();
 		infoWindow.info.text = [
-			"Char: " + allChars.charAt(randomIndex),
-			"Anim Name: " + allChars.charAt(randomIndex) + " bold0",
+			//"Char: " + allChars.charAt(randomIndex),
+			//"Anim Name: " + allChars.charAt(randomIndex) + " bold0",
 			"X Offset: " + 0,
 			"Y Offset: " + 0,
 			"ScaleX: " + 1,
@@ -230,7 +195,7 @@ class AlphabetEditor extends UIState {
 		var leftWindow = new UIWindow(30, 720 - 170 - 30, 230, 170, "Components:");
 		leftWindow.members.push({
 			var info = new UIText(leftWindow.x + 28, leftWindow.y + 46, 400, "");
-			info.text = "[0] Letter (" + allChars.charAt(randomIndex) + ")";
+			//info.text = "[0] Letter (" + allChars.charAt(randomIndex) + ")";
 			info.alignment = LEFT;
 			info;
 		});
@@ -266,18 +231,37 @@ class AlphabetEditor extends UIState {
 				UIUtil.processShortcuts(topMenu);
 		}
 
-		if(FlxG.keys.pressed.J) {
-			editorCamera.scroll.x -= 100 * elapsed;
+		if(curSelectedComponent != null) {
+			if(FlxG.keys.pressed.I) {
+				curSelectedComponent.y -= 100 * elapsed;
+			}
+			if(FlxG.keys.pressed.K) {
+				curSelectedComponent.y += 100 * elapsed;
+			}
+			if(FlxG.keys.pressed.J) {
+				curSelectedComponent.x -= 100 * elapsed;
+			}
+			if(FlxG.keys.pressed.L) {
+				curSelectedComponent.x += 100 * elapsed;
+			}
 		}
-		if(FlxG.keys.pressed.L) {
-			editorCamera.scroll.x += 100 * elapsed;
-		}
-		if(FlxG.keys.pressed.I) {
-			editorCamera.scroll.y -= 100 * elapsed;
-		}
-		if(FlxG.keys.pressed.K) {
-			editorCamera.scroll.y += 100 * elapsed;
-		}
+
+		tape.x = lerp(tape.x, targetX, 0.25);
+	}
+
+	function changeLetter(inc:Int) {
+		curLetter = CoolUtil.positiveModuloInt(curLetter + inc, allChars.length);
+		targetX = FlxG.width * 0.5 - tape.defaultAdvance * (0.5 + curLetter * 2);
+		bigletter.text = allChars[curLetter];
+		bigletter.updateHitbox();
+		bigletter.screenCenter();
+	}
+
+	function _tape_left(_) {
+		changeLetter(-1);
+	}
+	function _tape_right(_) {
+		changeLetter(1);
 	}
 
 	function _file_save(_) {
@@ -300,6 +284,37 @@ class AlphabetEditor extends UIState {
 	function _file_exit(_) {
 		/*if (undos.unsaved) SaveWarning.triggerWarning();
 		else */FlxG.switchState(new AlphabetSelection());
+	}
+}
+
+/*
+
+/===============\
+| Components    |
+|===============|
+|[ Component 1 ]|
+|[ Component 2 ]|
+|[ Component 3 ]|
+|[ Component 4 ]|
+|[ Component 5 ]|
+|[ Add component]|
+\===============/
+
+*/
+
+class ComponentInfoWindow extends UIButtonList<ComponentButton> {
+	public function new(x:Float, y:Float) {
+		super(x, y, )
+	}
+}
+
+class ComponentButton extends UIButton {
+	public var component:AlphabetComponent;
+	public function new(component:AlphabetComponent) {
+		super(0, 0, component.name, function() {
+			AlphabetEditor.instance.curSelectedComponent = component;
+		});
+		this.component = component;
 	}
 }
 

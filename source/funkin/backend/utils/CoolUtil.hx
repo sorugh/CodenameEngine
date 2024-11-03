@@ -78,12 +78,23 @@ class CoolUtil
 
 	/**
 	 * Applies the % operator, but without any negatives.
-	 * 
+	 *
 	 * @param dividend The intial value. The left side of the equation.
 	 * @param divisor What to modulo by. The right side of the equation.
 	 * @return A positive reminder of `dividend / divisor`.
 	 */
 	public static inline function positiveModulo(dividend:Float, divisor:Float) {
+		return ((dividend % divisor) + divisor) % divisor;
+	}
+
+	/**
+	 * Applies the % operator, but without any negatives. But it's an int.
+	 *
+	 * @param dividend The intial value. The left side of the equation.
+	 * @param divisor What to modulo by. The right side of the equation.
+	 * @return A positive reminder of `dividend / divisor`.
+	 */
+	public static inline function positiveModuloInt(dividend:Int, divisor:Int) {
 		return ((dividend % divisor) + divisor) % divisor;
 	}
 

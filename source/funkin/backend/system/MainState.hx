@@ -66,13 +66,16 @@ class MainState extends FlxState {
 		if(Framerate.isLoaded)
 			Framerate.instance.reload();
 
-		if (betaWarningShown)
+		FlxG.switchState(new funkin.editors.alphabet.AlphabetEditor("bold"));
+		/*if (betaWarningShown)
 			FlxG.switchState(new TitleState());
 		else {
 			FlxG.switchState(new BetaWarningState());
 			betaWarningShown = true;
-		}
+		}*/
 
+		#if sys
 		CoolUtil.safeAddAttributes('./.temp/', NativeAPI.FileAttribute.HIDDEN);
+		#end
 	}
 }

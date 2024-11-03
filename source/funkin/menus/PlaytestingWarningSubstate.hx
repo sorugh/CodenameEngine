@@ -40,7 +40,7 @@ class PlaytestingWarningSubstate extends MusicBeatSubstate
 		bg.scrollFactor.set();
 		add(bg);
 
-		titleAlphabet = new Alphabet(0, 140, TU.translate("playtesting.warningTitle"), true);
+		titleAlphabet = new Alphabet(0, 140, TU.translate("playtesting.warningTitle"), "bold");
 		titleAlphabet.screenCenter(X);
 		add(titleAlphabet);
 

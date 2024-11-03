@@ -1,13 +1,17 @@
 <!DOCTYPE codename-engine-alphabet-font>
-<alphabetFont fps="24" advance="30" lineGap="70" useColorOffsets="true">
+<alphabetFont fps="24" advance="30" lineGap="70" colorMode="offsets">
 	<spritesheet>menus/alphabet</spritesheet>
 
 	<defaultAnim casing="upper">LETTER capital</defaultAnim>
 	<defaultAnim casing="lower">LETTER lowercase</defaultAnim>
 	<defaultAnim>LETTER</defaultAnim>
 
+	<anim char="g" y="-15">g lowercase</anim>
+	<anim char="j" y="-15">j lowercase</anim>
+	<anim char="p" y="-15">p lowercase</anim>
+	<anim char="q" y="-15">q lowercase</anim>
+	<anim char="y" y="-15">y lowercase</anim>
 	<anim char="$">dollarsign</anim>
-	<anim char="#">hashtag</anim>
 	<anim char="&amp;">amp</anim>
 	<anim char="→" y="9">right arrow</anim>
 	<anim char="←" y="9">left arrow</anim>

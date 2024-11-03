@@ -20,7 +20,7 @@ class TextOption extends OptionType {
 	public function new(text:String, desc:String, ?suffix:String = "", ?selectCallback:Void->Void = null) {
 		super(desc);
 		this.selectCallback = selectCallback;
-		add(__text = new Alphabet(100, 20, text, true));
+		add(__text = new Alphabet(100, 20, text, "bold"));
 		this.suffix = suffix;
 		rawText = text;
 	}

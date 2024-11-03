@@ -38,7 +38,7 @@ class CharterEventAdd extends UISliceSprite {
 		curCharterEvent = null;
 		this.step = step;
 		this.y = (step * 40) - (bHeight / 2);
-		text.text = TU.translate("editors.addEvent");
+		text.text = TU.translate("charter.addEvent");
 		framesOffset = 0;
 		x = -(bWidth = 37 + Math.ceil(text.width));
 	}
@@ -46,7 +46,7 @@ class CharterEventAdd extends UISliceSprite {
 	public function updateEdit(event:CharterEvent) {
 		curCharterEvent = event;
 		this.y = event.y;
-		text.text = TU.translate("editors.editEvent");
+		text.text = TU.translate("charter.editEvent");
 		framesOffset = 9;
 		x = -(bWidth = 27 + Math.ceil(text.width) + event.bWidth);
 	}

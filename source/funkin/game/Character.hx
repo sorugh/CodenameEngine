@@ -8,6 +8,9 @@ import flixel.util.FlxColor;
 import funkin.backend.FunkinSprite;
 import funkin.backend.scripting.DummyScript;
 import funkin.backend.scripting.Script;
+import funkin.backend.scripting.ScriptPack;
+import funkin.backend.scripting.events.CharacterNodeEvent;
+import funkin.backend.scripting.events.CharacterXMLEvent;
 import funkin.backend.scripting.events.DanceEvent;
 import funkin.backend.scripting.events.DirectionAnimEvent;
 import funkin.backend.scripting.events.PlayAnimContext;
@@ -44,8 +47,13 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	public var cameraOffset:FlxPoint = FlxPoint.get(0, 0);
 	public var globalOffset:FlxPoint = FlxPoint.get(0, 0);
 
-	public var script:Script;
 	public var xml:Access;
+	public var scripts:ScriptPack;
+	public var xmlImportedScripts:Array<XMLImportedScriptInfo> = [];
+	public var script(default, set):Script;
+
+	public function prepareInfos(node:Access)
+		return XMLImportedScriptInfo.prepareInfos(node, scripts, (infos) -> xmlImportedScripts.push(infos));
 
 	public var idleSuffix:String = "";
 	public var stunned(default, set):Bool = false;
@@ -72,16 +80,15 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 			script = Script.create(Paths.script(Path.withoutExtension(Paths.xml('characters/$curCharacter')), null, true));
 		else
 			script = new DummyScript(curCharacter);
-		script.setParent(this);
 		script.load();
 
 		buildCharacter(xml);
-		script.call("create");
+		scripts.call("create");
 
 		if (script == null)
 			script = new DummyScript(curCharacter);
 
-		script.call("postCreate");
+		scripts.call("postCreate");
 	}
 
 	@:noCompletion var __swappedLeftRightAnims:Bool = false;
@@ -118,7 +125,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
-		script.call("update", [elapsed]);
+		scripts.call("update", [elapsed]);
 		if (stunned) {
 			__stunnedTime += elapsed;
 			if (__stunnedTime > 5 / 60)
@@ -137,7 +144,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		if(debugMode) return;
 
 		var event = EventManager.get(DanceEvent).recycle(danced);
-		script.call("onDance", [event]);
+		scripts.call("onDance", [event]);
 		if (event.cancelled) return;
 
 		if (isDanceLeftDanceRight)
@@ -167,14 +174,14 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	 */
 	public var danceOnBeat:Bool = true;
 	public override function beatHit(curBeat:Int) {
-		script.call("beatHit", [curBeat]);
+		scripts.call("beatHit", [curBeat]);
 
 		if (danceOnBeat && (curBeat + beatOffset) % beatInterval == 0 && !__lockAnimThisFrame)
 			tryDance();
 	}
 
 	public override function stepHit(curStep:Int)
-		script.call("stepHit", [curStep]);
+		scripts.call("stepHit", [curStep]);
 
 	@:noCompletion var __reverseDrawProcedure:Bool = false;
 	public override function getScreenBounds(?newRect:FlxRect, ?camera:FlxCamera):FlxRect {
@@ -237,7 +244,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 	public override function playAnim(AnimName:String, ?Force:Bool, Context:PlayAnimContext = NONE, Reversed:Bool = false, Frame:Int = 0) {
 		var event = EventManager.get(PlayAnimEvent).recycle(AnimName, Force, Reversed, Frame, Context);
-		script.call("onPlayAnim", [event]);
+		scripts.call("onPlayAnim", [event]);
 		if (event.cancelled) return;
 
 		super.playAnim(event.animName, event.force, event.context, event.reverse, event.startingFrame);
@@ -252,16 +259,16 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		var event = EventManager.get(PointEvent).recycle(
 			midpoint.x + (isPlayer ? -100 : 150) + globalOffset.x + cameraOffset.x,
 			midpoint.y - 100 + globalOffset.y + cameraOffset.y);
-		script.call("onGetCamPos", [event]);
+		scripts.call("onGetCamPos", [event]);
 
 		midpoint.put();
 		return new FlxPoint(event.x, event.y);
 	}
 
 	public override function destroy() {
-		if(script != null) {
-			script.call('destroy');
-			script.destroy();
+		if(scripts != null) {
+			scripts.call('destroy');
+			scripts.destroy();
 		}
 		super.destroy();
 
@@ -304,9 +311,18 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	}
 
 	public inline function buildCharacter(xml:Access) {
-		this.xml = xml; // Modders wassup :D
+		for(node in xml.elements)
+			switch(node.name) {
+				case "use-extension" | "extension" | "ext":
+					if (!XMLImportedScriptInfo.shouldLoadBefore(node)) continue;
+					prepareInfos(node);
+			}
+
+		xml = scripts.event("onCharacterXMLParsed", EventManager.get(CharacterXMLEvent).recycle(this, xml)).xml;
+
 		sprite = curCharacter;
 		spriteAnimType = BEAT;
+		this.xml = xml; // Modders wassup :D
 
 		if (xml.x.exists("isPlayer")) playerOffsets = (xml.x.get("isPlayer") == "true");
 		if (xml.x.exists("x")) globalOffset.x = Std.parseFloat(xml.x.get("x"));
@@ -314,7 +330,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		if (xml.x.exists("gameOverChar")) gameOverCharacter = xml.x.get("gameOverChar");
 		if (xml.x.exists("camx")) cameraOffset.x = Std.parseFloat(xml.x.get("camx"));
 		if (xml.x.exists("camy")) cameraOffset.y = Std.parseFloat(xml.x.get("camy"));
-		if (xml.x.exists("holdTime")) holdTime = CoolUtil.getDefault(Std.parseFloat(xml.x.get("holdTime")), 4);
+		if (xml.x.exists("holdTime")) holdTime = Std.parseFloat(xml.x.get("holdTime")).getDefaultFloat(4);
 		if (xml.x.exists("flipX")) flipX = (xml.x.get("flipX") == "true");
 		if (xml.x.exists("icon")) icon = xml.x.get("icon");
 		if (xml.x.exists("color")) iconColor = FlxColor.fromString(xml.x.get("color"));
@@ -330,9 +346,19 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		if (hasInterval) beatInterval = Std.parseInt(xml.x.get("interval"));
 
 		loadSprite(Paths.image('characters/$sprite'));
+		for(node in xml.elements) {
+			switch(node.name) {
+				case "anim":
+					XMLUtil.addXMLAnimation(this, node);
+				case "use-extension" | "extension" | "ext":
+					if (XMLImportedScriptInfo.shouldLoadBefore(node)) continue;
+					prepareInfos(node);
+				default:
+					// nothing
+			}
 
-		for (anim in xml.nodes.anim)
-			XMLUtil.addXMLAnimation(this, anim);
+			scripts.event("onCharacterNodeParsed", EventManager.get(CharacterNodeEvent).recycle(this, node, node.name));
+		}
 
 		for (attribute in xml.x.attributes())
 			if (!characterProperties.contains(attribute))
@@ -340,6 +366,14 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 		fixChar(__switchAnims, !hasInterval);
 		dance();
+
+		for (info in xmlImportedScripts) if (info.shortLived) {
+			var script = info.getScript();
+			if (script == null) continue;
+
+			scripts.remove(script);
+			script.destroy();
+		}
 	}
 
 	public static var characterProperties:Array<String> = [
@@ -423,6 +457,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		return stunned = b;
 	}
 
+	// ---- Backwards compat ----
 	// Interval at which the character will dance (higher number = slower dance)
 	@:noCompletion public var danceInterval(get, set):Int;
 	@:noCompletion private function set_danceInterval(v:Int)
@@ -430,13 +465,29 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	@:noCompletion private function get_danceInterval()
 		return beatInterval;
 
+	private function set_script(script:Script):Script {
+		if (scripts == null) (scripts = new ScriptPack("Character")).setParent(this);
+
+		var lastIndex = scripts.scripts.indexOf(this.script);
+		if(lastIndex >= 0) {
+			if(script == null) // last != null && new == null
+				scripts.scripts.splice(lastIndex, 1);
+			else // last != null && new != null
+				scripts.scripts[lastIndex] = script;
+		} else if(script != null) // last == null
+			scripts.insert(0, script);
+
+		return this.script = script;
+	}
+	// ---- end of Backwards compat ----
+
 
 	public static var FALLBACK_CHARACTER:String = "bf";
 	public static var FALLBACK_DEAD_CHARACTER:String = "bf-dead";
 	public static function getXMLFromCharName(character:OneOfTwo<String, Character>):Access {
 		var char:Character = null;
 		if (character is Character) {
-			char = cast(character, Character);
+			char = cast character;
 			character = char.curCharacter;
 		}
 
@@ -468,9 +519,10 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		return xml;
 	}
 
-	public static function getIconFromCharName(?character:String) {
+	public static function getIconFromCharName(?character:String, ?defaultIcon:String = null) {
 		if(character == null) return "face";
-		var icon:String = character;
+		if(defaultIcon == null) defaultIcon = character;
+		var icon:String = defaultIcon;
 
 		var xml:Access = getXMLFromCharName(character);
 		if (xml != null && xml.x.exists("icon")) icon = xml.x.get("icon");
@@ -478,9 +530,17 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		return icon;
 	}
 
-	public static function getList(?mods:Bool = false):Array<String>
-		return [
-			for (path in Paths.getFolderContent('data/characters/', true, mods ? MODS : BOTH))
-				if (Path.extension(path) == "xml") CoolUtil.getFilename(path)
-		];
+	public static function getList(?mods:Bool = false, includeFolders:Bool = false, folder:String = 'data/characters/'):Array<String> {
+		var list:Array<String> = [];
+		if(includeFolders) {
+			for (path in Paths.getFolderDirectories(folder, true, mods ? MODS : BOTH)) {
+				if(!path.endsWith("/")) path += "/";
+				list.push(path);
+			}
+		}
+		for (path in Paths.getFolderContent(folder, true, mods ? MODS : BOTH))
+			if (Path.extension(path) == "xml")
+				list.push(CoolUtil.getFilename(path));
+		return list;
+	}
 }

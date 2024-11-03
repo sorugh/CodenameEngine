@@ -206,7 +206,7 @@ class EditorPickerOption extends FlxTypedSpriteGroup<FlxSprite> {
 		iconSpr.x = 25 + ((height - iconSpr.width) / 2);
 		iconSpr.y = (height - iconSpr.height) / 2;
 
-		label = new Alphabet(25 + iconSpr.width + 25, 0, name, true);
+		label = new Alphabet(25 + iconSpr.width + 25, 0, name, "bold");
 		label.y = (height - label.height) / 2;
 
 		selectionBG = new FlxSprite().makeGraphic(1, 1, -1);

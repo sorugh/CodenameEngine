@@ -124,6 +124,14 @@ class Paths
 		return getPath('data/characters/$character.xml', null);
 	}
 
+	/**
+	 * Gets the name of a registered font.
+	 * @param font The font's path (if it's already passed as a font name, the same name will be returned)
+	 */
+	inline static public function getFontName(font:String) {
+		return OpenFlAssets.exists(font, FONT) ? OpenFlAssets.getFont(font).fontName : font;
+	}
+
 	public static inline function font(key:String) {
 		return getPath('fonts/$key');
 	}

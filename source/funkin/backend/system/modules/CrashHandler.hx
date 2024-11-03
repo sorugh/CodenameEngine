@@ -20,10 +20,10 @@ class CrashHandler {
 	public static function onUncaughtError(e:UncaughtErrorEvent) {
 		var m:String = e.error;
 		if (Std.isOfType(e.error, Error)) {
-			var err = cast(e.error, Error);
+			var err:Error = cast e.error;
 			m = '${err.message}';
 		} else if (Std.isOfType(e.error, ErrorEvent)) {
-			var err = cast(e.error, ErrorEvent);
+			var err:ErrorEvent = cast e.error;
 			m = '${err.text}';
 		}
 		var stack = CallStack.exceptionStack();

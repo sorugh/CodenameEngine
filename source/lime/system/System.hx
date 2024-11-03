@@ -367,7 +367,10 @@ class System
 			#elseif mac
 			Sys.command("/usr/bin/open", [path]);
 			#elseif linux
-			Sys.command("/usr/bin/xdg-open", [path]);
+			// generally `xdg-open` should work in every distro
+			var cmd = Sys.command("xdg-open", [path, "&"]);
+			// run old command JUST IN CASE it fails, which it shouldn't
+			if (cmd != 0) cmd = Sys.command("/usr/bin/xdg-open", [path, "&"]);
 			#elseif (js && html5)
 			Browser.window.open(path, "_blank");
 			#elseif flash
@@ -602,9 +605,7 @@ class System
 	{
 		// executes first!!
 		#if (sys && !macro)
-		funkin.backend.utils.NativeAPI.registerAsDPICompatible();
-		funkin.backend.system.CommandLineHandler.parseCommandLine(Sys.args());
-		funkin.backend.system.Main.fixWorkingDirectory();
+		funkin.backend.system.Main.preInit();
 		#end
 
 		if (__applicationEntryPoint == null)

@@ -39,8 +39,8 @@ class NumOption extends OptionType {
 		this.changeVal = changeVal;
 		this.optionName = optionName;
 
-		add(__text = new Alphabet(100, 20, text, true));
-		add(__number = new Alphabet(__text.width + 120, -30, ': $currentSelection', false));
+		add(__text = new Alphabet(100, 20, text, "bold"));
+		add(__number = new Alphabet(__text.width + 120, 20, ': $currentSelection', "normal"));
 
 		rawText = text;
 	}

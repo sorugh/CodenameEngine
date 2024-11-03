@@ -5,7 +5,7 @@ package funkin.backend.utils.translations;
  *
  * For example if the parameter list is just an `Int` which is `9`, `You have been blue balled {0} times` becomes `You have been blue balled 9 times`.
  */
-class FormatUtil {
+final class FormatUtil {
 	private static var cache:Map<String, IFormatInfo> = new Map();
 	private static var cacheStr:Map<String, IFormatInfo> = new Map();
 
@@ -87,14 +87,17 @@ class ParamFormatInfo implements IFormatInfo {
 	public function format(params:Array<Dynamic>):String {
 		if (params == null) params = [];
 
-		var str:String = "";
-		for (i=>s in strings) {
-			str += s;
-			if (i < indexes.length)
-				str += params[indexes[i]];
-		}
+		var lenStr = strings.length;
+		var lenInd = indexes.length;
 
-		return str;
+		var arr = new haxe.ds.Vector<String>(lenStr + ((lenStr < lenInd) ? lenStr : lenInd));
+		var i = 0;
+		for (idx=>s in strings) {
+			arr[i++] = s;
+			if (idx < lenInd)
+				arr[i++] = Std.string(params[indexes[idx]]);
+		}
+		return arr.join("");
 	}
 
 	public function toString():String {

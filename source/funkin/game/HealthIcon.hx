@@ -90,11 +90,9 @@ class HealthIcon extends FlxSprite
 		if (animation.curAnim != null) {
 			var i:Int = -1;
 			var oldKey:Int = -1;
-			for(k=>icon in healthSteps) {
-				if (k > oldKey && k < health * 100) {
-					oldKey = k;
-					i = icon;
-				}
+			for (k=>icon in healthSteps) if (k > oldKey && k <= health * 100) {
+				oldKey = k;
+				i = icon;
 			}
 			if (i >= 0 && curAnimState != i) {
 				var event = EventManager.get(funkin.backend.scripting.events.HealthIconChangeEvent).recycle(i, this);

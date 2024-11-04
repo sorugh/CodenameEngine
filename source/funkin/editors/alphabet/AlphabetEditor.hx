@@ -1,6 +1,7 @@
 package funkin.editors.alphabet;
 
 import flixel.math.FlxPoint;
+import flixel.util.FlxColor;
 import funkin.backend.system.framerate.Framerate;
 import funkin.backend.utils.XMLUtil.AnimData;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
@@ -37,6 +38,8 @@ class AlphabetEditor extends UIState {
 	public var bigletter:Alphabet;
 	public var curLetter:Int = 0;
 	public var targetX:Float = 0;
+
+	public var componentList:UIButtonList<ComponentButton>;
 
 	public var curSelectedComponent:AlphabetComponent = null;
 
@@ -181,7 +184,7 @@ class AlphabetEditor extends UIState {
 		bigletter = new Alphabet(0, 0, "A", __typeface);
 		bigletter.alignment = CENTER;
 		bigletter.scale.set(4, 4);
-		// TODO: fix the offset issues
+		// TODO: fix the offset issues, when not using updateHitbox
 		bigletter.updateHitbox();
 		bigletter.screenCenter();
 		add(bigletter);
@@ -198,15 +201,13 @@ class AlphabetEditor extends UIState {
 		].join('\n');
 		uiGroup.add(infoWindow);
 
-		var leftWindow = new UIWindow(30, 720 - 170 - 30, 230, 170, "Components:");
-		leftWindow.members.push({
-			var info = new UIText(leftWindow.x + 28, leftWindow.y + 46, 400, "");
-			//info.text = "[0] Letter (" + allChars.charAt(randomIndex) + ")";
-			info.alignment = LEFT;
-			info;
-		});
-		leftWindow.members.push(new UIButton(leftWindow.x + 28, leftWindow.y + 170 - 40, "Add", function () {}));
-		uiGroup.add(leftWindow);
+		componentList = new UIButtonList<ComponentButton>(0, 720 - 170 - 30, 230, 170, "Components:", FlxPoint.get(230, 50), FlxPoint.get(0, 0), 0);
+		componentList.dragCallback = (button, oldID, newID) -> {
+		}
+		componentList.addButton.callback = () -> {
+		}
+
+		uiGroup.add(componentList);
 
 		add(topMenuSpr);
 		add(uiGroup);
@@ -308,21 +309,27 @@ class AlphabetEditor extends UIState {
 
 */
 
-/*class ComponentInfoWindow extends UIButtonList<ComponentButton> {
-	public function new(x:Float, y:Float) {
-		super(x, y, )
-	}
-}
-
 class ComponentButton extends UIButton {
 	public var component:AlphabetComponent;
+
+	public var selected:Bool = false;
+
+	public var deleteButton:UIButton;
+
 	public function new(component:AlphabetComponent) {
-		super(0, 0, component.name, function() {
+		super(0, 0, component.anim, function() {
 			AlphabetEditor.instance.curSelectedComponent = component;
-		});
+		}, 230, 50);
 		this.component = component;
+
+		deleteButton = new UIButton(bWidth - 32, 0, "Delete", function() {
+
+		}, 32);
+		deleteButton.color = FlxColor.RED;
+		deleteButton.autoAlpha = false;
+		members.push(deleteButton);
 	}
-}*/
+}
 
 class GlyphInfoWindow extends UIWindow {
 	public var info:UIText;

@@ -46,4 +46,11 @@
 	<anim char="7">character-seven</anim>
 	<anim char="8">character-eight</anim>
 	<anim char="9">character-nine</anim>
+
+	<component-data name="diacritic-tilde" anim="diacritic-tilde-fill" outline="diacritic-tilde-outline"/>
+
+	<composite char="ẽ">
+		<component anim="character-e0" x="0" y="0"/>
+		<component anim="diacritic-tilde" x="-1" y="62"/>
+	</composite>
 </alphabetFont>

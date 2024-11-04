@@ -16,6 +16,12 @@ using StringTools;
 using flixel.util.FlxColorTransformUtil;
 
 @:structInit
+final class AlphabetOutline {
+	public var anim:String;
+	public var x:Float;
+	public var y:Float;
+}
+@:structInit
 final class AlphabetComponent {
 	public var anim:String;
 	public var x:Float;
@@ -31,6 +37,8 @@ final class AlphabetComponent {
 
 	public var hasColorMode:Bool;
 	public var colorMode:ColorMode;
+
+	@:optional public var outline:Null<AlphabetOutline>;
 }
 
 @:structInit
@@ -109,6 +117,7 @@ class Alphabet extends FlxSprite {
 	public var effects:Array<RegionEffect> = [];
 	var __renderData:AlphabetRenderData;
 	var __component:AlphabetComponent;
+	var __outline:AlphabetOutline;
 
 	public var text(default, set):String = "";
 	@:isVar public var textWidth(get, set):Float;
@@ -146,6 +155,7 @@ class Alphabet extends FlxSprite {
 		v;
 	};
 	var failedLetters:Array<String> = [];
+	var failedOutlines:Array<String> = [];
 
 	public var renderMode:AlphabetRenderMode = DEFAULT;
 
@@ -264,10 +274,10 @@ class Alphabet extends FlxSprite {
 					break; // shouldnt this be like continue?
 
 				var frameToGet = frameTime % anim.numFrames;
-				frame = frames.frames[anim.frames[frameToGet]];
+				var fillFrame = frames.frames[anim.frames[frameToGet]];
 
 				var offsetX = __component.x + __renderData.offsetX;
-				var offsetY = frame.sourceSize.y - lineGap + __component.y + __renderData.offsetY;
+				var offsetY = fillFrame.sourceSize.y - lineGap + __component.y + __renderData.offsetY;
 				if (isMonospace)
 					offsetX -= (defaultAdvance - advance) * 0.5;
 				frameOffset.x += offsetX;
@@ -277,15 +287,39 @@ class Alphabet extends FlxSprite {
 					frameOffset.x -= offsetX;
 					break;
 				}
-				if (isGraphicsShader)
-					shader.setCamSize(_frame.frame.x, _frame.frame.y, _frame.frame.width, _frame.frame.height);
 
 				if (__component.hasColorMode)
 					__component.colorMode.setColorTransform(colorTransform, __renderData.red, __renderData.green, __renderData.blue, __renderData.alpha);
 				else
 					colorMode.setColorTransform(colorTransform, __renderData.red, __renderData.green, __renderData.blue, __renderData.alpha);
 
+				if (__component.outline != null) {
+					__outline = __component.outline;
+					var outlineAnim = getLetterOutline(letter, __component, i);
+					if (outlineAnim != null) {
+						var frameToGet = frameTime % outlineAnim.numFrames;
+						frame = frames.frames[outlineAnim.frames[frameToGet]];
+
+						var offfx = (fillFrame.sourceSize.x - frame.sourceSize.x) * __component.scaleX + __outline.x;
+						var offfy = (fillFrame.sourceSize.y - frame.sourceSize.y) * __component.scaleY + __outline.y;
+
+						frameOffset.x += offfx;
+						frameOffset.y += offfy;
+
+						if (isGraphicsShader)
+							shader.setCamSize(_frame.frame.x, _frame.frame.y, _frame.frame.width, _frame.frame.height);
+
+						drawLetter(camera);
+						frameOffset.x -= offfx;
+						frameOffset.y -= offfy;
+					}
+				}
+
+				frame = fillFrame;
+				if (isGraphicsShader)
+					shader.setCamSize(_frame.frame.x, _frame.frame.y, _frame.frame.width, _frame.frame.height);
 				drawLetter(camera);
+
 				frameOffset.y -= offsetY;
 				frameOffset.x -= offsetX;
 			}
@@ -302,7 +336,8 @@ class Alphabet extends FlxSprite {
 
 		_matrix.translate(_frame.frame.width * -0.5, _frame.frame.height * -0.5);
 		_matrix.scale(__component.scaleX, __component.scaleY);
-		if(__component.shouldRotate) _matrix.rotateWithTrig(__component.cos, __component.sin);
+		if(__component.shouldRotate)
+			_matrix.rotateWithTrig(__component.cos, __component.sin);
 		_matrix.translate(_frame.frame.width * 0.5, _frame.frame.height * 0.5);
 
 		_matrix.translate(-origin.x, -origin.y);
@@ -460,6 +495,19 @@ class Alphabet extends FlxSprite {
 		return animation.getByName(name);
 	}
 
+	function getLetterOutline(char:String, component:AlphabetComponent, index:Int) {
+		var name = char + "Outline" + Std.string(index);
+		if (failedOutlines.contains(name)) return null;
+		if (animation.exists(name)) return animation.getByName(name);
+
+		animation.addByPrefix(name, component.outline.anim, fps);
+		if (!animation.exists(name)) {
+			failedOutlines.push(name);
+			return null;
+		}
+		return animation.getByName(name);
+	}
+
 	function checkNode(node:Xml):Void {
 		switch (node.nodeName) {
 			case "spritesheet":
@@ -524,6 +572,15 @@ class Alphabet extends FlxSprite {
 
 					var colorMode = ["tint", "offsets", "none"].indexOf(component.get("colorMode"));
 
+					var outline:AlphabetOutline = null;
+					if (component.get("hasOutline") == "true") {
+						outline = {
+							anim: component.get("outline"),
+							x: Std.parseFloat(component.get("outlineX")).getDefaultFloat(0.0),
+							y: Std.parseFloat(component.get("outlineY")).getDefaultFloat(0.0)
+						}
+					}
+
 					components.push({
 						anim: component.get("anim"),
 
@@ -538,7 +595,8 @@ class Alphabet extends FlxSprite {
 						sin: angleSin,
 
 						hasColorMode: colorMode >= 0,
-						colorMode: colorMode
+						colorMode: colorMode,
+						outline: outline
 					});
 				}
 				letterData.set(char, {
@@ -565,6 +623,15 @@ class Alphabet extends FlxSprite {
 
 				var colorMode = ["tint", "offsets", "none"].indexOf(node.get("colorMode"));
 
+				var outline:AlphabetOutline = null;
+				if (node.get("hasOutline") == "true") {
+					outline = {
+						anim: node.get("outline"),
+						x: Std.parseFloat(node.get("outlineX")).getDefaultFloat(0.0),
+						y: Std.parseFloat(node.get("outlineY")).getDefaultFloat(0.0)
+					}
+				}
+
 				letterData.set(char, {
 					isDefault: false,
 					advance: advance,
@@ -583,7 +650,8 @@ class Alphabet extends FlxSprite {
 						sin: angleSin,
 
 						hasColorMode: colorMode >= 0,
-						colorMode: colorMode
+						colorMode: colorMode,
+						outline: outline
 					}]
 				});
 			case "languageSection": // used to only parse characters if a specific language is selected
@@ -644,7 +712,7 @@ class Alphabet extends FlxSprite {
 		xml.set("fps", Std.string(fps));
 		xml.set("advance", Std.string(defaultAdvance));
 		xml.set("lineGap", Std.string(lineGap));
-		xml.set("forceCasing", forceCase);
+		//xml.set("forceCasing", forceCase);
 		xml.set("useColorOffsets", colorMode == OFFSET ? "true" : "false");
 		xml.set("antialiasing", antialiasing ? "true" : "false");
 

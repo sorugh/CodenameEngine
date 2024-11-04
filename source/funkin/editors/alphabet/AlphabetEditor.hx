@@ -109,14 +109,19 @@ class AlphabetEditor extends UIState {
 				]
 			},
 			{
-				label: "Move Tape Left",
-				keybind: [LEFT],
-				onSelect: _tape_left
-			},
-			{
-				label: "Move Tape Right",
-				keybind: [RIGHT],
-				onSelect: _tape_right
+				label: "Tape",
+				childs: [
+					{
+						label: "Move Tape Left",
+						keybind: [LEFT],
+						onSelect: _tape_left
+					},
+					{
+						label: "Move Tape Right",
+						keybind: [RIGHT],
+						onSelect: _tape_right
+					}
+				]
 			}
 		];
 
@@ -163,6 +168,7 @@ class AlphabetEditor extends UIState {
 
 			allChars.push(letter);
 		}
+		// todo get other characters
 
 
 		trace(allChars.join(" "));
@@ -302,7 +308,7 @@ class AlphabetEditor extends UIState {
 
 */
 
-class ComponentInfoWindow extends UIButtonList<ComponentButton> {
+/*class ComponentInfoWindow extends UIButtonList<ComponentButton> {
 	public function new(x:Float, y:Float) {
 		super(x, y, )
 	}
@@ -316,7 +322,7 @@ class ComponentButton extends UIButton {
 		});
 		this.component = component;
 	}
-}
+}*/
 
 class GlyphInfoWindow extends UIWindow {
 	public var info:UIText;

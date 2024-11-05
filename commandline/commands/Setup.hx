@@ -18,11 +18,32 @@ class Setup {
 		FileSystem.deleteDirectory(path);
 	}
 
+	public static function addMissingFolders(path:String):String {
+		#if sys
+		var folders:Array<String> = path.split("/");
+		var currentPath:String = "";
+
+		for (folder in folders) {
+			currentPath += folder + "/";
+			if (!FileSystem.exists(currentPath))
+				FileSystem.createDirectory(currentPath);
+		}
+		#end
+		return path;
+	}
+
 	public static function main(args:Array<String>) {
-		var args = ArgParser.parse(args, ["s" => "silent-progress", "S" => "silent-progress", "silent" => "silent-progress"]);
+		var args = ArgParser.parse(args, [
+			"s" => "silent-progress",
+			"S" => "silent-progress",
+			"silent" => "silent-progress",
+			"f" => "fast",
+			"F" => "fast"
+		]);
 		var CHECK_VSTUDIO = !args.existsOption("no-vscheck");
 		var REINSTALL_ALL = args.existsOption("reinstall");
 		var SILENT = args.existsOption("silent-progress");
+		var FAST = args.existsOption("fast");
 
 		// to prevent messing with currently installed libs
 		if (!FileSystem.exists('.haxelib'))
@@ -134,6 +155,11 @@ class Setup {
 		var commandSuffix = " --always";
 		if (SILENT) commandSuffix += " --quiet";
 
+		function command(cmd:String) {
+			Sys.println(cmd); // TODO: ansi color
+			Sys.command(cmd);
+		}
+
 		for(event in events) {
 			switch(event.type) {
 				case INSTALL:
@@ -144,12 +170,25 @@ class Setup {
 					switch(lib.type) {
 						case "lib":
 							prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}"...');
-							Sys.command('haxelib$commandPrefix install ${lib.name} ${lib.version != null ? " " + lib.version : " "}');
+							command('haxelib$commandPrefix install ${lib.name} ${lib.version != null ? " " + lib.version : " "}');
 						case "git":
 							prettyPrint((lib.global == "true" ? "Globally installing" : "Locally installing") + ' "${lib.name}" from git url "${lib.url}"');
-							Sys.command('haxelib$commandPrefix git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}');
+							if(FAST) {
+								var oldcwd = Sys.getCwd();
+								var newCwd = oldcwd + "/.haxelib/" + lib.name + "/";
+								var newCwdGit = newCwd + "git/";
+								addMissingFolders(newCwdGit);
+								Sys.setCwd(newCwd);
+								File.saveContent(".current", "git");
+								if(FileSystem.exists(newCwdGit)) recursiveDelete(newCwdGit);
+								command('git clone ${lib.url} ${lib.name} --depth 1${lib.ref != null ? " --branch " + lib.ref : ""} --progress');
+								FileSystem.rename(newCwd + lib.name, newCwdGit);
+								Sys.setCwd(oldcwd);
+							} else {
+								command('haxelib$commandPrefix git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}');
+							}
 						case "custom":
-							Sys.command('haxelib$commandPrefix dev ${lib.name} "./libraries/${lib.name}"');
+							command('haxelib$commandPrefix dev ${lib.name} "./libraries/${lib.name}"');
 						default:
 							prettyPrint('Cannot resolve library of type "${lib.type}"');
 					}
@@ -190,7 +229,7 @@ class Setup {
 					for(line in cmd.lines) {
 						var line = StringTools.replace(line, "$PLATFORM", platform);
 						//Sys.println(line);
-						Sys.command(line);
+						command(line);
 					}
 					Sys.setCwd(oldCwd);
 				case PRINT:

@@ -4,6 +4,7 @@ import haxe.Exception;
 #if GITHUB_API
 import haxe.Json;
 #end
+import haxe.Exception;
 
 // TODO: Document further and perhaps make this a Haxelib.
 class GitHub {

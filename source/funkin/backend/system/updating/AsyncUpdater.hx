@@ -99,7 +99,7 @@ class AsyncUpdater {
 		progress.files = files.length;
 		progress.step = DOWNLOADING_ASSETS;
 		trace('starting assets download');
-		doFile([for(e in files) e], fileNames.copy(), function() {
+		doFile(files.copy(), fileNames.copy(), function() {
 			progress.curFile = -1;
 			progress.curFileName = null;
 			progress.files = 1;

@@ -861,8 +861,10 @@ class Charter extends UIState {
 						}
 
 						s.snappedToGrid = true;
-
-						if (s is UISprite) cast(s, UISprite).cursor = CLICK;
+						if (s is UISprite) {
+							var s:UISprite = cast s;
+							s.cursor = CLICK;
+						}
 					}
 
 					if (!(verticalChange == 0 && horizontalChange == 0)) {
@@ -1118,7 +1120,7 @@ class Charter extends UIState {
 
 		localEventsGroup.sortEvents(); globalEventsGroup.sortEvents();
 		for (e in eventsChanged) e.update(0); // remove little stutter
-		
+
 		return CEditEventGroups(eventsChanged);
 	}
 

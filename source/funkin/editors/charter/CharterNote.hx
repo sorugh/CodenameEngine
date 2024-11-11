@@ -81,7 +81,7 @@ class CharterNote extends UISprite implements ICharterSelectable {
 	public function get_strumLineID():Int
 		return strumLineID = (strumLine == null ? strumLineID : Charter.instance.strumLines.members.indexOf(strumLine));
 
-	public var snappedToStrumline:Bool = true;
+	public var snappedToGrid:Bool = true;
 
 	public var fullID(get, never):Int; // instead of %4 get fullID (for mousepos stuff)
 	public function get_fullID():Int
@@ -196,7 +196,7 @@ class CharterNote extends UISprite implements ICharterSelectable {
 	}
 
 	public override function draw() {
-		if (snappedToStrumline)
+		if (snappedToGrid)
 			x = (strumLine != null ? strumLine.x : 0) + (id % (strumLine != null ? strumLine.keyCount : 4)) * 40;
 
 		drawMembers();

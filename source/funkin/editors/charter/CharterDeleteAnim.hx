@@ -11,7 +11,7 @@ class CharterDeleteAnim extends CharterNote {
 		super();
 
 		sustainSpr.color = 0xFF630000; color = 0xFF605A5A;
-		snappedToStrumline = selectable = autoAlpha = false;
+		snappedToGrid = selectable = autoAlpha = false;
 		@:privateAccess __animSpeed = 1.25;
 
 		garbageIcon = new FlxSprite().loadGraphic(Paths.image("editors/deleter"));

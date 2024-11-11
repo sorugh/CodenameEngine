@@ -2,6 +2,7 @@ package funkin.editors.charter;
 // ! FUCK YOU CHUF (your biggest fan -lunar) <3
 
 //import flixel.FlxLayer;
+import funkin.editors.charter.CharterEvent;
 import funkin.editors.extra.CameraHoverDummy;
 import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxPoint;
@@ -503,13 +504,13 @@ class Charter extends UIState {
 
 		// adds grid and notes so that they're ALWAYS behind the UI
 		add(gridBackdrops);
-		//add(textLayer = new FlxLayer());
 		add(localEventsBackdrop);
-		add(localAddEventSpr);
-		add(localEventsGroup);
 		add(globalEventsBackdrop);
+		add(localAddEventSpr);
 		add(globalAddEventSpr);
+		add(localEventsGroup);
 		add(globalEventsGroup);
+
 		add(noteHoverer);
 		add(noteDeleteAnims);
 		add(notesGroup);
@@ -816,15 +817,18 @@ class Charter extends UIState {
 				if (selectionDragging) {
 					gridBackdrops.draggingObj = null;
 					selection.loop(function (n:CharterNote) {
-						n.snappedToStrumline = false;
+						n.snappedToGrid = false;
 						n.setPosition(n.fullID * 40 + (mousePos.x - dragStartPos.x), n.step * 40 + (mousePos.y - dragStartPos.y));
 						n.y = CoolUtil.bound(n.y, 0, (__endStep*40) - n.height);
 						n.x = CoolUtil.bound(n.x, 0, (strumLines.totalKeyCount-1) * 40);
 						n.cursor = HAND;
 					}, function (e:CharterEvent) {
-						e.y =  e.step * 40 + (mousePos.y - dragStartPos.y) - 17;
+						e.snappedToGrid = false;
+						e.setPosition(e.eventsBackdrop.x + (e.global ? 0 : e.eventsBackdrop.width - e.bWidth) + (mousePos.x - dragStartPos.x), e.step * 40 + (mousePos.y - dragStartPos.y) - 17);
 						e.y = CoolUtil.bound(e.y, -17, (__endStep*40)-17);
 						e.cursor = HAND;
+
+						e.displayGlobal = e.x + (e.bWidth/2) > ((strumLines.totalKeyCount*40)/2);
 					});
 					currentCursor = HAND;
 				} else {
@@ -856,18 +860,18 @@ class Charter extends UIState {
 							changePoint.put();
 						}
 
-						if (s is CharterNote) {
-							var s:CharterNote = cast s;
-							s.snappedToStrumline = true;
-						}
-						if (s is UISprite) {
-							var s:UISprite = cast s;
-							s.cursor = CLICK;
-						}
+						s.snappedToGrid = true;
+
+						if (s is UISprite) cast(s, UISprite).cursor = CLICK;
 					}
+
 					if (!(verticalChange == 0 && horizontalChange == 0)) {
-						notesGroup.sortNotes(); localEventsGroup.sortEvents(); globalEventsGroup.sortEvents();
-						undos.addToUndo(CSelectionDrag(undoDrags));
+						notesGroup.sortNotes();
+
+						undos.addToUndo(CChangeBundle([
+							CSelectionDrag(undoDrags),
+							updateEventsGroups(selection)
+						]));
 					}
 
 					gridActionType = NONE;
@@ -1096,6 +1100,26 @@ class Charter extends UIState {
 		if (addToUndo)
 			undos.addToUndo(CDeleteSelection(selection));
 		return [];
+	}
+
+	public function updateEventsGroups(selection:Selection):CharterChange {
+		if (selection.length <= 0) return CEditEventGroups([]);
+		var eventsChanged:Array<CharterEvent> = [];
+
+		selection.loop(function (n:CharterNote) {}, function (e:CharterEvent) {
+			if (e.displayGlobal != e.global) {
+				(e.global ? globalEventsGroup : localEventsGroup).remove(e);
+				(e.displayGlobal ? globalEventsGroup : localEventsGroup).add(e);
+
+				e.global = e.displayGlobal;
+				eventsChanged.push(e);
+			}
+		}, true);
+
+		localEventsGroup.sortEvents(); globalEventsGroup.sortEvents();
+		for (e in eventsChanged) e.update(0); // remove little stutter
+		
+		return CEditEventGroups(eventsChanged);
 	}
 
 	// STRUMLINE DELETION/CREATION
@@ -1491,11 +1515,7 @@ class Charter extends UIState {
 		selection = deleteSelection(selection, true);
 	}
 
-	function _edit_undo(_) {
-		if (strumLines.isDragging || selectionDragging || (subState != null && !(subState is UIContextMenu))) return;
-
-		selection = [];
-		var undo = undos.undo();
+	function _undo(undo:CharterChange) {
 		switch(undo) {
 			case null: // do nothing
 			case CDeleteStrumLine(strumLineID, strumLine):
@@ -1527,6 +1547,10 @@ class Charter extends UIState {
 				event.refreshEventIcons();
 
 				Charter.instance.updateBPMEvents();
+			case CEditEventGroups(events):
+				for (event in events) event.displayGlobal = !event.global;
+				updateEventsGroups(cast events);
+
 			case CEditChartData(oldData, newData):
 				PlayState.SONG.stage = oldData.stage;
 				PlayState.SONG.scrollSpeed = oldData.speed;
@@ -1535,14 +1559,19 @@ class Charter extends UIState {
 				changeNoteType(null, false);
 			case CEditSpecNotesType(notes, oldTypes, newTypes):
 				for(i=>note in notes) note.updatePos(note.step, note.id, note.susLength, oldTypes[i]);
+			case CChangeBundle(changes):
+				for (change in changes) _undo(change);
 		}
 	}
 
-	function _edit_redo(_) {
+	function _edit_undo(_) {
 		if (strumLines.isDragging || selectionDragging || (subState != null && !(subState is UIContextMenu))) return;
 
 		selection = [];
-		var redo = undos.redo();
+		_undo(undos.undo());
+	}
+
+	function _redo(redo:CharterChange) {
 		switch(redo) {
 			case null: // do nothing
 			case CDeleteStrumLine(strumLineID, strumLine):
@@ -1573,6 +1602,10 @@ class Charter extends UIState {
 				event.refreshEventIcons();
 
 				Charter.instance.updateBPMEvents();
+			case CEditEventGroups(events):
+				for (event in events) event.displayGlobal = !event.global;
+				updateEventsGroups(cast events);
+				
 			case CEditChartData(oldData, newData):
 				PlayState.SONG.stage = newData.stage;
 				PlayState.SONG.scrollSpeed = newData.speed;
@@ -1581,7 +1614,16 @@ class Charter extends UIState {
 				changeNoteType(null, false);
 			case CEditSpecNotesType(notes, oldTypes, newTypes):
 				for(i=>note in notes) note.updatePos(note.step, note.id, note.susLength, newTypes[i]);
+			case CChangeBundle(changes):
+				for (change in changes) _redo(change);
 		}
+	}
+
+	function _edit_redo(_) {
+		if (strumLines.isDragging || selectionDragging || (subState != null && !(subState is UIContextMenu))) return;
+
+		selection = [];
+		_redo(undos.redo());
 	}
 
 	inline function _chart_playtest(_)
@@ -2015,9 +2057,12 @@ enum CharterChange {
 	CSelectionDrag(selectionDrags:Array<SelectionDragChange>);
 	CEditSustains(notes:Array<NoteSustainChange>);
 	CEditEvent(event:CharterEvent, oldEvents:Array<ChartEvent>, newEvents:Array<ChartEvent>);
+	CEditEventGroups(events:Array<CharterEvent>);
 	CEditChartData(oldData:{stage:String, speed:Float}, newData:{stage:String, speed:Float});
 	CEditNoteTypes(oldArray:Array<String>, newArray:Array<String>);
 	CEditSpecNotesType(notes:Array<CharterNote>, oldNoteTypes:Array<Int>, newNoteTypes:Array<Int>);
+
+	CChangeBundle(changes:Array<CharterChange>);
 }
 
 enum CharterCopyboardObject {
@@ -2060,6 +2105,7 @@ interface ICharterSelectable {
 	public var selected:Bool;
 	public var hovered:Bool;
 	public var draggable:Bool;
+	public var snappedToGrid:Bool;
 
 	public function handleSelection(selectionBox:UISliceSprite):Bool;
 	public function handleDrag(change:FlxPoint):Void;

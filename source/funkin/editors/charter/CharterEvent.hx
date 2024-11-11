@@ -17,17 +17,22 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 
 	public var eventsBackdrop:EventBackdrop;
 	public var snappedToGrid:Bool = true;
+
 	public var global:Bool = false;
+	public var displayGlobal:Bool = false;
 
 	public function new(step:Float, ?events:Array<ChartEvent>, ?global:Bool = false) {
 		super(-100, (step * 40) - 17, 100, 34, 'editors/charter/event-spr');
 		this.step = step;
 		this.events = events.getDefault([]);
-		this.global = this.flipX = global;
+
+		this.global = displayGlobal = global;
+		__redOffset = global ? 20 : 0;
 
 		cursor = CLICK;
 	}
 
+	var __redOffset:Float = 0;
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
 
@@ -46,6 +51,10 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 
 		for (sprite in icons)
 			sprite.colorTransform = colorTransform;
+
+		flipX = displayGlobal;
+		__redOffset = FlxMath.lerp(__redOffset, displayGlobal ? 200 : 0, elapsed*3);
+		colorTransform.greenOffset += __redOffset;
 	}
 
 	private static function generateDefaultIcon(name:String) {

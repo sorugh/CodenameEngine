@@ -88,7 +88,7 @@ class CharterBackdropGroup extends FlxTypedGroup<CharterBackdrop> {
 			grid.notesGroup.clear();
 			notesGroup.forEach((n) -> {
 				if(n.exists && n.visible) {
-					var onStr:Bool = (n.snappedToStrumline ? n.strumLineID : CoolUtil.boundInt(Std.int((n.x+n.width)/(40*strumLine.keyCount)), 0, strumLineGroup.members.length-1)) == i;
+					var onStr:Bool = (n.snappedToGrid ? n.strumLineID : CoolUtil.boundInt(Std.int((n.x+n.width)/(40*strumLine.keyCount)), 0, strumLineGroup.members.length-1)) == i;
 					if(onStr)
 						grid.notesGroup.add(n);
 				}

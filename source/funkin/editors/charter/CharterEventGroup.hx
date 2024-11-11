@@ -37,10 +37,15 @@ class CharterEventGroup extends FlxTypedGroup<CharterEvent> {
 			return FlxSort.byValues(FlxSort.ASCENDING, e1.step, e2.step);
 		});
 		updateEventsIDs();
+		updateEventsBackdrop();
 	}
 
 	public inline function updateEventsIDs()
 		for (i => n in members) n.ID = i;
+
+	public inline function updateEventsBackdrop()
+		for (event in members) 
+			event.eventsBackdrop = eventsBackdrop;
 
 	public inline function filterEvents() {
 		for (event in members)

@@ -6,7 +6,7 @@ class CharterNoteHoverer extends CharterNote {
 	public function new() {
 		super();
 
-		snappedToStrumline = selectable = autoAlpha = false; visible = sustainSpr.visible = false;
+		snappedToGrid = selectable = autoAlpha = false; visible = sustainSpr.visible = false;
 		@:privateAccess __animSpeed = 1.25; typeVisible = false; alpha = 0.4;
 	}
 

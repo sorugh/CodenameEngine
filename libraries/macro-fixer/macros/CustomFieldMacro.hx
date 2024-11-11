@@ -23,18 +23,18 @@ class CustomFieldMacro {
 			],
 		];
 
-		for(lib => injection in injections) {
-			for(field in injection) {
-				var build = '@:build(macros.CustomFieldMacro.build("${MacroSerializer.run(field)}"))';
-				//Sys.println('Injecting $build into $lib');
-				Compiler.addGlobalMetadata(lib, build);
-			}
+		for(lib => fields in injections) {
+			var build = '@:build(macros.CustomFieldMacro.build("${MacroSerializer.run(fields)}"))';
+			//Sys.println('Injecting $build into $lib');
+			Compiler.addGlobalMetadata(lib, build);
 		}
 	}
 
 	public static function build(fieldData:String) {
 		var fields = Context.getBuildFields();
-		fields.push(MacroUnserializer.run(fieldData));
+		var customFields:Array<Field> = MacroUnserializer.run(fieldData);
+		for(f in customFields)
+			fields.push(f);
 		return fields;
 	}
 }

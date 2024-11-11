@@ -7,79 +7,35 @@ import haxe.macro.Expr;
 
 using StringTools;
 
-typedef Injection = {
-	var access:Array<Access>;
-	var type:ComplexType;
-	var ?expr:Expr;
-}
-
 /**
  * Macro used to add custom fields to classes without having to override the entire file.
  */
 class CustomFieldMacro {
 	public static function init() {
-		var injections:Map<String, Map<String, Injection>> = [
+		var injections:Map<String, Array<Field>> = [
 			"lime.utils.AssetLibrary" => [
-				"tag" => {
+				{
+					name: "tag",
 					access: [APublic],
-					type: macro: funkin.backend.assets.AssetSource,
-					expr: macro null
+					kind: FVar(macro: funkin.backend.assets.AssetSource),
+					pos: (macro null).pos,
 				}
 			],
 		];
 
 		for(lib => injection in injections) {
-			for(key => value in injection) {
-				var params:Array<String> = [
-					'"$lib"', '"$key"',
-					'"' + MacroSerializer.run(value.access) + '"',
-					'"' + MacroSerializer.run(value.type) + '"',
-				];
-				if(value.expr != null)
-					params.push('"' + MacroSerializer.run(value.expr) + '"');
-
-				var build = '@:build(macros.CustomFieldMacro.build(${params.join(", ")}))';
+			for(field in injection) {
+				var build = '@:build(macros.CustomFieldMacro.build("${MacroSerializer.run(field)}"))';
 				//Sys.println('Injecting $build into $lib');
 				Compiler.addGlobalMetadata(lib, build);
 			}
 		}
 	}
 
-	public static function build(lib:String, fieldName:String, access:String, type:String, ?defaultValue:String) {
+	public static function build(fieldData:String) {
 		var fields = Context.getBuildFields();
-		var clRef = Context.getLocalClass();
-		if (clRef == null) return fields;
-		var cl = clRef.get();
-
-		var key = cl.module;
-		var fkey = cl.module + "." + cl.name;
-
-		if(lib != cl.module) {
-			return fields;
-		}
-
-		var access:Array<Access> = MacroUnserializer.run(access);
-		var type:ComplexType = MacroUnserializer.run(type);
-		var defaultValue:Expr = MacroUnserializer.run(defaultValue);
-
-		var fields = Context.getBuildFields();
-
-		fields.push({
-			name: fieldName,
-			access: access,
-			kind: FVar(type, defaultValue),
-			pos: Context.currentPos()
-		});
-
+		fields.push(MacroUnserializer.run(fieldData));
 		return fields;
-	}
-
-	public static function getTPath(type:String) {
-		var arr = type.split(".");
-		return TPath({
-			pack: arr.slice(0, arr.length - 1),
-			name: arr[arr.length - 1]
-		});
 	}
 }
 

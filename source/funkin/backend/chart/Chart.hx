@@ -26,7 +26,7 @@ class Chart {
 	}
 
 	public static function loadChartMeta(songName:String, ?difficulty:String, fromMods:Bool = true) {
-		if (difficulty == null) difficulty = Constants.DEFAULT_DIFFICULTY;
+		if (difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
 
 		var metaPath = Paths.file('songs/${songName.toLowerCase()}/meta.json');
 		var metaDiffPath = Paths.file('songs/${songName.toLowerCase()}/meta-${difficulty.toLowerCase()}.json');
@@ -47,19 +47,19 @@ class Chart {
 
 		if (data == null)
 			data = {
-				name: songName,
-				bpm: Constants.DEFAULT_BPM
+				name: songName
 			};
 		data.setFieldDefault("name", songName);
-		data.setFieldDefault("beatsPerMeasure", Constants.DEFAULT_BEATS_PER_MEASURE);
-		data.setFieldDefault("stepsPerBeat", Constants.DEFAULT_STEPS_PER_BEAT);
+		data.setFieldDefault("bpm", Flags.DEFAULT_BPM);
+		data.setFieldDefault("beatsPerMeasure", Flags.DEFAULT_BEATS_PER_MEASURE);
+		data.setFieldDefault("stepsPerBeat", Flags.DEFAULT_STEPS_PER_BEAT);
 		data.setFieldDefault("needsVoices", true);
-		data.setFieldDefault("icon", Constants.DEFAULT_HEALTH_ICON);
+		data.setFieldDefault("icon", Flags.DEFAULT_HEALTH_ICON);
 		data.setFieldDefault("difficulties", []);
-		data.setFieldDefault("coopAllowed", Constants.DEFAULT_COOP_ALLOWED);
-		data.setFieldDefault("opponentModeAllowed", Constants.DEFAULT_OPPONENT_MODE_ALLOWED);
+		data.setFieldDefault("coopAllowed", Flags.DEFAULT_COOP_ALLOWED);
+		data.setFieldDefault("opponentModeAllowed", Flags.DEFAULT_OPPONENT_MODE_ALLOWED);
 		data.setFieldDefault("displayName", data.name);
-		data.setFieldDefault("parsedColor", data.color.getColorFromDynamic().getDefault(Constants.DEFAULT_COLOR));
+		data.setFieldDefault("parsedColor", data.color.getColorFromDynamic().getDefault(Flags.DEFAULT_COLOR));
 
 		if (data.difficulties.length <= 0) {
 			data.difficulties = [for(f in Paths.getFolderContent('songs/${songName.toLowerCase()}/charts/', false, fromMods ? MODS : SOURCE)) if (Path.extension(f = f.toUpperCase()) == "JSON") Path.withoutExtension(f)];
@@ -84,7 +84,7 @@ class Chart {
 	}
 
 	public static function parse(songName:String, ?difficulty:String):ChartData {
-		if (difficulty == null) difficulty = Constants.DEFAULT_DIFFICULTY;
+		if (difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
 
 		var chartPath = Paths.chart(songName, difficulty);
 		var base:ChartData = {
@@ -94,8 +94,8 @@ class Chart {
 			meta: {
 				name: null
 			},
-			scrollSpeed: Constants.DEFAULT_SCROLL_SPEED ,
-			stage: Constants.DEFAULT_STAGE,
+			scrollSpeed: Flags.DEFAULT_SCROLL_SPEED,
+			stage: Flags.DEFAULT_STAGE,
 			codenameChart: true,
 			fromMods: Paths.assetsTree.existsSpecific(chartPath, "TEXT", MODS)
 		};
@@ -192,7 +192,7 @@ class Chart {
 	 * @return Filtered chart used for saving.
 	 */
 	public static function save(songFolderPath:String, chart:ChartData, ?difficulty:String, ?saveSettings:ChartSaveSettings):ChartData {
-		if (difficulty == null) difficulty = Constants.DEFAULT_DIFFICULTY;
+		if (difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
 		if (saveSettings == null) saveSettings = {};
 
 		if (saveSettings.saveMetaInChart == null) saveSettings.saveMetaInChart = true;
@@ -210,11 +210,11 @@ class Chart {
 		var chartPath = '${songFolderPath}/$saveFolder/${difficulty.trim()}.json';
 		var metaPath = '${songFolderPath}/meta.json';
 
-		CoolUtil.safeSaveFile(chartPath, Json.stringify(filteredChart, null, saveSettings.prettyPrint == true ? Constants.JSON_PRETTY_PRINT : null));
+		CoolUtil.safeSaveFile(chartPath, Json.stringify(filteredChart, null, saveSettings.prettyPrint == true ? Flags.JSON_PRETTY_PRINT : null));
 
 		// idk how null reacts to it so better be sure
 		if (saveSettings.overrideExistingMeta == true || !FileSystem.exists(metaPath))
-			CoolUtil.safeSaveFile(metaPath, Json.stringify(meta, null, saveSettings.prettyPrint == true ? Constants.JSON_PRETTY_PRINT : null));
+			CoolUtil.safeSaveFile(metaPath, Json.stringify(meta, null, saveSettings.prettyPrint == true ? Flags.JSON_PRETTY_PRINT : null));
 		#end
 		return filteredChart;
 	}

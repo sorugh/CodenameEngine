@@ -53,7 +53,7 @@ class HealthIcon extends FlxSprite
 		super();
 		health = 0.5;
 		this.isPlayer = isPlayer;
-		setIcon(char != null ? char : Constants.DEFAULT_CHARACTER);
+		setIcon(char != null ? char : Flags.DEFAULT_CHARACTER);
 
 		scrollFactor.set();
 	}
@@ -62,7 +62,7 @@ class HealthIcon extends FlxSprite
 		if(curCharacter != char || this.width != width || this.height != height) {
 			curCharacter = char;
 			var path = Paths.image('icons/$char');
-			if (!Assets.exists(path)) path = Paths.image('icons/' + Constants.DEFAULT_HEALTH_ICON);
+			if (!Assets.exists(path)) path = Paths.image('icons/' + Flags.DEFAULT_HEALTH_ICON);
 
 			loadGraphic(path, true, width, height);
 

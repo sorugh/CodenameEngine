@@ -73,7 +73,7 @@ class ChartCreationScreen extends UISubstateWindow {
 
 		strumLineList.addButton.callback = function() {
 			strumLineList.add(new StrumLineButton(strumLineList.buttons.length, {
-				characters: [Constants.DEFAULT_OPPONENT],
+				characters: [Flags.DEFAULT_OPPONENT],
 				type: 0,
 				notes: null,
 				position: "DAD",
@@ -84,7 +84,7 @@ class ChartCreationScreen extends UISubstateWindow {
 
 		// DEFAULTS
 		strumLineList.add(new StrumLineButton(0, {
-			characters: [Constants.DEFAULT_OPPONENT],
+			characters: [Flags.DEFAULT_OPPONENT],
 			type: 0,
 			notes: null,
 			position: "DAD",
@@ -93,7 +93,7 @@ class ChartCreationScreen extends UISubstateWindow {
 			scrollSpeed: 1,
 		}, strumLineList));
 		strumLineList.add(new StrumLineButton(1, {
-			characters: [Constants.DEFAULT_CHARACTER],
+			characters: [Flags.DEFAULT_CHARACTER],
 			type: 1,
 			notes: null,
 			position: "BOYFRIEND",
@@ -102,7 +102,7 @@ class ChartCreationScreen extends UISubstateWindow {
 			scrollSpeed: 1,
 		}, strumLineList));
 		strumLineList.add(new StrumLineButton(2, {
-			characters: [Constants.DEFAULT_GIRLFRIEND],
+			characters: [Flags.DEFAULT_GIRLFRIEND],
 			type: 2,
 			notes: null,
 			position: "GIRLFRIEND",
@@ -333,7 +333,7 @@ class CompactCharacterButton extends UIButton {
 			char = funkin.game.Character.getIconFromCharName(char);
 			var image = Paths.image("icons/" + char);
 			if(!Assets.exists(image))
-				image = Paths.image("icons/" + Constants.DEFAULT_HEALTH_ICON);
+				image = Paths.image("icons/" + Flags.DEFAULT_HEALTH_ICON);
 			charIcon.loadGraphic(image, true, 150, 150);
 			charIcon.updateHitbox();
 		}

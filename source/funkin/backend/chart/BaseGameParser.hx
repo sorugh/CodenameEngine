@@ -17,7 +17,7 @@ class BaseGameParser {
 		result.customValues.timeChanges = data.timeChanges;
 		var firstTimeChng:SwagTimeChange = data.timeChanges[0];
 		result.bpm = firstTimeChng.bpm;
-		result.beatsPerMeasure = firstTimeChng.b != null ? firstTimeChng.b : Constants.DEFAULT_BEATS_PER_MEASURE;
+		result.beatsPerMeasure = firstTimeChng.b != null ? firstTimeChng.b : Flags.DEFAULT_BEATS_PER_MEASURE;
 
 		result.difficulties = data.playData.difficulties.concat(data.playData.songVariations);
 		Reflect.deleteField(data.playData, "difficulties");
@@ -28,8 +28,8 @@ class BaseGameParser {
 
 	public static function encodeMeta(meta:ChartMetaData, ?chart:ChartData):SwagMetadata {
 		var addVars:Dynamic = meta.customValues;
-		var defStage:String = addVars.stage != null ? addVars.stage : Constants.DEFAULT_STAGE;
-		var defChars:SwagCharactersList = addVars.characters != null ? addVars.characters : {player: Constants.DEFAULT_CHARACTER, girlfriend: Constants.DEFAULT_GIRLFRIEND, opponent: Constants.DEFAULT_OPPONENT};
+		var defStage:String = addVars.stage != null ? addVars.stage : Flags.DEFAULT_STAGE;
+		var defChars:SwagCharactersList = addVars.characters != null ? addVars.characters : {player: Flags.DEFAULT_CHARACTER, girlfriend: Flags.DEFAULT_GIRLFRIEND, opponent: Flags.DEFAULT_OPPONENT};
 		var defTimeCh:Array<SwagTimeChange>;
 
 		if (addVars.timeChanges != null && addVars.timeChanges.length > 0) {
@@ -68,16 +68,16 @@ class BaseGameParser {
 			timeChanges: defTimeCh,
 			looped: false,
 			generatedBy: 'Basegame Chart Importer (Codename Engine)',
-			version: Constants.BASEGAME_SONG_METADATA_VERSION,
+			version: Flags.BASEGAME_SONG_METADATA_VERSION,
 			playData: {
 				stage: defStage,
 				characters: defChars,
 				songVariations: addVars.songVariations != null ? [for (i in 0...addVars.songVariations.length) {meta.difficulties.remove(addVars.songVariations[i]); addVars.songVariations[i];}] : [],
 				difficulties: meta.difficulties,
-				noteStyle: addVars.noteStyle != null ? addVars.noteStyle : Constants.BASEGAME_DEFAULT_NOTE_STYLE,
-				album: addVars.album != null ? addVars.album : Constants.BASEGAME_DEFAULT_ALBUM_ID,
-				previewStart: addVars.previewStart != null ? addVars.previewStart : Constants.BASEGAME_DEFAULT_PREVIEW_START,
-    			previewEnd: addVars.previewEnd != null ? addVars.previewEnd : Constants.BASEGAME_DEFAULT_PREVIEW_END
+				noteStyle: addVars.noteStyle != null ? addVars.noteStyle : Flags.BASEGAME_DEFAULT_NOTE_STYLE,
+				album: addVars.album != null ? addVars.album : Flags.BASEGAME_DEFAULT_ALBUM_ID,
+				previewStart: addVars.previewStart != null ? addVars.previewStart : Flags.BASEGAME_DEFAULT_PREVIEW_START,
+    			previewEnd: addVars.previewEnd != null ? addVars.previewEnd : Flags.BASEGAME_DEFAULT_PREVIEW_END
 			},
 		};
 
@@ -127,8 +127,8 @@ typedef SwagTimeChange =
 typedef SwagPlayData =
 {
 	var album:String;
-	var previewStart:Int;
-	var previewEnd:Int;
+	var previewStart:Float;
+	var previewEnd:Float;
 	var stage:String;
 	var characters:SwagCharactersList;
 	var songVariations:Array<String>;

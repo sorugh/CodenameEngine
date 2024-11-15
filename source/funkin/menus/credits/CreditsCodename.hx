@@ -57,8 +57,8 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 		var text:String = parent.treeParent.pathDesc.text;
 		parent.treeParent.pathDesc.text = "";
 		parent.treeParent.pathDesc.applyMarkup(text, contribFormats = [
-			new FlxTextFormatMarkerPair(new FlxTextFormat(Constants.MAIN_DEVS_COLOR), '*'),
-			new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.interpolate(Constants.MIN_CONTRIBUTIONS_COLOR, Constants.MAIN_DEVS_COLOR, Options.contributors[curSelected].contributions / totalContributions)), '~')
+			new FlxTextFormatMarkerPair(new FlxTextFormat(Flags.MAIN_DEVS_COLOR), '*'),
+			new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.interpolate(Flags.MIN_CONTRIBUTIONS_COLOR, Flags.MAIN_DEVS_COLOR, Options.contributors[curSelected].contributions / totalContributions)), '~')
 		]);
 	}
 
@@ -73,7 +73,7 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 		Options.lastUpdated = curTime;
 
 		error = false;
-		var idk = GitHub.getContributors(Constants.REPO_OWNER, Constants.REPO_NAME, function(e) {
+		var idk = GitHub.getContributors(Flags.REPO_OWNER, Flags.REPO_NAME, function(e) {
 			error = true;
 			var errMsg:String = 'Error while trying to download contributors list:\n${CoolUtil.removeIP(e.message)}';
 			Logs.traceColored([Logs.logText(errMsg.replace('\n', ' '), RED)], ERROR);
@@ -84,9 +84,9 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 		Logs.trace('[CreditsCodename] Contributors list Updated!', VERBOSE);
 
 		var errorOnMain:Bool = false;
-		var idk2 = GitHub.getOrganizationMembers(Constants.REPO_OWNER, function(e) {
+		var idk2 = GitHub.getOrganizationMembers(Flags.REPO_OWNER, function(e) {
 			errorOnMain = true;
-			var errMsg:String = 'Error while trying to download ${Constants.REPO_OWNER} members list:\n${CoolUtil.removeIP(e.message)}';
+			var errMsg:String = 'Error while trying to download ${Flags.REPO_OWNER} members list:\n${CoolUtil.removeIP(e.message)}';
 			Logs.traceColored([Logs.logText(errMsg.replace('\n', ' '), RED)], ERROR);
 			funkin.backend.utils.NativeAPI.showMessageBox("Codename Engine Warning", errMsg, MSG_WARNING);
 		});
@@ -114,7 +114,7 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 			var opt:GithubIconOption = new GithubIconOption(c, 'Total Contributions: ~${c.contributions}~ / *${totalContributions}* (~${FlxMath.roundDecimal(c.contributions / totalContributions * 100, 2)}%~) - Select to open GitHub account');
 			if(Options.mainDevs.contains(c.id)) {
 				opt.desc += " *- Public member of the main Devs!*";
-				@:privateAccess opt.__text.color = Constants.MAIN_DEVS_COLOR;
+				@:privateAccess opt.__text.color = Flags.MAIN_DEVS_COLOR;
 			}
 			add(opt);
 		}

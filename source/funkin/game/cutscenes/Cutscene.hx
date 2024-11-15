@@ -28,7 +28,7 @@ class Cutscene extends MusicBeatSubstate {
 		__callback = callback;
 		__pausable = allowPause;
 
-		pauseItems = Constants.DEFAULT_CUTSCENE_PAUSE_ITEMS;
+		pauseItems = Flags.DEFAULT_CUTSCENE_PAUSE_ITEMS;
 		skippable = canSkip;
 	}
 

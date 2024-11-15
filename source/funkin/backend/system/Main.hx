@@ -165,7 +165,8 @@ class Main extends Sprite
 	public static function refreshAssets() @:privateAccess {
 		WindowUtils.resetTitle();
 
-		var game = FlxG.game; var daSndTray = Type.createInstance(game._customSoundTray = funkin.menus.ui.FunkinSoundTray, []);
+		var game = FlxG.game;
+		var daSndTray = Type.createInstance(game._customSoundTray = funkin.menus.ui.FunkinSoundTray, []);
 		var index:Int = game.numChildren - 1;
 
 		if(game.soundTray != null)

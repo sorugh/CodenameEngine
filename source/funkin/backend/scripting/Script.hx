@@ -54,8 +54,8 @@ class Script extends FlxBasic implements IFlxDestroyable {
 
 			// Engine related stuff
 			"engine"			=> {
-				commit: Constants.COMMIT_NUMBER,
-				hash: Constants.COMMIT_HASH,
+				commit: Flags.COMMIT_NUMBER,
+				hash: Flags.COMMIT_HASH,
 				build: 2675, // 2675 being the last build num before it was removed
 				name: "Codename Engine"
 			},
@@ -101,7 +101,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 		defines.set("CODENAME_ENGINE", true);
 		defines.set("CODENAME_VER", Application.current.meta.get('version'));
 		defines.set("CODENAME_BUILD", 2675); // 2675 being the last build num before it was removed
-		defines.set("CODENAME_COMMIT", Constants.COMMIT_NUMBER);
+		defines.set("CODENAME_COMMIT", Flags.COMMIT_NUMBER);
 		return defines;
 	}
 	/**

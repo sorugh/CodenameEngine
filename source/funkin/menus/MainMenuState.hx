@@ -24,7 +24,7 @@ class MainMenuState extends MusicBeatState
 	var camFollow:FlxObject;
 	var versionText:FunkinText;
 
-	public var canAccessDebugMenus:Bool = Constants.DEFAULT_CAN_ACCESS_DEBUG_MENUS;
+	public var canAccessDebugMenus:Bool = Flags.DEFAULT_CAN_ACCESS_DEBUG_MENUS;
 
 	override function create()
 	{
@@ -72,7 +72,7 @@ class MainMenuState extends MusicBeatState
 
 		FlxG.camera.follow(camFollow, null, 0.06);
 
-		versionText = new FunkinText(5, FlxG.height - 2, 0, '${Constants.VERSION_MESSAGE}\n${Constants.COMMIT_MESSAGE}\n[${controls.getKeyName(SWITCHMOD)}] Open Mods menu\n');
+		versionText = new FunkinText(5, FlxG.height - 2, 0, '${Flags.VERSION_MESSAGE}\n${Flags.COMMIT_MESSAGE}\n[${controls.getKeyName(SWITCHMOD)}] Open Mods menu\n');
 		versionText.y -= versionText.height;
 		versionText.scrollFactor.set();
 		add(versionText);

@@ -121,11 +121,15 @@ class CoolUtil
 	 * @return The attributes through the `FileAttributeWrapper`
 	 */
 	@:noUsing public static inline function safeGetAttributes(path:String, useAbsol:Bool = true):FileAttributeWrapper {
+		#if sys
 		addMissingFolders(Path.directory(path));
 
 		var result = NativeAPI.getFileAttributes(path, useAbsol);
 		if(result.isNothing) Logs.trace('The file where it has been tried to get the attributes from, might be corrupted or inexistent (code: ${result.getValue()})', WARNING);
 		return result;
+		#else
+		return 0;
+		#end
 	}
 
 	/**
@@ -138,11 +142,15 @@ class CoolUtil
 	 */
 	@:noUsing public static inline function safeSetAttributes(path:String, attrib:OneOfThree<NativeAPI.FileAttribute, FileAttributeWrapper, Int>, useAbsol:Bool = true):Int {
 		// yes, i'm aware that FileAttribute is also an Int so need to include it too, but at least like this we don't have to make cast sometimes while passing the arguments  - Nex
+		#if sys
 		addMissingFolders(Path.directory(path));
 
 		var result = NativeAPI.setFileAttributes(path, attrib, useAbsol);
 		if(result == 0) Logs.trace('Failed to set attributes to $path with a code of: $result', WARNING);
 		return result;
+		#else
+		return 0;
+		#end
 	}
 
 	/**
@@ -154,11 +162,15 @@ class CoolUtil
 	 * @return The result code: `0` means that it failed setting
 	 */
 	@:noUsing public static inline function safeAddAttributes(path:String, attrib:OneOfTwo<NativeAPI.FileAttribute, Int>, useAbsol:Bool = true):Int {
+		#if sys
 		addMissingFolders(Path.directory(path));
 
 		var result = NativeAPI.addFileAttributes(path, attrib, useAbsol);
 		if(result == 0) Logs.trace('Failed to add attributes to $path with a code of: $result', WARNING);
 		return result;
+		#else
+		return 0;
+		#end
 	}
 
 	/**
@@ -170,11 +182,15 @@ class CoolUtil
 	 * @return The result code: `0` means that it failed setting
 	 */
 	@:noUsing public static inline function safeRemoveAttributes(path:String, attrib:OneOfTwo<NativeAPI.FileAttribute, Int>, useAbsol:Bool = true):Int {
+		#if sys
 		addMissingFolders(Path.directory(path));
 
 		var result = NativeAPI.removeFileAttributes(path, attrib, useAbsol);
 		if(result == 0) Logs.trace('Failed to remove attributes to $path with a code of: $result', WARNING);
 		return result;
+		#else
+		return 0;
+		#end
 	}
 
 	/**
@@ -403,17 +419,17 @@ class CoolUtil
 		if (Assets.exists(infoPath)) {
 			var musicInfo = IniUtil.parseAsset(infoPath, [
 				"BPM" => null,
-				"TimeSignature" => Constants.DEFAULT_BEATS_PER_MEASURE + "/" + Constants.DEFAULT_STEPS_PER_BEAT
+				"TimeSignature" => Flags.DEFAULT_BEATS_PER_MEASURE + "/" + Flags.DEFAULT_STEPS_PER_BEAT
 			]);
 
 			var timeSignParsed:Array<Null<Float>> = musicInfo["TimeSignature"] == null ? [] : [for(s in musicInfo["TimeSignature"].split("/")) Std.parseFloat(s)];
-			var beatsPerMeasure:Float = Constants.DEFAULT_BEATS_PER_MEASURE;
-			var stepsPerBeat:Float = Constants.DEFAULT_STEPS_PER_BEAT;
+			var beatsPerMeasure:Float = Flags.DEFAULT_BEATS_PER_MEASURE;
+			var stepsPerBeat:Float = Flags.DEFAULT_STEPS_PER_BEAT;
 
 			// Check later, i dont think timeSignParsed can contain null, only nan
 			if (timeSignParsed.length == 2 && !timeSignParsed.contains(null)) {
-				beatsPerMeasure = timeSignParsed[0] == null || timeSignParsed[0] <= 0 ? Constants.DEFAULT_BEATS_PER_MEASURE : cast timeSignParsed[0];
-				stepsPerBeat = timeSignParsed[1] == null || timeSignParsed[1] <= 0 ? Constants.DEFAULT_STEPS_PER_BEAT : cast timeSignParsed[1];
+				beatsPerMeasure = timeSignParsed[0] == null || timeSignParsed[0] <= 0 ? Flags.DEFAULT_BEATS_PER_MEASURE : cast timeSignParsed[0];
+				stepsPerBeat = timeSignParsed[1] == null || timeSignParsed[1] <= 0 ? Flags.DEFAULT_STEPS_PER_BEAT : cast timeSignParsed[1];
 			}
 
 			var bpm:Null<Float> = Std.parseFloat(musicInfo["BPM"]).getDefault(DefaultBPM);

@@ -157,7 +157,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		/*var limit = FlxG.height / 0.45;
 		notes.limit = limit / scrollSpeed;
 			OR
-		notes.limit = Constants.DEFAULT_NOTE_MS_LIMIT / scrollSpeed;*/
+		notes.limit = Flags.DEFAULT_NOTE_MS_LIMIT / scrollSpeed;*/
 	}
 
 	public override function update(elapsed:Float) {
@@ -295,7 +295,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		PlayState.instance.health += health * (opponentSide ? -1 : 1);
 
 	public inline function generateStrums(amount:Int = -1) {
-		if(amount == -1) amount = Constants.DEFAULT_STRUM_AMOUNT;
+		if(amount == -1) amount = Flags.DEFAULT_STRUM_AMOUNT;
 		for (i in 0...amount)
 			add(createStrum(i));
 	}
@@ -333,7 +333,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 			babyArrow.animation.addByPrefix('red', 'arrowRIGHT');
 
 			babyArrow.antialiasing = true;
-			babyArrow.setGraphicSize(Std.int((babyArrow.width * Constants.DEFAULT_NOTE_SCALE) * strumScale));
+			babyArrow.setGraphicSize(Std.int((babyArrow.width * Flags.DEFAULT_NOTE_SCALE) * strumScale));
 
 			babyArrow.animation.addByPrefix('static', 'arrow${event.animPrefix.toUpperCase()}');
 			babyArrow.animation.addByPrefix('pressed', '${event.animPrefix} press', 24, false);

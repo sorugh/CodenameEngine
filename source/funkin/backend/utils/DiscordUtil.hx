@@ -86,9 +86,9 @@ class DiscordUtil
 		if (config == null)
 			config = {};
 
-		config.logoKey = config.logoKey.getDefault(Constants.DISCORD_LOGO_KEY);
-		config.logoText = config.logoText.getDefault(Constants.DISCORD_LOGO_TEXT);
-		config.clientID = config.clientID.getDefault(Constants.DISCORD_CLIENT_ID);
+		config.logoKey = config.logoKey.getDefault(Flags.DEFAULT_DISCORD_LOGO_KEY);
+		config.logoText = config.logoText.getDefault(Flags.DEFAULT_DISCORD_LOGO_TEXT);
+		config.clientID = config.clientID.getDefault(Flags.DEFAULT_DISCORD_CLIENT_ID);
 		currentID = config.clientID;
 		#end
 	}

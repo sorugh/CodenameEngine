@@ -162,7 +162,7 @@ class Alphabet extends FlxSpriteGroup
 		splitWords = _finalText.split("");
 	}
 
-	//public var personTalking:String = Constants.DEFAULT_GIRLFRIEND;
+	//public var personTalking:String = Flags.DEFAULT_GIRLFRIEND;
 
 	public function startTypedText():Void
 	{

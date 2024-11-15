@@ -99,6 +99,8 @@ class Note extends FlxSprite
 		return __customNoteTypeExists[path] = Assets.exists(path);
 	}
 
+	public static var DEFAULT_NOTE_FIELDS:Array<String> = ["time", "id", "type", "sLen"];
+
 	public function new(strumLine:StrumLine, noteData:ChartNote, sustain:Bool = false, sustainLength:Float = 0, sustainOffset:Float = 0, ?prev:Note)
 	{
 		super();
@@ -115,7 +117,7 @@ class Note extends FlxSprite
 		this.isSustainNote = sustain;
 		this.sustainLength = sustainLength;
 		this.strumLine = strumLine;
-		for(field in Reflect.fields(noteData)) if(!Constants.DEFAULT_NOTE_FIELDS.contains(field))
+		for(field in Reflect.fields(noteData)) if(!DEFAULT_NOTE_FIELDS.contains(field))
 			this.extra.set(field, Reflect.field(noteData, field));
 
 		x += 50;
@@ -127,7 +129,7 @@ class Note extends FlxSprite
 
 		var customType = Paths.image('game/notes/${this.noteType}');
 		var event = EventManager.get(NoteCreationEvent).recycle(this, strumID, this.noteType, noteTypeID, PlayState.instance.strumLines.members.indexOf(strumLine), mustPress,
-			(this.noteType != null && customTypePathExists(customType)) ? 'game/notes/${this.noteType}' : 'game/notes/default', @:privateAccess strumLine.strumScale * Constants.DEFAULT_NOTE_SCALE, animSuffix);
+			(this.noteType != null && customTypePathExists(customType)) ? 'game/notes/${this.noteType}' : 'game/notes/default', @:privateAccess strumLine.strumScale * Flags.DEFAULT_NOTE_SCALE, animSuffix);
 
 		if (PlayState.instance != null)
 			event = PlayState.instance.gameAndCharsEvent("onNoteCreation", event);

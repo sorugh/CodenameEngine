@@ -19,12 +19,10 @@ class MainState extends FlxState {
 	public override function create() {
 		super.create();
 		if (!initiated) {
-			Constants.init();
 			Main.loadGameSettings();
 		}
 
 		initiated = true;
-		Constants.reset();
 
 		#if sys
 		CoolUtil.deleteFolder('./.temp/'); // delete temp folder
@@ -58,9 +56,9 @@ class MainState extends FlxState {
 		}
 		#end
 
-		Main.refreshAssets();
-		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder);
 		Flags.load();
+		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder); // Loads global.hx
+		Main.refreshAssets();
 		DiscordUtil.init();
 		EventsData.reloadEvents();
 		TitleState.initialized = false;
@@ -75,6 +73,8 @@ class MainState extends FlxState {
 			betaWarningShown = true;
 		}
 
+		#if sys
 		CoolUtil.safeAddAttributes('./.temp/', NativeAPI.FileAttribute.HIDDEN);
+		#end
 	}
 }

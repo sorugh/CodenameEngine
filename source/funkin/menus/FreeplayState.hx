@@ -456,7 +456,7 @@ class FreeplaySonglist {
 
 		if (songsFound.length > 0) {
 			for(s in songsFound)
-				songs.push(Chart.loadChartMeta(s, Constants.DEFAULT_DIFFICULTY, source == MODS));
+				songs.push(Chart.loadChartMeta(s, Flags.DEFAULT_DIFFICULTY, source == MODS));
 			return false;
 		}
 		return true;

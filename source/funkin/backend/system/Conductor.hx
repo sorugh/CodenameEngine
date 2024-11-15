@@ -25,7 +25,7 @@ class Conductor
 	/**
 	 * Current BPM
 	 */
-	public static var bpm:Float = Constants.DEFAULT_BPM;
+	public static var bpm:Float = 100;
 
 	/**
 	 * Current Crochet (time per beat), in milliseconds.

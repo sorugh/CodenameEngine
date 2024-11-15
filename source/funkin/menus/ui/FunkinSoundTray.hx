@@ -1,7 +1,7 @@
 package funkin.menus.ui;
 
 import funkin.backend.scripting.events.CancellableEvent;
-import funkin.backend.scripting.events.soundTray.*;
+import funkin.backend.scripting.events.soundtray.*;
 import funkin.backend.scripting.Script;
 import flixel.system.ui.FlxSoundTray;
 import openfl.text.TextFormat;

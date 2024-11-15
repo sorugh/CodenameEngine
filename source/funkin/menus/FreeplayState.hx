@@ -4,9 +4,10 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import funkin.backend.chart.Chart;
 import funkin.backend.chart.ChartData.ChartMetaData;
-import funkin.backend.scripting.events.*;
+import funkin.backend.scripting.events.menu.MenuChangeEvent;
+import funkin.backend.scripting.events.menu.freeplay.*;
 import funkin.game.HealthIcon;
-import funkin.savedata.FunkinSave;
+import funkin.backend.utils.FunkinSave;
 
 using StringTools;
 

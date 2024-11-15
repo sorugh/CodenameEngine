@@ -5,7 +5,7 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import funkin.backend.scripting.Script;
 import funkin.backend.scripting.events.CancellableEvent;
-import funkin.backend.scripting.events.GameOverCreationEvent;
+import funkin.backend.scripting.events.gameover.*;
 import funkin.backend.system.Conductor;
 import funkin.editors.charter.Charter;
 import funkin.menus.FreeplayState;

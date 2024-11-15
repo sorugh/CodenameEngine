@@ -5,7 +5,7 @@ import flixel.sound.FlxSound;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxSignal.FlxTypedSignal;
 import funkin.backend.chart.ChartData;
-import funkin.backend.scripting.events.*;
+import funkin.backend.scripting.events.note.*;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.Controls;
 

@@ -3,7 +3,7 @@ package funkin.game;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import funkin.backend.chart.ChartData;
-import funkin.backend.scripting.events.*;
+import funkin.backend.scripting.events.note.NoteCreationEvent;
 import funkin.backend.system.Conductor;
 
 using StringTools;

@@ -18,6 +18,8 @@ import funkin.backend.chart.EventsData;
 import funkin.backend.scripting.DummyScript;
 import funkin.backend.scripting.Script;
 import funkin.backend.scripting.ScriptPack;
+import funkin.backend.scripting.events.gameplay.*;
+import funkin.backend.scripting.events.note.*;
 import funkin.backend.scripting.events.*;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.RotatingSpriteGroup;
@@ -28,7 +30,7 @@ import funkin.game.SplashHandler;
 import funkin.game.cutscenes.*;
 import funkin.menus.*;
 import funkin.menus.StoryMenuState.WeekData;
-import funkin.savedata.FunkinSave;
+import funkin.backend.utils.FunkinSave;
 import haxe.io.Path;
 
 using StringTools;
@@ -1397,8 +1399,7 @@ class PlayState extends MusicBeatState
 	public var scrollSpeedTween:FlxTween = null;
 
 	public function executeEvent(event:ChartEvent) @:privateAccess {
-		if (event == null) return;
-		if (event.params == null) return;
+		if (event == null || event.params == null) return;
 
 		var e = EventManager.get(EventGameEvent).recycle(event);
 		gameAndCharsEvent("onEvent", e);

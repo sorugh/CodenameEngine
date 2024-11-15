@@ -3,8 +3,7 @@ package funkin.game.cutscenes.dialogue;
 import flixel.addons.text.FlxTypeText;
 import flixel.sound.FlxSound;
 import funkin.backend.scripting.Script;
-import funkin.backend.scripting.events.PlayAnimContext;
-import funkin.backend.scripting.events.PlayAnimEvent;
+import funkin.backend.scripting.events.sprite.*;
 import funkin.backend.scripting.events.dialogue.*;
 import haxe.xml.Access;
 

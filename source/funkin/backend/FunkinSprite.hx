@@ -8,7 +8,7 @@ import flixel.math.FlxRect;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.util.typeLimit.OneOfTwo;
 import flxanimate.animate.FlxAnim.FlxSymbolAnimation;
-import funkin.backend.scripting.events.PlayAnimContext;
+import funkin.backend.scripting.events.sprite.PlayAnimContext;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.backend.system.interfaces.IOffsetCompatible;
 import funkin.backend.utils.XMLUtil.AnimData;

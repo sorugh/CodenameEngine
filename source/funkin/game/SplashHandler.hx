@@ -1,6 +1,6 @@
 package funkin.game;
 
-import funkin.backend.scripting.events.SplashShowEvent;
+import funkin.backend.scripting.events.splash.*;
 
 class SplashHandler extends FlxTypedGroup<FunkinSprite> {
 	/**

@@ -6,8 +6,10 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import funkin.backend.FunkinText;
-import funkin.backend.scripting.events.*;
-import funkin.savedata.FunkinSave;
+import funkin.backend.scripting.events.menu.MenuChangeEvent;
+import funkin.backend.scripting.events.menu.storymenu.*;
+import funkin.backend.scripting.events.CancellableEvent;
+import funkin.backend.utils.FunkinSave;
 import haxe.io.Path;
 import haxe.xml.Access;
 

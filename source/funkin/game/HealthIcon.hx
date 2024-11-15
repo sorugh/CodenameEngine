@@ -27,7 +27,7 @@ class HealthIcon extends FlxSprite
 	/**
 	 * current animation state
 	 */
-	 public var curAnimState:Int = -1;
+	public var curAnimState:Int = -1;
 
 	/**
 	 * Helper for HScript who can't make maps
@@ -95,7 +95,7 @@ class HealthIcon extends FlxSprite
 				i = icon;
 			}
 			if (i >= 0 && curAnimState != i) {
-				var event = EventManager.get(funkin.backend.scripting.events.HealthIconChangeEvent).recycle(i, this);
+				var event = EventManager.get(funkin.backend.scripting.events.healthicon.HealthIconChangeEvent).recycle(i, this);
 				funkin.backend.scripting.GlobalScript.event("onHealthIconAnimChange", event);
 				if (!event.cancelled)
 					animation.curAnim.curFrame = event.amount;

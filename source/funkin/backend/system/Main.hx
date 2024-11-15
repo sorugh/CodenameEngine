@@ -142,7 +142,7 @@ class Main extends Sprite
 		Assets.registerLibrary('default', lib);
 
 		funkin.options.PlayerSettings.init();
-		funkin.savedata.FunkinSave.init();
+		funkin.backend.utils.FunkinSave.init();
 		Options.load();
 
 		FlxG.fixedTimestep = false;

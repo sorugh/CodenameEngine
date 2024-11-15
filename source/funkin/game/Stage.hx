@@ -7,8 +7,7 @@ import funkin.backend.utils.XMLUtil.XMLImportedScriptInfo;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.backend.scripting.DummyScript;
 import funkin.backend.scripting.Script;
-import funkin.backend.scripting.events.StageNodeEvent;
-import funkin.backend.scripting.events.StageXMLEvent;
+import funkin.backend.scripting.events.stage.*;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import haxe.io.Path;
 import haxe.xml.Access;
@@ -76,7 +75,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 
 			if (PlayState.instance != null) {
 				event = EventManager.get(StageXMLEvent).recycle(this, stageXML, elems);
-				elems = PlayState.instance.scripts.event("onStageXMLParsed", event).elems;
+				elems = PlayState.instance.gameAndCharsEvent("onStageXMLParsed", event).elems;
 			}
 
 			for(node in elems) {
@@ -148,7 +147,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 				}
 
 				if(PlayState.instance != null) {
-					sprite = PlayState.instance.scripts.event("onStageNodeParsed", EventManager.get(StageNodeEvent).recycle(this, node, sprite, node.name)).sprite;
+					sprite = PlayState.instance.gameAndCharsEvent("onStageNodeParsed", EventManager.get(StageNodeEvent).recycle(this, node, sprite, node.name)).sprite;
 				}
 
 				if (sprite != null) {
@@ -193,7 +192,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 		}
 
 		// idk lemme check anyways just in case scripts did smth  - Nex
-		if (event != null) PlayState.instance.scripts.event("onPostStageCreation", event);
+		if (event != null) PlayState.instance.gameAndCharsEvent("onPostStageCreation", event);
 
 		// shortlived scripts destroy when the stage finishes setting up  - Nex
 		for (info in xmlImportedScripts) if (info.shortLived) {

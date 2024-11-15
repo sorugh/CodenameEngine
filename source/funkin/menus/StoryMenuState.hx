@@ -6,14 +6,20 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import funkin.backend.FunkinText;
-import funkin.backend.scripting.events.*;
-import funkin.savedata.FunkinSave;
+import funkin.backend.scripting.events.menu.MenuChangeEvent;
+import funkin.backend.scripting.events.menu.storymenu.*;
+import funkin.backend.scripting.events.CancellableEvent;
+import funkin.backend.utils.FunkinSave;
 import haxe.io.Path;
 import haxe.xml.Access;
 
 class StoryMenuState extends MusicBeatState {
-	public var characters:Map<String, MenuCharacter> = [];
+	public var characters:Map<String, Access> = [];
 	public var weeks:Array<WeekData> = [];
+
+	// yes it supports parameters  - Nex
+	// To be removed later, when translation branch is merged into public - Neo
+	public var scoreMessage:String = "WEEK SCORE:{0}";
 
 	public var scoreText:FlxText;
 	public var tracklist:FlxText;
@@ -23,10 +29,13 @@ class StoryMenuState extends MusicBeatState {
 	public var curWeek:Int = 0;
 
 	public var difficultySprites:Map<String, FlxSprite> = [];
-	public var weekBG:FlxSprite;
 	public var leftArrow:FlxSprite;
 	public var rightArrow:FlxSprite;
 	public var blackBar:FlxSprite;
+
+	public var weekBG:FlxSprite;
+	public var defColor:String = "#F9CF51";
+	public var interpColor:FlxInterpolateColor;
 
 	public var lerpScore:Float = 0;
 	public var intendedScore:Int = 0;
@@ -34,7 +43,7 @@ class StoryMenuState extends MusicBeatState {
 	public var canSelect:Bool = true;
 
 	public var weekSprites:FlxTypedGroup<MenuItem>;
-	public var characterSprites:FlxTypedGroup<MenuCharacterSprite>;
+	public var characterSprites:FlxTypedGroup<FunkinSprite>;
 
 	//public var charFrames:Map<String, FlxFramesCollection> = [];
 
@@ -56,7 +65,7 @@ class StoryMenuState extends MusicBeatState {
 		weekTitle.alpha = 0.7;
 
 		weekBG = new FlxSprite(0, 56).makeSolid(FlxG.width, 400, 0xFFFFFFFF);
-		weekBG.color = 0xFFF9CF51;
+		weekBG.color = weeks.length > 0 ? weeks[0].bgColor : FlxColor.fromString(defColor);
 		weekBG.updateHitbox();
 
 		weekSprites = new FlxTypedGroup<MenuItem>();
@@ -85,15 +94,12 @@ class StoryMenuState extends MusicBeatState {
 
 		add(weekSprites);
 		for(e in [blackBar, scoreText, weekTitle, weekBG, tracklist]) {
+			e.antialiasing = true;
 			e.scrollFactor.set();
 			add(e);
 		}
 
-		characterSprites = new FlxTypedGroup<MenuCharacterSprite>();
-		for(i in 0...3) {
-			characterSprites.add(new MenuCharacterSprite(i));
-		}
-		add(characterSprites);
+		add(characterSprites = new FlxTypedGroup<FunkinSprite>());
 
 		for(i=>week in weeks) {
 			var spr:MenuItem = new MenuItem(0, (i * 120) + 480, 'menus/storymenu/weeks/${week.sprite}');
@@ -113,6 +119,8 @@ class StoryMenuState extends MusicBeatState {
 				}
 			}
 		}
+
+		interpColor = new FlxInterpolateColor(weekBG.color);
 
 		// default difficulty should be the middle difficulty in the array
 		// to be consistent with base game and whatnot, you know the drill
@@ -151,6 +159,9 @@ class StoryMenuState extends MusicBeatState {
 				if (e != null && e.exists)
 					e.animation.play('idle');
 		}
+
+		interpColor.fpsLerpTo(weeks[curWeek].bgColor, 0.0625);
+		weekBG.color = interpColor.color;
 	}
 
 	public function goBack() {
@@ -185,12 +196,36 @@ class StoryMenuState extends MusicBeatState {
 		tracklist.text = str.toString();
 		weekTitle.text = weeks[curWeek].name.getDefault("");
 
-		for(i in 0...3)
-			characterSprites.members[i].changeCharacter(characters[weeks[curWeek].chars[i]]);
+		if(characterSprites != null) for(i in 0...3) {
+			var curChar:FunkinSprite; var newChar:Access = characters[weeks[curWeek].chars[i]];
+			if(newChar == null) modifyCharacterAt(i);
+			else if((curChar = characterSprites.members[i]) == null || newChar.getAtt("name") != curChar.name) modifyCharacterAt(i, newChar);
+		}
 
 		changeDifficulty(0, true);
 
 		MemoryUtil.clearMinor();
+	}
+
+	public function modifyCharacterAt(i:Int, ?node:Access):FunkinSprite {
+		var old = characterSprites.members[i];
+		if(old != null) {
+			characterSprites.remove(old);
+			old.destroy();
+		}
+
+		if(node == null) return null;
+		var curChar:FunkinSprite = XMLUtil.createSpriteFromXML(node, "", BEAT);
+		curChar.offset.x += curChar.x; curChar.offset.y += curChar.y;
+		curChar.setPosition((FlxG.width * 0.25) * (1 + i) - 150, 70);
+		if(characterSprites != null) characterSprites.insert(i, curChar);  // Making so many null checks abt this group just in case if mods destroy it  - Nex
+		curChar.playAnim("idle", true, DANCE);
+		return curChar;
+	}
+
+	public override function beatHit(curBeat:Int) {
+		super.beatHit(curBeat);
+		if(characterSprites != null) characterSprites.forEachAlive(function(spr) spr.beatHit(curBeat));
 	}
 
 	var __oldDiffName = null;
@@ -256,7 +291,8 @@ class StoryMenuState extends MusicBeatState {
 				sprite: week.getAtt('sprite').getDefault(weekName),
 				chars: [null, null, null],
 				songs: [],
-				difficulties: ['easy', 'normal', 'hard']
+				difficulties: ['easy', 'normal', 'hard'],
+				bgColor: FlxColor.fromString(week.getAtt("bgColor").getDefault(defColor))
 			};
 
 			var diffNodes = week.nodes.difficulty;
@@ -310,19 +346,14 @@ class StoryMenuState extends MusicBeatState {
 		} catch(e) {
 			Logs.error('Story Menu: Cannot parse character "$charName.xml": ${Std.string(e)}');
 		}
-		if (char == null) return;
 
-		if (characters[charName] != null) return;
-		var charObj:MenuCharacter = {
-			spritePath: Paths.image(char.getAtt('sprite').getDefault('menus/storymenu/characters/${charName}')),
-			scale: Std.parseFloat(char.getAtt('scale')).getDefaultFloat(1),
-			xml: char,
-			offset: FlxPoint.get(
-				Std.parseFloat(char.getAtt('x')).getDefaultFloat(0),
-				Std.parseFloat(char.getAtt('y')).getDefaultFloat(0)
-			)
-		};
-		characters[charName] = charObj;
+		if(char != null && characters[charName] == null) {
+			if(!char.x.exists("name")) char.x.set("name", charName);
+			if(!char.x.exists("sprite")) char.x.set("sprite", 'menus/storymenu/characters/${charName}');
+			if(!char.x.exists("beatInterval")) char.x.set("beatInterval", "1");
+			if(!char.x.exists("updateHitbox")) char.x.set("updateHitbox", "true");
+			characters[charName] = char;
+		}
 	}
 
 	public function getWeeksFromSource(weeks:Array<String>, source:funkin.backend.assets.AssetSource) {
@@ -343,13 +374,6 @@ class StoryMenuState extends MusicBeatState {
 		return true;
 	}
 
-	public override function destroy() {
-		super.destroy();
-		for(e in characters)
-			if (e != null && e.offset != null)
-				e.offset.put();
-	}
-
 	public function selectWeek() {
 		var event = event("onWeekSelect", EventManager.get(WeekSelectEvent).recycle(weeks[curWeek], weeks[curWeek].difficulties[curDifficulty], curWeek, curDifficulty));
 		if (event.cancelled) return;
@@ -357,9 +381,8 @@ class StoryMenuState extends MusicBeatState {
 		canSelect = false;
 		CoolUtil.playMenuSFX(CONFIRM);
 
-		for(char in characterSprites)
-			if (char.animation.exists("confirm"))
-				char.animation.play("confirm");
+		if(characterSprites != null)
+			characterSprites.forEachAlive(function(spr) spr.playAnim("confirm", true, LOCK));
 
 		PlayState.loadWeek(event.week, event.difficulty);
 
@@ -378,6 +401,7 @@ typedef WeekData = {
 	var chars:Array<String>;
 	var songs:Array<WeekSong>;
 	var difficulties:Array<String>;
+	var bgColor:FlxColor;
 }
 
 typedef WeekSong = {
@@ -385,52 +409,6 @@ typedef WeekSong = {
 	var hide:Bool;
 }
 
-typedef MenuCharacter = {
-	var spritePath:String;
-	var xml:Access;
-	var scale:Float;
-	var offset:FlxPoint;
-	// var frames:FlxFramesCollection;
-}
-
-class MenuCharacterSprite extends FlxSprite
-{
-	public var character:String;
-
-	var pos:Int;
-
-	public function new(pos:Int) {
-		super(0, 70);
-		this.pos = pos;
-		visible = false;
-		antialiasing = true;
-	}
-
-	public var oldChar:MenuCharacter = null;
-
-	public function changeCharacter(data:MenuCharacter) {
-		visible = (data != null);
-		if (!visible)
-			return;
-
-		if (oldChar != (oldChar = data)) {
-			CoolUtil.loadAnimatedGraphic(this, data.spritePath);
-			for(e in data.xml.nodes.anim) {
-				if (e.getAtt("name") == "idle")
-					animation.remove("idle");
-
-				XMLUtil.addXMLAnimation(this, e);
-			}
-			animation.play("idle");
-			scale.set(data.scale, data.scale);
-			updateHitbox();
-			offset.x += data.offset.x;
-			offset.y += data.offset.y;
-
-			x = (FlxG.width * 0.25) * (1 + pos) - 150;
-		}
-	}
-}
 class MenuItem extends FlxSprite
 {
 	public var targetY:Float = 0;

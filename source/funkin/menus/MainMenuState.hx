@@ -4,7 +4,8 @@ import flixel.FlxState;
 import flixel.effects.FlxFlicker;
 import flixel.tweens.FlxTween;
 import funkin.backend.FunkinText;
-import funkin.backend.scripting.events.*;
+import funkin.backend.scripting.events.menu.MenuChangeEvent;
+import funkin.backend.scripting.events.NameEvent;
 import funkin.menus.credits.CreditsMain;
 import funkin.options.OptionsMenu;
 import lime.app.Application;
@@ -24,7 +25,7 @@ class MainMenuState extends MusicBeatState
 	var camFollow:FlxObject;
 	var versionText:FunkinText;
 
-	public var canAccessDebugMenus:Bool = true;
+	public var canAccessDebugMenus:Bool = Flags.DEFAULT_CAN_ACCESS_DEBUG_MENUS;
 
 	override function create()
 	{
@@ -73,8 +74,8 @@ class MainMenuState extends MusicBeatState
 		FlxG.camera.follow(camFollow, null, 0.06);
 
 		versionText = new FunkinText(5, FlxG.height - 2, 0, [
-			'Codename Engine v${Application.current.meta.get('version')}',
-			TU.translate("mainMenu.commit", [funkin.backend.system.macros.GitCommitMacro.commitNumber, funkin.backend.system.macros.GitCommitMacro.commitHash]),
+			Flags.VERSION_MESSAGE,
+			TU.translate("mainMenu.commit", [Flags.COMMIT_NUMBER, Flags.COMMIT_HASH]),
 			TU.translate("mainMenu.openMods", [controls.getKeyName(SWITCHMOD)]),
 			''
 		].join('\n'));

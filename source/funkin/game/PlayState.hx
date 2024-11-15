@@ -18,6 +18,8 @@ import funkin.backend.chart.EventsData;
 import funkin.backend.scripting.DummyScript;
 import funkin.backend.scripting.Script;
 import funkin.backend.scripting.ScriptPack;
+import funkin.backend.scripting.events.gameplay.*;
+import funkin.backend.scripting.events.note.*;
 import funkin.backend.scripting.events.*;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.RotatingSpriteGroup;
@@ -28,7 +30,7 @@ import funkin.game.SplashHandler;
 import funkin.game.cutscenes.*;
 import funkin.menus.*;
 import funkin.menus.StoryMenuState.WeekData;
-import funkin.savedata.FunkinSave;
+import funkin.backend.utils.FunkinSave;
 import haxe.io.Path;
 
 using StringTools;
@@ -61,7 +63,7 @@ class PlayState extends MusicBeatState
 	/**
 	 * The selected difficulty name
 	 */
-	public static var difficulty:String = "normal";
+	public static var difficulty:String = Flags.DEFAULT_DIFFICULTY;
 	/**
 	 * Whenever the week is coming from the mods folder or not.
 	 */
@@ -73,11 +75,11 @@ class PlayState extends MusicBeatState
 	/**
 	 * Whenever the song has been started with opponent mode on.
 	 */
-	public static var opponentMode:Bool = false;
+	public static var opponentMode:Bool = Flags.DEFAULT_OPPONENT_MODE;
 	/**
 	 * Whenever the song has been started with co-op mode on.
 	 */
-	public static var coopMode:Bool = false;
+	public static var coopMode:Bool = Flags.DEFAULT_COOP_MODE;
 
 	/**
 	 * Script Pack of all the scripts being ran.
@@ -96,15 +98,15 @@ class PlayState extends MusicBeatState
 	/**
 	 * Game Over Song. (assets/music/gameOver.ogg)
 	 */
-	public var gameOverSong:String = "gameOver";
+	public var gameOverSong:String = Flags.DEFAULT_GAMEOVER_SONG;
 	/**
 	 * Game Over Song. (assets/sounds/gameOverSFX.ogg)
 	 */
-	public var lossSFX:String = "gameOverSFX";
+	public var lossSFX:String = Flags.DEFAULT_GAMEOVER_LOSS_SFX;
 	/**
 	 * Game Over End SFX, used when retrying. (assets/sounds/gameOverEnd.ogg)
 	 */
-	public var retrySFX:String = "gameOverEnd";
+	public var retrySFX:String = Flags.DEFAULT_GAMEOVER_RETRY_SFX;
 
 	/**
 	 * Current Stage.
@@ -209,15 +211,15 @@ class PlayState extends MusicBeatState
 	/**
 	 * Whenever the vocals should be muted when a note is missed.
 	 */
-	public var muteVocalsOnMiss:Bool = true;
+	public var muteVocalsOnMiss:Bool = Flags.DEFAULT_MUTE_VOCALS_ON_MISS;
 	/**
 	 * Whenever the player can press 7, 8 or 9 to access the debug menus.
 	 */
-	public var canAccessDebugMenus:Bool = true;
+	public var canAccessDebugMenus:Bool = Flags.DEFAULT_CAN_ACCESS_DEBUG_MENUS;
 	/**
 	 * Whether or not to show the secret gitaroo pause.
 	 */
-	public var allowGitaroo:Bool = true;
+	public var allowGitaroo:Bool = Flags.DEFAULT_GITAROO;
 	/**
 	 * Whether or not to bop the icons on beat.
 	 */
@@ -231,19 +233,23 @@ class PlayState extends MusicBeatState
 	 * Interval of cam zooming (beats).
 	 * For example: if set to 4, the camera will zoom every 4 beats.
 	 */
-	public var camZoomingInterval:Int = 4;
+	public var camZoomingInterval:Int = Flags.DEFAULT_CAM_ZOOM_INTERVAL;
 	/**
 	 * How strong the cam zooms should be (defaults to 1)
 	 */
-	public var camZoomingStrength:Float = 1;
+	public var camZoomingStrength:Float = Flags.DEFAULT_CAM_ZOOM_STRENGTH;
 	/**
 	 * Maximum amount of zoom for the camera.
 	 */
-	public var maxCamZoom:Float = 1.35;
+	public var maxCamZoom:Float = Flags.MAX_CAMERA_ZOOM;
 	/**
 	 * Current song name (lowercase)
 	 */
 	public var curSong:String = "";
+	/**
+	 * Current song name (lowercase and spaces to dashes)
+	 */
+	public var curSongID:String = "";
 	/**
 	 * Current stage name
 	 */
@@ -262,7 +268,7 @@ class PlayState extends MusicBeatState
 	/**
 	 * Maximum health the player can have. Defaults to 2.
 	 */
-	@:isVar public var maxHealth(get, set):Float = 2;
+	@:isVar public var maxHealth(get, set):Float = Flags.DEFAULT_MAX_HEALTH;
 	/**
 	 * Current combo.
 	 */
@@ -362,25 +368,25 @@ class PlayState extends MusicBeatState
 	/**
 	 * Camera zoom at which the game lerps to.
 	 */
-	public var defaultCamZoom:Float = 1.05;
+	public var defaultCamZoom:Float = Flags.DEFAULT_CAM_ZOOM;
 	/**
 	 * Speed at which the game camera zoom lerps to.
 	 */
-	public var camGameZoomLerp:Float = 0.05;
+	public var camGameZoomLerp:Float = Flags.DEFAULT_CAM_ZOOM_LERP;
 
 	/**
 	 * Camera zoom at which the hud lerps to.
 	 */
-	public var defaultHudZoom:Float = 1.0;
+	public var defaultHudZoom:Float = Flags.DEFAULT_HUD_ZOOM;
 	/**
 	 * Speed at which the hud camera zoom lerps to.
 	 */
-	public var camHUDZoomLerp:Float = 0.05;
+	public var camHUDZoomLerp:Float = Flags.DEFAULT_HUD_ZOOM_LERP;
 
 	/**
 	 * Zoom for the pixel assets.
 	 */
-	public static var daPixelZoom:Float = 6;
+	public static var daPixelZoom:Float = Flags.PIXEL_ART_SCALE;
 
 	/**
 	 * Whenever the game is currently in a cutscene or not.
@@ -460,6 +466,22 @@ class PlayState extends MusicBeatState
 	 */
 	public var comboGroup:RotatingSpriteGroup;
 	/**
+	 * Whenever the Rating sprites should be shown or not.
+	 *
+	 * NOTE: This is just a default value for the final value, the final value can be changed through notes hit events.
+	 */
+	public var defaultDisplayRating:Bool = true;
+	/**
+	 * Whenever the Combo sprite should be shown or not (like old Week 7 patches).
+	 *
+	 * NOTE: This is just a default value for the final value, the final value can be changed through notes hit events.
+	 */
+	public var defaultDisplayCombo:Bool = false;
+	/**
+	 * Minimum Combo Count to display the combo digits. Anything less than 0 means it won't be shown.
+	 */
+	public var minDigitDisplay:Int = 10;
+	/**
 	 * Array containing all of the note types names.
 	 */
 	public var noteTypesArray:Array<String> = [null];
@@ -516,7 +538,7 @@ class PlayState extends MusicBeatState
 			if (e.percent <= acc && (rating == null || rating.percent < e.percent))
 				rating = e;
 
-		var event = scripts.event("onRatingUpdate", EventManager.get(RatingUpdateEvent).recycle(rating, curRating));
+		var event = gameAndCharsEvent("onRatingUpdate", EventManager.get(RatingUpdateEvent).recycle(rating, curRating));
 		if (!event.cancelled)
 			curRating = event.rating;
 	}
@@ -536,6 +558,24 @@ class PlayState extends MusicBeatState
 	private inline function set_curStage(name:String) {
 		if (stage != null) stage.stageName = name;
 		return name;
+	}
+
+	public inline function callOnCharacters(func:String, ?parameters:Array<Dynamic>) {
+		if(strumLines != null) strumLines.forEachAlive(function (strLine:StrumLine) {
+			if (strLine.characters != null) for (character in strLine.characters)
+				if (character != null) character.script.call(func, parameters);
+		});
+	}
+
+	public inline function gameAndCharsCall(func:String, ?parameters:Array<Dynamic>, ?charsFunc:String) {
+		scripts.call(func, parameters);
+		callOnCharacters(charsFunc != null ? charsFunc : func, parameters);
+	}
+
+	public inline function gameAndCharsEvent<T:CancellableEvent>(func:String, ?event:T, ?charsFunc:String):T {
+		scripts.event(func, event);
+		callOnCharacters(charsFunc != null ? charsFunc : func, [event]);
+		return event;
 	}
 
 	@:dox(hide) override public function create()
@@ -581,7 +621,7 @@ class PlayState extends MusicBeatState
 		// CHARACTER INITIALIZATION
 		#if REGION
 		comboGroup = new RotatingSpriteGroup(FlxG.width * 0.55, (FlxG.height * 0.5) - 60);
-		comboGroup.maxSize = 25;
+		comboGroup.maxSize = Flags.DEFAULT_COMBO_GROUP_MAX_SIZE;
 		#end
 
 		// CAMERA FOLLOW, SCRIPTS & STAGE INITIALIZATION
@@ -589,7 +629,7 @@ class PlayState extends MusicBeatState
 		camFollow = new FlxObject(0, 0, 2, 2);
 		add(camFollow);
 
-		if (SONG.stage == null || SONG.stage.trim() == "") SONG.stage = "stage";
+		if (SONG.stage == null || SONG.stage.trim() == "") SONG.stage = Flags.DEFAULT_STAGE;
 		add(stage = new Stage(SONG.stage));
 
 		if (!chartingMode || Options.charterEnablePlaytestScripts) {
@@ -699,16 +739,16 @@ class PlayState extends MusicBeatState
 
 		// HUD INITIALIZATION & CAMERA INITIALIZATION
 		#if REGION
-		var event = EventManager.get(AmountEvent).recycle(4);
-		if (!scripts.event("onPreGenerateStrums", event).cancelled) {
+		var event = EventManager.get(AmountEvent).recycle(null);
+		if (!gameAndCharsEvent("onPreGenerateStrums", event).cancelled) {
 			generateStrums(event.amount);
-			scripts.event("onPostGenerateStrums", event);
+			gameAndCharsEvent("onPostGenerateStrums", event);
 		}
 
 		for(str in strumLines)
 			str.generate(str.data, (chartingMode && Charter.startHere) ? Charter.startTime : null);
 
-		FlxG.camera.follow(camFollow, LOCKON, 0.04);
+		FlxG.camera.follow(camFollow, LOCKON, Flags.DEFAULT_CAMERA_FOLLOW_SPEED);
 		FlxG.camera.zoom = defaultCamZoom;
 		// camHUD.zoom = defaultHudZoom;
 
@@ -737,10 +777,11 @@ class PlayState extends MusicBeatState
 		healthBar.createFilledBar(leftColor, rightColor);
 		add(healthBar);
 
-		health = maxHealth / 2;
+		if (Flags.DEFAULT_HEALTH != null) health = Flags.DEFAULT_HEALTH;
+		else health = maxHealth / 2;
 
-		iconP1 = new HealthIcon(boyfriend != null ? boyfriend.getIcon() : "face", true);
-		iconP2 = new HealthIcon(dad != null ? dad.getIcon() : "face", false);
+		iconP1 = new HealthIcon(boyfriend != null ? boyfriend.getIcon() : Flags.DEFAULT_HEALTH_ICON, true);
+		iconP2 = new HealthIcon(dad != null ? dad.getIcon() : Flags.DEFAULT_HEALTH_ICON, false);
 		for(icon in [iconP1, iconP2]) {
 			icon.y = healthBar.y - (icon.height / 2);
 			add(icon);
@@ -777,7 +818,7 @@ class PlayState extends MusicBeatState
 				FlxG.sound.load(Paths.sound(s));
 
 		if (chartingMode) {
-			WindowUtils.prefix = Charter.undos.unsaved ? "* " : "";
+			WindowUtils.prefix = Charter.undos.unsaved ? Flags.UNDO_PREFIX : "";
 			WindowUtils.suffix = TU.translate("charter.chartPlaytesting");
 
 			SaveWarning.showWarning = Charter.undos.unsaved;
@@ -802,7 +843,7 @@ class PlayState extends MusicBeatState
 
 		__updateNote_event = EventManager.get(NoteUpdateEvent);
 
-		scripts.call("postCreate");
+		gameAndCharsCall("postCreate", null, "gamePostCreate");
 	}
 
 	/**
@@ -833,7 +874,7 @@ class PlayState extends MusicBeatState
 
 		inCutscene = true;
 		var videoCutscene = Paths.video('$songName-${prefix}cutscene');
-		var videoCutsceneAlt = Paths.file('songs/$songName/${prefix}cutscene.mp4');
+		var videoCutsceneAlt = Paths.file('songs/$songName/${prefix}cutscene.${Flags.VIDEO_EXT}');
 		var dialogue = Paths.file('songs/$songName/${prefix}dialogue.xml');
 		persistentUpdate = true;
 		var toCall:Void->Void = function() {
@@ -866,7 +907,7 @@ class PlayState extends MusicBeatState
 			_startCountdownCalled = true;
 			inCutscene = false;
 
-			if (scripts.event("onStartCountdown", new CancellableEvent()).cancelled) return;
+			if (gameAndCharsEvent("onStartCountdown", new CancellableEvent()).cancelled) return;
 		}
 
 		startedCountdown = true;
@@ -879,14 +920,14 @@ class PlayState extends MusicBeatState
 				countdown(swagCounter++);
 			}, introLength);
 		}
-		scripts.call("onPostStartCountdown");
+		gameAndCharsCall("onPostStartCountdown");
 	}
 
 	/**
 	 * Creates a fake countdown.
 	 */
 	public function countdown(swagCounter:Int) {
-		var event:CountdownEvent = scripts.event("onCountdown", EventManager.get(CountdownEvent).recycle(
+		var event:CountdownEvent = gameAndCharsEvent("onCountdown", EventManager.get(CountdownEvent).recycle(
 			swagCounter,
 			1,
 			introSounds[swagCounter],
@@ -929,12 +970,12 @@ class PlayState extends MusicBeatState
 		event.spriteTween = tween;
 		event.cancelled = false;
 
-		scripts.event("onPostCountdown", event);
+		gameAndCharsEvent("onPostCountdown", event);
 	}
 
 	@:dox(hide) function startSong():Void
 	{
-		scripts.call("onSongStart");
+		gameAndCharsCall("onSongStart");
 		startingSong = false;
 
 		inst.onComplete = endSong;
@@ -961,7 +1002,7 @@ class PlayState extends MusicBeatState
 
 		updateDiscordPresence();
 
-		scripts.call("onStartSong");
+		gameAndCharsCall("onStartSong");
 	}
 
 	public override function destroy() {
@@ -1008,11 +1049,15 @@ class PlayState extends MusicBeatState
 			return FlxSort.byValues(FlxSort.DESCENDING, p1.time, p2.time);
 		});
 
-		camZoomingInterval = cast songData.meta.beatsPerMeasure.getDefault(4);
+		var beatsPerMeasure:Float = songData.meta.beatsPerMeasure.getDefault(Flags.DEFAULT_BEATS_PER_MEASURE);
+		var stepsPerBeat:Int = songData.meta.stepsPerBeat.getDefault(Flags.DEFAULT_STEPS_PER_BEAT);
 
-		Conductor.changeBPM(songData.meta.bpm, cast songData.meta.beatsPerMeasure.getDefault(4), cast songData.meta.stepsPerBeat.getDefault(4));
+		camZoomingInterval = Std.int(beatsPerMeasure);
+
+		Conductor.changeBPM(songData.meta.bpm, beatsPerMeasure, stepsPerBeat);
 
 		curSong = songData.meta.name.toLowerCase();
+		curSongID = curSong.replace(" ", "-");
 
 		inst = FlxG.sound.load(Paths.inst(SONG.meta.name, difficulty));
 		if (SONG.meta.needsVoices != false && Assets.exists(Paths.voices(SONG.meta.name, difficulty))) // null or true
@@ -1032,14 +1077,17 @@ class PlayState extends MusicBeatState
 	}
 
 	@:dox(hide)
-	private inline function generateStrums(amount:Int = 4):Void
-		for(p in strumLines)
-			p.generateStrums(amount);
+	private inline function generateStrums(amount:Null<Int> = null):Void {
+		for(p in strumLines) {
+			var kc = amount != null ? amount : Flags.DEFAULT_STRUM_AMOUNT;
+			p.generateStrums(kc);
+		}
+	}
 
 	@:dox(hide)
 	override function openSubState(SubState:FlxSubState)
 	{
-		var event = scripts.event("onSubstateOpen", EventManager.get(StateEvent).recycle(SubState));
+		var event = gameAndCharsEvent("onSubstateOpen", EventManager.get(StateEvent).recycle(SubState));
 
 		if (!postCreated)
 			MusicBeatState.skipTransIn = true;
@@ -1059,13 +1107,13 @@ class PlayState extends MusicBeatState
 				startTimer.active = false;
 		}
 
-		super.openSubState(SubState);
+		super.openSubState(event.substate is FlxSubState ? cast event.substate : SubState);
 	}
 
 	@:dox(hide)
 	override function closeSubState()
 	{
-		var event = scripts.event("onSubstateClose", EventManager.get(StateEvent).recycle(subState));
+		var event = gameAndCharsEvent("onSubstateClose", EventManager.get(StateEvent).recycle(subState));
 		if (event.cancelled) return;
 
 		if (paused)
@@ -1099,7 +1147,7 @@ class PlayState extends MusicBeatState
 			inst.resume();
 			vocals.resume();
 		}
-		scripts.call("onFocus");
+		gameAndCharsCall("onFocus");
 		updateDiscordPresence();
 		super.onFocus();
 	}
@@ -1112,7 +1160,7 @@ class PlayState extends MusicBeatState
 			inst.pause();
 			vocals.pause();
 		}
-		scripts.call("onFocusLost");
+		gameAndCharsCall("onFocusLost");
 		updateDiscordPresence();
 		super.onFocusLost();
 	}
@@ -1131,14 +1179,14 @@ class PlayState extends MusicBeatState
 			strumLine.vocals.play();
 		}
 		vocals.play();
-		scripts.call("onVocalsResync");
+		gameAndCharsCall("onVocalsResync");
 	}
 
 	/**
 	 * Pauses the game.
 	 */
 	public function pauseGame() {
-		var e = scripts.event("onGamePause", new CancellableEvent());
+		var e = gameAndCharsEvent("onGamePause", new CancellableEvent());
 		if (e.cancelled) return;
 
 		persistentUpdate = false;
@@ -1146,7 +1194,7 @@ class PlayState extends MusicBeatState
 		paused = true;
 
 		// 1 / 1000 chance for Gitaroo Man easter egg
-		if (allowGitaroo && FlxG.random.bool(0.1))
+		if (allowGitaroo && FlxG.random.bool(Flags.GITAROO_CHANCE))
 		{
 			// gitaroo man easter egg
 			FlxG.switchState(new GitarooPause());
@@ -1203,7 +1251,7 @@ class PlayState extends MusicBeatState
 	}
 
 	function updateIconPositions() {
-		var iconOffset:Int = 26;
+		var iconOffset = Flags.ICON_OFFSET;
 
 		var center:Float = healthBar.x + healthBar.width * FlxMath.remapToRange(healthBar.percent, 0, 100, 1, 0);
 
@@ -1266,8 +1314,9 @@ class PlayState extends MusicBeatState
 		}
 
         if (doIconBop) {
-			iconP1.scale.set(lerp(iconP1.scale.x, 1, 0.33), lerp(iconP1.scale.y, 1, 0.33));
-			iconP2.scale.set(lerp(iconP2.scale.x, 1, 0.33), lerp(iconP2.scale.y, 1, 0.33));
+			var iconLerp = Flags.ICON_LERP;
+			iconP1.scale.set(lerp(iconP1.scale.x, 1, iconLerp), lerp(iconP1.scale.y, 1, iconLerp));
+			iconP2.scale.set(lerp(iconP2.scale.x, 1, iconLerp), lerp(iconP2.scale.y, 1, iconLerp));
 
 			iconP1.updateHitbox();
 			iconP2.updateHitbox();
@@ -1286,7 +1335,7 @@ class PlayState extends MusicBeatState
 			var instTime = FlxG.sound.music.time;
 			var isOffsync = vocals.time != instTime || [for(strumLine in strumLines.members) strumLine.vocals.time != instTime].contains(true);
 			__vocalOffsetViolation = Math.max(0, __vocalOffsetViolation + (isOffsync ? elapsed : -elapsed / 2));
-			if (__vocalOffsetViolation > 25) {
+			if (__vocalOffsetViolation > Flags.VOCAL_OFFSET_VIOLATION_THRESHOLD) {
 				resyncVocals();
 				__vocalOffsetViolation = 0;
 			}
@@ -1311,7 +1360,7 @@ class PlayState extends MusicBeatState
 				pos.x /= r;
 				pos.y /= r;
 
-				var event = scripts.event("onCameraMove", EventManager.get(CamMoveEvent).recycle(pos, strumLines.members[curCameraTarget], r));
+				var event = gameAndCharsEvent("onCameraMove", EventManager.get(CamMoveEvent).recycle(pos, strumLines.members[curCameraTarget], r));
 				if (!event.cancelled)
 					camFollow.setPosition(pos.x, pos.y);
 			}
@@ -1356,10 +1405,12 @@ class PlayState extends MusicBeatState
 	public var scrollSpeedTween:FlxTween = null;
 
 	public function executeEvent(event:ChartEvent) @:privateAccess {
-		if (event == null) return;
-		if (event.params == null) return;
+		if (event == null || event.params == null) return;
 
-		if (scripts.event("onEvent", EventManager.get(EventGameEvent).recycle(event)).cancelled) return;
+		var e = EventManager.get(EventGameEvent).recycle(event);
+		gameAndCharsEvent("onEvent", e);
+		if (e.cancelled) return;
+		var event = e.event;
 
 		switch(event.name) {
 			case "HScript Call":
@@ -1419,11 +1470,11 @@ class PlayState extends MusicBeatState
 	 */
 	public function gameOver(?character:Character, ?deathCharID:String, ?gameOverSong:String, ?lossSFX:String, ?retrySFX:String) {
 		var charToUse:Character = character.getDefault(opponentMode ? dad : boyfriend);  // Imma still make it check null later just in case dad or bf are also null for some weird scripts  - Nex
-		var event:GameOverEvent = scripts.event("onGameOver", EventManager.get(GameOverEvent).recycle(
+		var event:GameOverEvent = gameAndCharsEvent("onGameOver", EventManager.get(GameOverEvent).recycle(
 			charToUse == null ? 0 : charToUse.x,
 			charToUse == null ? 0 : charToUse.y,
 			charToUse,
-			deathCharID.getDefault(charToUse != null ? charToUse.gameOverCharacter : "bf-dead"),
+			deathCharID.getDefault(charToUse != null ? charToUse.gameOverCharacter : Flags.DEFAULT_GAMEOVER_CHARACTER),
 			charToUse != null ? charToUse.isPlayer : true,
 			gameOverSong.getDefault(this.gameOverSong),
 			lossSFX.getDefault(this.lossSFX),
@@ -1448,7 +1499,7 @@ class PlayState extends MusicBeatState
 
 		openSubState(new GameOverSubstate(event.x, event.y, event.deathCharID, event.isPlayer, event.gameOverSong, event.lossSFX, event.retrySFX));
 
-		scripts.event("onPostGameOver", event);
+		gameAndCharsEvent("onPostGameOver", event);
 	}
 
 	/**
@@ -1456,7 +1507,7 @@ class PlayState extends MusicBeatState
 	 */
 	public function endSong():Void
 	{
-		scripts.call("onSongEnd");
+		gameAndCharsCall("onSongEnd");
 		canPause = false;
 		inst.volume = 0;
 		vocals.volume = 0;
@@ -1577,7 +1628,7 @@ class PlayState extends MusicBeatState
 		var directionID:Null<Int> = note == null ? direction : note.strumID;
 		if (playerID == null || directionID == null || playerID == -1) return;
 
-		var event:NoteMissEvent = scripts.event("onPlayerMiss", EventManager.get(NoteMissEvent).recycle(note, -10, 1, muteVocalsOnMiss, note != null ? -0.0475 : -0.04, Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2), note == null, combo > 5, "sad", true, true, "miss", strumLines.members[playerID].characters, playerID, note != null ? note.noteType : null, directionID, 0));
+		var event:NoteMissEvent = gameAndCharsEvent("onPlayerMiss", EventManager.get(NoteMissEvent).recycle(note, -10, 1, muteVocalsOnMiss, note != null ? -0.0475 : -0.04, Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2), note == null, combo > 5, "sad", true, true, "miss", strumLines.members[playerID].characters, playerID, note != null ? note.noteType : null, directionID, 0));
 		strumLine.onMiss.dispatch(event);
 		if (event.cancelled) return;
 
@@ -1661,13 +1712,13 @@ class PlayState extends MusicBeatState
 
 		var event:NoteHitEvent;
 		if (strumLine != null && !strumLine.cpu)
-			event = EventManager.get(NoteHitEvent).recycle(false, !note.isSustainNote, !note.isSustainNote, note, strumLine.characters, true, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, score, note.isSustainNote ? null : accuracy, 0.023, daRating, Options.splashesEnabled && !note.isSustainNote && daRating == "sick");
+			event = EventManager.get(NoteHitEvent).recycle(false, !note.isSustainNote, !note.isSustainNote, null, defaultDisplayRating, defaultDisplayCombo, note, strumLine.characters, true, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, score, note.isSustainNote ? null : accuracy, 0.023, daRating, Options.splashesEnabled && !note.isSustainNote && daRating == "sick");
 		else
-			event = EventManager.get(NoteHitEvent).recycle(false, false, false, note, strumLine.characters, false, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, 0, null, 0, daRating, false);
+			event = EventManager.get(NoteHitEvent).recycle(false, false, false, null, defaultDisplayRating, defaultDisplayCombo, note, strumLine.characters, false, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, 0, null, 0, daRating, false);
 		event.deleteNote = !note.isSustainNote; // work around, to allow sustain notes to be deleted
 		event = scripts.event(strumLine != null && !strumLine.cpu ? "onPlayerHit" : "onDadHit", event);
 		strumLine.onHit.dispatch(event);
-		scripts.event("onNoteHit", event);
+		gameAndCharsEvent("onNoteHit", event);
 
 		if (!event.cancelled) {
 			if (!note.isSustainNote) {
@@ -1682,7 +1733,8 @@ class PlayState extends MusicBeatState
 				if (event.showRating || (event.showRating == null && event.player))
 				{
 					displayCombo(event);
-					displayRating(event.rating, event);
+					if (event.displayRating)
+						displayRating(event.rating, event);
 					ratingNum += 1;
 				}
 			}
@@ -1741,14 +1793,12 @@ class PlayState extends MusicBeatState
 	}
 
 	public function displayCombo(?evt:NoteHitEvent = null):Void {
-		var hasEvent = evt != null;
-		var pre:String = hasEvent ? evt.ratingPrefix : "";
-		var suf:String = hasEvent ? evt.ratingSuffix : "";
+		if (minDigitDisplay >= 0 && (combo == 0 || combo >= minDigitDisplay)) {
+			var hasEvent = evt != null;
+			var pre:String = hasEvent ? evt.ratingPrefix : "";
+			var suf:String = hasEvent ? evt.ratingSuffix : "";
 
-		var separatedScore:String = Std.string(combo).addZeros(3);
-
-		if (combo == 0 || combo >= 10) {
-			if (combo >= 10) {
+			if (evt.displayCombo) {
 				var comboSpr:FlxSprite = comboGroup.recycleLoop(FlxSprite).loadAnimatedGraphic(Paths.image('${pre}combo${suf}'));
 				comboSpr.resetSprite(comboGroup.x, comboGroup.y);
 				comboSpr.acceleration.y = 600;
@@ -1770,6 +1820,7 @@ class PlayState extends MusicBeatState
 				});
 			}
 
+			var separatedScore:String = Std.string(combo).addZeros(3);
 			for (i in 0...separatedScore.length)
 			{
 				var numScore:FlxSprite = comboGroup.recycleLoop(FlxSprite).loadAnimatedGraphic(Paths.image('${pre}num${separatedScore.charAt(i)}${suf}'));
@@ -1821,14 +1872,15 @@ class PlayState extends MusicBeatState
 		if (camZoomingInterval < 1) camZoomingInterval = 1;
 		if (Options.camZoomOnBeat && camZooming && FlxG.camera.zoom < maxCamZoom && curBeat % camZoomingInterval == 0)
 		{
-			FlxG.camera.zoom += 0.015 * camZoomingStrength;
-			camHUD.zoom += 0.03 * camZoomingStrength;
+			FlxG.camera.zoom += Flags.CAM_BOP_STRENGTH * camZoomingStrength;
+			camHUD.zoom += Flags.HUD_BOP_STRENGTH * camZoomingStrength;
 		}
 
         if (doIconBop)
 		{
-			iconP1.scale.set(1.2, 1.2);
-			iconP2.scale.set(1.2, 1.2);
+			var iconScale = Flags.BOP_ICON_SCALE;
+			iconP1.scale.set(iconScale, iconScale);
+			iconP2.scale.set(iconScale, iconScale);
 
 			iconP1.updateHitbox();
 			iconP2.updateHitbox();
@@ -1916,7 +1968,8 @@ class PlayState extends MusicBeatState
 	 * @param weekData Week Data
 	 * @param difficulty Week Difficulty
 	 */
-	public static function loadWeek(weekData:WeekData, difficulty:String = "normal") {
+	public static function loadWeek(weekData:WeekData, ?difficulty:String) {
+		if (difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
 		storyWeek = weekData;
 		storyPlaylist = [for(e in weekData.songs) e.name];
 		isStoryMode = true;
@@ -1936,7 +1989,8 @@ class PlayState extends MusicBeatState
 	 * @param opponentMode Whenever opponent mode is on
 	 * @param coopMode Whenever co-op mode is on.
 	 */
-	public static function loadSong(_name:String, _difficulty:String = "normal", _opponentMode:Bool = false, _coopMode:Bool = false) {
+	public static function loadSong(_name:String, ?_difficulty:String, _opponentMode:Bool = false, _coopMode:Bool = false) {
+		if (_difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
 		isStoryMode = false;
 		opponentMode = _opponentMode;
 		chartingMode = false;

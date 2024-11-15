@@ -19,7 +19,7 @@ typedef ChartMetaData = {
 	public var ?bpm:Float;
 	public var ?displayName:String;
 	public var ?beatsPerMeasure:Float;
-	public var ?stepsPerBeat:Float;
+	public var ?stepsPerBeat:Int;
 	public var ?icon:String;
 	public var ?color:Dynamic;
 	public var ?difficulties:Array<String>;
@@ -27,6 +27,7 @@ typedef ChartMetaData = {
 	public var ?opponentModeAllowed:Bool;
 	public var ?customValues:Dynamic;
 	public var ?needsVoices:Bool;
+	public var ?artist:String;
 
 	// NOT TO BE EXPORTED
 	public var ?parsedColor:FlxColor;

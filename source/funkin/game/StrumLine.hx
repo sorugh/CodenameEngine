@@ -5,7 +5,7 @@ import flixel.sound.FlxSound;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxSignal.FlxTypedSignal;
 import funkin.backend.chart.ChartData;
-import funkin.backend.scripting.events.*;
+import funkin.backend.scripting.events.note.*;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.Controls;
 
@@ -153,9 +153,11 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		if(scrollSpeed == null) if (PlayState.instance != null) scrollSpeed = PlayState.instance.scrollSpeed;
 		if(scrollSpeed == null) scrollSpeed = 1;
 
-		// TODOD: Make this work by accounting zoom and scrollspeed changes  - Nex
+		// TODO: Make this work by accounting zoom and scrollspeed changes  - Nex
 		/*var limit = FlxG.height / 0.45;
-		notes.limit = limit / scrollSpeed;*/
+		notes.limit = limit / scrollSpeed;
+			OR
+		notes.limit = Flags.DEFAULT_NOTE_MS_LIMIT / scrollSpeed;*/
 	}
 
 	public override function update(elapsed:Float) {
@@ -250,7 +252,8 @@ class StrumLine extends FlxTypedGroup<Strum> {
 			__justReleased.push(s.__getJustReleased(this));
 		}
 
-		var event = PlayState.instance.scripts.event("onInputUpdate", EventManager.get(InputSystemEvent).recycle(__pressed, __justPressed, __justReleased, this, id));
+		var event = EventManager.get(InputSystemEvent).recycle(__pressed, __justPressed, __justReleased, this, id);
+		if (PlayState.instance != null) PlayState.instance.gameAndCharsEvent("onInputUpdate", event);
 		if (event.cancelled) return;
 
 		__pressed = CoolUtil.getDefault(event.pressed, []);
@@ -285,13 +288,14 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		forEach(function(str:Strum) {
 			str.updatePlayerInput(str.__getPressed(this), str.__getJustPressed(this), str.__getJustReleased(this));
 		});
-		PlayState.instance.scripts.call("onPostInputUpdate");
+		PlayState.instance.gameAndCharsCall("onPostInputUpdate");
 	}
 
 	public inline function addHealth(health:Float)
 		PlayState.instance.health += health * (opponentSide ? -1 : 1);
 
-	public inline function generateStrums(amount:Int = 4) {
+	public inline function generateStrums(amount:Int = -1) {
+		if(amount == -1) amount = Flags.DEFAULT_STRUM_AMOUNT;
 		for (i in 0...amount)
 			add(createStrum(i));
 	}
@@ -319,7 +323,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 
 		var event = EventManager.get(StrumCreationEvent).recycle(babyArrow, PlayState.instance.strumLines.members.indexOf(this), i, animPrefix);
 		event.__doAnimation = !MusicBeatState.skipTransIn && (PlayState.instance != null ? PlayState.instance.introLength > 0 : true);
-		event = PlayState.instance.scripts.event("onStrumCreation", event);
+		if (PlayState.instance != null) event = PlayState.instance.gameAndCharsEvent("onStrumCreation", event);
 
 		if (!event.cancelled) {
 			babyArrow.frames = Paths.getFrames(event.sprite);
@@ -329,7 +333,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 			babyArrow.animation.addByPrefix('red', 'arrowRIGHT');
 
 			babyArrow.antialiasing = true;
-			babyArrow.setGraphicSize(Std.int((babyArrow.width * 0.7) * strumScale));
+			babyArrow.setGraphicSize(Std.int((babyArrow.width * Flags.DEFAULT_NOTE_SCALE) * strumScale));
 
 			babyArrow.animation.addByPrefix('static', 'arrow${event.animPrefix.toUpperCase()}');
 			babyArrow.animation.addByPrefix('pressed', '${event.animPrefix} press', 24, false);
@@ -350,7 +354,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 
 		insert(i, babyArrow);
 
-		PlayState.instance.scripts.event("onPostStrumCreation", event);
+		if (PlayState.instance != null) PlayState.instance.gameAndCharsEvent("onPostStrumCreation", event);
 
 		return babyArrow;
 	}

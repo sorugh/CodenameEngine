@@ -17,7 +17,7 @@ function create(event) {
 	// cancel default pause menu!!
 	event.cancel();
 
-	event.music = isThorns ? "pixel/LunchboxScary" : "pixel/Lunchbox";
+	event.music = isThorns ? "pixel/LunchboxScary" : "pixel/breakfast";
 
 	cameras = [];
 

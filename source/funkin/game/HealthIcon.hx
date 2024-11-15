@@ -27,7 +27,7 @@ class HealthIcon extends FlxSprite
 	/**
 	 * current animation state
 	 */
-	 public var curAnimState:Int = -1;
+	public var curAnimState:Int = -1;
 
 	/**
 	 * Helper for HScript who can't make maps
@@ -48,12 +48,12 @@ class HealthIcon extends FlxSprite
 		];
 	}
 
-	public function new(char:String = 'bf', isPlayer:Bool = false)
+	public function new(?char:String, isPlayer:Bool = false)
 	{
 		super();
 		health = 0.5;
 		this.isPlayer = isPlayer;
-		setIcon(char);
+		setIcon(char != null ? char : Flags.DEFAULT_CHARACTER);
 
 		scrollFactor.set();
 	}
@@ -62,7 +62,7 @@ class HealthIcon extends FlxSprite
 		if(curCharacter != char || this.width != width || this.height != height) {
 			curCharacter = char;
 			var path = Paths.image('icons/$char');
-			if (!Assets.exists(path)) path = Paths.image('icons/face');
+			if (!Assets.exists(path)) path = Paths.image('icons/' + Flags.DEFAULT_HEALTH_ICON);
 
 			loadGraphic(path, true, width, height);
 
@@ -95,7 +95,7 @@ class HealthIcon extends FlxSprite
 				i = icon;
 			}
 			if (i >= 0 && curAnimState != i) {
-				var event = EventManager.get(funkin.backend.scripting.events.HealthIconChangeEvent).recycle(i, this);
+				var event = EventManager.get(funkin.backend.scripting.events.healthicon.HealthIconChangeEvent).recycle(i, this);
 				funkin.backend.scripting.GlobalScript.event("onHealthIconAnimChange", event);
 				if (!event.cancelled)
 					animation.curAnim.curFrame = event.amount;

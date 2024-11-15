@@ -42,7 +42,7 @@ class SplashGroup extends FlxTypedGroup<FunkinSprite> {
 			Logs.error('Couldn\'t parse splash data for "${path}": ${e.toString()}');
 			valid = false;
 		}
-		maxSize = 8;
+		maxSize = Flags.MAX_SPLASHES;
 	}
 
 	function createSplash(imagePath:String) {

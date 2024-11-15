@@ -136,8 +136,11 @@
 	<!-- Comment this out to disable support for custom ndlls. !-->
 	<haxedef name="NDLLS_SUPPORTED" unless="web || iphonesim || hl" />
 
-	<!-- Comment this out to disable support for Away3D Flixel Intergration (reduces compile times)-->
+	<!-- Comment this out to disable support for Away3D Flixel Intergration (reduces compile times) !-->
 	<define name="THREE_D_SUPPORT" />
+
+	<!-- Comment this out to disable support for Funkin Audio Visualizer (reduces compile times) !-->
+	<define name="AUDIO_VIS_SUPPORT" />
 
 	<!-- Comment this out to disable video cutscene support, in case of compilation errors. !-->
 	<section if="cpp">
@@ -175,6 +178,8 @@
 
 	<haxelib name="hxvlc" if="VIDEO_CUTSCENES" />
 	<haxelib name="away3d" if="THREE_D_SUPPORT" />
+	<haxelib name="funkin.vis" if="AUDIO_VIS_SUPPORT" />
+	<haxelib name="grig.audio" if="AUDIO_VIS_SUPPORT" />
 	<haxelib name="format" />
 	<haxelib name="flxanimate" />
 

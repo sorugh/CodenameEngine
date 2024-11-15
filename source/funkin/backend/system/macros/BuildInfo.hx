@@ -11,8 +11,16 @@ class BuildInfo {
 		Sys.println('Haxe Version: ${haxeVersion}');
 		try {
 			var lastBuiltWith:Null<String> = null;
-			var compiling = #if final "final" #elseif debug "debug" #else "release" #end;
-			var target = #if windows "windows" #elseif mac "macos" #elseif linux "linux" #elseif android "android" #elseif ios "ios" #elseif html5 "html5" #else "" #end;
+			var compiling = #if final "release" #elseif debug "debug" #else "release" #end;
+			var target = #if hl "hl"
+				#elseif html5 "html5"
+				#elseif ios "ios"
+				#elseif android "android"
+				#elseif windows "windows"
+				#elseif (mac || macos) "macos"
+				#elseif linux "linux"
+				#else ""
+				#end;
 			if(target == "") throw "Unknown target";
 			var exportPath = Sys.getCwd() + "/export/" + compiling + "/" + target + "/";
 			exportPath += "obj/Options.txt";
@@ -25,18 +33,22 @@ class BuildInfo {
 				}
 			}
 
-			if(lastBuiltWith != null && lastBuiltWith != haxeVersion)
+			if(lastBuiltWith != null && lastBuiltWith.length > 0 && lastBuiltWith != haxeVersion)
 				Sys.println('Last Built With Haxe: ${lastBuiltWith} [!!!! MAKE SURE IF YOU SWITCHED VERSIONS YOU DELETE EXPORT FOLDERS !!!!]');
 		} catch(e) {}
-		Sys.println('Target Platform: ${
-			#if windows "Windows"
-			#elseif mac "Mac"
-			#elseif linux "Linux"
-			#elseif android "Android"
+		var targetPlatform = #if html5 "Web (HTML5)"
 			#elseif ios "iOS"
+			#elseif android "Android"
+			#elseif windows "Windows"
+			#elseif (mac || macos) "Mac"
+			#elseif linux "Linux"
 			#else "Unknown"
-			#end
-		}');
+			#end;
+
+		if(haxe.macro.Context.defined("hl")) {
+			targetPlatform = "Hashlink (" + targetPlatform + ")";
+		}
+		Sys.println('Target Platform: ' + targetPlatform);
 		Sys.println('Build Date: ${Date.now().toString()}');
 		Sys.println('');
 	}

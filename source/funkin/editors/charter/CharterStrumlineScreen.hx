@@ -39,7 +39,7 @@ class CharterStrumlineScreen extends UISubstateWindow {
 
 		if (creatingStrumLine)
 			strumLine = {
-				characters: ["dad"],
+				characters: [Flags.DEFAULT_OPPONENT],
 				type: OPPONENT,
 				notes: [],
 				position: "dad",
@@ -205,7 +205,7 @@ class CharacterButton extends UIButton {
 			char = Character.getIconFromCharName(char);
 			var image = Paths.image("icons/" + char);
 			if(!Assets.exists(image))
-				image = Paths.image("icons/face");
+				image = Paths.image("icons/" + Flags.DEFAULT_HEALTH_ICON);
 			charIcon.loadGraphic(image, true, 150, 150);
 			charIcon.updateHitbox();
 		}

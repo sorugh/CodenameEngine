@@ -18,8 +18,10 @@ class MainState extends FlxState {
 	public static var betaWarningShown:Bool = false;
 	public override function create() {
 		super.create();
-		if (!initiated)
+		if (!initiated) {
 			Main.loadGameSettings();
+		}
+
 		initiated = true;
 
 		#if sys
@@ -54,11 +56,11 @@ class MainState extends FlxState {
 		}
 		#end
 
-		Main.refreshAssets();
-		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder);
 		Flags.load();
 		TranslationUtil.findAllLanguages();
 		TranslationUtil.setLanguage();
+		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder); // Loads global.hx
+		Main.refreshAssets();
 		DiscordUtil.init();
 		EventsData.reloadEvents();
 		TitleState.initialized = false;

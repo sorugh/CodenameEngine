@@ -3,8 +3,7 @@ package funkin.game.cutscenes.dialogue;
 import flixel.addons.text.FlxTypeText;
 import flixel.sound.FlxSound;
 import funkin.backend.scripting.Script;
-import funkin.backend.scripting.events.PlayAnimContext;
-import funkin.backend.scripting.events.PlayAnimEvent;
+import funkin.backend.scripting.events.sprite.*;
 import funkin.backend.scripting.events.dialogue.*;
 import haxe.xml.Access;
 
@@ -87,8 +86,11 @@ class DialogueBox extends FunkinSprite {
 			}
 		} catch(e) {
 			active = false;
-			Logs.error('Couldn\'t load dialogue box "$name": ${e.toString()}');
+			var message:String = e.toString();
+			Logs.trace('Couldn\'t load dialogue box "$name": $message', ERROR, RED);
+			dialogueBoxScript.call("loadingError", [message]);
 		}
+
 		defaultTextTypeSFX = [FlxG.sound.load(textTypeSFX)];
 		FlxG.sound.cache(nextSFX);
 		dialogueBoxScript.call("postCreate");

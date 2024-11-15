@@ -324,7 +324,7 @@ class CharacterEditor extends UIState {
 		characterBG.scale.set(FlxG.width/characterBG.width, FlxG.height/characterBG.height);
 		characterBG.scale.set(characterBG.scale.x / charCamera.zoom, characterBG.scale.y / charCamera.zoom);
 
-		WindowUtils.prefix = undos.unsaved ? "* " : "";
+		WindowUtils.prefix = undos.unsaved ? Flags.UNDO_PREFIX : "";
 		SaveWarning.showWarning = undos.unsaved;
 	}
 
@@ -364,7 +364,7 @@ class CharacterEditor extends UIState {
 		]);
 
 		// clean
-		if (charXML.exists("gameOverChar") && character.gameOverCharacter == "bf-dead") charXML.remove("gameOverChar");
+		if (charXML.exists("gameOverChar") && character.gameOverCharacter == Flags.DEFAULT_GAMEOVER_CHARACTER) charXML.remove("gameOverChar");
 		if (charXML.exists("camx") && character.cameraOffset.x == 0) charXML.remove("camx");
 		if (charXML.exists("camy") &&  character.cameraOffset.y == 0) charXML.remove("camy");
 		if (charXML.exists("holdTime") && character.holdTime == 4) charXML.remove("holdTime");

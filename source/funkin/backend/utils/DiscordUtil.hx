@@ -5,7 +5,7 @@ import flixel.sound.FlxSound;
 import flixel.util.typeLimit.OneOfTwo;
 import funkin.backend.scripting.*; // lazy
 import funkin.backend.scripting.events.CancellableEvent;
-import funkin.backend.scripting.events.DiscordPresenceUpdateEvent;
+import funkin.backend.scripting.events.discord.*;
 import funkin.backend.system.macros.Utils;
 import haxe.Json;
 import openfl.display.BitmapData;
@@ -86,9 +86,9 @@ class DiscordUtil
 		if (config == null)
 			config = {};
 
-		config.logoKey = config.logoKey.getDefault("icon");
-		config.logoText = config.logoText.getDefault(Application.current.meta.get('title'));
-		config.clientID = config.clientID.getDefault("1027994136193810442");
+		config.logoKey = config.logoKey.getDefault(Flags.DEFAULT_DISCORD_LOGO_KEY);
+		config.logoText = config.logoText.getDefault(Flags.DEFAULT_DISCORD_LOGO_TEXT);
+		config.clientID = config.clientID.getDefault(Flags.DEFAULT_DISCORD_CLIENT_ID);
 		currentID = config.clientID;
 		#end
 	}

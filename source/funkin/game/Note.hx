@@ -99,7 +99,7 @@ class Note extends FlxSprite
 		return __customNoteTypeExists[path] = Assets.exists(path);
 	}
 
-	public static var DEFAULT_NOTE_FIELDS:Array<String> = ["time", "id", "type", "sLen"];
+	static var DEFAULT_FIELDS:Array<String> = ["time", "id", "type", "sLen"];
 
 	public function new(strumLine:StrumLine, noteData:ChartNote, sustain:Bool = false, sustainLength:Float = 0, sustainOffset:Float = 0, ?prev:Note)
 	{
@@ -117,7 +117,7 @@ class Note extends FlxSprite
 		this.isSustainNote = sustain;
 		this.sustainLength = sustainLength;
 		this.strumLine = strumLine;
-		for(field in Reflect.fields(noteData)) if(!DEFAULT_NOTE_FIELDS.contains(field))
+		for(field in Reflect.fields(noteData)) if(!DEFAULT_FIELDS.contains(field))
 			this.extra.set(field, Reflect.field(noteData, field));
 
 		x += 50;

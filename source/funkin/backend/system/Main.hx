@@ -117,6 +117,9 @@ class Main extends Sprite
 		ShaderResizeFix.init();
 		Logs.init();
 		Paths.init();
+
+		hscript.Interp.importRedirects = funkin.backend.scripting.Script.getDefaultImportRedirects();
+
 		#if GLOBAL_SCRIPT
 		funkin.backend.scripting.GlobalScript.init();
 		#end

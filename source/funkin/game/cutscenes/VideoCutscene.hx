@@ -159,7 +159,7 @@ class VideoCutscene extends Cutscene {
 
 	public static function splitTime(str:String):Float {
 		if (str == null || str.trim() == "") return -1;
-		var multipliers:Array<Float> = [1, 60, 3600, 86400]; // no way a cutscene will last longer than days
+		var multipliers:Array<Float> = [1, 60, 3600, 86400, 31536000]; // no way a cutscene will last longer than years
 		var timeSplit:Array<Null<Float>> = [for(e in str.split(":")) Std.parseFloat(e.replace(",", "."))];
 		var time:Float = 0;
 
@@ -185,7 +185,13 @@ class VideoCutscene extends Cutscene {
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		if(loadingBackdrop == null && curSubtitle < subtitles.length && haxe.Int64.toInt(video.bitmap.time) >= subtitles[curSubtitle].time) {
+		if(loadingBackdrop != null) return;
+
+		@:privateAccess
+		var time:Int64 = video.bitmap.time;
+		var time:Float = FPHelper.i64ToDouble(time.low, time.high);
+
+		if(curSubtitle < subtitles.length && subtitles[curSubtitle].time < time) {
 			setSubtitle(subtitles[curSubtitle]);
 			curSubtitle++;
 		}

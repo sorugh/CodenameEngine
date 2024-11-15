@@ -1325,7 +1325,7 @@ class Charter extends UIState {
 		if (strumLines != null)
 			strumlineLockButton.button.animation.play(strumLines.draggable ? "1" : "0", true);
 
-		WindowUtils.prefix = undos.unsaved ? "* " : "";
+		WindowUtils.prefix = undos.unsaved ? Flags.UNDO_PREFIX : "";
 		SaveWarning.showWarning = undos.unsaved;
 
 		__firstFrame = false;
@@ -1382,7 +1382,7 @@ class Charter extends UIState {
 	}
 
 	function _file_saveas(_) {
-		openSubState(new SaveSubstate(Json.stringify(Chart.filterChartForSaving(PlayState.SONG, false), null, Options.editorPrettyPrint ? "\t" : null), {
+		openSubState(new SaveSubstate(Json.stringify(Chart.filterChartForSaving(PlayState.SONG, false), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null), {
 			defaultSaveFile: '${__diff.toLowerCase()}.json'
 		}));
 		undos.save();
@@ -1398,7 +1398,7 @@ class Charter extends UIState {
 	}
 
 	function _file_saveas_no_events(_) {
-		openSubState(new SaveSubstate(Json.stringify(Chart.filterChartForSaving(PlayState.SONG, false, false), null, Options.editorPrettyPrint ? "\t" : null), {
+		openSubState(new SaveSubstate(Json.stringify(Chart.filterChartForSaving(PlayState.SONG, false, false), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null), {
 			defaultSaveFile: '${__diff.toLowerCase()}.json'
 		}));
 		undos.save();
@@ -1408,7 +1408,7 @@ class Charter extends UIState {
 		#if sys
 		CoolUtil.safeSaveFile(
 			'${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}/meta.json',
-			Json.stringify(PlayState.SONG.meta == null ? {} : PlayState.SONG.meta, null, "\t")
+			Json.stringify(PlayState.SONG.meta == null ? {} : PlayState.SONG.meta, null, Flags.JSON_PRETTY_PRINT)
 		);
 		#else
 		_file_meta_saveas(_);
@@ -1416,20 +1416,20 @@ class Charter extends UIState {
 	}
 
 	function _file_meta_saveas(_) {
-		openSubState(new SaveSubstate(Json.stringify(PlayState.SONG.meta == null ? {} : PlayState.SONG.meta, null, "\t"), { // always pretty print meta
+		openSubState(new SaveSubstate(Json.stringify(PlayState.SONG.meta == null ? {} : PlayState.SONG.meta, null, Flags.JSON_PRETTY_PRINT), { // always pretty print meta
 			defaultSaveFile: 'meta.json'
 		}));
 	}
 
 	function _file_saveas_fnflegacy(_) {
-		openSubState(new SaveSubstate(Json.stringify(FNFLegacyParser.encode(PlayState.SONG), null, Options.editorPrettyPrint ? "\t" : null), {
-			defaultSaveFile: '${__song.toLowerCase().replace(" ", "-")}${__diff.toLowerCase() == "normal" ? "" : '-${__diff.toLowerCase()}'}.json',
+		openSubState(new SaveSubstate(Json.stringify(FNFLegacyParser.encode(PlayState.SONG), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null), {
+			defaultSaveFile: '${__song.toLowerCase().replace(" ", "-")}${__diff.toLowerCase() == Flags.DEFAULT_DIFFICULTY ? "" : '-${__diff.toLowerCase()}'}.json',
 		}));
 	}
-	
+
 	function _file_saveas_psych(_) {
-		openSubState(new SaveSubstate(Json.stringify(PsychParser.encode(PlayState.SONG), null, Options.editorPrettyPrint ? "\t" : null), {
-			defaultSaveFile: '${__song.toLowerCase().replace(" ", "-")}${__diff.toLowerCase() == "normal" ? "" : '-${__diff.toLowerCase()}'}.json',
+		openSubState(new SaveSubstate(Json.stringify(PsychParser.encode(PlayState.SONG), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null), {
+			defaultSaveFile: '${__song.toLowerCase().replace(" ", "-")}${__diff.toLowerCase() == Flags.DEFAULT_DIFFICULTY ? "" : '-${__diff.toLowerCase()}'}.json',
 		}));
 	}
 
@@ -1437,7 +1437,7 @@ class Charter extends UIState {
 		#if sys
 		CoolUtil.safeSaveFile(
 			'${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}/events.json',
-			Json.stringify({events: PlayState.SONG.events == null ? [] : PlayState.SONG.events}, null, Options.editorPrettyPrint ? "\t" : null)
+			Json.stringify({events: PlayState.SONG.events == null ? [] : PlayState.SONG.events}, null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null)
 		);
 		#else
 		_file_events_saveas(_);
@@ -1446,7 +1446,7 @@ class Charter extends UIState {
 
 	function _file_events_saveas(_) {
 		#if sys
-		openSubState(new SaveSubstate(Json.stringify({events: PlayState.SONG.events == null ? [] : PlayState.SONG.events}, null, Options.editorPrettyPrint ? "\t" : null), {
+		openSubState(new SaveSubstate(Json.stringify({events: PlayState.SONG.events == null ? [] : PlayState.SONG.events}, null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null), {
 			defaultSaveFile: 'events.json'
 		}));
 		#end
@@ -1775,7 +1775,7 @@ class Charter extends UIState {
 		changeNoteSustain(-1);
 
 	function _note_selectall(_) {
-		selection = [for (note in notesGroup.members) note];
+		selection = cast notesGroup.members.copy();
 	}
 
 	function _note_selectmeasure(_) {

@@ -13,7 +13,7 @@ import haxe.xml.Access;
 /**
  * Substate made for dialogue cutscenes. To use it in a scripted cutscene, call `startDialogue`.
  */
-class DialogueCutscene extends Cutscene {
+class DialogueCutscene extends ScriptedCutscene {
 	public var dialoguePath:String;
 	public var dialogueData:Access;
 
@@ -28,23 +28,29 @@ class DialogueCutscene extends Cutscene {
 	public var curMusic:FlxSound = null;
 
 	public static var cutscene:DialogueCutscene;
-	public var dialogueScript:Script;
+	public var dialogueScript(get, set):Script;
 
 	public function set_curLine(val:DialogueLine) {
 		lastLine = curLine;
 		return curLine = val;
 	}
 
+	// Backwards comapt funcs  - Nex
+	public function set_dialogueScript(val:Script) return script = val;
+	public function get_dialogueScript() return script;
+
 	public function new(dialoguePath:String, callback:Void->Void) {
-		super(callback);
-		this.dialoguePath = dialoguePath;
+		super(this.dialoguePath = dialoguePath, callback);
+
 		camera = dialogueCamera = new FlxCamera();
 		dialogueCamera.bgColor = 0;
 		FlxG.cameras.add(dialogueCamera, false);
 
-		dialogueScript = Script.create(Paths.script(Path.withoutExtension(dialoguePath), null, dialoguePath.startsWith('assets')));
-		dialogueScript.setParent(cutscene = this);
-		dialogueScript.load();
+		cutscene = this;
+	}
+
+	public override function onErrorScriptLoading() {
+		Logs.trace('Could not find script for dialogue cutscene at "${scriptPath}"', WARNING, YELLOW);
 	}
 
 	var parentDisabler:FunkinParentDisabler;
@@ -89,7 +95,7 @@ class DialogueCutscene extends Cutscene {
 					musicVolume: node.has.musicVolume ? (volume = Std.parseFloat(node.att.speed).getDefault(0.8)) : null,
 					changeMusic: node.has.changeMusic ? FlxG.sound.load(Paths.music(node.att.changeMusic), volume, true) : null,
 					playSound: node.has.playSound ? FlxG.sound.load(Paths.sound(node.att.playSound)) : null,
-					nextSound: node.has.nextSound ? FlxG.sound.load(Paths.music(node.att.nextSound)) : null,
+					nextSound: node.has.nextSound ? FlxG.sound.load(Paths.sound(node.att.nextSound)) : null,
 					textSound: null
 				};
 
@@ -110,22 +116,21 @@ class DialogueCutscene extends Cutscene {
 
 			next(true);
 		} catch(e) {
-			Logs.trace('Error while loading dialogue at ${dialoguePath}: ${e.toString()}', ERROR);
-			trace(CoolUtil.getLastExceptionStack());
+			var message:String = e.toString();
+			Logs.trace('Error while loading dialogue at ${dialoguePath}: $message', ERROR, RED);
+			dialogueScript.call("loadingError", [message]);
 			close();
 		}
+
 		dialogueScript.call("postCreate");
 	}
 
-	public override function beatHit(curBeat:Int) {
-		super.beatHit(curBeat);
-		dialogueScript.call("beatHit", [curBeat]);
+	public override function pauseCheck():Bool {
+		return super.pauseCheck() && !controls.ACCEPT;  // Avoids next() and pause() being called at the same time  - Nex
 	}
 
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
-		dialogueScript.call("update", [elapsed]);
-
 		if(controls.ACCEPT) {
 			if(dialogueBox.dialogueEnded) next();
 			else dialogueBox.text.skip();
@@ -138,8 +143,8 @@ class DialogueCutscene extends Cutscene {
 	public var canProceed:Bool = true;
 
 	public function next(playFirst:Bool = false) {
-		var event = EventManager.get(DynamicEvent).recycle(playFirst);
-		dialogueScript.call("next", [playFirst]);
+		var event = EventManager.get(DialogueNextLineEvent).recycle(playFirst);
+		dialogueScript.call("next", [event]);
 		if(event.cancelled || !canProceed) return;
 
 		if ((curLine = dialogueLines.shift()) == null) {
@@ -154,7 +159,7 @@ class DialogueCutscene extends Cutscene {
 		}
 
 		if (curLine.callback != null)
-			dialogueScript.call(curLine.callback, [playFirst]);
+			dialogueScript.call(curLine.callback, [event.playFirst]);
 
 		for (k=>c in charMap)
 			if (k != curLine.char)
@@ -167,8 +172,8 @@ class DialogueCutscene extends Cutscene {
 			dialogueBox.popupChar(char, force);
 		}
 
-		var finalSuffix:String = playFirst && dialogueBox.hasAnimation(curLine.bubble + "-firstOpen") ? "-firstOpen" : dialogueBox.hasAnimation(curLine.bubble + "-open") ? "-open" : "";
-		dialogueBox.playBubbleAnim(curLine.bubble, finalSuffix, curLine.text, curLine.format, curLine.speed, curLine.nextSound, curLine.textSound != null ? [curLine.textSound] : null, finalSuffix == "-firstOpen" || finalSuffix == "-open", !playFirst);
+		var finalSuffix:String = event.playFirst && dialogueBox.hasAnimation(curLine.bubble + "-firstOpen") ? "-firstOpen" : dialogueBox.hasAnimation(curLine.bubble + "-open") ? "-open" : "";
+		dialogueBox.playBubbleAnim(curLine.bubble, finalSuffix, curLine.text, curLine.format, curLine.speed, curLine.nextSound, curLine.textSound != null ? [curLine.textSound] : null, finalSuffix == "-firstOpen" || finalSuffix == "-open", !event.playFirst);
 
 		if(curLine.playSound != null) curLine.playSound.play();
 		if(curLine.changeMusic != null) {
@@ -178,7 +183,7 @@ class DialogueCutscene extends Cutscene {
 			curMusic.fadeIn(1, 0, curMusic.volume);
 		} else if(curLine.musicVolume != null && curMusic != null) curMusic.volume = curLine.musicVolume;
 
-		dialogueScript.call("postNext", [playFirst]);
+		dialogueScript.call("postNext", [event]);
 	}
 
 	public override function close() {
@@ -193,8 +198,6 @@ class DialogueCutscene extends Cutscene {
 
 	public override function destroy() {
 		if(curMusic != null && !curMusic.persist) curMusic.destroy();
-		dialogueScript.call("destroy");
-		dialogueScript.destroy();
 
 		super.destroy();
 		cutscene = null;

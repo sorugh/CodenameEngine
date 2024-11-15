@@ -8,8 +8,7 @@ import funkin.backend.utils.XMLUtil.XMLImportedScriptInfo;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.backend.scripting.DummyScript;
 import funkin.backend.scripting.Script;
-import funkin.backend.scripting.events.StageNodeEvent;
-import funkin.backend.scripting.events.StageXMLEvent;
+import funkin.backend.scripting.events.stage.*;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import haxe.io.Path;
 import haxe.xml.Access;
@@ -106,8 +105,8 @@ class Stage extends FlxBasic implements IBeatReceiver {
 			}
 
 			if (PlayState.instance == state) {
-				event = EventManager.get(StageXMLEvent).recycle(this, xml, elems);
-				elems = PlayState.instance.scripts.event("onStageXMLParsed", event).elems;
+				event = EventManager.get(StageXMLEvent).recycle(this, stageXML, elems);
+				elems = PlayState.instance.gameAndCharsEvent("onStageXMLParsed", event).elems;
 			}
 			if(onXMLLoaded != null) {
 				elems = onXMLLoaded(xml, elems);
@@ -163,7 +162,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 				}
 
 				if(PlayState.instance == state) {
-					sprite = PlayState.instance.scripts.event("onStageNodeParsed", EventManager.get(StageNodeEvent).recycle(this, node, sprite, node.name)).sprite;
+					sprite = PlayState.instance.gameAndCharsEvent("onStageNodeParsed", EventManager.get(StageNodeEvent).recycle(this, node, sprite, node.name)).sprite;
 				}
 				if(onNodeLoaded != null) {
 					sprite = onNodeLoaded(node, sprite);
@@ -213,7 +212,6 @@ class Stage extends FlxBasic implements IBeatReceiver {
 		if(onXMLPostLoaded != null) {
 			elems = onXMLPostLoaded(xml, elems);
 		}
-
 	}
 
 	public static function getDefaultPos(name:String):StageCharPosInfo {

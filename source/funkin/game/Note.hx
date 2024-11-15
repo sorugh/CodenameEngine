@@ -3,7 +3,7 @@ package funkin.game;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import funkin.backend.chart.ChartData;
-import funkin.backend.scripting.events.*;
+import funkin.backend.scripting.events.note.NoteCreationEvent;
 import funkin.backend.system.Conductor;
 
 using StringTools;
@@ -86,7 +86,7 @@ class Note extends FlxSprite
 		return PlayState.instance.getNoteType(noteTypeID);
 	}
 
-	public static var swagWidth:Float = 160 * 0.7;
+	public static var swagWidth:Float = 160 * 0.7; // TODO: remove this
 
 	private static var __customNoteTypeExists:Map<String, Bool> = [];
 
@@ -117,11 +117,8 @@ class Note extends FlxSprite
 		this.isSustainNote = sustain;
 		this.sustainLength = sustainLength;
 		this.strumLine = strumLine;
-		for(field in Reflect.fields(noteData)) {
-			if(!DEFAULT_FIELDS.contains(field)) {
-				this.extra.set(field, Reflect.field(noteData, field));
-			}
-		}
+		for(field in Reflect.fields(noteData)) if(!DEFAULT_FIELDS.contains(field))
+			this.extra.set(field, Reflect.field(noteData, field));
 
 		x += 50;
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?
@@ -132,10 +129,10 @@ class Note extends FlxSprite
 
 		var customType = Paths.image('game/notes/${this.noteType}');
 		var event = EventManager.get(NoteCreationEvent).recycle(this, strumID, this.noteType, noteTypeID, PlayState.instance.strumLines.members.indexOf(strumLine), mustPress,
-			(this.noteType != null && customTypePathExists(customType)) ? 'game/notes/${this.noteType}' : 'game/notes/default', @:privateAccess strumLine.strumScale * 0.7, animSuffix);
+			(this.noteType != null && customTypePathExists(customType)) ? 'game/notes/${this.noteType}' : 'game/notes/default', @:privateAccess strumLine.strumScale * Flags.DEFAULT_NOTE_SCALE, animSuffix);
 
 		if (PlayState.instance != null)
-			event = PlayState.instance.scripts.event("onNoteCreation", event);
+			event = PlayState.instance.gameAndCharsEvent("onNoteCreation", event);
 
 		this.animSuffix = event.animSuffix;
 		if (!event.cancelled) {
@@ -189,7 +186,7 @@ class Note extends FlxSprite
 
 		if (PlayState.instance != null) {
 			PlayState.instance.splashHandler.getSplashGroup(splash);
-			PlayState.instance.scripts.event("onPostNoteCreation", event);
+			PlayState.instance.gameAndCharsEvent("onPostNoteCreation", event);
 		}
 	}
 

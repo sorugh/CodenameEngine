@@ -8,7 +8,7 @@ import flixel.math.FlxRect;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.util.typeLimit.OneOfTwo;
 import flxanimate.animate.FlxAnim.FlxSymbolAnimation;
-import funkin.backend.scripting.events.PlayAnimContext;
+import funkin.backend.scripting.events.sprite.PlayAnimContext;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.backend.system.interfaces.IOffsetCompatible;
 import funkin.backend.utils.XMLUtil.AnimData;
@@ -55,6 +55,8 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 	public var animDatas:Map<String, AnimData> = [];
 	public var animEnabled:Bool = true;
 	public var zoomFactorEnabled:Bool = true;
+
+	public var globalCurFrame(get, set):Int;
 
 	/**
 	 * ODD interval -> asynced; EVEN interval -> synced
@@ -142,7 +144,7 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 	public function beatHit(curBeat:Int)
 	{
 		if(!animEnabled) return;
-		if (beatAnims.length > 0 && (curBeat + beatOffset) % beatInterval == 0)
+		if (lastAnimContext != LOCK && beatAnims.length > 0 && (curBeat + beatOffset) % beatInterval == 0)
 		{
 			if(skipNegativeBeats && curBeat < 0) return;
 			// TODO: find a solution without countedBeat
@@ -391,5 +393,12 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 			v = 1;
 
 		return beatInterval = v;
+	}
+
+	@:noCompletion private inline function get_globalCurFrame() {
+		return animateAtlas != null ? (animateAtlas.anim.curFrame) : (animation.curAnim != null ? animation.curAnim.curFrame : 0);
+	}
+	@:noCompletion private inline function set_globalCurFrame(val:Int) {
+		return animateAtlas != null ? (animateAtlas.anim.curFrame = val) : (animation.curAnim != null ? animation.curAnim.curFrame = val : val);
 	}
 }

@@ -362,7 +362,7 @@ class CharacterEditor extends UIState {
 		}
 		animationText.text = '"${character.getAnimName()}"';
 
-		if (Options.characterDragging) 
+		if (Options.characterDragging)
 			handleMouseOffsets();
 
 		super.update(elapsed);

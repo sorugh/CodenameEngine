@@ -5,15 +5,16 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import funkin.backend.scripting.Script;
-import funkin.backend.scripting.events.MenuChangeEvent;
+import funkin.backend.scripting.events.menu.MenuChangeEvent;
+import funkin.backend.scripting.events.menu.pause.*;
 import funkin.backend.scripting.events.NameEvent;
-import funkin.backend.scripting.events.PauseCreationEvent;
 import funkin.backend.system.Conductor;
 import funkin.backend.utils.FunkinParentDisabler;
 import funkin.editors.charter.Charter;
 import funkin.menus.StoryMenuState;
 import funkin.options.OptionsMenu;
 import funkin.options.keybinds.KeybindsOptions;
+import funkin.options.TreeMenu;
 
 class PauseSubState extends MusicBeatSubstate
 {
@@ -21,19 +22,22 @@ class PauseSubState extends MusicBeatSubstate
 
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
-	var menuItems:Array<String> = ['Resume', 'Restart Song', 'Change Controls', 'Change Options', 'Exit to menu', "Exit to charter"];
+	var menuItems:Array<String>;
 	var curSelected:Int = 0;
 
 	var pauseMusic:FlxSound;
 
 	public var pauseScript:Script;
+	public var selectCall:NameEvent->Void;  // Mainly for extern stuff that aren't scripts  - Nex
 
 	public var game:PlayState = PlayState.instance; // shortcut
 
 	private var __cancelDefault:Bool = false;
 
-	public function new(x:Float = 0, y:Float = 0) {
+	public function new(?items:Array<String>, ?selectCall:NameEvent->Void) {
 		super();
+		menuItems = items != null ? items : Flags.DEFAULT_PAUSE_ITEMS;
+		this.selectCall = selectCall;
 	}
 
 	var parentDisabler:FunkinParentDisabler;
@@ -135,13 +139,11 @@ class PauseSubState extends MusicBeatSubstate
 
 	public function selectOption() {
 		var event = EventManager.get(NameEvent).recycle(menuItems[curSelected]);
+		if (selectCall != null) selectCall(event);
 		pauseScript.call("onSelectOption", [event]);
-
 		if (event.cancelled) return;
 
-		var daSelected:String = event.name;
-
-		switch (daSelected)
+		switch (event.name)
 		{
 			case "Resume":
 				close();
@@ -153,9 +155,10 @@ class PauseSubState extends MusicBeatSubstate
 				persistentDraw = false;
 				openSubState(new KeybindsOptions());
 			case "Change Options":
+				TreeMenu.lastState = PlayState;
 				FlxG.switchState(new OptionsMenu());
 			case "Exit to charter":
-				FlxG.switchState(new funkin.editors.charter.Charter(PlayState.SONG.meta.name, PlayState.difficulty, false));
+				FlxG.switchState(new Charter(PlayState.SONG.meta.name, PlayState.difficulty, false));
 			case "Exit to menu":
 				if (PlayState.chartingMode && Charter.undos.unsaved)
 					game.saveWarn(false);

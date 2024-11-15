@@ -7,7 +7,18 @@ using StringTools;
 
 using haxe.macro.Tools;
 
+using funkin.backend.system.macros.FlagMacro;
+
 class FlagMacro {
+	private static function hasMeta(meta:Array<MetadataEntry>, name:String):Bool {
+		for(m in meta) {
+			if(m.name == name) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static function build():Array<Field> {
 		var fields = Context.getBuildFields();
 
@@ -21,26 +32,50 @@ class FlagMacro {
 		var parserExprs:Array<Expr> = [];
 
 		for (field in fields) {
-			var skip = false;
-			for(meta in field.meta) {
-				if(meta.name == ":bypass") {
-					skip = true;
-					break;
-				}
-			}
+			var skip = field.meta.hasMeta(":bypass");
+			var hasLazy = field.meta.hasMeta(":lazy");
 
 			if(skip) continue;
 
 			switch (field.kind) {
 				case FVar(type, expr):
+					var isNullable = false;
+					switch(type) {
+						case TPath({name: "Null", pack: [], params: [TPType(p)]}):
+							type = p;
+							isNullable = true;
+						default:
+					}
+
+					var alsos:Array<Expr> = [];
+					for(meta in field.meta) {
+						if(meta.name == ":also") {
+							for(param in meta.params) {
+								switch(param.expr) {
+									case EField(_, _):
+										alsos.push(param);
+									default:
+										Context.error("Invalid :also parameter", param.pos);
+								}
+							}
+						}
+					}
+
 					if(expr == null)
 						Context.error('Flag ' + field.name + ' must have a default value', field.pos);
-					switch(expr.expr) {
-						case EConst(CIdent("true")) | EConst(CIdent("false")):
-							type = macro: Bool;
-						default:
-							if(type == null)
+					if(type == null) {
+						switch(expr.expr) {
+							case EConst(CIdent("true")) | EConst(CIdent("false")):
+								type = macro: Bool;
+							case EConst(CInt(_)):
+								type = macro: Int;
+							case EConst(CFloat(_)):
+								type = macro: Float;
+							case EConst(CString(_)):
+								type = macro: String;
+							default:
 								Context.error('Flag ' + field.name + ' must have a type', field.pos);
+						}
 					}
 
 					var parser:Expr = null;
@@ -52,7 +87,7 @@ class FlagMacro {
 							parser = macro value.split(",").map((e) -> e.trim());
 						case macro: Array<String>:
 							parser = macro value.split(",");
-						case macro: Array<Int>:
+						case (macro: Array<Int>) | (macro: Array<FlxColor>):
 							parser = macro value.split(",").map((e) -> Std.parseInt(e));
 						case macro: Array<Float>:
 							parser = macro value.split(",").map((e) -> Std.parseFloat(e));
@@ -61,12 +96,15 @@ class FlagMacro {
 								e = e.trim();
 								e == "true" || e == "t" || e == "1";
 							});
-						case macro: Int:
+						case macro: TrimmedString:
+							field.kind = FVar(macro: String, expr);
+							parser = macro value.trim();
+						case macro: String:
+							parser = macro value;
+						case (macro: Int) | (macro: FlxColor):
 							parser = macro Std.parseInt(value);
 						case macro: Float:
 							parser = macro Std.parseFloat(value);
-						case macro: String:
-							parser = macro value;
 						case macro: Bool:
 							parser = macro value == "true" || value == "t" || value == "1";
 						case TPath({name: "Allow", pack: [], params: params}):
@@ -128,8 +166,7 @@ class FlagMacro {
 							if(chosenType == STRING) {
 								parser = macro value;
 								field.kind = FVar(macro: String, expr);
-							}
-							else if(chosenType == INT) {
+							} else if(chosenType == INT) {
 								parser = macro Std.parseInt(value);
 								field.kind = FVar(macro: Int, expr);
 							} else {
@@ -147,7 +184,7 @@ class FlagMacro {
 							}
 
 						case TPath({name: "Array", pack: []}):
-							Context.error("Flag " + field.name + " cannot be an Array that isnt a String or Bool or TrimmedString", field.pos);
+							Context.error("Flag " + field.name + " cannot be an Array that isnt a String or Bool or TrimmedString or Int or Float", field.pos);
 						case TPath({name: "Map", pack: []}):
 							Context.error("Flag " + field.name + " cannot be a Map<K, V>", field.pos);
 						default:
@@ -159,6 +196,14 @@ class FlagMacro {
 						continue;
 					}
 
+					if(isNullable) {
+						switch(field.kind) {
+							case FVar(t, e):
+								field.kind = FVar(TPath({name: "Null", pack: [], params: [TPType(t)]}), e);
+							default:
+						}
+					}
+
 					resetExprs.push(macro $i{field.name} = ${expr});
 
 					// parse(name: String, value: String)
@@ -166,15 +211,38 @@ class FlagMacro {
 					if(customCheck != null) {
 						parserExprs.push(customCheck);
 					} else {
-						parserExprs.push(macro @:mergeBlock {
-							if(name == $v{field.name}) {
-								$i{field.name} = $parser;
-								return true;
-							}
-						});
+						var alsoExpr = alsos.length > 0 ? macro @:mergeBlock $b{alsos.map((e) -> return macro $e = val)} : macro {};
+
+						if(isNullable) {
+							parserExprs.push(macro @:mergeBlock {
+								if(name == $v{field.name}) {
+									var val = value == "NULL" ? null : $parser;
+									$i{field.name} = val;
+									$alsoExpr;
+									return true;
+								}
+							});
+						} else {
+							parserExprs.push(macro @:mergeBlock {
+								if(name == $v{field.name}) {
+									var val = $parser;
+									$i{field.name} = val;
+									$alsoExpr;
+									return true;
+								}
+							});
+						}
 					}
 				default:
 					// nothing
+			}
+
+			if(hasLazy) {
+				switch(field.kind) {
+					case FVar(t, expr):
+						field.kind = FVar(t, null);
+					default:
+				}
 			}
 		}
 
@@ -209,6 +277,9 @@ class FlagMacro {
 		});
 
 		//var printer = new haxe.macro.Printer();
+		//for(field in fields) {
+		//	trace(printer.printField(field));
+		//}
 		//trace(printer.printField(fields[fields.length - 2]));
 		//trace(printer.printField(fields[fields.length - 1]));
 

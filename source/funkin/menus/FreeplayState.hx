@@ -4,9 +4,10 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import funkin.backend.chart.Chart;
 import funkin.backend.chart.ChartData.ChartMetaData;
-import funkin.backend.scripting.events.*;
+import funkin.backend.scripting.events.menu.MenuChangeEvent;
+import funkin.backend.scripting.events.menu.freeplay.*;
 import funkin.game.HealthIcon;
-import funkin.savedata.FunkinSave;
+import funkin.backend.utils.FunkinSave;
 
 using StringTools;
 
@@ -458,7 +459,7 @@ class FreeplaySonglist {
 
 		if (songsFound.length > 0) {
 			for(s in songsFound)
-				songs.push(Chart.loadChartMeta(s, "normal", source == MODS));
+				songs.push(Chart.loadChartMeta(s, Flags.DEFAULT_DIFFICULTY, source == MODS));
 			return false;
 		}
 		return true;

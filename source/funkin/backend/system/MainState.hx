@@ -18,8 +18,10 @@ class MainState extends FlxState {
 	public static var betaWarningShown:Bool = false;
 	public override function create() {
 		super.create();
-		if (!initiated)
+		if (!initiated) {
 			Main.loadGameSettings();
+		}
+
 		initiated = true;
 
 		#if sys
@@ -55,9 +57,9 @@ class MainState extends FlxState {
 		}
 		#end
 
-		Main.refreshAssets();
-		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder);
 		Flags.load();
+		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder); // Loads global.hx
+		Main.refreshAssets();
 		DiscordUtil.init();
 		EventsData.reloadEvents();
 		ControlsUtil.loadCustomControls();
@@ -73,6 +75,8 @@ class MainState extends FlxState {
 			betaWarningShown = true;
 		}
 
+		#if sys
 		CoolUtil.safeAddAttributes('./.temp/', NativeAPI.FileAttribute.HIDDEN);
+		#end
 	}
 }

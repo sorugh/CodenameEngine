@@ -30,10 +30,6 @@ import android.os.Build;
 
 class Main extends Sprite
 {
-	// make this empty once you guys are done with the project.
-	// good luck /gen <3 @crowplexus
-	public static final releaseCycle:String = "Beta";
-
 	public static var instance:Main;
 
 	public static var modToLoad:String = null;
@@ -123,6 +119,9 @@ class Main extends Sprite
 		ShaderResizeFix.init();
 		Logs.init();
 		Paths.init();
+
+		hscript.Interp.importRedirects = funkin.backend.scripting.Script.getDefaultImportRedirects();
+
 		#if GLOBAL_SCRIPT
 		funkin.backend.scripting.GlobalScript.init();
 		#end
@@ -145,7 +144,7 @@ class Main extends Sprite
 		Assets.registerLibrary('default', lib);
 
 		funkin.options.PlayerSettings.init();
-		funkin.savedata.FunkinSave.init();
+		funkin.backend.utils.FunkinSave.init();
 		Options.load();
 
 		FlxG.fixedTimestep = false;
@@ -171,13 +170,22 @@ class Main extends Sprite
 		initTransition();
 	}
 
-	public static function refreshAssets() {
-		FlxSoundTray.volumeChangeSFX = Paths.sound('menu/volume');
-		FlxSoundTray.volumeUpChangeSFX = null;
-		FlxSoundTray.volumeDownChangeSFX = null;
+	public static function refreshAssets() @:privateAccess {
+		WindowUtils.resetTitle();
 
-		if (FlxG.game.soundTray != null)
-			FlxG.game.soundTray.text.setTextFormat(new TextFormat(Paths.font("vcr.ttf")));
+		var game = FlxG.game;
+		var daSndTray = Type.createInstance(game._customSoundTray = funkin.menus.ui.FunkinSoundTray, []);
+		var index:Int = game.numChildren - 1;
+
+		if(game.soundTray != null)
+		{
+			var newIndex:Int = game.getChildIndex(game.soundTray);
+			if(newIndex != -1) index = newIndex;
+			game.removeChild(game.soundTray);
+			game.soundTray.__cleanup();
+		}
+
+		game.addChildAt(game.soundTray = daSndTray, index);
 	}
 
 	public static function initTransition() {

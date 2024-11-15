@@ -13,5 +13,5 @@ class CodenameBuildField extends TextField {
 	}
 
 	public function reload()
-		text = 'Codename Engine ${Main.releaseCycle}\nCommit ${GitCommitMacro.commitNumber} (${GitCommitMacro.commitHash})';
+		text = 'Codename Engine ${Flags.RELEASE_CYCLE}\n${Flags.COMMIT_MESSAGE}';
 }

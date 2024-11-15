@@ -164,7 +164,11 @@ class CharterEventScreen extends UISubstateWindow {
 						colorWheel;
 					case TDropDown(options):
 						addLabel();
-						var dropdown = new UIDropDown(eventName.x, y, 320, 32, options, Std.int(Math.abs(options.indexOf(cast value))));
+						var optionIndex = options.indexOf(cast value);
+						if(optionIndex < 0) {
+							optionIndex = 0;
+						}
+						var dropdown = new UIDropDown(eventName.x, y, 320, 32, options, optionIndex);
 						paramsPanel.add(dropdown); paramsFields.push(dropdown);
 						dropdown;
 					case TCharacter:

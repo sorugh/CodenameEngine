@@ -25,6 +25,10 @@ class CustomShader extends FunkinShader {
 		var fragCode = Assets.exists(fragShaderPath) ? Assets.getText(fragShaderPath) : null;
 		var vertCode = Assets.exists(vertShaderPath) ? Assets.getText(vertShaderPath) : null;
 
+		fileName = name;
+		fragFileName = fragShaderPath;
+		vertFileName = vertShaderPath;
+
 		path = fragShaderPath+vertShaderPath;
 
 		if (fragCode == null && vertCode == null)

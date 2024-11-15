@@ -247,7 +247,7 @@ class PlayState extends MusicBeatState
 	/**
 	 * Current song name (lowercase and spaces to dashes)
 	 */
-	 public var curSongID:String = "";
+	public var curSongID:String = "";
 	/**
 	 * Current stage name
 	 */
@@ -737,7 +737,7 @@ class PlayState extends MusicBeatState
 
 		// HUD INITIALIZATION & CAMERA INITIALIZATION
 		#if REGION
-		var event = EventManager.get(AmountEvent).recycle(Flags.DEFAULT_STRUM_AMOUNT);
+		var event = EventManager.get(AmountEvent).recycle(null);
 		if (!gameAndCharsEvent("onPreGenerateStrums", event).cancelled) {
 			generateStrums(event.amount);
 			gameAndCharsEvent("onPostGenerateStrums", event);
@@ -1047,9 +1047,12 @@ class PlayState extends MusicBeatState
 			return FlxSort.byValues(FlxSort.DESCENDING, p1.time, p2.time);
 		});
 
-		camZoomingInterval = cast songData.meta.beatsPerMeasure.getDefault(4);
+		var beatsPerMeasure:Float = songData.meta.beatsPerMeasure.getDefault(Flags.DEFAULT_BEATS_PER_MEASURE);
+		var stepsPerBeat:Int = songData.meta.stepsPerBeat.getDefault(Flags.DEFAULT_STEPS_PER_BEAT);
 
-		Conductor.changeBPM(songData.meta.bpm, cast songData.meta.beatsPerMeasure.getDefault(4), cast songData.meta.stepsPerBeat.getDefault(4));
+		camZoomingInterval = Std.int(beatsPerMeasure);
+
+		Conductor.changeBPM(songData.meta.bpm, beatsPerMeasure, stepsPerBeat);
 
 		curSong = songData.meta.name.toLowerCase();
 		curSongID = curSong.replace(" ", "-");
@@ -1072,9 +1075,12 @@ class PlayState extends MusicBeatState
 	}
 
 	@:dox(hide)
-	private inline function generateStrums(amount:Int = 4):Void
-		for(p in strumLines)
-			p.generateStrums(amount);
+	private inline function generateStrums(amount:Null<Int> = null):Void {
+		for(p in strumLines) {
+			var kc = amount != null ? amount : Flags.DEFAULT_STRUM_AMOUNT;
+			p.generateStrums(kc);
+		}
+	}
 
 	@:dox(hide)
 	override function openSubState(SubState:FlxSubState)

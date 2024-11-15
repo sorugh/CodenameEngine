@@ -55,7 +55,7 @@ class Flags {
 	public static var WEEKS_LIST_MOD_MODE:Allow<"prepend", "override", "append"> = "override";
 
 	public static var DEFAULT_BPM:Float = 100.0;
-	public static var DEFAULT_BEATS_PER_MEASURE:Int = 4;
+	public static var DEFAULT_BEATS_PER_MEASURE:Float = 4;
 	public static var DEFAULT_STEPS_PER_BEAT:Int = 4;
 
 	public static var SUPPORTED_CHART_RUNTIME_FORMATS:Array<String> = ["Legacy", "Psych Engine"];

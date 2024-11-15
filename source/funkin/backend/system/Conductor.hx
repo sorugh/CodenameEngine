@@ -45,7 +45,7 @@ class Conductor
 	/**
 	 * Number of steps per beat (bottom number in time signature). Defaults to 4.
 	 */
-	public static var stepsPerBeat:Float = 4;
+	public static var stepsPerBeat:Int = 4;
 
 
 	/**
@@ -262,7 +262,7 @@ class Conductor
 		}
 	}
 
-	public static function changeBPM(newBpm:Float, beatsPerMeasure:Float = 4, stepsPerBeat:Float = 4)
+	public static function changeBPM(newBpm:Float, beatsPerMeasure:Float = 4, stepsPerBeat:Int = 4)
 	{
 		bpm = newBpm;
 

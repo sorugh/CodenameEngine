@@ -424,7 +424,7 @@ class CoolUtil
 
 			var timeSignParsed:Array<Null<Float>> = musicInfo["TimeSignature"] == null ? [] : [for(s in musicInfo["TimeSignature"].split("/")) Std.parseFloat(s)];
 			var beatsPerMeasure:Float = Flags.DEFAULT_BEATS_PER_MEASURE;
-			var stepsPerBeat:Float = Flags.DEFAULT_STEPS_PER_BEAT;
+			var stepsPerBeat:Int = Flags.DEFAULT_STEPS_PER_BEAT;
 
 			// Check later, i dont think timeSignParsed can contain null, only nan
 			if (timeSignParsed.length == 2 && !timeSignParsed.contains(null)) {

@@ -295,15 +295,14 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 	@:noCompletion var __reverseTrailProcedure:Bool = false;
 
-	// When using trails on characters you should do `trail.beforeCache = char.beforeTrailCache;`
+	// When using trails on characters you should do `trail.beforeCache = char.beforeTrailCache;` and `trail.afterCache = char.afterTrailCache;`
 	public dynamic function beforeTrailCache()
 		if (isFlippedOffsets()) {
 			flipX = !flipX;
 			scale.x *= -1;
 			__reverseTrailProcedure = true;
 		}
-
-	// When using trails on characters you should do `trail.afterCache = char.afterTrailCache;`
+	
 	public dynamic function afterTrailCache()
 		if (__reverseTrailProcedure) {
 			flipX = !flipX;

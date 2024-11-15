@@ -464,6 +464,22 @@ class PlayState extends MusicBeatState
 	 */
 	public var comboGroup:RotatingSpriteGroup;
 	/**
+	 * Whenever the Rating sprites should be shown or not.
+	 *
+	 * NOTE: This is just a default value for the final value, the final value can be changed through notes hit events.
+	 */
+	public var defaultDisplayRating:Bool = true;
+	/**
+	 * Whenever the Combo sprite should be shown or not (like old Week 7 patches).
+	 *
+	 * NOTE: This is just a default value for the final value, the final value can be changed through notes hit events.
+	 */
+	public var defaultDisplayCombo:Bool = false;
+	/**
+	 * Minimum Combo Count to display the combo digits. Anything less than 0 means it won't be shown.
+	 */
+	public var minDigitDisplay:Int = 10;
+	/**
 	 * Array containing all of the note types names.
 	 */
 	public var noteTypesArray:Array<String> = [null];
@@ -1683,9 +1699,11 @@ class PlayState extends MusicBeatState
 
 		var event:NoteHitEvent;
 		if (strumLine != null && !strumLine.cpu)
-			event = gameAndCharsEvent("onPlayerHit", EventManager.get(NoteHitEvent).recycle(false, !note.isSustainNote, !note.isSustainNote, note, strumLine.characters, true, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, score, note.isSustainNote ? null : accuracy, 0.023, daRating, Options.splashesEnabled && !note.isSustainNote && daRating == "sick"));
+			event = EventManager.get(NoteHitEvent).recycle(false, !note.isSustainNote, !note.isSustainNote, null, defaultDisplayRating, defaultDisplayCombo, note, strumLine.characters, true, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, score, note.isSustainNote ? null : accuracy, 0.023, daRating, Options.splashesEnabled && !note.isSustainNote && daRating == "sick");
 		else
-			event = gameAndCharsEvent("onDadHit", EventManager.get(NoteHitEvent).recycle(false, false, false, note, strumLine.characters, false, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, 0, null, 0, daRating, false));
+			event = EventManager.get(NoteHitEvent).recycle(false, false, false, null, defaultDisplayRating, defaultDisplayCombo, note, strumLine.characters, false, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, 0, null, 0, daRating, false);
+		event.deleteNote = !note.isSustainNote; // work around, to allow sustain notes to be deleted
+		event = scripts.event(strumLine != null && !strumLine.cpu ? "onPlayerHit" : "onDadHit", event);
 		strumLine.onHit.dispatch(event);
 		gameAndCharsEvent("onNoteHit", event);
 
@@ -1702,7 +1720,8 @@ class PlayState extends MusicBeatState
 				if (event.showRating || (event.showRating == null && event.player))
 				{
 					displayCombo(event);
-					displayRating(event.rating, event);
+					if (event.displayRating)
+						displayRating(event.rating, event);
 					ratingNum += 1;
 				}
 			}
@@ -1732,7 +1751,7 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		if (event.deleteNote && !note.isSustainNote) strumLine.deleteNote(note);
+		if (event.deleteNote) strumLine.deleteNote(note);
 	}
 
 	public function displayRating(myRating:String, ?evt:NoteHitEvent = null):Void {
@@ -1761,14 +1780,12 @@ class PlayState extends MusicBeatState
 	}
 
 	public function displayCombo(?evt:NoteHitEvent = null):Void {
-		var hasEvent = evt != null;
-		var pre:String = hasEvent ? evt.ratingPrefix : "";
-		var suf:String = hasEvent ? evt.ratingSuffix : "";
+		if (minDigitDisplay >= 0 && (combo == 0 || combo >= minDigitDisplay)) {
+			var hasEvent = evt != null;
+			var pre:String = hasEvent ? evt.ratingPrefix : "";
+			var suf:String = hasEvent ? evt.ratingSuffix : "";
 
-		var separatedScore:String = Std.string(combo).addZeros(3);
-
-		if (combo == 0 || combo >= 10) {
-			if (combo >= 10) {
+			if (evt.displayCombo) {
 				var comboSpr:FlxSprite = comboGroup.recycleLoop(FlxSprite).loadAnimatedGraphic(Paths.image('${pre}combo${suf}'));
 				comboSpr.resetSprite(comboGroup.x, comboGroup.y);
 				comboSpr.acceleration.y = 600;
@@ -1790,6 +1807,7 @@ class PlayState extends MusicBeatState
 				});
 			}
 
+			var separatedScore:String = Std.string(combo).addZeros(3);
 			for (i in 0...separatedScore.length)
 			{
 				var numScore:FlxSprite = comboGroup.recycleLoop(FlxSprite).loadAnimatedGraphic(Paths.image('${pre}num${separatedScore.charAt(i)}${suf}'));

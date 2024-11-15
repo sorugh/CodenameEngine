@@ -1,17 +1,17 @@
 package funkin.backend.shaders;
 
+import flixel.system.FlxAssets.FlxShader;
+import flixel.util.FlxSignal.FlxTypedSignal;
 import haxe.Exception;
 import hscript.IHScriptCustomBehaviour;
-import flixel.util.FlxSignal.FlxTypedSignal;
-import flixel.system.FlxAssets.FlxShader;
-
 import lime.utils.Float32Array;
-
-import openfl.display3D._internal.GLProgram;
-import openfl.display.ShaderParameterType;
-import openfl.display.ShaderParameter;
 import openfl.display.BitmapData;
 import openfl.display.ShaderInput;
+import openfl.display.ShaderParameter;
+import openfl.display.ShaderParameterType;
+import openfl.display3D._internal.GLProgram;
+import openfl.display3D._internal.GLShader;
+import openfl.utils._internal.Log;
 
 using StringTools;
 @:access(openfl.display3D.Context3D)
@@ -20,12 +20,16 @@ using StringTools;
 @:access(openfl.display.ShaderParameter)
 class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 	private static var __instanceFields = Type.getInstanceFields(FunkinShader);
+	private static var FRAGMENT_SHADER = 0;
+	private static var VERTEX_SHADER = 1;
 
 	public var onGLUpdate:FlxTypedSignal<Void->Void> = new FlxTypedSignal<Void->Void>();
 	public var onProcessGLData:FlxTypedSignal<(String, String)->Void> = new FlxTypedSignal<(String, String)->Void>();
 
 	public var glslVer:String = "120";
 	public var fileName:String = "FunkinShader";
+	public var fragFileName:String = "FunkinShader";
+	public var vertFileName:String = "FunkinShader";
 
 	public var shaderPrefix:String = "";
 	public var fragmentPrefix:String = "";
@@ -50,13 +54,14 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 
 	static var IMPORT_REGEX = ~/#import\s+<(.*)>/;
 
-	private function processImports(value:String):String
+	private function processImports(value:String, type:Int):String
 	{
 		while(IMPORT_REGEX.match(value))
 		{
 			var importPath = IMPORT_REGEX.matched(1);
 			var importSource = Assets.getText("assets/shaders/" + importPath);
 			if(importSource == null) {
+				var fileName = type == FRAGMENT_SHADER ? fragFileName : vertFileName;
 				Logs.traceColored([
 					Logs.logText('[Shader] ', RED),
 					Logs.logText('Failed to import shader ${importPath} in ${fileName}', RED),
@@ -68,12 +73,150 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 		return value;
 	}
 
+	static var ERROR_POS_REGEX = ~/(\d+):(\d+): (.*)/g;
+	static var ERROR_REGEX = ~/ERROR: (\d+):(\d+): (.*)/g;
+	static var ERROR_REGEX_2 = ~/(\d+)\((\d+)\) : error ([^:]+): (.*)/g;
+	@:noCompletion private override function __createGLShader(source:String, type:Int):GLShader
+	{
+		var gl = __context.gl;
+
+		var shader = gl.createShader(type);
+		gl.shaderSource(shader, source);
+		gl.compileShader(shader);
+		var shaderInfoLog = gl.getShaderInfoLog(shader);
+		var hasInfoLog = shaderInfoLog != null && StringTools.trim(shaderInfoLog) != "";
+		var compileStatus = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+
+		if (hasInfoLog || compileStatus == 0)
+		{
+			var isVertexShader = type == gl.VERTEX_SHADER;
+			var messageBuf = new StringBuf();
+			messageBuf.add((compileStatus == 0) ? "Error" : "Info");
+			if(isVertexShader) {
+				messageBuf.add(" compiling vertex shader");
+				if(vertFileName != null && vertFileName.length > 0) {
+					messageBuf.add(" (" + vertFileName + ")");
+				}
+			} else {
+				messageBuf.add(" compiling fragment shader");
+				if(fragFileName != null && fragFileName.length > 0) {
+					messageBuf.add(" (" + fragFileName + ")");
+				}
+			}
+			messageBuf.add("\n");
+			var errorPositions = [];
+			var regex = null;
+			var tmp = shaderInfoLog;
+			if(shaderInfoLog.contains(" : error ")) {
+				regex = ERROR_REGEX_2;
+
+				while(regex.match(tmp)) {
+					errorPositions.push(new ShaderErrorPosition(regex.matched(2), regex.matched(1), regex.matched(4)));
+					tmp = regex.matchedRight();
+				}
+			} else if(shaderInfoLog.contains("ERROR: ")) {
+				regex = ERROR_REGEX;
+
+				while(regex.match(tmp)) {
+					errorPositions.push(new ShaderErrorPosition(regex.matched(2), regex.matched(1), regex.matched(3)));
+					tmp = regex.matchedRight();
+				}
+			} else {
+				regex = ERROR_POS_REGEX;
+
+				while(regex.match(tmp)) {
+					errorPositions.push(new ShaderErrorPosition(regex.matched(2), regex.matched(1), regex.matched(3)));
+					tmp = regex.matchedRight();
+				}
+			}
+			var splitSource = source.split("\n");
+			for(error in errorPositions) {
+				messageBuf.add("ERROR: Line: " + error.line);
+				if(error.column > 0) {
+					messageBuf.add(", Column: " + error.column);
+				}
+				messageBuf.add(", " + error.message);
+				if(error.line < splitSource.length) {
+					messageBuf.add("\nLine: ");
+					messageBuf.add(splitSource[error.line-1].trim());
+				}
+				messageBuf.add("\n\n");
+			}
+			var hasErrorPosition = errorPositions.length > 0;
+			if(hasErrorPosition) {
+				messageBuf.add("Raw shader info log:\n");
+			}
+			messageBuf.add(shaderInfoLog);
+			messageBuf.add("\n");
+			messageBuf.add(source);
+
+			var message = messageBuf.toString();
+			if (compileStatus == 0) Log.error(message);
+			else if (hasInfoLog) Log.debug(message);
+		}
+
+		return shader;
+	}
+
+	@:noCompletion private override function __createGLProgram(vertexSource:String, fragmentSource:String):GLProgram
+	{
+		var program:GLProgram = null;
+		try
+		{
+			var gl = __context.gl;
+
+			var vertexShader = __createGLShader(vertexSource, gl.VERTEX_SHADER);
+			var fragmentShader = __createGLShader(fragmentSource, gl.FRAGMENT_SHADER);
+
+			program = gl.createProgram();
+
+			// Fix support for drivers that don't draw if attribute 0 is disabled
+			for (param in __paramFloat)
+			{
+				if (param.name.indexOf("Position") > -1 && StringTools.startsWith(param.name, "openfl_"))
+				{
+					gl.bindAttribLocation(program, 0, param.name);
+					break;
+				}
+			}
+
+			gl.attachShader(program, vertexShader);
+			gl.attachShader(program, fragmentShader);
+			gl.linkProgram(program);
+
+			if (gl.getProgramParameter(program, gl.LINK_STATUS) == 0)
+			{
+				var messageBuf = new StringBuf();
+				messageBuf.add("Unable to initialize the shader program");
+				messageBuf.add("\n");
+				messageBuf.add(gl.getProgramInfoLog(program));
+				var message = messageBuf.toString();
+				Log.error(message);
+			}
+		}
+		catch (error:Dynamic)
+		{
+			Logs.traceColored([
+				Logs.logText('[Shader] ', BLUE),
+				Logs.logText('Failed to compile shader ${fileName}: ', RED),
+				Logs.logText(Std.string(error))
+			], TRACE);
+		}
+		return program;
+
+		return program;
+	}
+
+	var glRawFragmentSource:String;
+	var glRawVertexSource:String;
+
 	@:noCompletion override private function set_glFragmentSource(value:String):String
 	{
 		if(value == null)
 			value = ShaderTemplates.defaultFragmentSource;
+		glRawFragmentSource = value;
 		value = value.replace("#pragma header", ShaderTemplates.fragHeader).replace("#pragma body", ShaderTemplates.fragBody);
-		value = processImports(value);
+		value = processImports(value, FRAGMENT_SHADER);
 		if (value != __glFragmentSource)
 		{
 			__glSourceDirty = true;
@@ -86,32 +229,15 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 	{
 		if(value == null)
 			value = ShaderTemplates.defaultVertexSource;
+		glRawVertexSource = value;
 		value = value.replace("#pragma header", ShaderTemplates.vertHeader).replace("#pragma body", ShaderTemplates.vertBody);
-		value = processImports(value);
+		value = processImports(value, VERTEX_SHADER);
 		if (value != __glVertexSource)
 		{
 			__glSourceDirty = true;
 		}
 
 		return __glVertexSource = value;
-	}
-
-	override function __createGLProgram(vertexSource:String, fragmentSource:String):GLProgram
-	{
-		var program:GLProgram = null;
-		try
-		{
-			program = super.__createGLProgram(vertexSource, fragmentSource);
-		}
-		catch (error:Dynamic)
-		{
-			Logs.traceColored([
-				Logs.logText('[Shader] ', BLUE),
-				Logs.logText('Failed to compile shader ${fileName}: ', RED),
-				Logs.logText(Std.string(error))
-			], TRACE);
-		}
-		return program;
 	}
 
 	override function __updateGL():Void {
@@ -138,20 +264,25 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 
 		if (__context != null && program == null)
 		{
-			var prefix = '#version ${glslVer}\n' + shaderPrefix;
+			var prefixBuf = new StringBuf();
+			prefixBuf.add('#version ${glslVer}\n');
+			prefixBuf.add(shaderPrefix);
 
 			var gl = __context.gl;
 
-			prefix += "#ifdef GL_ES
-				"
-				+ (precisionHint == FULL ? "#ifdef GL_FRAGMENT_PRECISION_HIGH
-				precision highp float;
-				#else
-				precision mediump float;
-				#endif" : "precision lowp float;")
-				+ "
-				#endif
-				";
+			prefixBuf.add("#ifdef GL_ES\n");
+			if (precisionHint == FULL) {
+				prefixBuf.add("#ifdef GL_FRAGMENT_PRECISION_HIGH\n");
+				prefixBuf.add("precision highp float;\n");
+				prefixBuf.add("#else\n");
+				prefixBuf.add("precision mediump float;\n");
+				prefixBuf.add("#endif\n");
+			} else {
+				prefixBuf.add("precision lowp float;\n");
+			}
+			prefixBuf.add("#endif\n");
+
+			var prefix = prefixBuf.toString();
 
 			var vertex = prefix + vertexPrefix + glVertexSource;
 			var fragment = prefix + fragmentPrefix + glFragmentSource;
@@ -165,9 +296,7 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 			else
 			{
 				program = __context.createProgram(GLSL);
-
 				program.__glProgram = __createGLProgram(vertex, fragment);
-
 				__context.__programs.set(id, program);
 			}
 
@@ -175,56 +304,35 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 			{
 				glProgram = program.__glProgram;
 
-				for (input in __inputBitmapData)
-				{
+				for (input in __inputBitmapData) {
 
-					if (input.__isUniform)
-					{
+					if (input.__isUniform) {
 						input.index = gl.getUniformLocation(glProgram, input.name);
-					}
-					else
-					{
+					} else {
 						input.index = gl.getAttribLocation(glProgram, input.name);
 					}
 				}
 
-				for (parameter in __paramBool)
-				{
-
-					if (parameter.__isUniform)
-					{
+				for (parameter in __paramBool) {
+					if (parameter.__isUniform) {
 						parameter.index = gl.getUniformLocation(glProgram, parameter.name);
-					}
-					else
-					{
+					} else {
 						parameter.index = gl.getAttribLocation(glProgram, parameter.name);
 					}
 				}
 
-				for (parameter in __paramFloat)
-				{
-
-					if (parameter.__isUniform)
-					{
+				for (parameter in __paramFloat) {
+					if (parameter.__isUniform) {
 						parameter.index = gl.getUniformLocation(glProgram, parameter.name);
-					}
-					else
-					{
+					} else {
 						parameter.index = gl.getAttribLocation(glProgram, parameter.name);
 					}
 				}
 
-				for (parameter in __paramInt)
-				{
-
-					if (parameter.__isUniform)
-					{
-
+				for (parameter in __paramInt) {
+					if (parameter.__isUniform) {
 						parameter.index = gl.getUniformLocation(glProgram, parameter.name);
-					}
-					else
-					{
-
+					} else {
 						parameter.index = gl.getAttribLocation(glProgram, parameter.name);
 					}
 				}
@@ -589,5 +697,17 @@ class ShaderTypeException extends Exception {
 		this.want = want;
 		this.name = name;
 		super('ShaderTypeException - Tried to set the shader uniform "${name}" as a ${Type.getClassName(has)}, but the shader uniform is a ${Std.string(want)}.');
+	}
+}
+
+class ShaderErrorPosition {
+	public var column:Int;
+	public var line:Int;
+	public var message:String;
+
+	public function new(line:String, column:String, message:String) {
+		this.line = Std.parseInt(line);
+		this.column = Std.parseInt(column);
+		this.message = message;
 	}
 }

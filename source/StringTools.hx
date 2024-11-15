@@ -230,6 +230,8 @@ class StringTools {
 		return (cast s).startsWith(start);
 		#elseif lua
 		return untyped __lua__("{0}:sub(1, #{1}) == {1}", s, start);
+		#elseif cpp
+		return untyped s.__StartsWith(start);
 		#else
 		return (s.length >= start.length && s.indexOf(start, 0) == 0);
 		#end
@@ -255,6 +257,8 @@ class StringTools {
 		return (cast s).endsWith(end);
 		#elseif lua
 		return end == "" || untyped __lua__("{0}:sub(-#{1}) == {1}", s, end);
+		#elseif cpp
+		return untyped s.__EndsWith(end);
 		#else
 		var elen = end.length;
 		var slen = s.length;

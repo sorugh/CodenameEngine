@@ -525,7 +525,7 @@ typedef DPresence =
 	var ?button1Url:String; /* max 512 bytes */
 	var ?button2Label:String; /* max 32 bytes */
 	var ?button2Url:String; /* max 512 bytes */
-	var ?activityType:ActivityType;
+	var ?activityType:#if DISCORD_RPC ActivityType #else Dynamic #end;
 	var ?streamUrl:String; /* max 512 bytes */
 }
 

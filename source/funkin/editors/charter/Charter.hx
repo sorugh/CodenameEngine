@@ -40,6 +40,7 @@ class Charter extends UIState {
 	@:noCompletion private var playbackIndex:Int = 7;
 	@:noCompletion private var snapIndex:Int = 6;
 	@:noCompletion private var noteIndex:Int = 5;
+	@:noCompletion private var songIndex:Int = 4;
 
 	public var scrollBar:UIScrollBar;
 	public var songPosInfo:UIText;
@@ -617,6 +618,7 @@ class Charter extends UIState {
 			e.refreshEventIcons();
 
 		buildNoteTypesUI();
+		updateBookmarks();
 		refreshBPMSensitive();
 
 		// Just for now until i add event stacking -lunar
@@ -1142,6 +1144,8 @@ class Charter extends UIState {
 			createSelection(toBeCreated, false);
 		}
 
+		updateBookmarks();
+
 		if (addToUndo)
 			undos.addToUndo(CCreateStrumLine(strumLineID, strL));
 	}
@@ -1164,6 +1168,8 @@ class Charter extends UIState {
 		strumLines.members.remove(strumLines.members[strumLineID]);
 		strumLines.refreshStrumlineIDs();
 		strumLines.snapStrums();
+
+		updateBookmarks();
 
 		if (addToUndo) {
 			var newStrL = Reflect.copy(strL);
@@ -1228,6 +1234,16 @@ class Charter extends UIState {
 	public override function update(elapsed:Float) {
 		updateNoteLogic(elapsed);
 		updateAutoSaving(elapsed);
+
+		for (bs in __bookmarkObjects)
+		{
+			var bars:Array<FlxSprite> = bs[0];
+			var text:UIText = bs[1];
+			for (spr in bars)
+				spr.x = strumLines.members[spr.ID].x;
+			if (text != null)
+				text.x = strumLines.members[0].x + 4;
+		}
 
 		if (FlxG.sound.music.playing || __firstFrame) {
 			gridBackdrops.conductorSprY = curStepFloat * 40;
@@ -1559,6 +1575,9 @@ class Charter extends UIState {
 			case CEditNoteTypes(oldArray, newArray):
 				noteTypes = oldArray;
 				changeNoteType(null, false);
+			case CEditBookmarks(oldArray, newArray):
+				PlayState.SONG.bookmarks = oldArray;
+				updateBookmarks();
 			case CEditSpecNotesType(notes, oldTypes, newTypes):
 				for(i=>note in notes) note.updatePos(note.step, note.id, note.susLength, oldTypes[i]);
 			case CChangeBundle(changes):
@@ -1614,6 +1633,9 @@ class Charter extends UIState {
 			case CEditNoteTypes(oldArray, newArray):
 				noteTypes = newArray;
 				changeNoteType(null, false);
+			case CEditBookmarks(oldArray, newArray):
+				PlayState.SONG.bookmarks = newArray;
+				updateBookmarks();
 			case CEditSpecNotesType(notes, oldTypes, newTypes):
 				for(i=>note in notes) note.updatePos(note.step, note.id, note.susLength, newTypes[i]);
 			case CChangeBundle(changes):
@@ -1695,6 +1717,133 @@ class Charter extends UIState {
 		if (FlxG.sound.music.playing) return;
 		Conductor.songPosition = FlxG.sound.music.length;
 	}
+
+	public function getBookmarkList():Array<ChartBookmark> {
+		var bookmarks:Array<ChartBookmark> = [];
+		try {
+			if (PlayState.SONG.bookmarks != null)
+				bookmarks = PlayState.SONG.bookmarks;
+		} catch (e) {}
+		
+		return bookmarks;
+	}
+
+	function _bookmarks_add(_) {
+		var currentBookmarks:Array<ChartBookmark> = getBookmarkList();
+		var newBookmarks:Array<ChartBookmark> = getBookmarkList();
+		newBookmarks.push({time: curStepFloat, name: "New Bookmark"});
+		
+		PlayState.SONG.bookmarks = newBookmarks;
+		updateBookmarks();	
+		undos.addToUndo(CEditBookmarks(currentBookmarks, newBookmarks));
+	}
+	function _bookmarks_edit_list(_)
+		FlxG.state.openSubState(new CharterBookmarkList()); //idk why its FlxG.state but it looks so off lmfao
+
+	public var __bookmarkObjects:Array<Dynamic> = [];
+	public function updateBookmarks()
+	{
+		for (bs in __bookmarkObjects)
+		{
+			var bars:Array<FlxSprite> = bs[0];
+			var text:UIText = bs[1];
+			
+			if (bars != null) {
+				for (spr in bars) {
+					if (spr == null) continue;
+					remove(spr);
+					spr.kill();
+				}
+			}
+			if (text != null) {
+				remove(text);
+				text.kill();
+			}
+		}
+		__bookmarkObjects.clear();
+		for (b in getBookmarkList())
+		{
+			var bookmarkcolor = 0xff911dd9;//PURPLE TO SEE IT BETTER
+
+			var sprites = [];
+			for (str in strumLines.members)
+			{
+				var bookmarkspr = new FlxSprite(str.x, (b.time * 40)).makeSolid(1, 1, bookmarkcolor);
+				bookmarkspr.scale.set(4 * 40, str.keyCount);
+				bookmarkspr.updateHitbox();
+				bookmarkspr.camera = charterCamera;
+				add(bookmarkspr);
+				bookmarkspr.ID = strumLines.members.indexOf(str);
+				sprites.push(bookmarkspr);
+			}
+
+			var bookmarkText = new UIText(strumLines.members[0].x + 4, 0, 400, b.name, 15, bookmarkcolor);
+			bookmarkText.y = sprites[0].y - (bookmarkText.height + 2);
+			bookmarkText.camera = charterCamera;
+			add(bookmarkText);
+
+			__bookmarkObjects.push([sprites, bookmarkText]);
+		}
+
+		buildSongUI();
+	}
+
+	function buildSongUI():Array<UIContextMenuOption> {
+		var songTopButton:UITopMenuButton = topMenuSpr == null ? null : cast topMenuSpr.members[songIndex];
+		var newChilds:Array<UIContextMenuOption> = [
+			{
+				label: "Go back to the start",
+				keybind: [HOME],
+				onSelect: _song_start
+			},
+			{
+				label: "Go to the end",
+				keybind: [END],
+				onSelect: _song_end
+			},
+			null,
+			{
+				label: "Add Bookmark Here",
+				onSelect: _bookmarks_add
+			},
+			{
+				label: "Edit Bookmark List",
+				color: 0xFF959829, icon: 4,
+				onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2; button.icon.offset.y = -1;},
+				onSelect: _bookmarks_edit_list
+			},
+			null
+		];
+
+		var bookmarks:Array<ChartBookmark> = getBookmarkList();
+
+		if (bookmarks.length > 0)
+		{
+			for (b in bookmarks)
+			{
+				newChilds.push({
+					label: "Go To \"" + b.name + "\"",
+					onSelect: function(_) { Conductor.songPosition = Conductor.getTimeForStep(b.time); }
+				});
+			}
+			newChilds.push(null);
+		}
+
+		
+		newChilds.push({
+			label: "Mute instrumental",
+			onSelect: _song_muteinst
+		});
+
+		newChilds.push({
+			label: "Mute voices",
+			onSelect: _song_mutevoices
+		});
+
+		if (songTopButton != null) songTopButton.contextMenu = newChilds;
+		return newChilds;
+	}
+
 	function _view_zoomin(_) {
 		zoom += 0.25;
 		__camZoom = Math.pow(2, zoom);
@@ -2062,6 +2211,7 @@ enum CharterChange {
 	CEditEventGroups(events:Array<CharterEvent>);
 	CEditChartData(oldData:{stage:String, speed:Float}, newData:{stage:String, speed:Float});
 	CEditNoteTypes(oldArray:Array<String>, newArray:Array<String>);
+	CEditBookmarks(oldArray:Array<ChartBookmark>, newArray:Array<ChartBookmark>);
 	CEditSpecNotesType(notes:Array<CharterNote>, oldNoteTypes:Array<Int>, newNoteTypes:Array<Int>);
 
 	CChangeBundle(changes:Array<CharterChange>);

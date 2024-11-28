@@ -285,23 +285,24 @@ class Alphabet extends FlxSprite {
 				__useDrawScale = false;
 				if (__component.refIndex != null) {
 					var actualIdx = __component.refIndex + data.startIndex;
-					//trace(__component.anim + " | " + data.components[actualIdx].anim);
-					var refAnim = getLetterAnim(letter, data, data.components[actualIdx], actualIdx);
+					var refCompon = data.components[actualIdx];
+					var refAnim = getLetterAnim(letter, data, refCompon, actualIdx);
 					var refFrameIdx = frameTime % refAnim.numFrames;
 					var refFrame = frames.frames[refAnim.frames[refFrameIdx]];
 
 					var diff = Math.min(
-						(frame.sourceSize.x - refFrame.sourceSize.x) * __component.scaleX,
-						(frame.sourceSize.y - refFrame.sourceSize.y) * __component.scaleY
+						(frame.sourceSize.x - refFrame.sourceSize.x),
+						(frame.sourceSize.y - refFrame.sourceSize.y)
 					);
-					offsetX += diff * 0.5;
-					offsetY = refFrame.sourceSize.y - lineGap + __component.y + __renderData.offsetY + diff * 0.5;
-
+					var diffScale = (diff == (frame.sourceSize.x - refFrame.sourceSize.x)) ? __component.scaleX : __component.scaleY;
+					
 					__useDrawScale = true;
 					__drawScale.set(
-						(refFrame.sourceSize.x * __component.scaleX + diff) / frame.sourceSize.x,
-						(refFrame.sourceSize.y * __component.scaleY + diff) / frame.sourceSize.y
+						(refFrame.sourceSize.x * __component.scaleX + diff * diffScale) / frame.sourceSize.x,
+						(refFrame.sourceSize.y * __component.scaleY + diff * diffScale) / frame.sourceSize.y
 					);
+					offsetX = __component.x * __drawScale.x + __renderData.offsetX + diff * 0.5 + refCompon.x;
+					offsetY = refFrame.sourceSize.y - lineGap + __component.y * __drawScale.y + __renderData.offsetY + diff * 0.5 + refCompon.y;
 				}
 
 				if (isMonospace)
@@ -588,8 +589,8 @@ class Alphabet extends FlxSprite {
 							refIndex: componentsPushed,
 							anim: component.get("outline"),
 	
-							x: xOff + Std.parseFloat(component.get("outlineX")).getDefaultFloat(0.0) * xScale,
-							y: yOff + Std.parseFloat(component.get("outlineY")).getDefaultFloat(0.0) * yScale,
+							x: Std.parseFloat(component.get("outlineX")).getDefaultFloat(0.0),
+							y: Std.parseFloat(component.get("outlineY")).getDefaultFloat(0.0),
 							scaleX: xScale,
 							scaleY: yScale,
 	
@@ -655,8 +656,8 @@ class Alphabet extends FlxSprite {
 						refIndex: 0,
 						anim: node.get("outline"),
 
-						x: xOff + Std.parseFloat(node.get("outlineX")).getDefaultFloat(0.0) * xScale,
-						y: yOff + Std.parseFloat(node.get("outlineY")).getDefaultFloat(0.0) * yScale,
+						x: Std.parseFloat(node.get("outlineX")).getDefaultFloat(0.0),
+						y: Std.parseFloat(node.get("outlineY")).getDefaultFloat(0.0),
 						scaleX: xScale,
 						scaleY: yScale,
 

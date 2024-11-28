@@ -18,6 +18,7 @@ import funkin.editors.ui.UIContextMenu.UIContextMenuOptionSpr;
 import funkin.editors.ui.UIState;
 import funkin.editors.ui.UITopMenu.UITopMenuButton;
 import haxe.Json;
+import flixel.util.FlxColor;
 
 class Charter extends UIState {
 	public static var __song:String;
@@ -1729,13 +1730,19 @@ class Charter extends UIState {
 	}
 
 	function _bookmarks_add(_) {
-		var currentBookmarks:Array<ChartBookmark> = getBookmarkList();
-		var newBookmarks:Array<ChartBookmark> = getBookmarkList();
-		newBookmarks.push({time: curStepFloat, name: "New Bookmark"});
-		
-		PlayState.SONG.bookmarks = newBookmarks;
-		updateBookmarks();	
-		undos.addToUndo(CEditBookmarks(currentBookmarks, newBookmarks));
+		FlxG.state.openSubState(new CharterBookmarkCreation(curStepFloat, function(success:Bool, name:String, color:FlxColor, daStep:Float)
+		{
+			if (success)
+			{
+				var currentBookmarks:Array<ChartBookmark> = getBookmarkList();
+				var newBookmarks:Array<ChartBookmark> = getBookmarkList();
+				newBookmarks.push({time: daStep, name: name, color: color.toWebString()});
+				
+				PlayState.SONG.bookmarks = newBookmarks;
+				updateBookmarks();	
+				undos.addToUndo(CEditBookmarks(currentBookmarks, newBookmarks));
+			}
+		}));
 	}
 	function _bookmarks_edit_list(_)
 		FlxG.state.openSubState(new CharterBookmarkList()); //idk why its FlxG.state but it looks so off lmfao
@@ -1763,7 +1770,8 @@ class Charter extends UIState {
 		__bookmarkObjects.clear();
 		for (b in getBookmarkList())
 		{
-			var bookmarkcolor = 0xff911dd9;//PURPLE TO SEE IT BETTER
+			var bookmarkcolor:FlxColor = b.color != null ? FlxColor.fromString(b.color) : 0xff9d00ff;
+			var luminance = CoolUtil.getLuminance(bookmarkcolor);
 
 			var sprites = [];
 			for (str in strumLines.members)
@@ -1777,10 +1785,13 @@ class Charter extends UIState {
 				sprites.push(bookmarkspr);
 			}
 
-			var bookmarkText = new UIText(strumLines.members[0].x + 4, 0, 400, b.name, 15, bookmarkcolor);
+			var bookmarkText = new UIText(strumLines.members[0].x + 4, 0, 400, b.name, 15, bookmarkcolor, true);
 			bookmarkText.y = sprites[0].y - (bookmarkText.height + 2);
 			bookmarkText.camera = charterCamera;
 			add(bookmarkText);
+
+			if (luminance < 0.5)
+				bookmarkText.borderColor = 0x88FFFFFF;
 
 			__bookmarkObjects.push([sprites, bookmarkText]);
 		}

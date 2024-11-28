@@ -61,6 +61,7 @@ typedef ChartNote = {
 typedef ChartBookmark = {
 	var time:Float;
 	var name:String;
+	var color:String;
 }
 
 typedef ChartEvent = {

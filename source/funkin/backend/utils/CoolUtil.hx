@@ -1046,6 +1046,15 @@ final class CoolUtil
 		}
 		return result;
 	}
+
+	/**
+	 * Gets the luminance of the given color
+	 * @param color Color to use
+	 * @return Number between 0 and 1
+	*/
+	public static function getLuminance(color:FlxColor):Float {
+		return (0.2126*color.redFloat + 0.7152*color.greenFloat + 0.0722*color.blueFloat);
+	}
 }
 
 /**

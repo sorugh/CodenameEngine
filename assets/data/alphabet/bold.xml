@@ -18,7 +18,7 @@
 	<anim char="$">character-dollar</anim>
 	<anim char='"' y="35">character-doublequote0</anim>
 	<anim char="=" y="20">character-equal</anim>
-	<anim char="!">character-exclamationmark</anim>
+	<anim char="!">character-exclamationmark0</anim>
 	<anim char="-" y="25">character-hyphen</anim>
 	<anim char="%">character-percent</anim>
 	<anim char=".">character-period</anim>
@@ -51,6 +51,6 @@
 
 	<composite char="ẽ">
 		<component anim="character-e0" x="0" y="0"/>
-		<component anim="diacritic-tilde" x="-1" y="62"/>
+		<component anim="diacritic-tilde-fill" x="3" y="63" outline="diacritic-tilde-outline" outlineX="-1" hasOutline="true"/>
 	</composite>
 </alphabetFont>

@@ -23,6 +23,7 @@ final class AlphabetOutline {
 }
 @:structInit
 final class AlphabetComponent {
+	@:optional public var refIndex:Null<Int>;
 	public var anim:String;
 	public var x:Float;
 	public var y:Float;
@@ -37,8 +38,6 @@ final class AlphabetComponent {
 
 	public var hasColorMode:Bool;
 	public var colorMode:ColorMode;
-
-	@:optional public var outline:Null<AlphabetOutline>;
 }
 
 @:structInit
@@ -47,6 +46,7 @@ final class AlphabetLetterData {
 	public var advance:Float;
 	public var advanceEmpty:Bool;
 	public var components:Array<AlphabetComponent>;
+	public var startIndex:Int = 0;
 }
 
 enum abstract AlphabetAlignment(ByteUInt) from ByteUInt to ByteUInt {
@@ -117,7 +117,8 @@ class Alphabet extends FlxSprite {
 	public var effects:Array<RegionEffect> = [];
 	var __renderData:AlphabetRenderData;
 	var __component:AlphabetComponent;
-	var __outline:AlphabetOutline;
+	var __useDrawScale:Bool = false;
+	var __drawScale:FlxPoint = FlxPoint.get(1, 1); 
 
 	public var text(default, set):String = "";
 	@:isVar public var textWidth(get, set):Float;
@@ -241,6 +242,7 @@ class Alphabet extends FlxSprite {
 		var isMonospace = renderMode == MONOSPACE;
 
 		for (i in 0...daText.length) {
+			var cantrace = i == daText.length - 1;
 			__renderData.reset(this, ogRed, ogGreen, ogBlue, ogAlpha, daText.charAt(i));
 			for (effect in effects) {
 				if (effect.willModify(i, i - lastLine, __renderData))
@@ -268,16 +270,40 @@ class Alphabet extends FlxSprite {
 			for (i in 0...data.components.length) {
 				__component = data.components[i];
 				var anim = getLetterAnim(letter, data, __component, i);
+				//if (cantrace)
+					//trace(anim.name + " | " + __component.anim + " | " + frames.frames[anim.frames[0]]);
 				advance = (Math.isNaN(advance)) ? getAdvance(letter, anim, data) : advance;
 
 				if (anim == null || __renderData.alpha <= 0.0)
 					break; // shouldnt this be like continue?
 
 				var frameToGet = frameTime % anim.numFrames;
-				var fillFrame = frames.frames[anim.frames[frameToGet]];
+				frame = frames.frames[anim.frames[frameToGet]];
 
 				var offsetX = __component.x + __renderData.offsetX;
-				var offsetY = fillFrame.sourceSize.y - lineGap + __component.y + __renderData.offsetY;
+				var offsetY = frame.sourceSize.y - lineGap + __component.y + __renderData.offsetY;
+				__useDrawScale = false;
+				if (__component.refIndex != null) {
+					var actualIdx = __component.refIndex + data.startIndex;
+					//trace(__component.anim + " | " + data.components[actualIdx].anim);
+					var refAnim = getLetterAnim(letter, data, data.components[actualIdx], actualIdx);
+					var refFrameIdx = frameTime % refAnim.numFrames;
+					var refFrame = frames.frames[refAnim.frames[refFrameIdx]];
+
+					var diff = Math.min(
+						(frame.sourceSize.x - refFrame.sourceSize.x) * __component.scaleX,
+						(frame.sourceSize.y - refFrame.sourceSize.y) * __component.scaleY
+					);
+					offsetX += diff * 0.5;
+					offsetY = refFrame.sourceSize.y - lineGap + __component.y + __renderData.offsetY + diff * 0.5;
+
+					__useDrawScale = true;
+					__drawScale.set(
+						(refFrame.sourceSize.x * __component.scaleX + diff) / frame.sourceSize.x,
+						(refFrame.sourceSize.y * __component.scaleY + diff) / frame.sourceSize.y
+					);
+				}
+
 				if (isMonospace)
 					offsetX -= (defaultAdvance - advance) * 0.5;
 				frameOffset.x += offsetX;
@@ -293,29 +319,6 @@ class Alphabet extends FlxSprite {
 				else
 					colorMode.setColorTransform(colorTransform, __renderData.red, __renderData.green, __renderData.blue, __renderData.alpha);
 
-				if (__component.outline != null) {
-					__outline = __component.outline;
-					var outlineAnim = getLetterOutline(letter, __component, i);
-					if (outlineAnim != null) {
-						var frameToGet = frameTime % outlineAnim.numFrames;
-						frame = frames.frames[outlineAnim.frames[frameToGet]];
-
-						var offfx = (fillFrame.sourceSize.x - frame.sourceSize.x) * __component.scaleX + __outline.x;
-						var offfy = (fillFrame.sourceSize.y - frame.sourceSize.y) * __component.scaleY + __outline.y;
-
-						frameOffset.x += offfx;
-						frameOffset.y += offfy;
-
-						if (isGraphicsShader)
-							shader.setCamSize(_frame.frame.x, _frame.frame.y, _frame.frame.width, _frame.frame.height);
-
-						drawLetter(camera);
-						frameOffset.x -= offfx;
-						frameOffset.y -= offfy;
-					}
-				}
-
-				frame = fillFrame;
 				if (isGraphicsShader)
 					shader.setCamSize(_frame.frame.x, _frame.frame.y, _frame.frame.width, _frame.frame.height);
 				drawLetter(camera);
@@ -335,7 +338,10 @@ class Alphabet extends FlxSprite {
 		_frame.prepareMatrix(_matrix, ANGLE_0, checkFlipX() != camera.flipX, checkFlipY() != camera.flipY);
 
 		_matrix.translate(_frame.frame.width * -0.5, _frame.frame.height * -0.5);
-		_matrix.scale(__component.scaleX, __component.scaleY);
+		if (__useDrawScale)
+			_matrix.scale(__drawScale.x, __drawScale.y);
+		else
+			_matrix.scale(__component.scaleX, __component.scaleY);
 		if(__component.shouldRotate)
 			_matrix.rotateWithTrig(__component.cos, __component.sin);
 		_matrix.translate(_frame.frame.width * 0.5, _frame.frame.height * 0.5);
@@ -409,7 +415,7 @@ class Alphabet extends FlxSprite {
 			}
 
 			var data = getData(letter);
-			__laneWidths[curLine] += (data != null) ? getAdvance(letter, getLetterAnim(letter, data, data.components[0], 0), data) : defaultAdvance;
+			__laneWidths[curLine] += (data != null) ? getAdvance(letter, getLetterAnim(letter, data, data.components[data.startIndex], data.startIndex), data) : defaultAdvance;
 			@:bypassAccessor textWidth = Math.max(textWidth, __laneWidths[curLine]);
 		}
 
@@ -495,7 +501,7 @@ class Alphabet extends FlxSprite {
 		return animation.getByName(name);
 	}
 
-	function getLetterOutline(char:String, component:AlphabetComponent, index:Int) {
+	/*function getLetterOutline(char:String, component:AlphabetComponent, index:Int) {
 		var name = char + "Outline" + Std.string(index);
 		if (failedOutlines.contains(name)) return null;
 		if (animation.exists(name)) return animation.getByName(name);
@@ -506,7 +512,7 @@ class Alphabet extends FlxSprite {
 			return null;
 		}
 		return animation.getByName(name);
-	}
+	}*/
 
 	function checkNode(node:Xml):Void {
 		switch (node.nodeName) {
@@ -544,7 +550,8 @@ class Alphabet extends FlxSprite {
 
 						hasColorMode: false,
 						colorMode: 0
-					}]
+					}],
+					startIndex: 0
 				}
 
 				defaults[idx] = res;
@@ -553,6 +560,8 @@ class Alphabet extends FlxSprite {
 					Logs.error("<composite> must have a char attribute", "Alphabet");
 					return;
 				}
+				var startIndex:Int = 0;
+				var componentsPushed:Int = 0;
 				var char = node.get("char");
 				var advance:Float = Std.parseFloat(node.get("advance"));
 				var components:Array<AlphabetComponent> = [];
@@ -569,16 +578,30 @@ class Alphabet extends FlxSprite {
 
 					var xOff:Float = -Std.parseFloat(component.get("x")).getDefaultFloat(0.0);
 					var yOff:Float = Std.parseFloat(component.get("y")).getDefaultFloat(0.0);
+					var xScale:Float = Std.parseFloat(component.get("scaleX")).getDefaultFloat(1.0);
+					var yScale:Float = Std.parseFloat(component.get("scaleY")).getDefaultFloat(1.0);
 
 					var colorMode = ["tint", "offsets", "none"].indexOf(component.get("colorMode"));
 
-					var outline:AlphabetOutline = null;
 					if (component.get("hasOutline") == "true") {
-						outline = {
+						components.insert(startIndex, {
+							refIndex: componentsPushed,
 							anim: component.get("outline"),
-							x: Std.parseFloat(component.get("outlineX")).getDefaultFloat(0.0),
-							y: Std.parseFloat(component.get("outlineY")).getDefaultFloat(0.0)
-						}
+	
+							x: xOff + Std.parseFloat(component.get("outlineX")).getDefaultFloat(0.0) * xScale,
+							y: yOff + Std.parseFloat(component.get("outlineY")).getDefaultFloat(0.0) * yScale,
+							scaleX: xScale,
+							scaleY: yScale,
+	
+							shouldRotate: angle != 0,
+							angle: angle,
+							cos: angleCos,
+							sin: angleSin,
+	
+							hasColorMode: colorMode >= 0,
+							colorMode: colorMode,
+						});
+						++startIndex;
 					}
 
 					components.push({
@@ -586,8 +609,8 @@ class Alphabet extends FlxSprite {
 
 						x: xOff,
 						y: yOff,
-						scaleX: Std.parseFloat(component.get("scaleX")).getDefaultFloat(1.0),
-						scaleY: Std.parseFloat(component.get("scaleY")).getDefaultFloat(1.0),
+						scaleX: xScale,
+						scaleY: yScale,
 
 						shouldRotate: angle != 0,
 						angle: angle,
@@ -596,14 +619,15 @@ class Alphabet extends FlxSprite {
 
 						hasColorMode: colorMode >= 0,
 						colorMode: colorMode,
-						outline: outline
 					});
+					++componentsPushed;
 				}
 				letterData.set(char, {
 					isDefault: false,
 					advance: advance,
 					advanceEmpty: Math.isNaN(advance),
-					components: components
+					components: components,
+					startIndex: startIndex
 				});
 			case "anim":
 				if(!node.exists("char")) {
@@ -619,30 +643,22 @@ class Alphabet extends FlxSprite {
 
 				var xOff:Float = -Std.parseFloat(node.get("x")).getDefaultFloat(0.0);
 				var yOff:Float = Std.parseFloat(node.get("y")).getDefaultFloat(0.0);
+				var xScale:Float = Std.parseFloat(node.get("scaleX")).getDefaultFloat(1.0);
+				var yScale:Float = Std.parseFloat(node.get("scaleY")).getDefaultFloat(1.0);
 				var advance:Float = Std.parseFloat(node.get("advance"));
 
 				var colorMode = ["tint", "offsets", "none"].indexOf(node.get("colorMode"));
 
-				var outline:AlphabetOutline = null;
+				var components:Array<AlphabetComponent> = [];
 				if (node.get("hasOutline") == "true") {
-					outline = {
+					components.insert(0, {
+						refIndex: 0,
 						anim: node.get("outline"),
-						x: Std.parseFloat(node.get("outlineX")).getDefaultFloat(0.0),
-						y: Std.parseFloat(node.get("outlineY")).getDefaultFloat(0.0)
-					}
-				}
 
-				letterData.set(char, {
-					isDefault: false,
-					advance: advance,
-					advanceEmpty: Math.isNaN(advance),
-					components: [{
-						anim: node.firstChild().nodeValue,
-
-						x: xOff,
-						y: yOff,
-						scaleX: Std.parseFloat(node.get("scaleX")).getDefaultFloat(1.0),
-						scaleY: Std.parseFloat(node.get("scaleY")).getDefaultFloat(1.0),
+						x: xOff + Std.parseFloat(node.get("outlineX")).getDefaultFloat(0.0) * xScale,
+						y: yOff + Std.parseFloat(node.get("outlineY")).getDefaultFloat(0.0) * yScale,
+						scaleX: xScale,
+						scaleY: yScale,
 
 						shouldRotate: angle != 0,
 						angle: angle,
@@ -651,8 +667,31 @@ class Alphabet extends FlxSprite {
 
 						hasColorMode: colorMode >= 0,
 						colorMode: colorMode,
-						outline: outline
-					}]
+					});
+				}
+
+				components.push({
+					anim: node.firstChild().nodeValue,
+
+					x: xOff,
+					y: yOff,
+					scaleX: xScale,
+					scaleY: yScale,
+
+					shouldRotate: angle != 0,
+					angle: angle,
+					cos: angleCos,
+					sin: angleSin,
+
+					hasColorMode: colorMode >= 0,
+					colorMode: colorMode,
+				});
+				letterData.set(char, {
+					isDefault: false,
+					advance: advance,
+					advanceEmpty: Math.isNaN(advance),
+					components: components,
+					startIndex: (node.get("hasOutline") == "true") ? 1 : 0
 				});
 			case "languageSection": // used to only parse characters if a specific language is selected
 				if(!node.exists("langs")) {

@@ -22,11 +22,11 @@ class Charter extends UIState {
 	static var __diff:String;
 	static var __reload:Bool;
 
-	var chart(get, null):ChartData;
+	var chart(get, never):ChartData;
 	private function get_chart()
 		return PlayState.SONG;
 
-	public static var instance(get, null):Charter;
+	public static var instance(get, never):Charter;
 
 	private static inline function get_instance()
 		return FlxG.state is Charter ? cast FlxG.state : null;

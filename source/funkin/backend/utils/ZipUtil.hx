@@ -218,7 +218,7 @@ class ZipProgress {
 	public var curFile:Int = 0;
 	public var fileCount:Int = 0;
 	public var done:Bool = false;
-	public var percentage(get, null):Float;
+	public var percentage(get, never):Float;
 
 	private function get_percentage() {
 		return fileCount <= 0 ? 0 : curFile / fileCount;

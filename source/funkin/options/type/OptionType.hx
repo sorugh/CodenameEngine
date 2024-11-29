@@ -4,7 +4,7 @@ import flixel.group.FlxSpriteGroup;
 import funkin.backend.system.Controls;
 
 class OptionType extends FlxSpriteGroup {
-	public var controls(get, null):Controls;
+	public var controls(get, never):Controls;
 	public var selected:Bool = false;
 	public var desc:String;
 

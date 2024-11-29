@@ -189,11 +189,11 @@ class PlayState extends MusicBeatState
 	/**
 	 * Player strums.
 	 */
-	public var playerStrums(get, null):StrumLine;
+	public var playerStrums(get, set):StrumLine;
 	/**
 	 * CPU strums.
 	 */
-	public var cpuStrums(get, null):StrumLine;
+	public var cpuStrums(get, set):StrumLine;
 	/**
 	 * Shortcut to `playerStrums`.
 	 */
@@ -360,7 +360,7 @@ class PlayState extends MusicBeatState
 	/**
 	 * Accuracy for the current week
 	 */
-	public static var campaignAccuracy(get, null):Float;
+	public static var campaignAccuracy(get, never):Float;
 
 	public static var campaignAccuracyTotal:Float = 0;
 	public static var campaignAccuracyCount:Float = 0;
@@ -1943,8 +1943,12 @@ class PlayState extends MusicBeatState
 	}
 	private inline function get_cpuStrums():StrumLine
 		return strumLines.members[0];
+	private inline function set_cpuStrums(v:StrumLine):StrumLine
+		return strumLines.members[0] = v;
 	private inline function get_playerStrums():StrumLine
 		return strumLines.members[1];
+	private inline function set_playerStrums(v:StrumLine):StrumLine
+		return strumLines.members[1] = v;
 	private inline function get_gfSpeed():Int
 		return (strumLines.members[2] != null && strumLines.members[2].characters[0] != null) ? strumLines.members[2].characters[0].beatInterval : 1;
 	private inline function set_gfSpeed(v:Int):Int {

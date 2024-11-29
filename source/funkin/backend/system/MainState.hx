@@ -66,12 +66,11 @@ class MainState extends FlxState {
 		if(Framerate.isLoaded)
 			Framerate.instance.reload();
 
-		if (betaWarningShown)
+		if (Flags.DISABLE_BETA_WARNING_SCREEN || betaWarningShown)
 			FlxG.switchState(new TitleState());
-		else {
+		else
 			FlxG.switchState(new BetaWarningState());
-			betaWarningShown = true;
-		}
+		betaWarningShown = true;
 
 		#if sys
 		CoolUtil.safeAddAttributes('./.temp/', NativeAPI.FileAttribute.HIDDEN);

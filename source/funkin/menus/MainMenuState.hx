@@ -25,7 +25,7 @@ class MainMenuState extends MusicBeatState
 	var camFollow:FlxObject;
 	var versionText:FunkinText;
 
-	public var canAccessDebugMenus:Bool = Flags.DEFAULT_CAN_ACCESS_DEBUG_MENUS;
+	public var canAccessDebugMenus:Bool = !Flags.DISABLE_EDITORS;
 
 	override function create()
 	{

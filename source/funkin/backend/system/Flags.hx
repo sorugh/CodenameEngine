@@ -99,7 +99,6 @@ class Flags {
 	public static var DEFAULT_CUTSCENE_PAUSE_ITEMS:Array<String> = ['Resume Cutscene', 'Skip Cutscene', 'Restart Cutscene', 'Exit to menu'];
 	public static var DEFAULT_GITAROO:Bool = true;
 	public static var GITAROO_CHANCE:Float = 0.1;
-	public static var DEFAULT_CAN_ACCESS_DEBUG_MENUS:Bool = true;
 	public static var DEFAULT_MUTE_VOCALS_ON_MISS:Bool = true;
 
 	public static var DEFAULT_MAX_HEALTH:Float = 2.0;
@@ -132,6 +131,10 @@ class Flags {
 
 	public static var UNDO_PREFIX:String = "* ";
 	public static var JSON_PRETTY_PRINT:String = "\t";
+
+	public static var DISABLE_EDITORS:Bool = false;
+	public static var DISABLE_BETA_WARNING_SCREEN:Bool = false;
+	public static var DISABLE_TRANSITIONS:Bool = false;
 	// -- End of Codename's Default Flags --
 
 	/**

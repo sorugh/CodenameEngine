@@ -61,6 +61,7 @@ class CharterStrumlineScreen extends UISubstateWindow {
 
 		FlxG.sound.music.pause();
 		Charter.instance.vocals.pause();
+		for (strumLine in Charter.instance.strumLines.members) strumLine.vocals.pause();
 
 		super.create();
 

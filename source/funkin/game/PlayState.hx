@@ -215,7 +215,7 @@ class PlayState extends MusicBeatState
 	/**
 	 * Whenever the player can press 7, 8 or 9 to access the debug menus.
 	 */
-	public var canAccessDebugMenus:Bool = Flags.DEFAULT_CAN_ACCESS_DEBUG_MENUS;
+	public var canAccessDebugMenus:Bool = !Flags.DISABLE_EDITORS;
 	/**
 	 * Whether or not to show the secret gitaroo pause.
 	 */
@@ -716,7 +716,7 @@ class PlayState extends MusicBeatState
 				startingPos,
 				strumLine.strumScale == null ? 1 : strumLine.strumScale,
 				strumLine.type == 2 || (!coopMode && !((strumLine.type == 1 && !opponentMode) || (strumLine.type == 0 && opponentMode))),
-				strumLine.type != 1, coopMode ? (strumLine.type == 1 ? controlsP1 : controlsP2) : controls,
+				strumLine.type != 1, coopMode ? ((strumLine.type == 1) != opponentMode ? controlsP1 : controlsP2) : controls,
 				strumLine.vocalsSuffix
 			);
 			strLine.cameras = [camHUD];
@@ -1306,14 +1306,14 @@ class PlayState extends MusicBeatState
 			if (chartingMode && FlxG.keys.justPressed.SEVEN) {
 				FlxG.switchState(new funkin.editors.charter.Charter(SONG.meta.name, difficulty, false));
 			}
-			if (FlxG.keys.justPressed.F5) {
+			/*if (FlxG.keys.justPressed.F5) {
 				Logs.warn('Reloading scripts...', YELLOW, "PlayState");
 				scripts.reload();
 				Logs.warn('Song scripts successfully reloaded.', GREEN, "PlayState");
-			}
+			}*/
 		}
 
-        if (doIconBop) {
+		if (doIconBop) {
 			var iconLerp = Flags.ICON_LERP;
 			iconP1.scale.set(lerp(iconP1.scale.x, 1, iconLerp), lerp(iconP1.scale.y, 1, iconLerp));
 			iconP2.scale.set(lerp(iconP2.scale.x, 1, iconLerp), lerp(iconP2.scale.y, 1, iconLerp));
@@ -1876,7 +1876,7 @@ class PlayState extends MusicBeatState
 			camHUD.zoom += Flags.HUD_BOP_STRENGTH * camZoomingStrength;
 		}
 
-        if (doIconBop)
+		if (doIconBop)
 		{
 			var iconScale = Flags.BOP_ICON_SCALE;
 			iconP1.scale.set(iconScale, iconScale);

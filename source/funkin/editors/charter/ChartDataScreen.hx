@@ -23,6 +23,7 @@ class ChartDataScreen extends UISubstateWindow {
 	public override function create() {
 		FlxG.sound.music.pause();
 		Charter.instance.vocals.pause();
+		for (strumLine in Charter.instance.strumLines.members) strumLine.vocals.pause();
 
 		winTitle = TU.translate("chartDataScreen.title");
 		winWidth = 420; winHeight = 230; // guys look, the funny numbers!

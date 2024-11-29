@@ -161,10 +161,12 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 		super.createPost();
 		persistentUpdate = true;
 		call("postCreate");
-		if (!skipTransIn)
-			startTransition(null);
-		skipTransIn = false;
-		skipTransOut = false;
+		if(!Flags.DISABLE_TRANSITIONS) {
+			if (!skipTransIn)
+				startTransition(null);
+			skipTransIn = false;
+			skipTransOut = false;
+		}
 	}
 
 	public function startTransition(?newState:FlxState, skipSubStates:Bool = false):Bool {
@@ -281,6 +283,9 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 		var e = event("onStateSwitch", EventManager.get(StateEvent).recycle(nextState));
 		if (e.cancelled)
 			return false;
+
+		if(Flags.DISABLE_TRANSITIONS)
+			return true;
 
 		if (skipTransOut || (subState is MusicBeatTransition && cast(subState, MusicBeatTransition).newState != null))
 			return true;

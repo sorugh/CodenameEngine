@@ -25,7 +25,7 @@ class MainMenuState extends MusicBeatState
 	var camFollow:FlxObject;
 	var versionText:FunkinText;
 
-	public var canAccessDebugMenus:Bool = Flags.DEFAULT_CAN_ACCESS_DEBUG_MENUS;
+	public var canAccessDebugMenus:Bool = !Flags.DISABLE_EDITORS;
 
 	override function create()
 	{
@@ -111,11 +111,12 @@ class MainMenuState extends MusicBeatState
 				*/
 			}
 
-			if (controls.UP_P)
-				changeItem(-1);
+			var upP = controls.UP_P;
+			var downP = controls.DOWN_P;
+			var scroll = FlxG.mouse.wheel;
 
-			if (controls.DOWN_P)
-				changeItem(1);
+			if (upP || downP || scroll != 0)  // like this we wont break mods that expect a 0 change event when calling sometimes  - Nex
+				changeItem((upP ? -1 : 0) + (downP ? 1 : 0) - scroll);
 
 			if (controls.BACK)
 				FlxG.switchState(new TitleState());
@@ -129,9 +130,7 @@ class MainMenuState extends MusicBeatState
 			#end
 
 			if (controls.ACCEPT)
-			{
 				selectItem();
-			}
 		}
 
 		super.update(elapsed);

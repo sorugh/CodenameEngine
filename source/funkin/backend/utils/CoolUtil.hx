@@ -449,7 +449,7 @@ class CoolUtil
 	 * @param Looped Whenever the music loops (true)
 	 * @param Group A group that this music belongs to (default)
 	 */
-	@:noUsing public static function playMusic(path:String, Persist:Bool = false, Volume:Int = 1, Looped:Bool = true, DefaultBPM:Float = 102, ?Group:FlxSoundGroup) {
+	@:noUsing public static function playMusic(path:String, Persist:Bool = false, Volume:Float = 1, Looped:Bool = true, DefaultBPM:Float = 102, ?Group:FlxSoundGroup) {
 		Conductor.reset();
 		FlxG.sound.playMusic(path, Volume, Looped, Group);
 		if (FlxG.sound.music != null) {

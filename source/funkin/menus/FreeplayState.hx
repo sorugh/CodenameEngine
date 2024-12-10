@@ -14,7 +14,7 @@ using StringTools;
 class FreeplayState extends MusicBeatState
 {
 	/**
-	 * Array containing all of the songs metadatas
+	 * Array containing all of the songs' metadata.
 	 */
 	public var songs:Array<ChartMetaData> = [];
 
@@ -144,7 +144,7 @@ class FreeplayState extends MusicBeatState
 			add(icon);
 
 			// songText.x += 40;
-			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
+			// DON'T PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
 			// songText.screenCenter(X);
 		}
 

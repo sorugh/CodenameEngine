@@ -117,7 +117,7 @@ class NoteGroup extends FlxTypedGroup<Note> {
 		if (index < 0)
 			return null;
 
-		// doesnt prevent looping from breaking
+		// doesn't prevent looping from breaking
 		if (Splice && __currentlyLooping && i >= index)
 			i++;
 

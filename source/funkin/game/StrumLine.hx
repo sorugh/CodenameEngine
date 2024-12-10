@@ -71,7 +71,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 	 */
 	public var animSuffix(default, set):String = "";
 	/**
-	 * TODO: Write documention about this being a variable that can help when making multi key
+	 * TODO: Write documentation about this being a variable that can help when making multi key
 	 */
 	public var strumAnimPrefix = ["left", "down", "up", "right"];
 	/**
@@ -153,7 +153,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		if(scrollSpeed == null) if (PlayState.instance != null) scrollSpeed = PlayState.instance.scrollSpeed;
 		if(scrollSpeed == null) scrollSpeed = 1;
 
-		// TODO: Make this work by accounting zoom and scrollspeed changes  - Nex
+		// TODO: Make this work by accounting zoom and scroll speed changes  - Nex
 		/*var limit = FlxG.height / 0.45;
 		notes.limit = limit / scrollSpeed;
 			OR

@@ -55,7 +55,7 @@ class Chart {
 	}
 
 	public static function detectChartFormat(data:Dynamic):ChartFormat {
-		var __temp:Dynamic;  // imma reuse this var so the program doesnt have to get values multiple times  - Nex
+		var __temp:Dynamic;  // imma reuse this var so the program doesn't have to get values multiple times  - Nex
 
 		if ((__temp = data.codenameChart) == true || __temp == "true")
 			return CODENAME;

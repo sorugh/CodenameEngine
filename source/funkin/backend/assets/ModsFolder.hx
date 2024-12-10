@@ -42,8 +42,9 @@ class ModsFolder {
 	 * Whenever its the first time mods has been reloaded.
 	 */
 	private static var __firstTime:Bool = true;
+
 	/**
-	 * Initialises `mods` folder.
+	 * Initializes `mods` folder.
 	 */
 	public static function init() {
 		if(!getModsList().contains(Options.lastLoadedMod))

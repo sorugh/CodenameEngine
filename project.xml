@@ -133,7 +133,7 @@
 	<!-- Comment this out to disable support for custom ndlls. !-->
 	<haxedef name="NDLLS_SUPPORTED" unless="web || iphonesim || hl" />
 
-	<!-- Comment this out to disable support for Away3D Flixel Intergration (reduces compile times) !-->
+	<!-- Comment this out to disable support for Away3D Flixel Integration (reduces compile times) !-->
 	<define name="THREE_D_SUPPORT" />
 
 	<!-- Comment this out to disable support for Funkin Audio Visualizer (reduces compile times) !-->

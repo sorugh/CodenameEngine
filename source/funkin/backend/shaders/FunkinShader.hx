@@ -532,7 +532,7 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 
 		// cant do "field is ShaderInput" because ShaderInput has the @:generic metadata
 		// aka instead of ShaderInput<Float> it gets built as ShaderInput_Float
-		// this should be fine tho because we check the class, and the fields dont vary based on the type
+		// this should be fine tho because we check the class, and the fields don't vary based on the type
 
 		// thanks for looking in the code cne fans :D!! -lunar
 

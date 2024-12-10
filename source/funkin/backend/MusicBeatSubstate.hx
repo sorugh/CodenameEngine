@@ -17,7 +17,7 @@ class MusicBeatSubstate extends FlxSubState implements IBeatReceiver
 	private var lastStep:Float = 0;
 
 	/**
-	 * Whether this specifc substate can open custom transitions
+	 * Whether this specific substate can open custom transitions
 	 */
 	public var canOpenCustomTransition:Bool = false;
 	/**

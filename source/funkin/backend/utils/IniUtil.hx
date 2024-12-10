@@ -1,7 +1,7 @@
 package funkin.backend.utils;
 
 /**
- * DOESNT SUPPORT CATEGORIES YET!!
+ * DOESN'T SUPPORT CATEGORIES YET!!
  */
 class IniUtil {
 	public static inline function parseAsset(assetPath:String, ?defaultVariables:Map<String, String>)

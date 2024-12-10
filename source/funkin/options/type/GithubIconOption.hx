@@ -49,7 +49,7 @@ class GithubUserIcon extends FlxSprite
 	}
 
 	final mutex = new sys.thread.Mutex();
-	override function drawComplex(camera:FlxCamera):Void {  // Making the image downlaod only if the player actually sees it on the screeeeen  - Nex
+	override function drawComplex(camera:FlxCamera):Void {  // Making the image download only if the player actually sees it on the screen  - Nex
 		if(waitUntilLoad <= 0) {
 			waitUntilLoad = null;
 			Main.execAsync(function() {

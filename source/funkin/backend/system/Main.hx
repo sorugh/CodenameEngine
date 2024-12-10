@@ -202,8 +202,8 @@ class Main extends Sprite
 	}
 
 	private static function onStateSwitchPost() {
-		// manual asset clearing since base openfl one doesnt clear lime one
-		// doesnt clear bitmaps since flixel fork does it auto
+		// manual asset clearing since base openfl one does'nt clear lime one
+		// does'nt clear bitmaps since flixel fork does it auto
 
 		@:privateAccess {
 			// clear uint8 pools

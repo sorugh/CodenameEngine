@@ -49,7 +49,8 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 	public var globalCurFrame(get, set):Int;
 
 	/**
-	 * ODD interval -> asynced; EVEN interval -> synced
+	 * ODD interval -> not aligned to beats
+	 * EVEN interval -> aligned to beats
 	 */
 	public var beatInterval(default, set):Int = 2;
 	public var beatOffset:Int = 0;

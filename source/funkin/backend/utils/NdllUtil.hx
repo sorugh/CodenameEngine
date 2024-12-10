@@ -38,7 +38,7 @@ class NdllUtil {
 		return Reflect.makeVarArgs(function(a:Array<Dynamic>) {
 			// This generates horrific code
 			return funkin.backend.system.macros.Utils.generateReflectionLike(25, "func", "a");
-			//return Reflect.callMethod(null, func, a); // wouldnt work for some reason, maybe cause like c++ functions doesnt have reflection enabled
+			//return Reflect.callMethod(null, func, a); // wouldn't work for some reason, maybe cause like c++ functions doesn't have reflection enabled
 		});
 		#else
 		Logs.trace('NDLLs are not supported on this platform.', WARNING);

@@ -106,7 +106,7 @@ class PsychParser {
 						var eventStep:Float = Conductor.getStepForTime(event.time);
 						psychEvents.push([
 							"Change Scroll Speed",
-							FlxMath.roundDecimal(event.params[1]/chart.scrollSpeed, 2), // SCROLL SPEED MULTIPLER
+							FlxMath.roundDecimal(event.params[1]/chart.scrollSpeed, 2), // SCROLL SPEED MULTIPLIER
 							FlxMath.roundDecimal( // TIME
 								event.params[0] ? // IS TWEENED?
 								(Conductor.getTimeForStep(eventStep+event.params[2]) - Conductor.getTimeForStep(eventStep))/1000

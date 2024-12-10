@@ -185,7 +185,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 
 		setStagesSprites(stageScript);
 
-		// i know this for gets run twice under, but its better like this in case a script modifies the short lived ones, i dont wanna save them in an array; more dynamic like this  - Nex
+		// i know this for gets run twice under, but its better like this in case a script modifies the short lived ones, i don't wanna save them in an array; more dynamic like this  - Nex
 		for (info in xmlImportedScripts) if (info.importStageSprites) {
 			var script = info.getScript();
 			if (script != null) setStagesSprites(script);

@@ -307,7 +307,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	}
 
 	/**
-	 * Loads the code from a string, doesnt really work after the script has been loaded
+	 * Loads the code from a string, doesn't really work after the script has been loaded
 	 * @param code The code.
 	 */
 	public function loadFromString(code:String) {

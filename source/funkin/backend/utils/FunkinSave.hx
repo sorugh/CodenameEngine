@@ -32,7 +32,7 @@ class FunkinSave {
 
 		if (!__eventAdded) {
 			Lib.application.onExit.add(function(i:Int) {
-				trace("Saving savedata...");
+				trace("Saving save data...");
 				flush();
 			});
 			__eventAdded = true;

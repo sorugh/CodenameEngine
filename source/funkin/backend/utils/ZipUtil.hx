@@ -21,13 +21,13 @@ import sys.thread.Thread;
 using StringTools;
 
 // import ZipUtils; ZipUtils.uncompressZip(ZipUtils.openZip("E:\\Desktop\\test\\termination lua.ycemod"), "E:\\Desktop\\test\\uncompressed\\");
-// import ZipUtils; var e = ZipUtils.createZipFile("gjnsdghs.ycemod"); ZipUtils.writeFolderToZip(e, "./mods/Friday Night Funkin'/", "Friday Night Funkin'/"); e.flush(); e.close();
+// import ZipUtils; var e = ZipUtils.createZipFile("file.ycemod"); ZipUtils.writeFolderToZip(e, "./mods/Friday Night Funkin'/", "Friday Night Funkin'/"); e.flush(); e.close();
 
 class ZipUtil {
 	public static var bannedNames:Array<String> = [".git", ".gitignore", ".github", ".vscode", ".gitattributes", "readme.txt"];
 
 	/**
-	 * [Description] Uncompresses `zip` into the `destFolder` folder
+	 * [Description] Decompresses a `zip` into the `destFolder` folder
 	 * @param zip
 	 * @param destFolder
 	 */

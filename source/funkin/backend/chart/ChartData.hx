@@ -44,7 +44,7 @@ typedef ChartStrumLine = {
 	var ?scrollSpeed:Float;
 	var ?vocalsSuffix:String;
 
-	var ?strumLinePos:Float; // Backwards compatability
+	var ?strumLinePos:Float; // Backwards compatibility
 }
 
 typedef ChartNote = {

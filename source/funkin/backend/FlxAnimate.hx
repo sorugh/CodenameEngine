@@ -28,7 +28,7 @@ class FlxAnimate extends flxanimate.FlxAnimate {
 					var angleOff = (frameOffsetAngle - angle) * FlxAngle.TO_RAD;
 					var cos = Math.cos(angleOff);
 					var sin = Math.sin(angleOff);
-					// cos doesnt need to be negated
+					// cos doesn't need to be negated
 					rMatrix.rotateWithTrig(cos, -sin);
 					rMatrix.translate(-frameOffset.x, -frameOffset.y);
 					rMatrix.rotateWithTrig(cos, sin);
@@ -72,7 +72,7 @@ class FlxAnimate extends flxanimate.FlxAnimate {
 			#end
 		}
 
-		// doesnt work, needs to be remade
+		// doesn't work, needs to be remade
 		// #if FLX_DEBUG
 		// if (FlxG.debugger.drawDebug)
 		// 	drawDebug();
@@ -81,7 +81,7 @@ class FlxAnimate extends flxanimate.FlxAnimate {
 
 	override function limbOnScreen(limb:FlxFrame, m:FlxMatrix, ?Camera:FlxCamera)
 	{
-		// TODO: ACTUAL OPTIMISATION
+		// TODO: ACTUAL OPTIMIZATION
 		return true;
 	}
 }

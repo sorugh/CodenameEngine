@@ -5,6 +5,10 @@ import funkin.backend.chart.FNFLegacyParser.SwagSection;
 import funkin.backend.chart.FNFLegacyParser.SwagSong;
 import funkin.backend.system.Conductor;
 
+/**
+ * Parser for Psych Charts.
+ * Both for pre-v1.0.0 and v1.0.0 charts.
+**/
 class PsychParser {
 	// Already parsed in sections
 	public static var ignoreEvents:Array<String> = [

@@ -3,6 +3,10 @@ package funkin.backend.chart;
 import funkin.backend.chart.ChartData.ChartEvent;
 import funkin.backend.system.Conductor;
 
+/**
+ * Legacy FNF chart parser.
+ * This is for charts that that were made before v0.5.0.
+**/
 class FNFLegacyParser {
 	public static function parse(data:Dynamic, result:ChartData) {
 		// base fnf chart parsing

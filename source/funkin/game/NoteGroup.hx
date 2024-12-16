@@ -3,6 +3,10 @@ package funkin.game;
 import flixel.util.FlxSort;
 import funkin.backend.system.Conductor;
 
+/**
+ * Group of notes, that handles updating and rendering only the visible notes.
+ * To only get the visible notes you gotta do `group.forEach()` or `group.forEachAlive()` instead of `group.members`.
+**/
 class NoteGroup extends FlxTypedGroup<Note> {
 	var __loopSprite:Note;
 	var i:Int = 0;
@@ -10,7 +14,7 @@ class NoteGroup extends FlxTypedGroup<Note> {
 	var __time:Float = -1.0;
 
 	/**
-	 * How many ms it should show a note before it should be hit
+	 * How many milliseconds it should show a note before it should be hit
 	 **/
 	public var limit:Float = Flags.DEFAULT_NOTE_MS_LIMIT;
 
@@ -22,11 +26,17 @@ class NoteGroup extends FlxTypedGroup<Note> {
 		length = len;
 	}
 
+	/**
+	 * Adds an array of notes to the group, and sorts them.
+	**/
 	public inline function addNotes(notes:Array<Note>) {
 		for(e in notes) add(e);
 		sortNotes();
 	}
 
+	/**
+	 * Sorts the notes in the group.
+	**/
 	public inline function sortNotes() {
 		sort(function(i, n1, n2) {
 			if (n1.strumTime == n2.strumTime)

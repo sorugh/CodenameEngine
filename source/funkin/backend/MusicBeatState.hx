@@ -13,6 +13,10 @@ import funkin.backend.system.framerate.Framerate;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.options.PlayerSettings;
 
+/**
+ * Base class for all the states.
+ * Handles the scripts, the transitions, and the beat and step events.
+**/
 class MusicBeatState extends FlxState implements IBeatReceiver
 {
 	private var lastBeat:Float = 0;

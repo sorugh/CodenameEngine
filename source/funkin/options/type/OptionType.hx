@@ -3,6 +3,10 @@ package funkin.options.type;
 import flixel.group.FlxSpriteGroup;
 import funkin.backend.system.Controls;
 
+/**
+ * Base class for all option types.
+ * Used in OptionsMenu.
+**/
 class OptionType extends FlxSpriteGroup {
 	public var controls(get, never):Controls;
 	public var selected:Bool = false;

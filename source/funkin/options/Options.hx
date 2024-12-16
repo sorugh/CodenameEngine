@@ -4,6 +4,10 @@ import flixel.input.keyboard.FlxKey;
 import flixel.util.FlxSave;
 import openfl.Lib;
 
+/**
+ * The save data of the engine.
+ * Mod save data is stored in `FlxG.save.data`.
+**/
 @:build(funkin.backend.system.macros.OptionsMacro.build())
 @:build(funkin.backend.system.macros.FunkinSaveMacro.build("__save", "__flush", "__load"))
 class Options

@@ -21,7 +21,7 @@ class Flags {
 	@:lazy public static var VERSION_MESSAGE:String = 'Codename Engine v${Application.current.meta.get('version')}';
 
 	public static var REPO_NAME:String = "CodenameEngine";
-	public static var REPO_OWNER:String = "FNF-CNE-Devs";
+	public static var REPO_OWNER:String = "CodenameCrew";
 	public static var REPO_URL:String = 'https://github.com/$REPO_OWNER/$REPO_NAME';
 
 	// make this empty once you guys are done with the project.

@@ -58,6 +58,7 @@ class MainState extends FlxState {
 
 		Flags.load();
 		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder); // Loads global.hx
+		MusicBeatTransition.script = "";
 		Main.refreshAssets();
 		DiscordUtil.init();
 		EventsData.reloadEvents();

@@ -11,8 +11,8 @@ Also, the command `.\cne test` uses the source assets folder instead of the expo
 
 ## Codename Engine
 
-Codename Engine is a new Friday Night Funkin' Engine aimed at simplifying modding, along with extensibility and ease of use.<br>
-### Before making issues or need help with something, check our website [HERE](https://fnf-cne-devs.github.io/) (it contains a wiki of how to mod with EXAMPLES, an api, lists of mods made with Codename Engine and more)!!!
+Codename Engine is a new Friday Night Funkin' Engine aimed at simplifying modding, along with extensiblity and ease of use.<br>
+### Before making issues or need help with something, check our website [HERE](https://codename-engine.com/) (it contains a wiki of how to mod with EXAMPLES, an api, lists of mods made with Codename Engine and more)!!!
 #### The Engine includes many new features, as seen [here](FEATURES.md)<br>
 #### Wanna see the new features added in the most recent update? Click [here](PATCHNOTES.md)<br>
 
@@ -69,8 +69,8 @@ If you don't have a github account please go onto https://fnf-cne-devs.github.io
   - Download and play the engine with its mods and modpacks
   - Mod and fork the engine (without using it for illicit purposes)
   - Contribute to the engine (for example through *Pull Requests*, *Issues*, etc)
-  - Create a sub engine with Codename Engine as **TEMPLATE** with **CREDITS** (for example leaving the *credits menu submenu with the GitHub contributors* and putting the *[main devs](https://github.com/FNF-CNE-Devs)* in a *README* specifying that it's a *sub engine from Codename Engine*)
-  - Release executable mods that use Codename Engine as source (Specifying that uses Codename Engine by for example the same way written above this)
+  - Create a sub engine with Codename Engine as **TEMPLATE** with **CREDITS** (for example leaving the *credits menu submenu with the GitHub contributors* and putting the *[main devs](https://github.com/CodenameCrew)* in a *README* specifying that it's a *sub engine from Codename Engine*)
+  - Release excutable mods that use Codename Engine as source (Specifing that uses Codename Engine by for example the same way written above this)
   - Release modpacks
 
   ### You can't:

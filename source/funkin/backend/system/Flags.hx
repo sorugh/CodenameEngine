@@ -135,6 +135,13 @@ class Flags {
 	public static var DISABLE_EDITORS:Bool = false;
 	public static var DISABLE_BETA_WARNING_SCREEN:Bool = false;
 	public static var DISABLE_TRANSITIONS:Bool = false;
+
+	@:also(funkin.backend.MusicBeatTransition.script)
+	public static var DEFAULT_TRANSITION_SCRIPT:String = "";
+	@:also(funkin.menus.PauseSubState.script)
+	public static var DEFAULT_PAUSE_SCRIPT:String = "";
+	@:also(funkin.game.GameOverSubstate.script)
+	public static var DEFAULT_GAMEOVER_SCRIPT:String = "";
 	// -- End of Codename's Default Flags --
 
 	/**

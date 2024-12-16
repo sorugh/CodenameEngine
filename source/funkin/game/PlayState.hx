@@ -586,8 +586,8 @@ class PlayState extends MusicBeatState
 		instance = this;
 		if (FlxG.sound.music != null) FlxG.sound.music.stop();
 
-		PauseSubState.script = "";
-		GameOverSubstate.script = "";
+		PauseSubState.script = Flags.DEFAULT_PAUSE_SCRIPT;
+		GameOverSubstate.script = Flags.DEFAULT_GAMEOVER_SCRIPT;
 		(scripts = new ScriptPack("PlayState")).setParent(this);
 
 		camGame = camera;

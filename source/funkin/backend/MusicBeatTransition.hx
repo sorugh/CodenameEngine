@@ -8,7 +8,7 @@ import funkin.backend.scripting.events.TransitionCreationEvent;
 import funkin.backend.utils.FunkinParentDisabler;
 
 class MusicBeatTransition extends MusicBeatSubstate {
-	public static var script:String = "";
+	public static var script:String = Flags.DEFAULT_TRANSITION_SCRIPT;
 	public var transitionScript:Script;
 
 	var nextFrameSkip:Bool = false;

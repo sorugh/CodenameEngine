@@ -24,7 +24,7 @@ class GameOverSubstate extends MusicBeatSubstate
 
 	var camFollow:FlxObject;
 
-	public static var script:String = "";
+	public static var script:String = Flags.DEFAULT_GAMEOVER_SCRIPT;
 
 	public var gameoverScript:Script;
 	public var game:PlayState = PlayState.instance; // shortcut

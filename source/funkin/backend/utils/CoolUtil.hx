@@ -40,9 +40,15 @@ import openfl.geom.ColorTransform;
 
 using StringTools;
 
+/**
+ * Various utilities, that have no specific Util class.
+**/
 @:allow(funkin.game.PlayState)
 class CoolUtil
 {
+	/**
+	 * Gets the last exception stack. Useful for debugging.
+	 */
 	public static function getLastExceptionStack():String {
 		return CallStack.toString(CallStack.exceptionStack());
 	}
@@ -782,6 +788,15 @@ class CoolUtil
 		return r;
 	}
 
+	/**
+	 * Quantizes a value to a certain amount.
+	 * Example: `quantize(2.5543, 1)` will return `2.0`
+	 * Example: `quantize(2.5543, 10)` will return `2.5`
+	 * Example: `quantize(2.5543, 100)` will return `2.55`
+	 *
+	 * @param Value Value to quantize
+	 * @param Quant Quantization amount
+	 */
 	@:noUsing public static inline function quantize(Value:Float, Quant:Float) {
 		return Math.fround(Value * Quant) / Quant;
 	}
@@ -799,9 +814,19 @@ class CoolUtil
 		frontEnd.music = music;
 	}
 
+	/**
+	 * Gets the FlxEase from a string.
+	 * @param mainEase Main ease
+	 * @param suffix Suffix (Ignored if `mainEase` is `linear`)
+	 */
 	@:noUsing public static inline function flxeaseFromString(mainEase:String, suffix:String)
 		return Reflect.field(FlxEase, mainEase + (mainEase == "linear" ? "" : suffix));
 
+	/**
+	 * Sorts an array alphabetically.
+	 * @param array Array to sort
+	 * @param lowercase Whenever the array should be sorted in lowercase
+	 */
 	public static function sortAlphabetically(array:Array<String>, ?lowercase:Bool=false) {
 		array.sort(function(a1, a2):Int {
 			if(lowercase) {
@@ -815,6 +840,11 @@ class CoolUtil
 		return array;
 	}
 
+	/**
+	 * Pushes an element to an array, but only if it doesn't already exist.
+	 * @param array Array to push to
+	 * @param element Element to push
+	 */
 	public static inline function pushOnce<T>(array:Array<T>, element:T) {
 		#if (haxe >= "4.0.0")
 		if (!array.contains(element))
@@ -826,6 +856,11 @@ class CoolUtil
 	}
 
 	#if !(haxe >= "4.0.0")
+	/**
+	 * Checks if an array contains an element.
+	 * @param array Array to check
+	 * @param element Element to check
+	 */
 	public static inline function contains<T>(array:Array<T>, element:T) {
 		return array.indexOf(element) != -1;
 	}
@@ -927,6 +962,12 @@ class CoolUtil
 		return result.join(separator);
 	}
 
+	/**
+	 * Deep flattens an array.
+	 * Example: `deepFlatten([1, [2, 3], 4])` will return `[1, 2, 3, 4]`
+	 * @param arr Array to flatten
+	 * @param result Result array
+	 */
 	public static function deepFlatten(arr:Array<Dynamic>, ?result:Array<Dynamic>):Array<Dynamic> {
 		if(arr == null) return [];
 		if(result == null) result = [];
@@ -942,7 +983,7 @@ class CoolUtil
 }
 
 /**
- * SFXs to play using `playMenuSFX`.
+ * SFXs to play using `CoolUtil.playMenuSFX`.
  */
 enum abstract CoolSfx(Int) from Int {
 	var SCROLL = 0;

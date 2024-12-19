@@ -2,6 +2,7 @@ package funkin.menus.credits;
 
 import funkin.options.OptionsScreen;
 import funkin.options.TreeMenu;
+import funkin.backend.system.github.GitHubContributor.CreditsGitHubContributor;
 import funkin.options.type.*;
 import haxe.xml.Access;
 import flixel.util.FlxColor;
@@ -64,13 +65,14 @@ class CreditsMain extends TreeMenu {
 				}
 
 				var username = node.getAtt("user");
-				var user = {  // Kind of forcing
+				var user:CreditsGitHubContributor = {  // Kind of forcing
 					login: username,
 					html_url: 'https://github.com/$username',
 					avatar_url: 'https://github.com/$username.png'
 				};
 				var opt:GithubIconOption = new GithubIconOption(user, desc, null,
-					node.has.customName ? node.att.customName : null, node.has.size ? Std.parseInt(node.att.size) : 96,
+					node.has.customName ? node.att.customName : null,
+					node.has.size ? Std.parseInt(node.att.size) : 96,
 					node.has.portrait ? node.att.portrait.toLowerCase() == "false" ? false : true : true
 				);
 				if (node.has.color)

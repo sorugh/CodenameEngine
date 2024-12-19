@@ -42,15 +42,6 @@ class FunkinSaveMacro {
 		/**
 		 * SAVE FUNCTION
 		 */
-		var saveFuncBlocks:Array<Expr> = [for(f in fieldNames)
-			macro ${{
-				pos: Context.currentPos(),
-				expr: EConst(CIdent(saveFieldName))
-			}}.data.$f = ${{
-				pos: Context.currentPos(),
-				expr: EConst(CIdent(f))
-			}}
-		];
 		var saveFuncBlocks:Array<Expr> = [for(f in fieldNames) macro $i{saveFieldName}.data.$f = $i{f}];
 
 		saveFuncBlocks.push(macro $i{saveFieldName}.flush());

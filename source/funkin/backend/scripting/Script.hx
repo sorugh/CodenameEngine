@@ -108,7 +108,6 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	**/
 	public static function getDefaultImportRedirects():Map<String, String> {
 		var redirects:Map<String, String> = [
-			"funkin.savedata.FunkinSave" => "funkin.backend.utils.FunkinSave"
 		];
 
 		final events = "funkin.backend.scripting.events.";

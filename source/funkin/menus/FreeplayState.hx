@@ -7,7 +7,7 @@ import funkin.backend.chart.ChartData.ChartMetaData;
 import funkin.backend.scripting.events.menu.MenuChangeEvent;
 import funkin.backend.scripting.events.menu.freeplay.*;
 import funkin.game.HealthIcon;
-import funkin.backend.utils.FunkinSave;
+import funkin.savedata.FunkinSave;
 
 using StringTools;
 

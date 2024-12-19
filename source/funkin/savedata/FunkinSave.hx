@@ -1,4 +1,4 @@
-package funkin.backend.utils;
+package funkin.savedata;
 
 import flixel.util.FlxSave;
 import lime.app.Application;

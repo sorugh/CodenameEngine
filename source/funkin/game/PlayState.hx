@@ -30,7 +30,7 @@ import funkin.game.SplashHandler;
 import funkin.game.cutscenes.*;
 import funkin.menus.*;
 import funkin.menus.StoryMenuState.WeekData;
-import funkin.backend.utils.FunkinSave;
+import funkin.savedata.FunkinSave;
 import haxe.io.Path;
 
 using StringTools;

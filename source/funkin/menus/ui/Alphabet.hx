@@ -119,7 +119,7 @@ class Alphabet extends FlxSprite {
 	var __renderData:AlphabetRenderData;
 	var __component:AlphabetComponent;
 	var __useDrawScale:Bool = false;
-	var __drawScale:FlxPoint = FlxPoint.get(1, 1); 
+	var __drawScale:FlxPoint = FlxPoint.get(1, 1);
 
 	public var text(default, set):String = "";
 	@:isVar public var textWidth(get, set):Float;
@@ -296,7 +296,7 @@ class Alphabet extends FlxSprite {
 						(frame.sourceSize.y - refFrame.sourceSize.y)
 					);
 					var diffScale = (diff == (frame.sourceSize.x - refFrame.sourceSize.x)) ? __component.scaleX : __component.scaleY;
-					
+
 					__useDrawScale = true;
 					__drawScale.set(
 						(refFrame.sourceSize.x * __component.scaleX + diff * diffScale) / frame.sourceSize.x,
@@ -572,7 +572,7 @@ class Alphabet extends FlxSprite {
 				var components:Array<AlphabetComponent> = [];
 				for (component in node.elementsNamed("component")) {
 					if(!component.exists("anim")) {
-						Logs.error('Character $char: <component> must have a anim attribute", "Alphabet');
+						Logs.error('Character $char: <component> must have a anim attribute', "Alphabet");
 						return;
 					}
 
@@ -592,17 +592,17 @@ class Alphabet extends FlxSprite {
 						components.insert(startIndex, {
 							refIndex: componentsPushed,
 							anim: component.get("outline"),
-	
+
 							x: Std.parseFloat(component.get("outlineX")).getDefaultFloat(0.0),
 							y: Std.parseFloat(component.get("outlineY")).getDefaultFloat(0.0),
 							scaleX: xScale,
 							scaleY: yScale,
-	
+
 							shouldRotate: angle != 0,
 							angle: angle,
 							cos: angleCos,
 							sin: angleSin,
-	
+
 							hasColorMode: colorMode >= 0,
 							colorMode: colorMode,
 						});

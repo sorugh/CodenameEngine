@@ -47,10 +47,32 @@
 	<anim char="8">character-eight</anim>
 	<anim char="9">character-nine</anim>
 
-	<component-data name="diacritic-tilde" anim="diacritic-tilde-fill" outline="diacritic-tilde-outline"/>
-
 	<composite char="ẽ">
 		<component anim="character-e0" x="0" y="0"/>
-		<component anim="diacritic-tilde-fill" x="3" y="63" outline="diacritic-tilde-outline" outlineX="-1" hasOutline="true"/>
+		<component anim="diacritic-tilde-fill" x="3" y="73" outline="diacritic-tilde-outline" outlineX="-1" hasOutline="true"/>
+	</composite>
+	<composite char="ñ">
+		<component anim="character-n0" x="0" y="0"/>
+		<component anim="diacritic-tilde-fill" x="3" y="73" outline="diacritic-tilde-outline" outlineX="-1" hasOutline="true"/>
+	</composite>
+	<composite char="á">
+		<component anim="character-a0" x="0" y="0"/>
+		<component anim="diacritic-acute-fill" x="23" y="70" outline="diacritic-acute-outline" outlineX="-1" hasOutline="true"/>
+	</composite>
+	<composite char="é">
+		<component anim="character-e0" x="0" y="0"/>
+		<component anim="diacritic-acute-fill" x="15" y="70" outline="diacritic-acute-outline" outlineX="-1" hasOutline="true"/>
+	</composite>
+	<composite char="í">
+		<component anim="character-i0" x="0" y="0"/>
+		<component anim="diacritic-acute-fill" x="15" y="68" outline="diacritic-acute-outline" outlineX="-1" hasOutline="true"/>
+	</composite>
+	<composite char="ó">
+		<component anim="character-o0" x="0" y="0"/>
+		<component anim="diacritic-acute-fill" x="18" y="73" outline="diacritic-acute-outline" outlineX="-1" hasOutline="true"/>
+	</composite>
+	<composite char="ú">
+		<component anim="character-u0" x="0" y="0"/>
+		<component anim="diacritic-acute-fill" x="15" y="60" outline="diacritic-acute-outline" outlineX="-1" hasOutline="true"/>
 	</composite>
 </alphabetFont>

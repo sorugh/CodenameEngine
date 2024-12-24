@@ -113,6 +113,7 @@ enum abstract AlphabetRenderMode(ByteUInt) from ByteUInt to ByteUInt {
 	var MONOSPACE = 1;
 }
 
+@:allow(funkin.editors.alphabet.AlphabetEditor)
 class Alphabet extends FlxSprite {
 	public var effects:Array<RegionEffect> = [];
 	var __renderData:AlphabetRenderData;
@@ -461,6 +462,7 @@ class Alphabet extends FlxSprite {
 
 		if (data == null) {
 			failedLetters.push(char);
+			Logs.error('Character $char: Data not found.');
 			return null;
 		} else if (data.isDefault)
 			loaded[defaultsIndexOf(data)].push(char);
@@ -497,6 +499,8 @@ class Alphabet extends FlxSprite {
 		animation.addByPrefix(name, anim, fps);
 		if (!animation.exists(name)) {
 			failedLetters.push(char);
+			var traceIndex = (component.refIndex != null) ? 'Outline For Component Index ${component.refIndex}' : 'Component Index ${index - data.startIndex}';
+			Logs.error('Character $char: $traceIndex: Animation "$anim" not found.');
 			return null;
 		}
 		return animation.getByName(name);
@@ -568,7 +572,7 @@ class Alphabet extends FlxSprite {
 				var components:Array<AlphabetComponent> = [];
 				for (component in node.elementsNamed("component")) {
 					if(!component.exists("anim")) {
-						Logs.error("<component> must have a anim attribute", "Alphabet");
+						Logs.error('Character $char: <component> must have a anim attribute", "Alphabet');
 						return;
 					}
 
@@ -729,7 +733,7 @@ class Alphabet extends FlxSprite {
 			v[2] = [];
 			v;
 		}
-		failedLetters = [];
+		failedLetters = [" "];
 
 		defaultAdvance = Std.parseFloat(xml.get("advance")).getDefaultFloat(40.0);
 		lineGap = Std.parseFloat(xml.get("lineGap")).getDefaultFloat(75.0);

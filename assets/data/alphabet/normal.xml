@@ -11,19 +11,57 @@
 	<anim char="p" y="-15">p lowercase</anim>
 	<anim char="q" y="-15">q lowercase</anim>
 	<anim char="y" y="-15">y lowercase</anim>
-	<anim char="$">dollarsign</anim>
 	<anim char="&amp;">amp</anim>
 	<anim char="→" y="9">right arrow</anim>
 	<anim char="←" y="9">left arrow</anim>
 	<anim char="↓" y="5">down arrow</anim>
 	<anim char="↑" y="4">up arrow</anim>
+	<anim char="`" y="32" scaleY="0.5">comma</anim>
 	<anim char="," y="-9">comma</anim>
 	<anim char="'" y="28">comma</anim>
 	<anim char=".">period</anim>
+	<anim char="!">exclamation point</anim>
 	<anim char="?">question mark</anim>
+	<anim char="/">forward slash</anim>
 	<anim char="&#34;" y="22">start parentheses</anim>
 	<anim char="-" y="15">-</anim>
 	<anim char="^" y="28">^</anim>
 	<anim char="~" y="17">~</anim>
 	<anim char="=" y="13">=</anim>
+
+	<composite char="á">
+		<component anim="a lowercase0" x="0" y="0"/>
+		<component anim="comma" scaleY="0.5" x="7" y="35"/>
+	</composite>
+	<composite char="é">
+		<component anim="e lowercase0" x="0" y="0"/>
+		<component anim="comma" scaleY="0.5" x="7" y="35"/>
+	</composite>
+	<composite char="í">
+		<component anim="l lowercase0" x="0" y="-10" scaleY="0.5" angle="-2"/>
+		<component anim="comma" x="-7" y="25" scaleY="0.5" angle="-5"/>
+	</composite>
+	<composite char="ó">
+		<component anim="o lowercase0" x="0" y="0"/>
+		<component anim="comma" scaleY="0.5" x="7" y="28"/>
+	</composite>
+	<composite char="ú">
+		<component anim="u lowercase0" x="0" y="0"/>
+		<component anim="comma" scaleY="0.5" x="5" y="28"/>
+	</composite>
+
+	<composite char="å">
+		<component anim="a lowercase0" x="0" y="0"/>
+		<component anim="period" x="10" y="40"/>
+	</composite>
+	<composite char="ë">
+		<component anim="e lowercase0" x="0" y="0"/>
+		<component anim="period" x="0" y="40"/>
+		<component anim="period" x="20" y="40"/>
+	</composite>
+	<composite char="ö">
+		<component anim="o lowercase0" x="0" y="0"/>
+		<component anim="period" x="0" y="35"/>
+		<component anim="period" x="20" y="35"/>
+	</composite>
 </alphabetFont>

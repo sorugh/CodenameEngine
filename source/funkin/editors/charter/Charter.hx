@@ -550,7 +550,7 @@ class Charter extends UIState {
 			Framerate.memoryCounter.alpha = 0.4;
 			Framerate.codenameBuildField.alpha = 0.4;
 		}
-		updateDisplaySprites();
+		UIState.setResolutionAware();
 
 		// ! IF YOU EVER WANNA VIEW IN THE FUTURE, JUST USE A FLXSPRITE :D -lunar
 		/*var dataDisplay:FlxSprite = new FlxSprite().loadGraphic(waveformHandler.waveDatas.get("Voices.ogg"));
@@ -1355,7 +1355,10 @@ class Charter extends UIState {
 	function updateDisplaySprites() {
 		gridBackdrops.strumlinesAmount = strumLines.members.length;
 
-		charterBG.scale.set(1 / charterCamera.zoom, 1 / charterCamera.zoom);
+		charterBG.scale.set(
+			(1 / charterCamera.zoom) * (FlxG.width/charterBG.width),
+			(1 / charterCamera.zoom) * (FlxG.height/charterBG.height)
+		);
 
 		strumlineInfoBG.scale.set(FlxG.width / charterCamera.zoom, 1);
 		strumlineInfoBG.updateHitbox();
@@ -1367,6 +1370,24 @@ class Charter extends UIState {
 
 		strumlineAddButton.y = strumlineInfoBG.y;
 		strumlineLockButton.y = strumlineInfoBG.y;
+	}
+
+	public override function onResize(width:Int, height:Int) {
+		super.onResize(width, height);
+
+		if (width < FlxG.initialWidth || height < FlxG.initialHeight) {
+			width = FlxG.initialWidth; height = FlxG.initialHeight;
+		}
+
+		scrollBar.x = width - 20;
+		scrollBar.scale.y = Std.int(height - scrollBar.y);
+		scrollBar.updateHitbox();
+
+		songPosInfo.x = width - 30 - 400;
+		playBackSlider.x = width - 160 - 26 - 20;
+
+		updateDisplaySprites();
+		charterBG.screenCenter();
 	}
 
 	var zoom(default, set):Float = 0;

@@ -1381,8 +1381,6 @@ class Charter extends UIState {
 
 	public override function onResize(width:Int, height:Int) {
 		super.onResize(width, height);
-		trace(width,height);
-
 		if (!UIState.resolutionAware) return;
 
 		if (width < FlxG.initialWidth || height < FlxG.initialHeight) {

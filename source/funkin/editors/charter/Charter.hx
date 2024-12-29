@@ -550,7 +550,7 @@ class Charter extends UIState {
 			Framerate.memoryCounter.alpha = 0.4;
 			Framerate.codenameBuildField.alpha = 0.4;
 		}
-		
+
 		if (Options.editorsResizable)
 			UIState.setResolutionAware();
 
@@ -1357,9 +1357,14 @@ class Charter extends UIState {
 	function updateDisplaySprites() {
 		gridBackdrops.strumlinesAmount = strumLines.members.length;
 
+		var scaleX:Float = (FlxG.width/charterBG.width);
+		var scaleY:Float = (FlxG.height/charterBG.height);
+
+		var bgScale:Float = scaleX > scaleY ? scaleX : scaleY;
+
 		charterBG.scale.set(
-			(1 / charterCamera.zoom) * (FlxG.width/charterBG.width),
-			(1 / charterCamera.zoom) * (FlxG.height/charterBG.height)
+			(1 / charterCamera.zoom) * bgScale,
+			(1 / charterCamera.zoom) * bgScale
 		);
 
 		strumlineInfoBG.scale.set(FlxG.width / charterCamera.zoom, 1);
@@ -1376,6 +1381,7 @@ class Charter extends UIState {
 
 	public override function onResize(width:Int, height:Int) {
 		super.onResize(width, height);
+		trace(width,height);
 
 		if (!UIState.resolutionAware) return;
 

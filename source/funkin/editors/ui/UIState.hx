@@ -184,12 +184,4 @@ class UIState extends MusicBeatState {
 		resolutionAware = true;
 		FlxG.scaleMode = uiScaleMode;
 	}
-
-	public override function onResize(width:Int, height:Int) {
-		super.onResize(width, height);
-
-		if (!resolutionAware) return;
-
-		trace(width, height);
-	}
 }

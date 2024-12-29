@@ -550,7 +550,9 @@ class Charter extends UIState {
 			Framerate.memoryCounter.alpha = 0.4;
 			Framerate.codenameBuildField.alpha = 0.4;
 		}
-		UIState.setResolutionAware();
+		
+		if (Options.editorsResizable)
+			UIState.setResolutionAware();
 
 		// ! IF YOU EVER WANNA VIEW IN THE FUTURE, JUST USE A FLXSPRITE :D -lunar
 		/*var dataDisplay:FlxSprite = new FlxSprite().loadGraphic(waveformHandler.waveDatas.get("Voices.ogg"));
@@ -1374,6 +1376,8 @@ class Charter extends UIState {
 
 	public override function onResize(width:Int, height:Int) {
 		super.onResize(width, height);
+
+		if (!UIState.resolutionAware) return;
 
 		if (width < FlxG.initialWidth || height < FlxG.initialHeight) {
 			width = FlxG.initialWidth; height = FlxG.initialHeight;

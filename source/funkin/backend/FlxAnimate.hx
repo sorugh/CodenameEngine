@@ -3,15 +3,20 @@ package funkin.backend;
 import flixel.graphics.frames.FlxFrame;
 import flixel.math.FlxAngle;
 import flixel.math.FlxMatrix;
+import openfl.display.BlendMode;
 import openfl.geom.ColorTransform;
 
 class FlxAnimate extends flxanimate.FlxAnimate {
 	static var rMatrix = new FlxMatrix();
 
-	override function drawLimb(limb:FlxFrame, _rMatrix:FlxMatrix, ?colorTransform:ColorTransform)
+	override function drawLimb(limb:FlxFrame, _rMatrix:FlxMatrix, ?colorTransform:ColorTransform, ?blendMode:BlendMode)
 	{
 		if (alpha == 0 || colorTransform != null && (colorTransform.alphaMultiplier == 0 || colorTransform.alphaOffset == -255) || limb == null || limb.type == EMPTY)
 			return;
+
+		if (blendMode == null)
+			blendMode = BlendMode.NORMAL;
+
 		for (camera in cameras)
 		{
 			rMatrix.identity();
@@ -66,7 +71,7 @@ class FlxAnimate extends flxanimate.FlxAnimate {
 			}
 
 			rMatrix.translate(_point.x, _point.y);
-			camera.drawPixels(limb, null, rMatrix, colorTransform, blend, antialiasing, shaderEnabled ? shader : null);
+			camera.drawPixels(limb, null, rMatrix, colorTransform, blendMode, antialiasing, shaderEnabled ? shader : null);
 			#if FLX_DEBUG
 			FlxBasic.visibleCount++;
 			#end

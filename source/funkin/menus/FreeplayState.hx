@@ -6,6 +6,7 @@ import funkin.backend.chart.Chart;
 import funkin.backend.chart.ChartData.ChartMetaData;
 import funkin.backend.scripting.events.menu.MenuChangeEvent;
 import funkin.backend.scripting.events.menu.freeplay.*;
+import funkin.backend.system.Conductor;
 import funkin.game.HealthIcon;
 import funkin.savedata.FunkinSave;
 
@@ -249,10 +250,12 @@ class FreeplayState extends MusicBeatState
 					else
 						FlxG.log.error('Could not find a Sound asset with an ID of \'$soundPath\'.');
 
-					if (sound != null && autoplayShouldPlay)
+					if (sound != null && autoplayShouldPlay) {
 						FlxG.sound.playMusic(sound, 0);
+						Conductor.changeBPM(songs[curSelected].bpm, songs[curSelected].beatsPerMeasure, songs[curSelected].stepsPerBeat);
+					}
 				}
-				if(!disableAsyncLoading) Main.execAsync(huh);
+				if (!disableAsyncLoading) Main.execAsync(huh);
 				else huh();
 			}
 			songInstPlaying = true;

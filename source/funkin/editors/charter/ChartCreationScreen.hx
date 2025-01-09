@@ -61,7 +61,7 @@ class ChartCreationScreen extends UISubstateWindow {
 		scrollSpeedTextBox.onChange = function (text:String) {
 			@:privateAccess scrollSpeedTextBox.__onChange(text);
 			for (button in strumLineList.buttons.members)
-				if (button.usesChartscrollSpeed.checked)
+				if (button.usesChartScrollSpeed.checked)
 					button.scrollSpeedStepper.value = scrollSpeedTextBox.value;
 		}
 		add(scrollSpeedTextBox);
@@ -148,7 +148,7 @@ class ChartCreationScreen extends UISubstateWindow {
 				@:privateAccess stepper.__onChange(stepper.label.text);
 
 			strumLines.push({
-				characters: [for (charb in strline.charactersList.buttons.members) charb.textBox.label.text],
+				characters: [for (char in strline.charactersList.buttons.members) char.textBox.label.text],
 				type: strline.typeDropdown.index,
 				notes: [],
 				position: strline.stagePositionDropdown.label.text.toLowerCase(),
@@ -156,7 +156,7 @@ class ChartCreationScreen extends UISubstateWindow {
 				strumPos: [0, strline.hudYStepper.value],
 				strumLinePos: strline.hudXStepper.value,
 				strumScale: strline.hudScaleStepper.value,
-				scrollSpeed: strline.usesChartscrollSpeed.checked ? strline.scrollSpeedStepper.value : null
+				scrollSpeed: strline.usesChartScrollSpeed.checked ? strline.scrollSpeedStepper.value : null
 			});
 		}
 
@@ -185,7 +185,7 @@ class StrumLineButton extends UIButton {
 	public var hudYStepper:UINumericStepper;
 	public var visibleCheckbox:UICheckbox;
 	public var scrollSpeedStepper:UINumericStepper;
-	public var usesChartscrollSpeed:UICheckbox;
+	public var usesChartScrollSpeed:UICheckbox;
 
 	public var deleteButton:UIButton;
 	public var deleteIcon:FlxSprite;
@@ -260,15 +260,15 @@ class StrumLineButton extends UIButton {
 		members.push(scrollSpeedStepper);
 		addLabelOn(scrollSpeedStepper, "Scroll Speed");
 
-		usesChartscrollSpeed = new UICheckbox(scrollSpeedStepper.x + 104, typeDropdown.y + 135, "Uses charts scroll speed?", strumLine.scrollSpeed == null);
-		usesChartscrollSpeed.onChecked = function(b) {
+		usesChartScrollSpeed = new UICheckbox(scrollSpeedStepper.x + 104, typeDropdown.y + 135, "Uses charts scroll speed?", strumLine.scrollSpeed == null);
+		usesChartScrollSpeed.onChecked = function(b) {
 			if(b) {
 				scrollSpeedStepper.value = subState.scrollSpeedTextBox.value;
 				scrollSpeedStepper.selectable = false;
 			} else
 				scrollSpeedStepper.selectable = true;
 		}
-		members.push(usesChartscrollSpeed);
+		members.push(usesChartScrollSpeed);
 
 		deleteButton = new UIButton(16, 246-32-11, null, function () {
 			parent.remove(this);
@@ -293,7 +293,7 @@ class StrumLineButton extends UIButton {
 		hudYStepper.follow(this, hudXStepper.x + 84 - 32 + 26, 8+26 + 64);
 		visibleCheckbox.follow(this, hudYStepper.x + hudYStepper.bWidth + 42, 8+26 + 64 + 9);
 		scrollSpeedStepper.follow(this, typeDropdown.x, 8+26 + 128);
-		usesChartscrollSpeed.follow(this, scrollSpeedStepper.x + 104, 8+26 + 135);
+		usesChartScrollSpeed.follow(this, scrollSpeedStepper.x + 104, 8+26 + 135);
 
 		deleteButton.follow(this, 16, 246-32-11);
 		deleteIcon.follow(this, 16 + ((deleteButton.bWidth/2)-(15/2)), (246-32-11) + ((deleteButton.bHeight/2)-(16/2)));

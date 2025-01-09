@@ -15,6 +15,9 @@ import haxe.xml.Access;
 
 using StringTools;
 
+/**
+ * A class that handles loading a stage and putting the sprites into the state.
+**/
 class Stage extends FlxBasic implements IBeatReceiver {
 	public var extra:Map<String, Dynamic> = [];
 
@@ -42,6 +45,9 @@ class Stage extends FlxBasic implements IBeatReceiver {
 	public inline function getSprite(name:String)
 		return stageSprites[name];
 
+	/**
+	 * Sets the sprites in the script, so you can access them by the name.
+	**/
 	public function setStagesSprites(script:Script)
 		for (k=>e in stageSprites) script.set(k, e);
 
@@ -249,6 +255,12 @@ class Stage extends FlxBasic implements IBeatReceiver {
 			prepareInfos(node);
 	}
 
+	/**
+	 * Adds a character position to the stage.
+	 * @param name The name of the character
+	 * @param node The XML node
+	 * @param nonXMLInfo (Optional) Non-XML information
+	**/
 	public function addCharPos(name:String, node:Access, ?nonXMLInfo:StageCharPosInfo):StageCharPos {
 		var charPos = new StageCharPos();
 		charPos.visible = charPos.active = false;
@@ -310,9 +322,21 @@ class Stage extends FlxBasic implements IBeatReceiver {
 		return sprite;
 	}
 
+	/**
+	 * Checks if a character is flipped or not.
+	 * @param posName The name of the character position
+	 * @param def The default value
+	**/
 	public inline function isCharFlipped(posName:String, def:Bool = false)
 		return characterPoses[posName] != null ? characterPoses[posName].flipX : def;
 
+	/**
+	 * Applies the character stuff to the character.
+	 * Adds the character to the stage, or inserts it into the stage.
+	 * @param char The character
+	 * @param posName The name of the character position
+	 * @param id The ID of the character
+	**/
 	public function applyCharStuff(char:Character, posName:String, id:Float = 0) {
 		var charPos = characterPoses[char.curCharacter] != null ? characterPoses[char.curCharacter] : characterPoses[posName];
 		if (charPos != null) {
@@ -329,6 +353,10 @@ class Stage extends FlxBasic implements IBeatReceiver {
 
 	public function measureHit(curMeasure:Int) {}
 
+	/**
+	 * Gets a list of stages that are available to be used.
+	 * @param mods Whenever only the mods folder should be checked
+	**/
 	public static function getList(?mods:Bool = false, ?xmlOnly:Bool = false):Array<String> {
 		var list:Array<String> = [];
 		var extensions:Array<String> = ["xml"];

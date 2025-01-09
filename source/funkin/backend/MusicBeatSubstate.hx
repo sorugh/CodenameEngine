@@ -11,13 +11,17 @@ import funkin.backend.system.Controls;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.options.PlayerSettings;
 
+/**
+ * Base class for all the sub states.
+ * Handles the scripts, the transitions, and the beat and step events.
+**/
 class MusicBeatSubstate extends FlxSubState implements IBeatReceiver
 {
 	private var lastBeat:Float = 0;
 	private var lastStep:Float = 0;
 
 	/**
-	 * Whether this specifc substate can open custom transitions
+	 * Whether this specific substate can open custom transitions
 	 */
 	public var canOpenCustomTransition:Bool = false;
 	/**

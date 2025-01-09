@@ -44,10 +44,10 @@ class UIColorwheel extends UISliceSprite {
 
 		// Im too lazy to use a shader for this if its not even gonna change
 		colorSlider.pixels.lock();
-		for (pixely in 0...Std.int(colorSlider.height)) {
-			var color:Int = FlxColor.fromHSB(pixely / (colorSlider.height-1) * 360, 1, 1);
-			for (pixelx in 0...Std.int(colorSlider.width))
-				if (colorSlider.pixels.getPixel32(pixelx, pixely) != FlxColor.TRANSPARENT) colorSlider.pixels.setPixel32(pixelx, pixely, color);
+		for (pixelY in 0...Std.int(colorSlider.height)) {
+			var color:Int = FlxColor.fromHSB(pixelY / (colorSlider.height-1) * 360, 1, 1);
+			for (pixelX in 0...Std.int(colorSlider.width))
+				if (colorSlider.pixels.getPixel32(pixelX, pixelY) != FlxColor.TRANSPARENT) colorSlider.pixels.setPixel32(pixelX, pixelY, color);
 		}
 		colorSlider.pixels.unlock();
 
@@ -124,7 +124,7 @@ class UIColorwheel extends UISliceSprite {
 	public var colorChanged:Bool = false;
 
 	// Make the colorwheel feel better
-	static inline var hitBoxExtenstion:Float = 8;
+	static inline var hitBoxExtension:Float = 8;
 
 	// Skibidi
 	var selectedSprite = null;
@@ -133,7 +133,7 @@ class UIColorwheel extends UISliceSprite {
 		if (hovered && FlxG.mouse.justPressed) {
 			for (sprite in [colorPicker, colorSlider]) {
 				var spritePos:FlxPoint = sprite.getScreenPosition(FlxPoint.get(), __lastDrawCameras[0]);
-				if (FlxMath.inBounds(mousePos.x, spritePos.x - (hitBoxExtenstion/2), spritePos.x - (hitBoxExtenstion/2) + (sprite.width + hitBoxExtenstion)) && FlxMath.inBounds(mousePos.y, spritePos.y - (hitBoxExtenstion/2), spritePos.y - (hitBoxExtenstion/2) + (sprite.height + hitBoxExtenstion))) {
+				if (FlxMath.inBounds(mousePos.x, spritePos.x - (hitBoxExtension/2), spritePos.x - (hitBoxExtension/2) + (sprite.width + hitBoxExtension)) && FlxMath.inBounds(mousePos.y, spritePos.y - (hitBoxExtension/2), spritePos.y - (hitBoxExtension/2) + (sprite.height + hitBoxExtension))) {
 					selectedSprite = sprite;
 					break;
 				}

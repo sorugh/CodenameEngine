@@ -41,7 +41,7 @@ class Main {
 				dDoc: [
 					"Usage: test <optional args>",
 					"",
-					"This will create a quick debug build binded to the source then run it, which means:",
+					"This will create a quick debug build connected to the source then run it, which means:",
 					"- The assets WON'T be copied over - Assets will be read from the game's source.",
 					"- This build WON'T be ready for release - Running anywhere else than in the bin folder will result in a crash from missing assets",
 					"- This build will also use the mods folder from the source directory.",
@@ -60,7 +60,7 @@ class Main {
 				dDoc: [
 					"Usage: build <optional arguments>",
 					"",
-					"This will create a quick debug build binded to the source then run it, which means:",
+					"This will create a quick debug build connected to the source then run it, which means:",
 					"- The assets WON'T be copied over - Assets will be read from the game's source.",
 					"- This build WON'T be ready for release - Running anywhere else than in the bin folder will result in a crash from missing assets",
 					"- This build will also use the mods folder from the source directory.",
@@ -121,7 +121,7 @@ class Main {
 					"",
 					"This will optimize a JSON file, which means it will remove all unnecessary spacing from the file.",
 					"WARNING: Order might be lost.",
-					"WARNING: Comments arent supported.",
+					"WARNING: Comments aren't supported.",
 					"",
 					"-O | --no-old : No Old file will be created.",
 				].join("\n")

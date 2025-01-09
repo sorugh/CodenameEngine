@@ -89,10 +89,10 @@ class CharterSelection extends EditorTreeMenu {
 	}
 
 	public function saveSong(creation:SongCreationData) {
-		var songAlreadlyExsits:Bool = [for (s in freeplayList.songs) s.name.toLowerCase()].contains(creation.meta.name.toLowerCase());
+		var songAlreadyExists:Bool = [for (s in freeplayList.songs) s.name.toLowerCase()].contains(creation.meta.name.toLowerCase());
 
-		if (songAlreadlyExsits) {
-			openSubState(new UIWarningSubstate("Creating Song: Error!", "The song you are trying to create alreadly exists, if you would like to override it delete the song first!", [
+		if (songAlreadyExists) {
+			openSubState(new UIWarningSubstate("Creating Song: Error!", "The song you are trying to create Already exists, if you would like to override it delete the song first!", [
 				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
 			]));
 			return;
@@ -134,10 +134,10 @@ class CharterSelection extends EditorTreeMenu {
 	}
 
 	public function saveChart(name:String, data:ChartData) {
-		var difficultyAlreadlyExsits:Bool = curSong.difficulties.contains(name);
+		var difficultyAlreadyExists:Bool = curSong.difficulties.contains(name);
 
-		if (difficultyAlreadlyExsits) {
-			openSubState(new UIWarningSubstate("Creating Chart: Error!", "The chart you are trying to create alreadly exists, if you would like to override it delete the chart first!", [
+		if (difficultyAlreadyExists) {
+			openSubState(new UIWarningSubstate("Creating Chart: Error!", "The chart you are trying to create already exists, if you would like to override it delete the chart first!", [
 				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
 			]));
 			return;

@@ -38,7 +38,7 @@ class Conductor
 	public static var stepCrochet:Float = crochet / 4; // steps in milliseconds
 
 	/**
-	 * Number of beats per mesure (top number in time signature). Defaults to 4.
+	 * Number of beats per measure (top number in time signature). Defaults to 4.
 	 */
 	public static var beatsPerMeasure:Float = 4;
 
@@ -190,7 +190,7 @@ class Conductor
 		__updateSongPos(FlxG.elapsed);
 
 		if (bpm > 0) {
-			// updates curbeat and stuff
+			// updates curBeat and stuff
 			__lastChange = {
 				stepTime: 0,
 				songTime: 0,

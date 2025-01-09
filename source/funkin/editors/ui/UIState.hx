@@ -17,7 +17,10 @@ import openfl.ui.MouseCursor;
 class UIState extends MusicBeatState {
 	public var curContextMenu:UIContextMenu = null;
 
-	public static var state(get, null):UIState;
+	public static var state(get, never):UIState;
+
+	private inline static function get_state()
+		return FlxG.state is UIState ? cast FlxG.state : null;
 
 	public var buttonHandler:Void->Void = null;
 	public var hoveredSprite:UISprite = null;
@@ -31,9 +34,6 @@ class UIState extends MusicBeatState {
 	private var __mousePos:FlxPoint;
 
 	static var __point:FlxPoint = new FlxPoint();
-
-	private inline static function get_state()
-		return FlxG.state is UIState ? cast FlxG.state : null;
 
 	public override function create() {
 		__rect = new FlxRect();

@@ -125,7 +125,7 @@ class ScriptedCutscene extends Cutscene {
 		}));
 	}
 
-	public var isVideoPlaying(get, null):Bool;
+	public var isVideoPlaying(get, never):Bool;
 
 	private inline function get_isVideoPlaying()
 		return subState is VideoCutscene;
@@ -141,7 +141,7 @@ class ScriptedCutscene extends Cutscene {
 		}));
 	}
 
-	public var isDialoguePlaying(get, null):Bool;
+	public var isDialoguePlaying(get, never):Bool;
 
 	private inline function get_isDialoguePlaying()
 		return subState is DialogueCutscene;

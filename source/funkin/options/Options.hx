@@ -4,6 +4,10 @@ import flixel.input.keyboard.FlxKey;
 import flixel.util.FlxSave;
 import openfl.Lib;
 
+/**
+ * The save data of the engine.
+ * Mod save data is stored in `FlxG.save.data`.
+**/
 @:build(funkin.backend.system.macros.OptionsMacro.build())
 @:build(funkin.backend.system.macros.FunkinSaveMacro.build("__save", "__flush", "__load"))
 class Options
@@ -52,7 +56,7 @@ class Options
 	 */
 	public static var freeplayLastSong:String = null;
 	public static var freeplayLastDifficulty:String = "normal";
-	public static var contributors:Array<funkin.backend.system.github.GitHubContributor> = [];
+	public static var contributors:Array<funkin.backend.system.github.GitHubContributor.CreditsGitHubContributor> = [];
 	public static var mainDevs:Array<Int> = [];  // IDs
 	public static var lastUpdated:Null<Float>;
 
@@ -67,7 +71,7 @@ class Options
 	public static var charterAutoSaves:Bool = true;
 	public static var charterAutoSaveTime:Float = 60*5;
 	public static var charterAutoSaveWarningTime:Float = 5;
-	public static var charterAutoSavesSeperateFolder:Bool = false;
+	public static var charterAutoSavesSeparateFolder:Bool = false;
 
 	/**
 	 * CHARACTER EDITOR

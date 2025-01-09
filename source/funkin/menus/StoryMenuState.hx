@@ -9,7 +9,7 @@ import funkin.backend.FunkinText;
 import funkin.backend.scripting.events.menu.MenuChangeEvent;
 import funkin.backend.scripting.events.menu.storymenu.*;
 import funkin.backend.scripting.events.CancellableEvent;
-import funkin.backend.utils.FunkinSave;
+import funkin.savedata.FunkinSave;
 import haxe.io.Path;
 import haxe.xml.Access;
 

@@ -5,14 +5,14 @@ import flixel.util.FlxColor;
 using StringTools;
 using flixel.util.FlxSpriteUtil;
 
-typedef SliderSegement = {
+typedef SliderSegment = {
 	var start:Float;
 	var end:Float;
 	var size:Float;
 }
 
 class UISlider extends UISprite {
-	public var segments:Array<SliderSegement> = [];
+	public var segments:Array<SliderSegment> = [];
 	public var barWidth:Int = 120;
 
 	public var progressbar:UISprite;
@@ -36,7 +36,7 @@ class UISlider extends UISprite {
 	public var valueStepper:UINumericStepper;
 	public var onChange:Float->Void;
 
-	public function new(x:Float, y:Float, width:Int = 120, value:Float, segments:Array<SliderSegement>, centered:Bool) {
+	public function new(x:Float, y:Float, width:Int = 120, value:Float, segments:Array<SliderSegment>, centered:Bool) {
 		this.segments = segments;
 		this.barWidth = width;
 		this.progressCentered = centered;

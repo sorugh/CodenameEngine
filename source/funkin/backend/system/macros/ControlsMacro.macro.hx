@@ -78,9 +78,9 @@ class ControlsMacro
 		});
 
 		function buildBindControl(s:String, prefix:String) {
-			var prefixxed = prefix + s;
+			var prefixed = prefix + s;
 
-			return macro bindKeys(Control.$s, Options.$prefixxed);
+			return macro bindKeys(Control.$s, Options.$prefixed);
 		}
 
 		fields.push({

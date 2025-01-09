@@ -86,7 +86,7 @@ final class NoteHitEvent extends CancellableEvent {
 	 */
 	public var healthGain:Float;
 	/**
-	 * Rating name. Defaults to "sick", "good", "bad" and "shit". Customisable.
+	 * Rating name. Defaults to "sick", "good", "bad" and "shit". Customizable.
 	 */
 	public var rating:String = "sick";
 	/**

@@ -35,7 +35,7 @@ class SplashGroup extends FlxTypedGroup<FunkinSprite> {
 			pregenerateSplashes(splash);
 			add(splash);
 
-			// immediatly draw once and put image in GPU to prevent freezes
+			// immediately draw once and put image in GPU to prevent freezes
 			// TODO: change to graphics cache
 			@:privateAccess
 			splash.drawComplex(FlxG.camera);

@@ -21,7 +21,7 @@ class Flags {
 	@:lazy public static var VERSION_MESSAGE:String = 'Codename Engine v${Application.current.meta.get('version')}';
 
 	public static var REPO_NAME:String = "CodenameEngine";
-	public static var REPO_OWNER:String = "FNF-CNE-Devs";
+	public static var REPO_OWNER:String = "CodenameCrew";
 	public static var REPO_URL:String = 'https://github.com/$REPO_OWNER/$REPO_NAME';
 
 	// make this empty once you guys are done with the project.
@@ -76,7 +76,7 @@ class Flags {
 	public static var DEFAULT_OPPONENT_MODE_ALLOWED:Bool = false;
 
 	@:also(funkin.game.PlayState.coopMode)
-	public static var DEFAULT_COOP_MODE:Bool = false; // used in playstate if it doesnt find it
+	public static var DEFAULT_COOP_MODE:Bool = false; // used in playstate if it doesn't find it
 	@:also(funkin.game.PlayState.opponentMode)
 	public static var DEFAULT_OPPONENT_MODE:Bool = false;
 
@@ -135,6 +135,13 @@ class Flags {
 	public static var DISABLE_EDITORS:Bool = false;
 	public static var DISABLE_BETA_WARNING_SCREEN:Bool = false;
 	public static var DISABLE_TRANSITIONS:Bool = false;
+
+	@:also(funkin.backend.MusicBeatTransition.script)
+	public static var DEFAULT_TRANSITION_SCRIPT:String = "";
+	@:also(funkin.menus.PauseSubState.script)
+	public static var DEFAULT_PAUSE_SCRIPT:String = "";
+	@:also(funkin.game.GameOverSubstate.script)
+	public static var DEFAULT_GAMEOVER_SCRIPT:String = "";
 	// -- End of Codename's Default Flags --
 
 	/**

@@ -7,6 +7,11 @@ import haxe.Json;
 import haxe.Exception;
 
 // TODO: Document further and perhaps make this a Haxelib.
+/**
+ * Set of functions to interact with GitHub.
+ * Requires the `GITHUB_API` macro to be defined.
+ * This has no authentication, so it's limited to unauthenticated requests, and rate limits.
+**/
 class GitHub {
 	/**
 	 * Gets all the releases from a specific GitHub repository using the GitHub API.

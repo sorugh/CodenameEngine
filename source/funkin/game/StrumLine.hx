@@ -9,6 +9,10 @@ import funkin.backend.scripting.events.note.*;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.Controls;
 
+/**
+ * Group of strums, that contains the strums and notes.
+ * Used in PlayState.
+**/
 class StrumLine extends FlxTypedGroup<Strum> {
 	/**
 	 * Signal that triggers whenever a note is hit. Similar to onPlayerHit and onDadHit, except strumline specific.
@@ -71,14 +75,16 @@ class StrumLine extends FlxTypedGroup<Strum> {
 	 */
 	public var animSuffix(default, set):String = "";
 	/**
-	 * TODO: Write documention about this being a variable that can help when making multi key
+	 * TODO: Write documentation about this being a variable that can help when making multi key
 	 */
 	public var strumAnimPrefix = ["left", "down", "up", "right"];
 	/**
 	 * Vocals sound (Vocals.ogg). Used for individual vocals per strumline.
 	 */
 	public var vocals:FlxSound;
-
+	/**
+	 * Extra data that can be added to the strum line.
+	**/
 	public var extra:Map<String, Dynamic> = [];
 
 	private function get_ghostTapping() {
@@ -90,8 +96,14 @@ class StrumLine extends FlxTypedGroup<Strum> {
 	private inline function set_ghostTapping(b:Bool):Bool
 		return this.ghostTapping = b;
 
+
 	private var startingPos:FlxPoint = FlxPoint.get(0,0);
-	private var strumScale:Float = 1;
+	/**
+	 * The scale of the strums.
+	 * If called after generate, the strums wont be scaled.
+	 * You can only change it in the Charter.
+	**/
+	public var strumScale:Float = 1;
 
 	public function new(characters:Array<Character>, startingPos:FlxPoint, strumScale:Float, cpu:Bool = false, opponentSide:Bool = true, ?controls:Controls, ?vocalPrefix:String = "") {
 		super();
@@ -106,6 +118,9 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		vocals.persist = false;
 	}
 
+	/**
+	 * Generates the notes for the strumline.
+	**/
 	public function generate(strumLine:ChartStrumLine, ?startTime:Float) {
 		// TODO: implement double generate call support if needed
 
@@ -153,7 +168,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		if(scrollSpeed == null) if (PlayState.instance != null) scrollSpeed = PlayState.instance.scrollSpeed;
 		if(scrollSpeed == null) scrollSpeed = 1;
 
-		// TODO: Make this work by accounting zoom and scrollspeed changes  - Nex
+		// TODO: Make this work by accounting zoom and scroll speed changes  - Nex
 		/*var limit = FlxG.height / 0.45;
 		notes.limit = limit / scrollSpeed;
 			OR
@@ -171,6 +186,9 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		notes.draw();
 	}
 
+	/**
+	 * Updates the notes.
+	**/
 	public inline function updateNotes() {
 		__updateNote_songPos = Conductor.songPosition;
 		if(__updateNote_event == null) __updateNote_event = PlayState.instance.__updateNote_event;
@@ -180,6 +198,10 @@ class StrumLine extends FlxTypedGroup<Strum> {
 	var __updateNote_strum:Strum;
 	var __updateNote_songPos:Float;
 	var __updateNote_event:NoteUpdateEvent;
+	/**
+	 * Updates a note.
+	 * This updates the position, state, and handles the input.
+	**/
 	public function updateNote(daNote:Note) {
 		__updateNote_strum = members[daNote.noteData];
 		if (__updateNote_strum == null) return;
@@ -236,6 +258,11 @@ class StrumLine extends FlxTypedGroup<Strum> {
 			else if (note.strumTime < __notePerStrum[note.strumID].strumTime)					__notePerStrum[note.strumID] = note;
 		}
 	}
+
+	/**
+	 * Updates the input for the strumline, and handles the input.
+	 * @param id The ID of the strum
+	**/
 	public function updateInput(id:Int = 0) {
 		updateNotes();
 
@@ -291,9 +318,18 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		PlayState.instance.gameAndCharsCall("onPostInputUpdate");
 	}
 
+	/**
+	 * Adds/removes health to/from the strumline.
+	 * If the strumline is an opponent strumline, it will subtract the health, otherwise it will add the health.
+	 * @param health The amount of health to add/remove
+	**/
 	public inline function addHealth(health:Float)
 		PlayState.instance.health += health * (opponentSide ? -1 : 1);
 
+	/**
+	 * Generates strums, and adds them to the strumline.
+	 * @param amount The amount of strums to generate (-1 for the default amount)
+	**/
 	public inline function generateStrums(amount:Int = -1) {
 		if(amount == -1) amount = Flags.DEFAULT_STRUM_AMOUNT;
 		for (i in 0...amount)

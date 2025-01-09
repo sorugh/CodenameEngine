@@ -3,15 +3,20 @@ package funkin.backend;
 import flixel.graphics.frames.FlxFrame;
 import flixel.math.FlxAngle;
 import flixel.math.FlxMatrix;
+import openfl.display.BlendMode;
 import openfl.geom.ColorTransform;
 
 class FlxAnimate extends flxanimate.FlxAnimate {
 	static var rMatrix = new FlxMatrix();
 
-	override function drawLimb(limb:FlxFrame, _rMatrix:FlxMatrix, ?colorTransform:ColorTransform)
+	override function drawLimb(limb:FlxFrame, _rMatrix:FlxMatrix, ?colorTransform:ColorTransform, ?blendMode:BlendMode)
 	{
 		if (alpha == 0 || colorTransform != null && (colorTransform.alphaMultiplier == 0 || colorTransform.alphaOffset == -255) || limb == null || limb.type == EMPTY)
 			return;
+
+		if (blendMode == null)
+			blendMode = BlendMode.NORMAL;
+
 		for (camera in cameras)
 		{
 			rMatrix.identity();
@@ -28,7 +33,7 @@ class FlxAnimate extends flxanimate.FlxAnimate {
 					var angleOff = (frameOffsetAngle - angle) * FlxAngle.TO_RAD;
 					var cos = Math.cos(angleOff);
 					var sin = Math.sin(angleOff);
-					// cos doesnt need to be negated
+					// cos doesn't need to be negated
 					rMatrix.rotateWithTrig(cos, -sin);
 					rMatrix.translate(-frameOffset.x, -frameOffset.y);
 					rMatrix.rotateWithTrig(cos, sin);
@@ -66,13 +71,13 @@ class FlxAnimate extends flxanimate.FlxAnimate {
 			}
 
 			rMatrix.translate(_point.x, _point.y);
-			camera.drawPixels(limb, null, rMatrix, colorTransform, blend, antialiasing, shaderEnabled ? shader : null);
+			camera.drawPixels(limb, null, rMatrix, colorTransform, blendMode, antialiasing, shaderEnabled ? shader : null);
 			#if FLX_DEBUG
 			FlxBasic.visibleCount++;
 			#end
 		}
 
-		// doesnt work, needs to be remade
+		// doesn't work, needs to be remade
 		// #if FLX_DEBUG
 		// if (FlxG.debugger.drawDebug)
 		// 	drawDebug();
@@ -81,7 +86,7 @@ class FlxAnimate extends flxanimate.FlxAnimate {
 
 	override function limbOnScreen(limb:FlxFrame, m:FlxMatrix, ?Camera:FlxCamera)
 	{
-		// TODO: ACTUAL OPTIMISATION
+		// TODO: ACTUAL OPTIMIZATION
 		return true;
 	}
 }

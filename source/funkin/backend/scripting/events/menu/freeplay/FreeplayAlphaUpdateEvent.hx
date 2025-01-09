@@ -2,11 +2,11 @@ package funkin.backend.scripting.events.menu.freeplay;
 
 final class FreeplayAlphaUpdateEvent extends CancellableEvent {
 	/**
-	 * The alpha when nothing is playing and isnt selected
+	 * The alpha when nothing is playing and isn't selected
 	 */
 	public var idleAlpha:Float;
 	/**
-	 * The alpha when something is playing and isnt selected
+	 * The alpha when something is playing and isn't selected
 	 */
 	public var idlePlayingAlpha:Float;
 	/**

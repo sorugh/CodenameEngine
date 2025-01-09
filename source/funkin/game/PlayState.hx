@@ -30,7 +30,7 @@ import funkin.game.SplashHandler;
 import funkin.game.cutscenes.*;
 import funkin.menus.*;
 import funkin.menus.StoryMenuState.WeekData;
-import funkin.backend.utils.FunkinSave;
+import funkin.savedata.FunkinSave;
 import haxe.io.Path;
 
 using StringTools;
@@ -189,11 +189,11 @@ class PlayState extends MusicBeatState
 	/**
 	 * Player strums.
 	 */
-	public var playerStrums(get, null):StrumLine;
+	public var playerStrums(get, set):StrumLine;
 	/**
 	 * CPU strums.
 	 */
-	public var cpuStrums(get, null):StrumLine;
+	public var cpuStrums(get, set):StrumLine;
 	/**
 	 * Shortcut to `playerStrums`.
 	 */
@@ -360,7 +360,7 @@ class PlayState extends MusicBeatState
 	/**
 	 * Accuracy for the current week
 	 */
-	public static var campaignAccuracy(get, null):Float;
+	public static var campaignAccuracy(get, never):Float;
 
 	public static var campaignAccuracyTotal:Float = 0;
 	public static var campaignAccuracyCount:Float = 0;
@@ -423,7 +423,7 @@ class PlayState extends MusicBeatState
 	 */
 	public var events:Array<ChartEvent> = [];
 	/**
-	 * Current camera target. -1 means no automatic camera targetting.
+	 * Current camera target. -1 means no automatic camera targeting.
 	 */
 	public var curCameraTarget:Int = 0;
 	/**
@@ -586,8 +586,8 @@ class PlayState extends MusicBeatState
 		instance = this;
 		if (FlxG.sound.music != null) FlxG.sound.music.stop();
 
-		PauseSubState.script = "";
-		GameOverSubstate.script = "";
+		PauseSubState.script = Flags.DEFAULT_PAUSE_SCRIPT;
+		GameOverSubstate.script = Flags.DEFAULT_GAMEOVER_SCRIPT;
 		(scripts = new ScriptPack("PlayState")).setParent(this);
 
 		camGame = camera;
@@ -642,7 +642,7 @@ class PlayState extends MusicBeatState
 					for(folder in scriptsFolders) {
 						for(file in Paths.getFolderContent(folder, true, fromMods ? MODS : BOTH)) {
 							if (folder == 'data/charts/')
-								Logs.trace('[PlayState] data/charts/ is deprecrated and will be removed in the future. Please move script $file to songs/', WARNING, DARKYELLOW);
+								Logs.trace('[PlayState] data/charts/ is deprecated and will be removed in the future. Please move script $file to songs/', WARNING, DARKYELLOW);
 
 							addScript(file);
 						}
@@ -1947,8 +1947,12 @@ class PlayState extends MusicBeatState
 	}
 	private inline function get_cpuStrums():StrumLine
 		return strumLines.members[0];
+	private inline function set_cpuStrums(v:StrumLine):StrumLine
+		return strumLines.members[0] = v;
 	private inline function get_playerStrums():StrumLine
 		return strumLines.members[1];
+	private inline function set_playerStrums(v:StrumLine):StrumLine
+		return strumLines.members[1] = v;
 	private inline function get_gfSpeed():Int
 		return (strumLines.members[2] != null && strumLines.members[2].characters[0] != null) ? strumLines.members[2].characters[0].beatInterval : 1;
 	private inline function set_gfSpeed(v:Int):Int {

@@ -75,7 +75,7 @@ class Note extends FlxSprite
 	public var scrollSpeed:Null<Float> = null;
 	public var noteAngle:Null<Float> = null;
 
-	public var noteType(get, null):String;
+	public var noteType(get, never):String;
 
 	@:dox(hide) public var __strumCameras:Array<FlxCamera> = null;
 	@:dox(hide) public var __strum:Strum = null;

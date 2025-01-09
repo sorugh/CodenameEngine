@@ -31,7 +31,7 @@ class UIUtil {
 	}
 
 	/**
-	 * Process all options with shortcuts present in a `Array<UIContextMenuOption>`. Also checks childrens.
+	 * Process all options with shortcuts present in a `Array<UIContextMenuOption>`. Also checks children.
 	 * @param topMenuOptions
 	 */
 	public static function processShortcuts(topMenuOptions:Array<UIContextMenuOption>) {

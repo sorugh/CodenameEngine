@@ -6,15 +6,16 @@ import funkin.backend.chart.Chart;
 import funkin.backend.chart.ChartData.ChartMetaData;
 import funkin.backend.scripting.events.menu.MenuChangeEvent;
 import funkin.backend.scripting.events.menu.freeplay.*;
+import funkin.backend.system.Conductor;
 import funkin.game.HealthIcon;
-import funkin.backend.utils.FunkinSave;
+import funkin.savedata.FunkinSave;
 
 using StringTools;
 
 class FreeplayState extends MusicBeatState
 {
 	/**
-	 * Array containing all of the songs metadatas
+	 * Array containing all of the songs' metadata.
 	 */
 	public var songs:Array<ChartMetaData> = [];
 
@@ -144,7 +145,7 @@ class FreeplayState extends MusicBeatState
 			add(icon);
 
 			// songText.x += 40;
-			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
+			// DON'T PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
 			// songText.screenCenter(X);
 		}
 
@@ -218,7 +219,7 @@ class FreeplayState extends MusicBeatState
 			lerpScore = intendedScore;
 
 		if (canSelect) {
-			changeSelection((controls.UP_P ? -1 : 0) + (controls.DOWN_P ? 1 : 0));
+			changeSelection((controls.UP_P ? -1 : 0) + (controls.DOWN_P ? 1 : 0) - FlxG.mouse.wheel);
 			changeDiff((controls.LEFT_P ? -1 : 0) + (controls.RIGHT_P ? 1 : 0));
 			changeCoopMode((FlxG.keys.justPressed.TAB ? 1 : 0));
 			// putting it before so that its actually smooth
@@ -249,10 +250,12 @@ class FreeplayState extends MusicBeatState
 					else
 						FlxG.log.error('Could not find a Sound asset with an ID of \'$soundPath\'.');
 
-					if (sound != null && autoplayShouldPlay)
+					if (sound != null && autoplayShouldPlay) {
 						FlxG.sound.playMusic(sound, 0);
+						Conductor.changeBPM(songs[curSelected].bpm, songs[curSelected].beatsPerMeasure, songs[curSelected].stepsPerBeat);
+					}
 				}
-				if(!disableAsyncLoading) Main.execAsync(huh);
+				if (!disableAsyncLoading) Main.execAsync(huh);
 				else huh();
 			}
 			songInstPlaying = true;

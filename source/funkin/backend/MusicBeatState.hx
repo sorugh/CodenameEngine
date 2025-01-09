@@ -13,6 +13,10 @@ import funkin.backend.system.framerate.Framerate;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.options.PlayerSettings;
 
+/**
+ * Base class for all the states.
+ * Handles the scripts, the transitions, and the beat and step events.
+**/
 class MusicBeatState extends FlxState implements IBeatReceiver
 {
 	private var lastBeat:Float = 0;
@@ -93,6 +97,9 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 
 	public var scriptsAllowed:Bool = true;
 
+	public static var lastScriptName:String = null;
+	public static var lastStateName:String = null;
+
 	public var scriptName:String = null;
 
 	public static var skipTransOut:Bool = false;
@@ -108,7 +115,12 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 	public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
 		super();
 		this.scriptsAllowed = #if SOFTCODED_STATES scriptsAllowed #else false #end;
-		this.scriptName = scriptName;
+
+		if(lastStateName != (lastStateName = Type.getClassName(Type.getClass(this)))) {
+			lastScriptName = null;
+		}
+		this.scriptName = scriptName != null ? scriptName : lastScriptName;
+		lastScriptName = this.scriptName;
 	}
 
 	function loadScript() {
@@ -163,10 +175,12 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 		super.createPost();
 		persistentUpdate = true;
 		call("postCreate");
-		if (!skipTransIn)
-			startTransition(null);
-		skipTransIn = false;
-		skipTransOut = false;
+		if(!Flags.DISABLE_TRANSITIONS) {
+			if (!skipTransIn)
+				startTransition(null);
+			skipTransIn = false;
+			skipTransOut = false;
+		}
 	}
 
 	public function startTransition(?newState:FlxState, skipSubStates:Bool = false):Bool {
@@ -285,6 +299,9 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 		var e = event("onStateSwitch", EventManager.get(StateEvent).recycle(nextState));
 		if (e.cancelled)
 			return false;
+
+		if(Flags.DISABLE_TRANSITIONS)
+			return true;
 
 		if (skipTransOut || (subState is MusicBeatTransition && cast(subState, MusicBeatTransition).newState != null))
 			return true;

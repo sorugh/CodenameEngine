@@ -25,11 +25,11 @@ class Charter extends UIState {
 	static var __diff:String;
 	static var __reload:Bool;
 
-	var chart(get, null):ChartData;
+	var chart(get, never):ChartData;
 	private function get_chart()
 		return PlayState.SONG;
 
-	public static var instance(get, null):Charter;
+	public static var instance(get, never):Charter;
 
 	private static inline function get_instance()
 		return FlxG.state is Charter ? cast FlxG.state : null;
@@ -358,6 +358,7 @@ class Charter extends UIState {
 					null,
 					{
 						label: "↑ Speed 25%",
+						keybind: [PERIOD],
 						onSelect: _playback_speed_raise
 					},
 					{
@@ -366,6 +367,7 @@ class Charter extends UIState {
 					},
 					{
 						label: "↓ Speed 25%",
+						keybind: [COMMA],
 						onSelect: _playback_speed_lower
 					},
 					null,
@@ -378,6 +380,22 @@ class Charter extends UIState {
 						label: "Go forward a section",
 						keybind: [D],
 						onSelect: _playback_forward
+					},
+					{
+						label: "Go to start of section",
+						keybind: [SHIFT, S],
+						onSelect: _playback_section_start
+					},
+					null,
+					{
+						label: "Go back a step",
+						keybind: [W],
+						onSelect: _playback_back_step
+					},
+					{
+						label: "Go forward a step",
+						keybind: [S],
+						onSelect: _playback_forward_step
 					},
 					null,
 					{
@@ -534,7 +552,9 @@ class Charter extends UIState {
 			Framerate.memoryCounter.alpha = 0.4;
 			Framerate.codenameBuildField.alpha = 0.4;
 		}
-		updateDisplaySprites();
+
+		if (Options.editorsResizable)
+			UIState.setResolutionAware();
 
 		// ! IF YOU EVER WANNA VIEW IN THE FUTURE, JUST USE A FLXSPRITE :D -lunar
 		/*var dataDisplay:FlxSprite = new FlxSprite().loadGraphic(waveformHandler.waveDatas.get("Voices.ogg"));
@@ -739,10 +759,10 @@ class Charter extends UIState {
 		autoSaveTimer -= elapsed;
 
 		if (autoSaveTimer < Options.charterAutoSaveWarningTime && !autoSaveNotif.cancelled && !autoSaveNotif.showedAnimation) {
-			if (Options.charterAutoSavesSeperateFolder)
+			if (Options.charterAutoSavesSeparateFolder)
 				__autoSaveLocation = __diff.toLowerCase() + DateTools.format(Date.now(), "%m-%d_%H-%M");
 			autoSaveNotif.startAutoSave(autoSaveTimer, 
-				!Options.charterAutoSavesSeperateFolder ? 'Saved chart at ${__diff.toLowerCase()}.json!' : 
+				!Options.charterAutoSavesSeparateFolder ? 'Saved chart at ${__diff.toLowerCase()}.json!' : 
 				'Saved chart at $__autoSaveLocation.json!'
 			);
 		}
@@ -752,7 +772,7 @@ class Charter extends UIState {
 				buildChart(); 
 				var songPath:String = '${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}';
 	
-				if (Options.charterAutoSavesSeperateFolder)
+				if (Options.charterAutoSavesSeparateFolder)
 					Chart.save(songPath, PlayState.SONG, __autoSaveLocation, {saveMetaInChart: false, folder: "autosaves", prettyPrint: Options.editorPrettyPrint});
 				else 
 					Chart.save(songPath, PlayState.SONG, __diff.toLowerCase(), {saveMetaInChart: false, prettyPrint: Options.editorPrettyPrint});
@@ -848,7 +868,7 @@ class Charter extends UIState {
 
 							var boundedChange:FlxPoint = changePoint.clone();
 
-							// Some maths, so cool bro -lunar (i dont know why i quopte my self here)
+							// Some maths, so cool bro -lunar (i don't know why i quote my self here)
 							if (s.step + changePoint.x < 0) boundedChange.x += Math.abs(s.step + changePoint.x);
 							if (s.step + changePoint.x > __endStep-1) boundedChange.x -= (s.step + changePoint.x) - (__endStep-1);
 
@@ -1354,7 +1374,15 @@ class Charter extends UIState {
 	function updateDisplaySprites() {
 		gridBackdrops.strumlinesAmount = strumLines.members.length;
 
-		charterBG.scale.set(1 / charterCamera.zoom, 1 / charterCamera.zoom);
+		var scaleX:Float = (FlxG.width/charterBG.width);
+		var scaleY:Float = (FlxG.height/charterBG.height);
+
+		var bgScale:Float = scaleX > scaleY ? scaleX : scaleY;
+
+		charterBG.scale.set(
+			(1 / charterCamera.zoom) * bgScale,
+			(1 / charterCamera.zoom) * bgScale
+		);
 
 		strumlineInfoBG.scale.set(FlxG.width / charterCamera.zoom, 1);
 		strumlineInfoBG.updateHitbox();
@@ -1366,6 +1394,25 @@ class Charter extends UIState {
 
 		strumlineAddButton.y = strumlineInfoBG.y;
 		strumlineLockButton.y = strumlineInfoBG.y;
+	}
+
+	public override function onResize(width:Int, height:Int) {
+		super.onResize(width, height);
+		if (!UIState.resolutionAware) return;
+
+		if (width < FlxG.initialWidth || height < FlxG.initialHeight) {
+			width = FlxG.initialWidth; height = FlxG.initialHeight;
+		}
+
+		scrollBar.x = width - 20;
+		scrollBar.scale.y = Std.int(height - scrollBar.y);
+		scrollBar.updateHitbox();
+
+		songPosInfo.x = width - 30 - 400;
+		playBackSlider.x = width - 160 - 26 - 20;
+
+		updateDisplaySprites();
+		charterBG.screenCenter();
 	}
 
 	var zoom(default, set):Float = 0;
@@ -1710,6 +1757,18 @@ class Charter extends UIState {
 		if (FlxG.sound.music.playing) return;
 		Conductor.songPosition += (Conductor.beatsPerMeasure * __crochet);
 	}
+	function _playback_section_start(_) {
+		if(FlxG.sound.music.playing) return;
+		Conductor.songPosition = (Conductor.beatsPerMeasure * (60000 / Conductor.bpm)) * curMeasure;
+	}
+	function _playback_back_step(_) {
+		if (FlxG.sound.music.playing) return;
+		Conductor.songPosition -= Conductor.stepCrochet;
+	}
+	function _playback_forward_step(_) {
+		if (FlxG.sound.music.playing) return;
+		Conductor.songPosition += Conductor.stepCrochet;
+	}
 	function _song_start(_) {
 		if (FlxG.sound.music.playing) return;
 		Conductor.songPosition = 0;
@@ -1895,7 +1954,7 @@ class Charter extends UIState {
 	inline function _snap_resetsnap(_) setquant(16);
 
 	inline function changequant(change:Int) {quant = quants[FlxMath.wrap(quants.indexOf(quant) + change, 0, quants.length-1)]; buildSnapsUI();};
-	inline function setquant(newquant:Int) {quant = newquant; buildSnapsUI();}
+	inline function setquant(newQuant:Int) {quant = newQuant; buildSnapsUI();}
 
 	function buildSnapsUI():Array<UIContextMenuOption> {
 		var snapsTopButton:UITopMenuButton = topMenuSpr == null ? null : cast topMenuSpr.members[snapIndex];
@@ -2102,7 +2161,7 @@ class Charter extends UIState {
 		return newSelection.filter((s:ICharterSelectable) -> {return s != null;});
 	}
 
-	// UH OH!!! DANGER ZONE APPOARCHING !!!! LUNARS SHITTY CODE !!!! -lunar
+	// UH OH!!! DANGER ZONE APPROACHING !!!! LUNARS SHITTY CODE !!!! -lunar
 
 	@:noCompletion public function __relinkSingleSelection(selectable:ICharterSelectable):ICharterSelectable {
 		if (selectable is CharterNote)

@@ -1,4 +1,4 @@
-package funkin.backend.utils;
+package funkin.savedata;
 
 import flixel.util.FlxSave;
 import lime.app.Application;
@@ -32,7 +32,7 @@ class FunkinSave {
 
 		if (!__eventAdded) {
 			Lib.application.onExit.add(function(i:Int) {
-				trace("Saving savedata...");
+				trace("Saving save data...");
 				flush();
 			});
 			__eventAdded = true;

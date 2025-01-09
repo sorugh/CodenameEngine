@@ -59,6 +59,7 @@ class MainState extends FlxState {
 
 		Flags.load();
 		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder); // Loads global.hx
+		MusicBeatTransition.script = Flags.DEFAULT_TRANSITION_SCRIPT;
 		Main.refreshAssets();
 		DiscordUtil.init();
 		EventsData.reloadEvents();
@@ -68,12 +69,11 @@ class MainState extends FlxState {
 		if(Framerate.isLoaded)
 			Framerate.instance.reload();
 
-		if (betaWarningShown)
+		if (Flags.DISABLE_BETA_WARNING_SCREEN || betaWarningShown)
 			FlxG.switchState(new TitleState());
-		else {
+		else
 			FlxG.switchState(new BetaWarningState());
-			betaWarningShown = true;
-		}
+		betaWarningShown = true;
 
 		#if sys
 		CoolUtil.safeAddAttributes('./.temp/', NativeAPI.FileAttribute.HIDDEN);

@@ -1,5 +1,6 @@
 package funkin.editors.ui;
 
+import openfl.Lib;
 import funkin.editors.ui.notifications.UIBaseNotification;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
@@ -9,13 +10,17 @@ import funkin.editors.ui.UIContextMenu.UIContextMenuCallback;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import flixel.system.scaleModes.StageSizeScaleMode;
 import openfl.ui.Mouse;
 import openfl.ui.MouseCursor;
 
 class UIState extends MusicBeatState {
 	public var curContextMenu:UIContextMenu = null;
 
-	public static var state(get, null):UIState;
+	public static var state(get, never):UIState;
+
+	private inline static function get_state()
+		return FlxG.state is UIState ? cast FlxG.state : null;
 
 	public var buttonHandler:Void->Void = null;
 	public var hoveredSprite:UISprite = null;
@@ -29,9 +34,6 @@ class UIState extends MusicBeatState {
 	private var __mousePos:FlxPoint;
 
 	static var __point:FlxPoint = new FlxPoint();
-
-	private inline static function get_state()
-		return FlxG.state is UIState ? cast FlxG.state : null;
 
 	public override function create() {
 		__rect = new FlxRect();
@@ -117,6 +119,16 @@ class UIState extends MusicBeatState {
 	}
 
 	public override function destroy() {
+		if (resolutionAware) {
+			resolutionAware = false;
+
+			for (camera in FlxG.cameras.list) {
+				camera.width = FlxG.initialWidth;
+				camera.height = FlxG.initialHeight;
+			}
+			FlxG.scaleMode = Main.scaleMode;
+		}
+
 		super.destroy();
 		__mousePos.put();
 
@@ -163,5 +175,13 @@ class UIState extends MusicBeatState {
 		//notification.alpha = 0;
 		//notification.appearAnimation();
 		//FlxTween.tween(notification, {x: __mousePos.x, y: __mousePos.y, alpha: 1}, .3, {ease: FlxEase.circInOut});
+	}
+
+	public static var resolutionAware:Bool = false;
+	public static var uiScaleMode:UIScaleMode = new UIScaleMode();
+
+	public static function setResolutionAware() {
+		resolutionAware = true;
+		FlxG.scaleMode = uiScaleMode;
 	}
 }

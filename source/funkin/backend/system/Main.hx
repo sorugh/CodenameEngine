@@ -48,6 +48,10 @@ class Main extends Sprite
 
 	public static var game:FunkinGame;
 
+	/**
+	 * The time since the game was focused last time in seconds.
+	 */
+	public static var timeSinceFocus(get, never):Float;
 	public static var time:Int = 0;
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
@@ -144,7 +148,7 @@ class Main extends Sprite
 		Assets.registerLibrary('default', lib);
 
 		funkin.options.PlayerSettings.init();
-		funkin.backend.utils.FunkinSave.init();
+		funkin.savedata.FunkinSave.init();
 		Options.load();
 
 		FlxG.fixedTimestep = false;
@@ -154,10 +158,14 @@ class Main extends Sprite
 		Conductor.init();
 		AudioSwitchFix.init();
 		EventManager.init();
+		FlxG.signals.focusGained.add(onFocus);
 		FlxG.signals.preStateSwitch.add(onStateSwitch);
 		FlxG.signals.postStateSwitch.add(onStateSwitchPost);
 
 		FlxG.mouse.useSystemCursor = true;
+		#if DARK_MODE_WINDOW
+		if(funkin.backend.utils.NativeAPI.hasVersion("Windows 10")) funkin.backend.utils.NativeAPI.redrawWindowHeader();
+		#end
 
 		ModsFolder.init();
 		#if MOD_SUPPORT
@@ -199,13 +207,17 @@ class Main extends Sprite
 			{asset: diamond, width: 32, height: 32}, new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
 	}
 
+	public static function onFocus() {
+		_tickFocused = FlxG.game.ticks;
+	}
+
 	private static function onStateSwitch() {
 		scaleMode.resetSize();
 	}
 
 	private static function onStateSwitchPost() {
-		// manual asset clearing since base openfl one doesnt clear lime one
-		// doesnt clear bitmaps since flixel fork does it auto
+		// manual asset clearing since base openfl one does'nt clear lime one
+		// does'nt clear bitmaps since flixel fork does it auto
 
 		@:privateAccess {
 			// clear uint8 pools
@@ -231,5 +243,10 @@ class Main extends Sprite
 		#elseif (ios || switch)
 		Sys.setCwd(Path.addTrailingSlash(openfl.filesystem.File.applicationStorageDirectory.nativePath));
 		#end
+	}
+
+	private static var _tickFocused:Float = 0;
+	public static function get_timeSinceFocus():Float {
+		return (FlxG.game.ticks - _tickFocused) / 1000;
 	}
 }

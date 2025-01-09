@@ -63,7 +63,7 @@ class CharterAutoSaveUI extends UISliceSprite {
 	var __timer:FlxTimer;
 	var __tween:FlxTween;
 
-	public function startAutoSave(time:Float, sucessText:String) {
+	public function startAutoSave(time:Float, successText:String) {
 		appearAnimation();
 
 		__tween = FlxTween.num(0, 1, time, null, (v:Float) -> {
@@ -74,7 +74,7 @@ class CharterAutoSaveUI extends UISliceSprite {
 		});
 		__timer = new FlxTimer();
 		__timer.start(time, (_) -> {
-			autosavingText.text = sucessText; cancelButton.visible = false;
+			autosavingText.text = successText; cancelButton.visible = false;
 
 			icon.animation.curAnim.curFrame = 1;
 			for (member in [this, progressBar, progressBarBack, autosavingText]) member.color = 0xFFA3EC95;

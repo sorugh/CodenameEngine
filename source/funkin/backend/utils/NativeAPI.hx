@@ -6,6 +6,7 @@ import openfl.ui.MouseCursor;
 import funkin.backend.utils.native.*;
 import flixel.util.typeLimit.OneOfTwo;
 import flixel.util.typeLimit.OneOfThree;
+import flixel.util.FlxColor;
 
 /**
  * Class for functions that talk to a lower level than haxe, such as message boxes, and more.
@@ -37,9 +38,9 @@ class NativeAPI {
 	/**
 	 * Gets the specified file's (or folder) attributes.
 	 */
-	public static function getFileAttributesRaw(path:String, useAbsol:Bool = true):Int {
+	public static function getFileAttributesRaw(path:String, useAbsolute:Bool = true):Int {
 		#if windows
-		if(useAbsol) path = sys.FileSystem.absolutePath(path);
+		if(useAbsolute) path = sys.FileSystem.absolutePath(path);
 		return Windows.getFileAttributes(path);
 		#else
 		return -1;
@@ -49,16 +50,16 @@ class NativeAPI {
 	/**
 	 * Gets the specified file's (or folder) attributes and passes it to `FileAttributeWrapper`.
 	 */
-	public static function getFileAttributes(path:String, useAbsol:Bool = true):FileAttributeWrapper {
-		return new FileAttributeWrapper(getFileAttributesRaw(path, useAbsol));
+	public static function getFileAttributes(path:String, useAbsolute:Bool = true):FileAttributeWrapper {
+		return new FileAttributeWrapper(getFileAttributesRaw(path, useAbsolute));
 	}
 
 	/**
 	 * Sets the specified file's (or folder) attributes. If it fails, the return value is `0`.
 	 */
-	public static function setFileAttributes(path:String, attrib:OneOfThree<NativeAPI.FileAttribute, FileAttributeWrapper, Int>, useAbsol:Bool = true):Int {
+	public static function setFileAttributes(path:String, attrib:OneOfThree<NativeAPI.FileAttribute, FileAttributeWrapper, Int>, useAbsolute:Bool = true):Int {
 		#if windows
-		if(useAbsol) path = sys.FileSystem.absolutePath(path);
+		if(useAbsolute) path = sys.FileSystem.absolutePath(path);
 		return Windows.setFileAttributes(path, attrib is FileAttributeWrapper ? cast(attrib, FileAttributeWrapper).getValue() : cast(attrib, Int));
 		#else
 		return 0;
@@ -68,9 +69,9 @@ class NativeAPI {
 	/**
 	 * Removes from the specified file's (or folder) one (or more) specific attribute.
 	 */
-	public static function addFileAttributes(path:String, attrib:OneOfTwo<NativeAPI.FileAttribute, Int>, useAbsol:Bool = true):Int {
+	public static function addFileAttributes(path:String, attrib:OneOfTwo<NativeAPI.FileAttribute, Int>, useAbsolute:Bool = true):Int {
 		#if windows
-		return setFileAttributes(path, getFileAttributesRaw(path, useAbsol) | cast(attrib, Int), useAbsol);
+		return setFileAttributes(path, getFileAttributesRaw(path, useAbsolute) | cast(attrib, Int), useAbsolute);
 		#else
 		return 0;
 		#end
@@ -79,19 +80,93 @@ class NativeAPI {
 	/**
 	 * Removes from the specified file's (or folder) one (or more) specific attribute.
 	 */
-	public static function removeFileAttributes(path:String, attrib:OneOfTwo<NativeAPI.FileAttribute, Int>, useAbsol:Bool = true):Int {
+	public static function removeFileAttributes(path:String, attrib:OneOfTwo<NativeAPI.FileAttribute, Int>, useAbsolute:Bool = true):Int {
 		#if windows
-		return setFileAttributes(path, getFileAttributesRaw(path, useAbsol) & ~cast(attrib, Int), useAbsol);
+		return setFileAttributes(path, getFileAttributesRaw(path, useAbsolute) & ~cast(attrib, Int), useAbsolute);
 		#else
 		return 0;
 		#end
 	}
 
+	/**
+	 * WINDOW COLOR MODE FUNCTIONS.
+	 */
+
+	/**
+	 * Switch the window's color mode to dark or light mode.
+	 */
 	public static function setDarkMode(title:String, enable:Bool) {
 		#if windows
+		if(title == null) title = lime.app.Application.current.window.title;
 		Windows.setDarkMode(title, enable);
 		#end
 	}
+
+	/**
+	 * Switch the window's color to any color.
+	 *
+	 * WARNING: This is exclusive to windows 11 users, unfortunately.
+	 *
+	 * NOTE: Setting the color to 0x00000000 (FlxColor.TRANSPARENT) will set the border (must have setBorder on) invisible.
+	 */
+	public static function setWindowBorderColor(title:String, color:FlxColor, setHeader:Bool = true, setBorder:Bool = true) {
+		#if windows
+		if(title == null) title = lime.app.Application.current.window.title;
+		Windows.setWindowBorderColor(title, [color.red, color.green, color.blue, color.alpha], setHeader, setBorder);
+		#end
+	}
+
+	/**
+	 * Resets the window's border color to the default one.
+	 *
+	 * WARNING: This is exclusive to windows 11 users, unfortunately.
+	**/
+	public static function resetWindowBorderColor(title:String, setHeader:Bool = true, setBorder:Bool = true) {
+		#if windows
+		if(title == null) title = lime.app.Application.current.window.title;
+		Windows.setWindowBorderColor(title, [-1, -1, -1, -1], setHeader, setBorder);
+		#end
+	}
+
+	/**
+	 * Switch the window's title text to any color.
+	 *
+	 * WARNING: This is exclusive to windows 11 users, unfortunately.
+	 */
+	public static function setWindowTitleColor(title:String, color:FlxColor) {
+		#if windows
+		if(title == null) title = lime.app.Application.current.window.title;
+		Windows.setWindowTitleColor(title, [color.red, color.green, color.blue, color.alpha]);
+		#end
+	}
+
+	/**
+	 * Resets the window's title color to the default one.
+	 *
+	 * WARNING: This is exclusive to windows 11 users, unfortunately.
+	**/
+	public static function resetWindowTitleColor(title:String) {
+		#if windows
+		if(title == null) title = lime.app.Application.current.window.title;
+		Windows.setWindowTitleColor(title, [-1, -1, -1, -1]);
+		#end
+	}
+
+	/**
+	 * Forces the window header to redraw, causes a small visual jitter so use it sparingly.
+	 */
+	public static function redrawWindowHeader() {
+		#if windows
+		flixel.FlxG.stage.window.borderless = true;
+		flixel.FlxG.stage.window.borderless = false;
+		#end
+	}
+
+	/**
+	 * Can be used to check if your using a specific version of an OS (or if your using a certain OS).
+	 */
+	public static function hasVersion(vers:String)
+		return lime.system.System.platformLabel.toLowerCase().indexOf(vers.toLowerCase()) != -1;
 
 	/**
 	 * Shows a message box

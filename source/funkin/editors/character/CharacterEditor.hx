@@ -20,7 +20,7 @@ class CharacterEditor extends UIState {
 	static var __character:String;
 	public var character:CharacterGhost;
 
-	public static var instance(get, null):CharacterEditor;
+	public static var instance(get, never):CharacterEditor;
 
 	private static inline function get_instance()
 		return FlxG.state is CharacterEditor ? cast FlxG.state : null;

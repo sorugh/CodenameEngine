@@ -28,7 +28,7 @@ class SongCreationScreen extends UISubstateWindow {
 	public var opponentModeCheckbox:UICheckbox;
 	public var coopAllowedCheckbox:UICheckbox;
 	public var colorWheel:UIColorwheel;
-	public var difficulitesTextBox:UITextBox;
+	public var difficultiesTextBox:UITextBox;
 
 	public var backButton:UIButton;
 	public var saveButton:UIButton;
@@ -125,9 +125,9 @@ class SongCreationScreen extends UISubstateWindow {
 		menuDataGroup.add(colorWheel);
 		addLabelOn(colorWheel, "Color");
 
-		difficulitesTextBox = new UITextBox(opponentModeCheckbox.x, opponentModeCheckbox.y + 6 + 32 + 26, "");
-		menuDataGroup.add(difficulitesTextBox);
-		addLabelOn(difficulitesTextBox, "Difficulties");
+		difficultiesTextBox = new UITextBox(opponentModeCheckbox.x, opponentModeCheckbox.y + 6 + 32 + 26, "");
+		menuDataGroup.add(difficultiesTextBox);
+		addLabelOn(difficultiesTextBox, "Difficulties");
 
 		for (checkbox in [opponentModeCheckbox, coopAllowedCheckbox])
 			{checkbox.y += 6; checkbox.x += 4;}
@@ -240,7 +240,7 @@ class SongCreationScreen extends UISubstateWindow {
 			parsedColor: colorWheel.curColor,
 			opponentModeAllowed: opponentModeCheckbox.checked,
 			coopAllowed: coopAllowedCheckbox.checked,
-			difficulties: [for (diff in difficulitesTextBox.label.text.split(",")) diff.trim()],
+			difficulties: [for (diff in difficultiesTextBox.label.text.split(",")) diff.trim()],
 		};
 
 		if (onSave != null) onSave({

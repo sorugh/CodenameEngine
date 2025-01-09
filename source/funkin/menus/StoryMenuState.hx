@@ -9,7 +9,7 @@ import funkin.backend.FunkinText;
 import funkin.backend.scripting.events.menu.MenuChangeEvent;
 import funkin.backend.scripting.events.menu.storymenu.*;
 import funkin.backend.scripting.events.CancellableEvent;
-import funkin.backend.utils.FunkinSave;
+import funkin.savedata.FunkinSave;
 import haxe.io.Path;
 import haxe.xml.Access;
 
@@ -149,7 +149,7 @@ class StoryMenuState extends MusicBeatState {
 			}
 
 			changeDifficulty((controls.LEFT_P ? -1 : 0) + (controls.RIGHT_P ? 1 : 0));
-			changeWeek((controls.UP_P ? -1 : 0) + (controls.DOWN_P ? 1 : 0));
+			changeWeek((controls.UP_P ? -1 : 0) + (controls.DOWN_P ? 1 : 0) - FlxG.mouse.wheel);
 
 			if (controls.ACCEPT)
 				selectWeek();

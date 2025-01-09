@@ -237,10 +237,7 @@ function SKEW_LEFT(sprite, relative) {
 	gimmeSkewCorners(sprite, 0, 1);
 
 	sprite.y = storedPos.y - relative.y * 0.5;
-	sprite.skew.y = Math.atan2(
-		skewPoint2.y - (skewPoint1.y + (lastRelative.y - relative.y)),
-		skewPoint2.x - (skewPoint1.x + (FlxG.keys.pressed.SHIFT ? 0 : relative.x - lastRelative.x))
-	) * FlxAngle.TO_DEG;
+	sprite.skew.y += ((relative.y - lastRelative.y) * 0.02);
 
 	lastRelative.set((FlxG.keys.pressed.SHIFT ? lastRelative.x : relative.x), relative.y);
 }
@@ -256,11 +253,8 @@ function SKEW_BOTTOM(sprite, relative) {
 	skewPoint2.set(0, 1);
 	gimmeSkewCorners(sprite, 0, 2);
 
-	sprite.x = storedPos.x - relative.x * 0.5;
-	sprite.skew.x = Math.atan2(
-		(skewPoint1.x + (lastRelative.x - relative.x)) - skewPoint2.x,
-		(skewPoint1.y + (FlxG.keys.pressed.SHIFT ? 0 : lastRelative.y - relative.y)) - skewPoint2.y
-	) * FlxAngle.TO_DEG;
+	sprite.x = storedPos.x - relative.x * 0.4;
+	sprite.skew.x -= ((relative.x - lastRelative.x) * 0.03);
 
 	lastRelative.set(relative.x, (FlxG.keys.pressed.SHIFT ? lastRelative.y : relative.y));
 }
@@ -276,11 +270,8 @@ function SKEW_TOP(sprite, relative) {
 	skewPoint2.set(0, 1);
 	gimmeSkewCorners(sprite, 0, 2);
 
-	sprite.x = storedPos.x - relative.x * 0.5;
-	sprite.skew.x = Math.atan2(
-		skewPoint2.x - (skewPoint1.x + (lastRelative.x - relative.x)),
-		skewPoint2.y - (skewPoint1.y + (FlxG.keys.pressed.SHIFT ? 0 : relative.y - lastRelative.y))
-	) * FlxAngle.TO_DEG;
+	sprite.x = storedPos.x - relative.x * 0.4;
+	sprite.skew.x += ((relative.x - lastRelative.x) * 0.03);
 
 	lastRelative.set(relative.x, (FlxG.keys.pressed.SHIFT ? lastRelative.y : relative.y));
 }
@@ -297,10 +288,7 @@ function SKEW_RIGHT(sprite, relative) {
 	gimmeSkewCorners(sprite, 0, 1);
 
 	sprite.y = storedPos.y - relative.y * 0.5;
-	sprite.skew.y = Math.atan2(
-		(skewPoint2.y + (lastRelative.y - relative.y)) - skewPoint1.y,
-		(skewPoint2.x + (FlxG.keys.pressed.SHIFT ? 0 : lastRelative.x - relative.x)) - skewPoint1.x
-	) * FlxAngle.TO_DEG;
+	sprite.skew.y -= ((relative.y - lastRelative.y) * 0.02);
 
 	lastRelative.set((FlxG.keys.pressed.SHIFT ? lastRelative.x : relative.x), relative.y);
 }

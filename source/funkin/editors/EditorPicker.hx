@@ -34,7 +34,7 @@ class EditorPicker extends MusicBeatSubstate {
 			iconID: 5,
 			state: null,
 			onClick: function() {
-				CoolUtil.openURL("https://fnf-cne-devs.github.io/");
+				CoolUtil.openURL("https://codename-engine.com/");
 			}
 		},
 		{

@@ -4,7 +4,7 @@ import flixel.FlxState;
 import funkin.backend.scripting.events.*;
 
 final class EventManager {
-	// map doesnt work for that
+	// map doesn't work for that
 	public static var eventValues:Array<CancellableEvent> = [];
 	public static var eventKeys:Array<Class<CancellableEvent>> = [];
 

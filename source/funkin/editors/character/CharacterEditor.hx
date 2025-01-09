@@ -14,7 +14,7 @@ class CharacterEditor extends UIState {
 
 	public var ghosts:CharacterGhostsHandler;
 
-	public static var instance(get, null):CharacterEditor;
+	public static var instance(get, never):CharacterEditor;
 
 	private static inline function get_instance()
 		return FlxG.state is CharacterEditor ? cast FlxG.state : null;
@@ -451,7 +451,7 @@ class CharacterEditor extends UIState {
 		}));
 	}
 
-	public function createAnim(animData:AnimData, animID:Int = -1, addtoUndo:Bool = true) {
+	public function createAnim(animData:AnimData, animID:Int = -1, addToUndo:Bool = true) {
 		XMLUtil.addAnimToSprite(character, animData);
 		ghosts.createGhost(animData.name);
 		var newButton = new CharacterAnimButtons(0, 0, animData.name, FlxPoint.get(animData.x,animData.y));
@@ -460,11 +460,11 @@ class CharacterEditor extends UIState {
 
 		playAnimation(animData.name);
 
-		if (addtoUndo)
+		if (addToUndo)
 			undos.addToUndo(CCreateAnim(character.getNameList().length, animData));
 	}
 
-	public function editAnim(name:String, animData:AnimData, addtoUndo:Bool = true) {
+	public function editAnim(name:String, animData:AnimData, addToUndo:Bool = true) {
 		var oldAnimData:AnimData = character.animDatas.get(name);
 		var buttoner:CharacterAnimButtons = null;
 		for (button in characterAnimsWindow.buttons.members)
@@ -478,11 +478,11 @@ class CharacterEditor extends UIState {
 		if (character.getAnimName() == animData.name) // update anim ifs its currently selected
 			playAnimation(animData.name);
 
-		if (addtoUndo)
+		if (addToUndo)
 			undos.addToUndo(CEditAnim(animData.name, oldAnimData, animData));
 	}
 
-	public function deleteAnim(name:String, addtoUndo:Bool = true) {
+	public function deleteAnim(name:String, addToUndo:Bool = true) {
 		var animOrder:Array<String> = [
 			for (button in characterAnimsWindow.buttons.members)
 				button.anim
@@ -505,7 +505,7 @@ class CharacterEditor extends UIState {
 		if (character.animOffsets.exists(name)) character.animOffsets.remove(name);
 		if (character.animDatas.exists(name)) character.animDatas.remove(name);
 
-		if (addtoUndo)
+		if (addToUndo)
 			undos.addToUndo(CDeleteAnim(oldID, oldAnimData));
 	}
 
@@ -515,7 +515,7 @@ class CharacterEditor extends UIState {
 		}));
 	}
 
-	public function editInfo(newInfo:Xml, addtoUndo:Bool = true) {
+	public function editInfo(newInfo:Xml, addToUndo:Bool = true) {
 		var lastAnim:String = character.getAnimName();
 
 		var oldInfo = character.buildXML();
@@ -524,7 +524,7 @@ class CharacterEditor extends UIState {
 
 		playAnimation(lastAnim);
 
-		if (addtoUndo)
+		if (addToUndo)
 			undos.addToUndo(CEditInfo(oldInfo, newInfo));
 	}
 
@@ -591,7 +591,7 @@ class CharacterEditor extends UIState {
 		clearOffsets();
 	}
 
-	function changeOffset(anim:String, change:FlxPoint, addtoUndo:Bool = true) {
+	function changeOffset(anim:String, change:FlxPoint, addToUndo:Bool = true) {
 		if (character.getNameList().length == 0) return;
 
 		var animData = character.animDatas.get(anim);
@@ -608,11 +608,11 @@ class CharacterEditor extends UIState {
 
 		ghosts.updateOffsets(anim, change);
 
-		if (addtoUndo)
+		if (addToUndo)
 			undos.addToUndo(CChangeOffset(anim, change));
 	}
 
-	function clearOffsets(addtoUndo:Bool = true) {
+	function clearOffsets(addToUndo:Bool = true) {
 		if (character.getNameList().length == 0) return;
 
 		var oldOffsets:Map<String, FlxPoint> = [
@@ -629,7 +629,7 @@ class CharacterEditor extends UIState {
 		changeOffset(character.getAnimName(), FlxPoint.get(), false);
 		ghosts.clearOffsets();
 
-		if (addtoUndo)
+		if (addToUndo)
 			undos.addToUndo(CResetOffsets(oldOffsets));
 	}
 

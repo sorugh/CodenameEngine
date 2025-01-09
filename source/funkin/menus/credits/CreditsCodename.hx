@@ -3,6 +3,7 @@ package funkin.menus.credits;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import funkin.backend.system.github.GitHub;
+import funkin.backend.system.github.GitHubContributor.CreditsGitHubContributor;
 import funkin.options.PlayerSettings;
 import funkin.options.type.GithubIconOption;
 
@@ -80,7 +81,17 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 			funkin.backend.utils.NativeAPI.showMessageBox("Codename Engine Warning", errMsg, MSG_WARNING);
 		});
 		if(error) return false;
-		Options.contributors = idk;
+		if((idk is Array)) {
+			var contributors:Array<CreditsGitHubContributor> = [];
+			for(e in idk) contributors.push({
+				login: e.login,
+				avatar_url: e.avatar_url,
+				html_url: e.html_url,
+				id: e.id,
+				contributions: e.contributions
+			});
+			Options.contributors = contributors;
+		}
 		Logs.trace('[CreditsCodename] Contributors list Updated!', VERBOSE);
 
 		var errorOnMain:Bool = false;

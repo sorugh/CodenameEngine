@@ -15,7 +15,7 @@
 		- New SEXY editor assets by paige and nex!!!! (and lunar, does 16x16 even count??? 😭)
 		- NEW EVENTS (Camera events, play animation, scroll speed change)
 		- Events window is now scrollable (more events, more room)
-		- Custom Properities in Meta AND Character (Editable in Charter and Character Editor :D) (accessible with SONG.meta.customValues.[property] and [character].extras.[property])
+		- Custom Properties in Meta AND Character (Editable in Charter and Character Editor :D) (accessible with SONG.meta.customValues.[property] and [character].extras.[property])
 	- SMALLER BUT STILL COOL
 		- Multiple Icons now show up on strumlines with multiple characters in the charter
 		- Note hoverer to show where your note is going to be placed
@@ -41,9 +41,9 @@
 		- Reworked Lagless Credits Codename Engine's Contributors Menu
 		- New Credit Method for GitHub accounts (also lagless) in Mod Credits (First gets the data normally, if fails uses the ratelimited api)
 		- MANY OG GAME WEEK STUFF!! (still wip and softcoded and also many reworks by nex!)
-		- Senpai Cutscene got reworked! (https://github.com/FNF-CNE-Devs/CodenameEngine/assets/87421482/3b3f32fc-78d1-40fa-8398-776554cab1d6)
-		- Thorns got reworked with a cool chromatic aberration effect! (https://github.com/FNF-CNE-Devs/CodenameEngine/assets/87421482/73d9f7c5-1c9c-407e-baf0-e8e2c381ecbb)
-		- Winter Horrorland got reworked with a bloody vignette effect! (https://github.com/FNF-CNE-Devs/CodenameEngine/assets/87421482/1e10c3e2-32dc-4de2-b31a-d9d577d516da - https://github.com/FNF-CNE-Devs/CodenameEngine/assets/87421482/cad852c3-1ee2-409e-a70e-b3571ab5cf7b)
+		- Senpai Cutscene got reworked! (https://github.com/CodenameCrew/CodenameEngine/assets/87421482/3b3f32fc-78d1-40fa-8398-776554cab1d6)
+		- Thorns got reworked with a cool chromatic aberration effect! (https://github.com/CodenameCrew/CodenameEngine/assets/87421482/73d9f7c5-1c9c-407e-baf0-e8e2c381ecbb)
+		- Winter Horrorland got reworked with a bloody vignette effect! (https://github.com/CodenameCrew/CodenameEngine/assets/87421482/1e10c3e2-32dc-4de2-b31a-d9d577d516da - https://github.com/CodenameCrew/CodenameEngine/assets/87421482/cad852c3-1ee2-409e-a70e-b3571ab5cf7b)
 	- SMALLER BUT STILL COOL
 		- Ability to set Controls.hx variables (Being able to block inputs or even trigger them (needs to be in an if statement))
 		- You can now easily check if a cutscene was played (by default is disabled and makes it auto play or not; Check startCutscene() code for more details in PlayState)
@@ -63,7 +63,7 @@
 	- Fix for pressing F5 in an editor breaking it
 	- Fix when getting GitHub data and a redirect happens
 	- Fix for healthbar incorrectly colored in opponent mode
-	- Video cutscenes are ALOT more stable (thanks majigsaw :D)
+	- Video cutscenes are A LOT more stable (thanks majigsaw :D)
 	- 3D now works again (so cool i love away3d in 2024)
 	- Lots and lots of grammar and wording fixes (so true bro -lunar)
 	- Lots and lots of other optimizations made
@@ -76,5 +76,5 @@
 	- Some other shit idk ill add it whenever someone tells me backward compat is broke 💔
 </details>
 
-thanks so much for the support and always being there, it really does mean alot to us < 3
+thanks so much for the support and always being there, it really does mean a lot to us < 3
 we are one step closer to turning beta so we really can't wait !

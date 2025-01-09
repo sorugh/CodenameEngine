@@ -8,6 +8,7 @@ import lime.app.Application;
 @:allow(funkin.backend.scripting.ScriptPack)
 /**
  * Class used for scripting.
+ * Use `Script.create` to create a script.
  */
 class Script extends FlxBasic implements IFlxDestroyable {
 	/**
@@ -16,6 +17,9 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	 */
 	public static var staticVariables:Map<String, Dynamic> = [];
 
+	/**
+	 * Gets the default variables for a script.
+	 */
 	public static function getDefaultVariables(?script:Script):Map<String, Dynamic> {
 		return [
 			// Haxe related stuff
@@ -109,7 +113,6 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	**/
 	public static function getDefaultImportRedirects():Map<String, String> {
 		var redirects:Map<String, String> = [
-			"funkin.savedata.FunkinSave" => "funkin.backend.utils.FunkinSave"
 		];
 
 		final events = "funkin.backend.scripting.events.";
@@ -146,6 +149,10 @@ class Script extends FlxBasic implements IFlxDestroyable {
 		return redirects;
 	}
 
+	/**
+	 * Gets the default defines for a script.
+	 * Includes all of the defines that the build was compiled with.
+	 */
 	public static function getDefaultPreprocessors():Map<String, Dynamic> {
 		var defines = funkin.backend.system.macros.DefinesMacro.defines;
 		defines.set("CODENAME_ENGINE", true);
@@ -187,6 +194,10 @@ class Script extends FlxBasic implements IFlxDestroyable {
 
 	private var didLoad:Bool = false;
 
+	/**
+	 * Remapped filenames.
+	 * Used for trace messages, to show what mod the script is from.
+	 */
 	public var remappedNames:Map<String, String> = [];
 
 	/**
@@ -312,7 +323,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	}
 
 	/**
-	 * Loads the code from a string, doesnt really work after the script has been loaded
+	 * Loads the code from a string, doesn't really work after the script has been loaded
 	 * @param code The code.
 	 */
 	public function loadFromString(code:String) {
@@ -371,7 +382,14 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	private function onCall(func:String, parameters:Array<Dynamic>):Dynamic {
 		return null;
 	}
+	/**
+	 * Called when the script is created.
+	 * @param path Path to the script
+	 */
 	public function onCreate(path:String) {}
 
+	/**
+	 * Called when the script is loaded.
+	 */
 	public function onLoad() {}
 }

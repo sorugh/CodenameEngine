@@ -18,7 +18,7 @@ import funkin.options.TreeMenu;
 
 class PauseSubState extends MusicBeatSubstate
 {
-	public static var script:String = "";
+	public static var script:String = Flags.DEFAULT_PAUSE_SCRIPT;
 
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 

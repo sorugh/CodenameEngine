@@ -23,7 +23,7 @@ class CharterMetaDataScreen extends UISubstateWindow {
 	public var opponentModeCheckbox:UICheckbox;
 	public var coopAllowedCheckbox:UICheckbox;
 	public var colorWheel:UIColorwheel;
-	public var difficulitesTextBox:UITextBox;
+	public var difficultiesTextBox:UITextBox;
 
 	public function new(metadata:ChartMetaData) {
 		super();
@@ -91,9 +91,9 @@ class CharterMetaDataScreen extends UISubstateWindow {
 		add(colorWheel);
 		addLabelOn(colorWheel, translate("color"));
 
-		difficulitesTextBox = new UITextBox(opponentModeCheckbox.x, opponentModeCheckbox.y + 6 + 32 + 26, metadata.difficulties.join(", "));
-		add(difficulitesTextBox);
-		addLabelOn(difficulitesTextBox, translate("difficulties"));
+		difficultiesTextBox = new UITextBox(opponentModeCheckbox.x, opponentModeCheckbox.y + 6 + 32 + 26, metadata.difficulties.join(", "));
+		add(difficultiesTextBox);
+		addLabelOn(difficultiesTextBox, translate("difficulties"));
 
 		customPropertiesButtonList = new UIButtonList<PropertyButton>(stepsPerBeatStepper.x + 80 + 26 + 105, songNameTextBox.y, 290, 316, '', FlxPoint.get(280, 35), null, 5);
 		customPropertiesButtonList.frames = Paths.getFrames('editors/ui/inputbox');
@@ -165,7 +165,7 @@ class CharterMetaDataScreen extends UISubstateWindow {
 			parsedColor: colorWheel.curColor,
 			opponentModeAllowed: opponentModeCheckbox.checked,
 			coopAllowed: coopAllowedCheckbox.checked,
-			difficulties: [for (diff in difficulitesTextBox.label.text.split(",")) diff.trim()],
+			difficulties: [for (diff in difficultiesTextBox.label.text.split(",")) diff.trim()],
 			customValues: customVals,
 		};
 

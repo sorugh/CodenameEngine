@@ -22,11 +22,11 @@ class Charter extends UIState {
 	static var __diff:String;
 	static var __reload:Bool;
 
-	var chart(get, null):ChartData;
+	var chart(get, never):ChartData;
 	private function get_chart()
 		return PlayState.SONG;
 
-	public static var instance(get, null):Charter;
+	public static var instance(get, never):Charter;
 
 	private static inline function get_instance()
 		return FlxG.state is Charter ? cast FlxG.state : null;
@@ -732,7 +732,6 @@ class Charter extends UIState {
 			if (!autoSaveNotif.cancelled) {
 				buildChart();
 				var songPath:String = '${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}';
-
 				if (Options.charterAutoSavesSeparateFolder)
 					Chart.save(songPath, PlayState.SONG, __autoSaveLocation, {saveMetaInChart: false, folder: "autosaves", prettyPrint: Options.editorPrettyPrint});
 				else
@@ -826,7 +825,7 @@ class Charter extends UIState {
 
 							var boundedChange:FlxPoint = changePoint.clone();
 
-							// Some maths, so cool bro -lunar (i dont know why i quopte my self here)
+							// Some maths, so cool bro -lunar (i don't know why i quote my self here)
 							if (s.step + changePoint.x < 0) boundedChange.x += Math.abs(s.step + changePoint.x);
 							if (s.step + changePoint.x > __endStep-1) boundedChange.x -= (s.step + changePoint.x) - (__endStep-1);
 
@@ -1660,7 +1659,7 @@ class Charter extends UIState {
 	inline function _snap_resetsnap(_) setquant(16);
 
 	inline function changequant(change:Int) {quant = quants[FlxMath.wrap(quants.indexOf(quant) + change, 0, quants.length-1)]; buildSnapsUI();};
-	inline function setquant(newquant:Int) {quant = newquant; buildSnapsUI();}
+	inline function setquant(newQuant:Int) {quant = newQuant; buildSnapsUI();}
 
 	function buildSnapsUI():Array<UIContextMenuOption> {
 		var snapsTopButton:UITopMenuButton = topMenuSpr == null ? null : cast topMenuSpr.members[snapIndex];
@@ -1868,7 +1867,7 @@ class Charter extends UIState {
 		return newSelection.filter((s:ICharterSelectable) -> {return s != null;});
 	}
 
-	// UH OH!!! DANGER ZONE APPOARCHING !!!! LUNARS SHITTY CODE !!!! -lunar
+	// UH OH!!! DANGER ZONE APPROACHING !!!! LUNARS SHITTY CODE !!!! -lunar
 
 	@:noCompletion public function __relinkSingleSelection(selectable:ICharterSelectable):ICharterSelectable {
 		if (selectable is CharterNote)

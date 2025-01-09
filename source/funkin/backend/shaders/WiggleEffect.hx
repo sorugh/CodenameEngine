@@ -3,6 +3,7 @@ package funkin.backend.shaders;
 // STOLEN FROM HAXEFLIXEL DEMO LOL
 import flixel.system.FlxAssets.FlxShader;
 
+@:dox(hide)
 enum WiggleEffectType
 {
 	DREAMY;
@@ -12,6 +13,7 @@ enum WiggleEffectType
 	FLAG;
 }
 
+@:dox(hide)
 class WiggleEffect
 {
 	public var shader(default, null):WiggleShader = new WiggleShader();
@@ -59,6 +61,7 @@ class WiggleEffect
 	}
 }
 
+@:dox(hide)
 class WiggleShader extends FlxShader
 {
 	@:glFragmentSource('

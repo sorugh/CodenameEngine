@@ -1,4 +1,4 @@
-package funkin.backend.utils;
+package funkin.savedata;
 
 import flixel.util.FlxSave;
 import lime.app.Application;
@@ -35,7 +35,7 @@ class FunkinSave {
 				Logs.traceColored([
 					Logs.getPrefix("FunkinSave"),
 					Logs.logText("Saving "),
-					Logs.logText("savedata", GREEN),
+					Logs.logText("save data", GREEN),
 					Logs.logText("...")
 				], VERBOSE);
 				flush();

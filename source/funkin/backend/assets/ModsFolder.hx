@@ -42,8 +42,9 @@ class ModsFolder {
 	 * Whenever its the first time mods has been reloaded.
 	 */
 	private static var __firstTime:Bool = true;
+
 	/**
-	 * Initialises `mods` folder.
+	 * Initializes `mods` folder.
 	 */
 	public static function init() {
 		if(!getModsList().contains(Options.lastLoadedMod)) {
@@ -95,7 +96,12 @@ class ModsFolder {
 	public static function getModsList():Array<String> {
 		var mods:Array<String> = [];
 		#if MOD_SUPPORT
-		for(modFolder in FileSystem.readDirectory(modsPath)) {
+		final modsList:Array<String> = FileSystem.readDirectory(modsPath);
+
+		if (modsList == null || modsList.length <= 0)
+			return mods;
+
+		for (modFolder in modsList) {
 			if (FileSystem.isDirectory('${modsPath}${modFolder}')) {
 				mods.push(modFolder);
 			} else {

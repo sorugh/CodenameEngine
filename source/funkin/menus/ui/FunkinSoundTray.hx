@@ -10,7 +10,7 @@ class FunkinSoundTray extends FlxSoundTray
 {
 	public var script:Script;
 
-	// Neeo wanted them since it would reduce lags for some people if activated  - Nex
+	// Ne_Eo wanted them since it would reduce lags for some people if activated  - Nex
 	public var callsUpdate:Bool = true;
 	public var callsPostUpdate:Bool = true;
 

@@ -18,7 +18,7 @@ class CharterStrumlineScreen extends UISubstateWindow {
 	public var hudYStepper:UINumericStepper;
 	public var visibleCheckbox:UICheckbox;
 	public var scrollSpeedStepper:UINumericStepper;
-	public var usesChartscrollSpeed:UICheckbox;
+	public var usesChartScrollSpeed:UICheckbox;
 
 	public var characterIcons:Array<HealthIcon> = [];
 
@@ -78,8 +78,8 @@ class CharterStrumlineScreen extends UISubstateWindow {
 		add(typeDropdown);
 		addLabelOn(typeDropdown, TU.translate("charterStrumLine.type"));
 
-		usesChartscrollSpeed = new UICheckbox(typeDropdown.x + 104, typeDropdown.y + 135, TU.translate("charterStrumLine.useChartScrollSpeed"), strumLine.scrollSpeed == null);
-		usesChartscrollSpeed.onChecked = function(b) {
+		usesChartScrollSpeed = new UICheckbox(typeDropdown.x + 104, typeDropdown.y + 135, TU.translate("charterStrumLine.useChartScrollSpeed"), strumLine.scrollSpeed == null);
+		usesChartScrollSpeed.onChecked = function(b) {
 			if(b)
 			{
 				scrollSpeedStepper.value = PlayState.SONG.scrollSpeed;
@@ -88,10 +88,10 @@ class CharterStrumlineScreen extends UISubstateWindow {
 				scrollSpeedStepper.selectable = true;
 			}
 		}
-		add(usesChartscrollSpeed);
+		add(usesChartScrollSpeed);
 
-		scrollSpeedStepper = new UINumericStepper(typeDropdown.x, typeDropdown.y + 128, usesChartscrollSpeed.checked ? PlayState.SONG.scrollSpeed : strumLine.scrollSpeed, 0.1, 2, 0, 10, 82);
-		if(usesChartscrollSpeed.checked)
+		scrollSpeedStepper = new UINumericStepper(typeDropdown.x, typeDropdown.y + 128, usesChartScrollSpeed.checked ? PlayState.SONG.scrollSpeed : strumLine.scrollSpeed, 0.1, 2, 0, 10, 82);
+		if(usesChartScrollSpeed.checked)
 		{
 			scrollSpeedStepper.selectable = false;
 		} else {
@@ -141,20 +141,20 @@ class CharterStrumlineScreen extends UISubstateWindow {
 		add(closeButton);
 		closeButton.color = 0xFFFF0000;
 
-		var suffixlist = ["NONE"];
+		var suffixList = ["NONE"];
 		for (i in Paths.getFolderContent('songs/${Charter.__song.toLowerCase()}/song'))
 		if (i.startsWith("Voices")) {
 			i = haxe.io.Path.withoutExtension(i.substr("Voices".length));
 			if (i == "") continue;
 			for (j in PlayState.SONG.meta.difficulties) {
 				if (i.endsWith('-${j.toLowerCase()}'))
-					suffixlist.pushOnce(i.substring(0, i.length - j.length));
+					suffixList.pushOnce(i.substring(0, i.length - j.length));
 				else
-					suffixlist.pushOnce(i);
+					suffixList.pushOnce(i);
 			}
 		}
 
-		vocalsSuffixDropDown = new UIDropDown(typeDropdown.x, hudScaleStepper.y + 128, 200, 32, suffixlist, strumLine.vocalsSuffix != null && strumLine.vocalsSuffix != "" ? suffixlist.indexOf(strumLine.vocalsSuffix) : 0);
+		vocalsSuffixDropDown = new UIDropDown(typeDropdown.x, hudScaleStepper.y + 128, 200, 32, suffixList, strumLine.vocalsSuffix != null && strumLine.vocalsSuffix != "" ? suffixList.indexOf(strumLine.vocalsSuffix) : 0);
 		add(vocalsSuffixDropDown);
 		addLabelOn(vocalsSuffixDropDown, TU.translate("charterStrumLine.vocalSuffix"));
 	}
@@ -177,7 +177,7 @@ class CharterStrumlineScreen extends UISubstateWindow {
 			strumScale: hudScaleStepper.value,
 			vocalsSuffix: vocalsSuffixDropDown.options[vocalsSuffixDropDown.index] != "NONE" ? vocalsSuffixDropDown.options[vocalsSuffixDropDown.index] : ""
 		};
-		if(!usesChartscrollSpeed.checked) newStrumLine.scrollSpeed = scrollSpeedStepper.value;
+		if(!usesChartScrollSpeed.checked) newStrumLine.scrollSpeed = scrollSpeedStepper.value;
 		if (onSave != null) onSave(newStrumLine);
 	}
 }

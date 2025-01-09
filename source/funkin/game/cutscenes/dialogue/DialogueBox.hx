@@ -10,7 +10,7 @@ import haxe.xml.Access;
 class DialogueBox extends FunkinSprite {
 	public var dialogueBoxData:Access;
 	public var positions:Map<String, CharPosDef> = [];
-	public var dialogueEnded:Bool = false;  // Using text._typing is also fair but it doesnt check for eventual opening anims!  - Nex
+	public var dialogueEnded:Bool = false;  // Using text._typing is also fair but it doesn't check for eventual opening anims!  - Nex
 
 	public var nextSFX:String = Paths.sound('dialogue/next');
 	public var defaultTextTypeSFX:Array<FlxSound>;
@@ -22,7 +22,7 @@ class DialogueBox extends FunkinSprite {
 
 	public function new(name:String) {
 		super();
-		var textTypeSFX:String = Paths.sound('dialogue/text');  // Default if xml doesnt have it  - Nex
+		var textTypeSFX:String = Paths.sound('dialogue/text');  // Default if xml doesn't have it  - Nex
 
 		dialogueBoxScript = Script.create(Paths.script('data/' + defPath + name));
 		dialogueBoxScript.setParent(this);

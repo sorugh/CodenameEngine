@@ -126,7 +126,7 @@ class Framerate extends Sprite {
 		bgSprite.scaleY = height;
 
 		var selectable = debugMode == 2;
-		{  // idk i tried to make it more lookable:sob:  - Nex
+		{  // idk i tried to make it more readable:sob:  - Nex
 			memoryCounter.memoryText.selectable = memoryCounter.memoryPeakText.selectable =
 			fpsCounter.fpsNum.selectable = fpsCounter.fpsLabel.selectable =
 			#if SHOW_BUILD_ON_FPS codenameBuildField.selectable = #end selectable;

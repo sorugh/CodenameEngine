@@ -11,11 +11,11 @@ import funkin.backend.system.Conductor;
 class GlobalScript {
 	public static var scripts:ScriptPack;
 
-	private static var initalized:Bool = false;
+	private static var initialized:Bool = false;
 
 	public static function init() {
-		if(initalized) return;
-		initalized = true;
+		if(initialized) return;
+		initialized = true;
 		#if MOD_SUPPORT
 		ModsFolder.onModSwitch.add(onModSwitch);
 		#end

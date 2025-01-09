@@ -15,9 +15,9 @@ class BaseGameParser {
 
 		result.customValues = {};
 		result.customValues.timeChanges = data.timeChanges;
-		var firstTimeChng:SwagTimeChange = data.timeChanges[0];
-		result.bpm = firstTimeChng.bpm;
-		result.beatsPerMeasure = firstTimeChng.b != null ? firstTimeChng.b : Flags.DEFAULT_BEATS_PER_MEASURE;
+		var firstTimeChange:SwagTimeChange = data.timeChanges[0];
+		result.bpm = firstTimeChange.bpm;
+		result.beatsPerMeasure = firstTimeChange.b != null ? firstTimeChange.b : Flags.DEFAULT_BEATS_PER_MEASURE;
 
 		result.difficulties = data.playData.difficulties.concat(data.playData.songVariations);
 		Reflect.deleteField(data.playData, "difficulties");

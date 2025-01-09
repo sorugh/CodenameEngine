@@ -31,7 +31,7 @@ class Logs {
 			var prefix = "[FLIXEL]";
 			var color:ConsoleColor = LIGHTGRAY;
 			var level:Level = INFO;
-			if (style == LogStyle.CONSOLE)  // cant place a switch here as these arent inline values  - Nex
+			if (style == LogStyle.CONSOLE)  // cant place a switch here as these aren't inline values  - Nex
 			{
 				prefix = "> ";
 				color = WHITE;

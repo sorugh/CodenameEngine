@@ -63,7 +63,7 @@ class SystemInfo extends FramerateCategory {
 
 			cpuName = process.stdout.readAll().toString().trim().split("\n")[1].trim();
 			#elseif mac
-			var process = new HiddenProcess("sysctl -a | grep brand_string"); // Somehow this isnt able to use the args but it still works
+			var process = new HiddenProcess("sysctl -a | grep brand_string"); // Somehow this isn't able to use the args but it still works
 			if (process.exitCode() != 0) throw 'Could not fetch CPU information';
 
 			cpuName = process.stdout.readAll().toString().trim().split(":")[1].trim();

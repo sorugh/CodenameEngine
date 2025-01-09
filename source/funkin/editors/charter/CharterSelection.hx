@@ -91,9 +91,9 @@ class CharterSelection extends EditorTreeMenu {
 	}
 
 	public function saveSong(creation:SongCreationData) {
-		var songAlreadlyExsits:Bool = [for (s in freeplayList.songs) s.name.toLowerCase()].contains(creation.meta.name.toLowerCase());
+		var songAlreadyExists:Bool = [for (s in freeplayList.songs) s.name.toLowerCase()].contains(creation.meta.name.toLowerCase());
 
-		if (songAlreadlyExsits) {
+		if (songAlreadyExists) {
 			openSubState(new UIWarningSubstate(TU.translate("chartCreation.warnings.song-exists-title"), TU.translate("chartCreation.warnings.song-exists-body"), [
 				{label: TU.translate("editor.ok"), color: 0xFFFF0000, onClick: function(t) {}},
 			]));
@@ -138,9 +138,9 @@ class CharterSelection extends EditorTreeMenu {
 	}
 
 	public function saveChart(name:String, data:ChartData) {
-		var difficultyAlreadlyExsits:Bool = curSong.difficulties.contains(name);
+		var difficultyAlreadyExists:Bool = curSong.difficulties.contains(name);
 
-		if (difficultyAlreadlyExsits) {
+		if (difficultyAlreadyExists) {
 			openSubState(new UIWarningSubstate(TU.translate("chartCreation.warnings.chart-exists-title"), TU.translate("chartCreation.warnings.chart-exists-body"), [
 				{label: TU.translate("editor.ok"), color: 0xFFFF0000, onClick: function(t) {}},
 			]));

@@ -35,7 +35,7 @@ class DialogueCutscene extends ScriptedCutscene {
 		return curLine = val;
 	}
 
-	// Backwards comapt funcs  - Nex
+	// Backwards compat funcs  - Nex
 	public function set_dialogueScript(val:Script) return script = val;
 	public function get_dialogueScript() return script;
 

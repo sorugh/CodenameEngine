@@ -8,4 +8,5 @@ latest/windows/haxe/
 .haxelib/
 pages/
 docs/doc.xml
-mods/
+mods/*
+!mods/readme.txt

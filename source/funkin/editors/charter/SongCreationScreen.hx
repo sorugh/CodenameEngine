@@ -82,7 +82,8 @@ class SongCreationScreen extends UISubstateWindow {
 
 		var voicesUIText:UIText = null;
 
-		instExplorer = new UIFileExplorer(songNameTextBox.x, songNameTextBox.y + 32 + 36, null, null, Flags.SOUND_EXT, function (res) {
+		instExplorer = new UIFileExplorer(songNameTextBox.x, songNameTextBox.y + 32 + 36, null, null, Flags.SOUND_EXT, function (path, res) {
+			if (path == null || res == null) return;
 			var audioPlayer:UIAudioPlayer = new UIAudioPlayer(instExplorer.x + 8, instExplorer.y + 8, res);
 			instExplorer.members.push(audioPlayer);
 			instExplorer.uiElement = audioPlayer;
@@ -92,7 +93,8 @@ class SongCreationScreen extends UISubstateWindow {
 			"Inst Audio File $* Required$",
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
-		voicesExplorer = new UIFileExplorer(instExplorer.x + 320 + 26, instExplorer.y, null, null, Flags.SOUND_EXT, function (res) {
+		voicesExplorer = new UIFileExplorer(instExplorer.x + 320 + 26, instExplorer.y, null, null, Flags.SOUND_EXT, function (path, res) {
+			if (path == null || res == null) return;
 			var audioPlayer:UIAudioPlayer = new UIAudioPlayer(voicesExplorer.x + 8, voicesExplorer.y + 8, res);
 			voicesExplorer.members.push(audioPlayer);
 			voicesExplorer.uiElement = audioPlayer;

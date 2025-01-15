@@ -7,6 +7,7 @@ class DrawAxis extends FlxObject {
 	public override function draw() {
 		super.draw();
 
+		/*
 		for (camera in cameras) {
 			var gfx:Graphics = FlxG.renderBlit ? {
 				FlxSpriteUtil.flashGfx.clear();
@@ -27,5 +28,6 @@ class DrawAxis extends FlxObject {
 			if (FlxG.renderBlit)
 				camera.buffer.draw(FlxSpriteUtil.flashGfxSprite);
 		}
+		*/
 	}
 }

@@ -1,5 +1,9 @@
 package funkin.backend.utils;
 
+import flixel.graphics.FlxGraphic;
+import openfl.display.BitmapData;
+import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.graphics.frames.FlxFramesCollection;
 #if sys
 import sys.FileSystem;
 #end
@@ -299,7 +303,7 @@ final class CoolUtil
 			label++;
 			rSize /= 1024;
 		}
-		return Std.int(rSize) + "." + addZeros(Std.string(Std.int((rSize % 1) * 100)), 2) + sizeLabels[label];
+		return Std.int(rSize) + ((label <= 1) ? "" : "." + addZeros(Std.string(Std.int((rSize % 1) * 100)), 2)) + sizeLabels[label];
 	}
 
 	/**
@@ -1087,6 +1091,54 @@ final class CoolUtil
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * ! REQUIRES FULL PATH!!!
+	 * @param path 
+	 * @return Bool 
+	 */
+	public static function imageHasFrameData(path:String):String {
+		if (FileSystem.exists(Path.withExtension(path, "xml"))) return "xml";
+		if (FileSystem.exists(Path.withExtension(path, "txt"))) return "txt";
+		if (FileSystem.exists(Path.withExtension(path, "json"))) return "json";
+
+		return null;
+	}
+
+	public static function loadFramesFromData(data:String, ext:String = null):FlxFramesCollection {
+		var frames:FlxFramesCollection = null;
+		var tempBitmap:BitmapData = new BitmapData(1, 1, false);
+
+		// Worlds hackiest work around alert???
+		var graphic:FlxGraphic = FlxG.bitmap.add(tempBitmap);
+		@:privateAccess {
+			graphic.width = 9999999;
+			graphic.height = 9999999;
+		}
+
+		try {
+			switch (ext) {
+				case "xml": frames = FlxAtlasFrames.fromSparrow(graphic, Xml.parse(data));
+				case "txt": frames = FlxAtlasFrames.fromSpriteSheetPacker(graphic, data);
+				case "json": frames = FlxAtlasFrames.fromAseprite(graphic, data);
+			}
+		} catch (e) {trace(e);}
+
+		return frames;
+	}
+
+	public static function getAnimsListFromFrames(frames:FlxFramesCollection, ext:String = null):Array<String> {
+		if (frames == null) return null;
+
+		var animsList:Array<String> = [];
+		for (frame in frames.frames) {
+			var animName:String = ext == "txt" ? frame.name.split("_")[0] : frame.name.substr(0, frame.name.length-4);
+			if (!animsList.contains(animName))
+				animsList.push(animName);
+		}
+
+		return animsList;
 	}
 }
 

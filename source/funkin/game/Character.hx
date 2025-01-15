@@ -261,6 +261,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	public function drawHitbox() {
 		if (_matrix == null || frame == null) return;
 
+		/*
 		for (camera in cameras) {
 			var gfx:Graphics = FlxG.renderBlit ? {
 				FlxSpriteUtil.flashGfx.clear();
@@ -276,9 +277,11 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 			if (FlxG.renderBlit)
 				camera.buffer.draw(FlxSpriteUtil.flashGfxSprite);
 		}
+		*/
 	}
 
 	public function drawCamera() {
+		/*
 		for (camera in cameras) {
 			var gfx:Graphics = FlxG.renderBlit ? {
 				FlxSpriteUtil.flashGfx.clear();
@@ -301,6 +304,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 			if (FlxG.renderBlit)
 				camera.buffer.draw(FlxSpriteUtil.flashGfxSprite);
 		}
+		*/
 	}
 
 	public var singAnims = ["singLEFT", "singDOWN", "singUP", "singRIGHT"];

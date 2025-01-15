@@ -11,24 +11,26 @@ class UIFileExplorer extends UISliceSprite {
 	public var deleteIcon:FlxSprite;
 
 	public var file:Bytes = null;
-	public var onFile:Bytes->Void;
+	public var filePath:String = null;
+	public var onFile:(String, Bytes)->Void;
 
-	public var uiElement:UISprite;
+	public var uiElement:FlxSprite;
 
-	public function new(x:Float, y:Float, ?w:Int, ?h:Int, fileType:String = "txt", ?onFile:Bytes->Void) {
+	public function new(x:Float, y:Float, ?w:Int, ?h:Int, fileType:String = "txt", ?onFile:(String, Bytes)->Void) {
 		super(x, y, (w != null ? w : 320), (h != null ? h : 58), 'editors/ui/inputbox');
 
 		if (onFile != null) this.onFile = onFile;
 
 		uploadButton = new UIButton(x + 8, y+ 8, null, function () {
 			var fileDialog = new FileDialog();
-			fileDialog.onOpen.add(function(res) {
-				file = cast res;
+			fileDialog.onSelect.add(function(path) {
+				filePath = path;
+				file = cast sys.io.File.getBytes(path);
 				deleteButton.visible = deleteButton.selectable = deleteIcon.visible = !(uploadButton.visible = uploadButton.selectable = false);
 
-				if (this.onFile != null) this.onFile(file);
+				if (this.onFile != null) this.onFile(filePath, file);
 			});
-			fileDialog.open(fileType);
+			fileDialog.browse(OPEN, fileType);
 		}, bWidth - 16, bHeight - 16);
 		members.push(uploadButton);
 
@@ -42,7 +44,7 @@ class UIFileExplorer extends UISliceSprite {
 
 		deleteIcon = new FlxSprite(deleteButton.x + ((bHeight - 16)/2) - 8, deleteButton.y + ((bHeight - 16)/2) - 8).loadGraphic(Paths.image('editors/delete-button'));
 		deleteIcon.antialiasing = false;
-		members.push(deleteIcon);
+		deleteButton.members.push(deleteIcon);
 
 		deleteButton.visible = deleteButton.selectable = deleteIcon.visible = false;
 	}
@@ -68,7 +70,7 @@ class UIFileExplorer extends UISliceSprite {
 			uiElement.destroy();
 		}
 
-		file = null;
+		file = null; onFile(null, null);
 		MemoryUtil.clearMajor();
 
 		deleteButton.visible = deleteButton.selectable = deleteIcon.visible = !(uploadButton.visible = uploadButton.selectable = true);

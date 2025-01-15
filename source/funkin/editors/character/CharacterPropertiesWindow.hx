@@ -10,6 +10,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 	public var positionYStepper:UINumericStepper;
 	public var scaleStepper:UINumericStepper;
 	public var editCharacterButton:UIButton;
+	public var editSpriteButton:UIButton;
 	public var flipXCheckbox:UICheckbox;
 
 	public var cameraXStepper:UINumericStepper;
@@ -49,8 +50,13 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		members.push(scaleStepper);
 		addLabelOn(scaleStepper, "Scale");
 
-		editCharacterButton = new UIButton(scaleStepper.x + 90 -32 + 26, scaleStepper.y, "Edit Info", editCharacterInfoUI);
+		editCharacterButton = new UIButton(scaleStepper.x + 90 -32 + 26, scaleStepper.y-20, "Edit Info", editCharacterInfoUI, 120, 24);
+		editCharacterButton.field.size -= 2;
 		members.push(editCharacterButton);
+
+		editSpriteButton = new UIButton(editCharacterButton.x, editCharacterButton.y+24+6, "Edit Sprite", editCharacterSpriteUI, 120, 24);
+		editSpriteButton.field.size -= 2;
+		members.push(editSpriteButton);
 
 		flipXCheckbox = new UICheckbox(scaleStepper.x+22, scaleStepper.y+32+14, "Flipped?", character.isPlayer ? !character.__baseFlipped : character.__baseFlipped);
 		flipXCheckbox.onChecked = (checked:Bool) -> {this.changeFlipX(checked);};
@@ -127,6 +133,12 @@ class CharacterPropertiesWindow extends UISliceSprite {
 			character.iconColor = info.iconColor;
 			character.holdTime = info.holdTime;
 			character.extra = info.customProperties.copy();
+		}));
+	}
+
+	public function editCharacterSpriteUI() {
+		CharacterEditor.instance.openSubState(new CharacterSpriteScreen(character.sprite, (sprite:String) -> {
+			trace(sprite);
 		}));
 	}
 

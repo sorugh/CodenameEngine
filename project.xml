@@ -64,6 +64,7 @@
 		<assets path="assets/"    rename="assets"	exclude="*.mp3" unless="web"/>
 	</section>
 
+	<!-- TODO: make it copy this manually, instead of using assets node, so it doesn't manually check for fonts -->
 	<assets path='mods' rename='mods' embed='false'/>
 	<assets path='art/readme.txt' rename='do NOT readme.txt' />
 
@@ -150,7 +151,7 @@
 	<!-- Comment this out to disable dark mode windows -->
 	<define name="DARK_MODE_WINDOW"/>
 
-	<haxedef name="analyzer-optimize" />
+	<haxedef name="analyzer-optimize" unless="debug" />
 
 	<haxedef name="VIDEO_CUTSCENES" if="VIDEO_CUTSCENES" />
 	<haxedef name="UPDATE_CHECKING" if="UPDATE_CHECKING" />

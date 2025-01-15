@@ -1106,6 +1106,7 @@ final class CoolUtil
 		return null;
 	}
 
+	// loads frames with no image, but with data, so you can parse it
 	public static function loadFramesFromData(data:String, ext:String = null):FlxFramesCollection {
 		var frames:FlxFramesCollection = null;
 		var tempBitmap:BitmapData = new BitmapData(1, 1, false);
@@ -1113,6 +1114,7 @@ final class CoolUtil
 		// Worlds hackiest work around alert???
 		var graphic:FlxGraphic = FlxG.bitmap.add(tempBitmap);
 		@:privateAccess {
+			// prevent errors from being shown, such as Size is too small
 			graphic.width = 9999999;
 			graphic.height = 9999999;
 		}
@@ -1128,8 +1130,12 @@ final class CoolUtil
 		return frames;
 	}
 
+	public static function removeBOM(str:String):String {
+		return StringTools.replace(str, String.fromCharCode(0xFEFF), "");
+	}
+
 	public static function getAnimsListFromFrames(frames:FlxFramesCollection, ext:String = null):Array<String> {
-		if (frames == null) return null;
+		if (frames == null) return [];
 
 		var animsList:Array<String> = [];
 		for (frame in frames.frames) {

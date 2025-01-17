@@ -12,7 +12,7 @@ import haxe.io.Path;
 class AlphabetSelection extends EditorTreeMenu
 {
 	inline function translate(id:String, ?args:Array<Dynamic>)
-		return TU.translate("alphabetSelection." + id, args);
+		return TU.translate("editor.alphabet.selection." + id, args);
 
 	public override function create()
 	{
@@ -37,7 +37,7 @@ class AlphabetSelection extends EditorTreeMenu
 			]));
 		}));
 
-		main = new OptionsScreen(TU.translate("alphabetEditor.name"), translate("desc"), list);
+		main = new OptionsScreen(TU.translate("editor.alphabet.name"), translate("desc"), list);
 
 		DiscordUtil.call("onEditorTreeLoaded", ["Alphabet Editor"]);
 	}

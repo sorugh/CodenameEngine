@@ -47,7 +47,7 @@ class CharterSelection extends EditorTreeMenu {
 			FlxG.state.openSubState(new SongCreationScreen(saveSong));
 		}));
 
-		main = new OptionsScreen(TU.translate("charter.name"), TU.translate("charterSelection.desc"), list);
+		main = new OptionsScreen(TU.translate("editor.chart.name"), TU.translate("charterSelection.desc"), list);
 
 		DiscordUtil.call("onEditorTreeLoaded", ["Chart Editor"]);
 	}

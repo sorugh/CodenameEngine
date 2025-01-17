@@ -32,7 +32,7 @@ class AlphabetEditor extends UIState {
 	}
 
 	inline function translate(id:String, ?args:Array<Dynamic>)
-		return TU.translate("alphabetEditor." + id, args);
+		return TU.translate("editor.alphabet." + id, args);
 
 	public var tape:Alphabet;
 	public var bigletter:Alphabet;

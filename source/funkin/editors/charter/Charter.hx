@@ -106,152 +106,152 @@ class Charter extends UIState {
 	public override function create() {
 		super.create();
 
-		WindowUtils.suffix = " (" + TU.translate("charter.name") + ")";
+		WindowUtils.suffix = " (" + TU.translate("editor.chart.name") + ")";
 		SaveWarning.selectionClass = CharterSelection;
 		SaveWarning.saveFunc = () -> {_file_save(null);};
 
 		topMenu = [
 			{
-				label: TU.translate("charter.topBar.file"),
+				label: TU.translate("chart.topBar.file"),
 				childs: [
 					{
-						label: TU.translate("charter.file.new")
+						label: TU.translate("chart.file.new")
 					},
 					null,
 					{
-						label: TU.translate("charter.file.save"),
+						label: TU.translate("chart.file.save"),
 						keybind: [CONTROL, S],
 						onSelect: _file_save,
 					},
 					{
-						label: TU.translate("charter.file.saveAs"),
+						label: TU.translate("chart.file.saveAs"),
 						keybind: [CONTROL, SHIFT, S],
 						onSelect: _file_saveas,
 					},
 					null,
 					{
-						label: TU.translate("charter.file.saveWithoutEvents"),
+						label: TU.translate("chart.file.saveWithoutEvents"),
 						keybind: [CONTROL, ALT, TAB, S],
 						onSelect: _file_save_no_events,
 					},
 					{
-						label: TU.translate("charter.file.saveWithoutEventsAs"),
+						label: TU.translate("chart.file.saveWithoutEventsAs"),
 						keybind: [CONTROL, SHIFT, ALT, TAB, S],
 						onSelect: _file_saveas_no_events,
 					},
 					{
-						label: TU.translate("charter.file.saveEventsSeparately"),
+						label: TU.translate("chart.file.saveEventsSeparately"),
 						keybind: [CONTROL, TAB, S],
 						onSelect: _file_events_save,
 					},
 					{
-						label: TU.translate("charter.file.saveEventsSeparatelyAs"),
+						label: TU.translate("chart.file.saveEventsSeparatelyAs"),
 						keybind: [CONTROL, SHIFT, TAB, S],
 						onSelect: _file_events_saveas,
 					},
 					null,
 					{
-						label: TU.translate("charter.file.saveMeta"),
+						label: TU.translate("chart.file.saveMeta"),
 						keybind: [CONTROL, ALT, S],
 						onSelect: _file_meta_save,
 					},
 					{
-						label: TU.translate("charter.file.saveMetaAs"),
+						label: TU.translate("chart.file.saveMetaAs"),
 						keybind: [CONTROL, ALT ,SHIFT, S],
 						onSelect: _file_meta_saveas,
 					},
 					null,
 					{
-						label: TU.translate("charter.file.exportFnfLegacy"),
+						label: TU.translate("chart.file.exportFnfLegacy"),
 						onSelect: _file_saveas_fnflegacy,
 					},
 					{
-						label: TU.translate("charter.file.exportPsych"),
+						label: TU.translate("chart.file.exportPsych"),
 						onSelect: _file_saveas_psych,
 					},
 					null,
 					{
-						label: TU.translate("charter.file.exit"),
+						label: TU.translate("chart.file.exit"),
 						onSelect: _file_exit
 					}
 				]
 			},
 			{
-				label: TU.translate("charter.topBar.edit"),
+				label: TU.translate("chart.topBar.edit"),
 				childs: [
 					{
-						label: TU.translate("charter.edit.undo"),
+						label: TU.translate("chart.edit.undo"),
 						keybind: [CONTROL, Z],
 						onSelect: _edit_undo
 					},
 					{
-						label: TU.translate("charter.edit.redo"),
+						label: TU.translate("chart.edit.redo"),
 						keybinds: [[CONTROL, Y], [CONTROL, SHIFT, Z]],
 						onSelect: _edit_redo
 					},
 					null,
 					{
-						label: TU.translate("charter.edit.copy"),
+						label: TU.translate("chart.edit.copy"),
 						keybind: [CONTROL, C],
 						onSelect: _edit_copy
 					},
 					{
-						label: TU.translate("charter.edit.paste"),
+						label: TU.translate("chart.edit.paste"),
 						keybind: [CONTROL, V],
 						onSelect: _edit_paste
 					},
 					null,
 					{
-						label: TU.translate("charter.edit.cut"),
+						label: TU.translate("chart.edit.cut"),
 						keybind: [CONTROL, X],
 						onSelect: _edit_cut
 					},
 					{
-						label: TU.translate("charter.edit.delete"),
+						label: TU.translate("chart.edit.delete"),
 						keybind: [DELETE],
 						onSelect: _edit_delete
 					}
 				]
 			},
 			{
-				label: TU.translate("charter.topBar.chart"),
+				label: TU.translate("chart.topBar.chart"),
 				childs: [
 					{
-						label: TU.translate("charter.chart.playtest"),
+						label: TU.translate("chart.chart.playtest"),
 						keybind: [ENTER],
 						onSelect: _chart_playtest
 					},
 					{
-						label: TU.translate("charter.chart.playtestHere"),
+						label: TU.translate("chart.chart.playtestHere"),
 						keybind: [SHIFT, ENTER],
 						onSelect: _chart_playtest_here
 					},
 					null,
 					{
-						label: TU.translate("charter.chart.playtestOpponent"),
+						label: TU.translate("chart.chart.playtestOpponent"),
 						keybind: [CONTROL, ENTER],
 						onSelect: _chart_playtest_opponent
 					},
 					{
-						label: TU.translate("charter.chart.playtestOpponentHere"),
+						label: TU.translate("chart.chart.playtestOpponentHere"),
 						keybind: [CONTROL, SHIFT, ENTER],
 						onSelect: _chart_playtest_opponent_here
 					},
 					null,
 					{
-						label: TU.translate("charter.chart.enableScripts"),
+						label: TU.translate("chart.chart.enableScripts"),
 						onSelect: _chart_enablescripts,
 						icon: Options.charterEnablePlaytestScripts ? 1 : 0
 					},
 					null,
 					{
-						label: TU.translate("charter.chart.editChartData"),
+						label: TU.translate("chart.chart.editChartData"),
 						color: 0xFF959829, icon: 4,
 						onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2;},
 						onSelect: chart_edit_data
 					},
 					{
-						label: TU.translate("charter.chart.editMetadata"),
+						label: TU.translate("chart.chart.editMetadata"),
 						color: 0xFF959829, icon: 4,
 						onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2;},
 						onSelect: chart_edit_metadata
@@ -259,105 +259,105 @@ class Charter extends UIState {
 				]
 			},
 			{
-				label: TU.translate("charter.topBar.view"),
+				label: TU.translate("chart.topBar.view"),
 				childs: [
 					{
-						label: TU.translate("charter.view.zoomIn"),
+						label: TU.translate("chart.view.zoomIn"),
 						keybind: [CONTROL, NUMPADPLUS],
 						onSelect: _view_zoomin
 					},
 					{
-						label: TU.translate("charter.view.zoomOut"),
+						label: TU.translate("chart.view.zoomOut"),
 						keybind: [CONTROL, NUMPADMINUS],
 						onSelect: _view_zoomout
 					},
 					{
-						label: TU.translate("charter.view.resetZoom"),
+						label: TU.translate("chart.view.resetZoom"),
 						keybind: [CONTROL, NUMPADZERO],
 						onSelect: _view_zoomreset
 					},
 					null,
 					{
-						label: TU.translate("charter.view.showSectionsSeparator"),
+						label: TU.translate("chart.view.showSectionsSeparator"),
 						onSelect: _view_showeventSecSeparator,
 						icon: Options.charterShowSections ? 1 : 0
 					},
 					{
-						label: TU.translate("charter.view.showBeatsSeparator"),
+						label: TU.translate("chart.view.showBeatsSeparator"),
 						onSelect: _view_showeventBeatSeparator,
 						icon: Options.charterShowBeats ? 1 : 0
 					},
 					null,
 					{
-						label: TU.translate("charter.view.lowDetailWaveforms"),
+						label: TU.translate("chart.view.lowDetailWaveforms"),
 						onSelect: _view_switchWaveformDetail,
 						icon: Options.charterLowDetailWaveforms ? 1 : 0
 					}
 				]
 			},
 			{
-				label: TU.translate("charter.topBar.song"),
+				label: TU.translate("chart.topBar.song"),
 				childs: [
 					{
-						label: TU.translate("charter.song.goStart"),
+						label: TU.translate("chart.song.goStart"),
 						keybind: [HOME],
 						onSelect: _song_start
 					},
 					{
-						label: TU.translate("charter.song.goEnd"),
+						label: TU.translate("chart.song.goEnd"),
 						keybind: [END],
 						onSelect: _song_end
 					},
 					null,
 					{
-						label: TU.translate("charter.song.muteInst"),
+						label: TU.translate("chart.song.muteInst"),
 						onSelect: _song_muteinst
 					},
 					{
-						label: TU.translate("charter.song.muteVoices"),
+						label: TU.translate("chart.song.muteVoices"),
 						onSelect: _song_mutevoices
 					}
 				]
 			},
 			{
-				label: TU.translate("charter.topBar.note") + " >",
+				label: TU.translate("chart.topBar.note") + " >",
 				childs: buildNoteTypesUI()
 			},
 			{
-				label: TU.translate("charter.topBar.snap") + " >",
+				label: TU.translate("chart.topBar.snap") + " >",
 				childs: buildSnapsUI()
 			},
 			{
-				label: TU.translate("charter.topBar.playback") + " >",
+				label: TU.translate("chart.topBar.playback") + " >",
 				childs: [
 					{
-						label: TU.translate("charter.playback.play"),
+						label: TU.translate("chart.playback.play"),
 						keybind: [SPACE],
 						onSelect: _playback_play
 					},
 					null,
 					{
-						label: TU.translate("charter.playback.speedRaise", ["25"]),
+						label: TU.translate("chart.playback.speedRaise", ["25"]),
 						keybind: [PERIOD],
 						onSelect: _playback_speed_raise
 					},
 					{
-						label: TU.translate("charter.playback.speedReset"),
+						label: TU.translate("chart.playback.speedReset"),
 						onSelect: _playback_speed_reset
 					},
 					{
-						label: TU.translate("charter.playback.speedLower", ["25"]),
+						label: TU.translate("chart.playback.speedLower", ["25"]),
 						keybind: [COMMA],
 						onSelect: _playback_speed_lower
 					},
 					null,
 					{
-						label: TU.translate("charter.playback.sectionBack"),
+						label: TU.translate("chart.playback.sectionBack"),
 						keybind: [A],
 						onSelect: _playback_back
 					},
 					{
-						label: TU.translate("charter.playback.sectionForward"),
+						label: TU.translate("chart.playback.sectionForward"),
 						keybind: [D],
 						onSelect: _playback_forward
 					},
@@ -379,12 +379,12 @@ class Charter extends UIState {
 					},
 					null,
 					{
-						label: TU.translate("charter.playback.metronome"),
+						label: TU.translate("chart.playback.metronome"),
 						onSelect: _playback_metronome,
 						icon: Options.charterMetronomeEnabled ? 1 : 0
 					},
 					{
-						label: TU.translate("charter.playback.visualMetronome")
+						label: TU.translate("chart.playback.visualMetronome")
 					},
 				]
 			}
@@ -430,7 +430,7 @@ class Charter extends UIState {
 		topMenuSpr = new UITopMenu(topMenu);
 		topMenuSpr.cameras = uiGroup.cameras = [uiCamera];
 
-		noteTypeText = new UIText(0, 0, 0, "(0) " + TU.translate("charter.noteTypes.default"));
+		noteTypeText = new UIText(0, 0, 0, "(0) " + TU.translate("chart.noteTypes.default"));
 		noteTypeText.cameras = [uiCamera];
 
 		scrollBar = new UIScrollBar(FlxG.width - 20, topMenuSpr.bHeight, 1000, 0, 100);
@@ -468,12 +468,12 @@ class Charter extends UIState {
 		autoSaveNotif = new CharterAutoSaveUI(20, strumlineInfoBG.y + strumlineInfoBG.height + 20);
 		uiGroup.add(autoSaveNotif);
 
-		strumlineAddButton = new CharterStrumlineButton("editors/new", TU.translate("charter.createNew"));
+		strumlineAddButton = new CharterStrumlineButton("editors/new", TU.translate("chart.createNew"));
 		strumlineAddButton.onClick = createStrumWithUI;
 		strumlineAddButton.animationOnClick = false;
 		strumlineAddButton.textColorLerp = 0.5;
 
-		strumlineLockButton = new CharterStrumlineButton("editors/charter/lock-strumline", TU.translate("charter.lock-unlock"));
+		strumlineLockButton = new CharterStrumlineButton("editors/charter/lock-strumline", TU.translate("chart.lock-unlock"));
 		strumlineLockButton.onClick = function () {
 			if (strumLines != null) {
 				strumLines.draggable = !strumLines.draggable;
@@ -724,7 +724,7 @@ class Charter extends UIState {
 				__autoSaveLocation = __diff.toLowerCase() + DateTools.format(Date.now(), "%m-%d_%H-%M");
 			var filename = !Options.charterAutoSavesSeparateFolder ? '${__diff.toLowerCase()}.json' : '${__autoSaveLocation}.json';
 			autoSaveNotif.startAutoSave(autoSaveTimer,
-				TU.translate("charter.popup.savedChartAt", [filename])
+				TU.translate("chart.popup.savedChartAt", [filename])
 			);
 		}
 		if (autoSaveTimer <= 0) {
@@ -1218,7 +1218,7 @@ class Charter extends UIState {
 			noteTypeText.x = noteTopButton.x + noteTopButton.bWidth + 6;
 			noteTypeText.y = Std.int((noteTopButton.bHeight - noteTypeText.height) / 2);
 		}
-		noteTypeText.text = '($noteType) ' + (noteTypes[noteType-1] == null ? TU.translate("charter.noteTypes.default") : noteTypes[noteType-1]);
+		noteTypeText.text = '($noteType) ' + (noteTypes[noteType-1] == null ? TU.translate("chart.noteTypes.default") : noteTypes[noteType-1]);
 
 		super.update(elapsed);
 
@@ -1665,16 +1665,16 @@ class Charter extends UIState {
 		var snapsTopButton:UITopMenuButton = topMenuSpr == null ? null : cast topMenuSpr.members[snapIndex];
 		var newChilds:Array<UIContextMenuOption> = [
 			{
-				label: TU.translate("charter.snap.increaseSnap"),
+				label: TU.translate("chart.snap.increaseSnap"),
 				keybind: [X],
 				onSelect: _snap_increasesnap
 			},
 			{
-				label: TU.translate("charter.snap.resetSnap"),
+				label: TU.translate("chart.snap.resetSnap"),
 				onSelect: _snap_resetsnap
 			},
 			{
-				label: TU.translate("charter.snap.decreaseSnap"),
+				label: TU.translate("chart.snap.decreaseSnap"),
 				keybind: [Z],
 				onSelect: _snap_decreasesnap
 			},
@@ -1753,29 +1753,29 @@ class Charter extends UIState {
 		var noteTopButton:UITopMenuButton = topMenuSpr == null ? null : cast topMenuSpr.members[noteIndex];
 		var newChilds:Array<UIContextMenuOption> = [
 			{
-				label: TU.translate("charter.note.addSustainLength"),
+				label: TU.translate("chart.note.addSustainLength"),
 				keybind: [E],
 				onSelect: _note_addsustain
 			},
 			{
-				label: TU.translate("charter.note.subtractSustainLength"),
+				label: TU.translate("chart.note.subtractSustainLength"),
 				keybind: [Q],
 				onSelect: _note_subtractsustain
 			},
 			null,
 			{
-				label: TU.translate("charter.note.selectAll"),
+				label: TU.translate("chart.note.selectAll"),
 				keybind: [CONTROL, A],
 				onSelect: _note_selectall
 			},
 			{
-				label: TU.translate("charter.note.selectMeasure"),
+				label: TU.translate("chart.note.selectMeasure"),
 				keybind: [CONTROL, SHIFT, A],
 				onSelect: _note_selectmeasure
 			},
 			null,
 			{
-				label: "(0) " + TU.translate("charter.noteTypes.default"),
+				label: "(0) " + TU.translate("chart.noteTypes.default"),
 				keybind: [ZERO],
 				onSelect: (_) -> {changeNoteType(0);},
 				icon: this.noteType == 0 ? 1 : 0
@@ -1795,7 +1795,7 @@ class Charter extends UIState {
 			newChilds.push(newChild);
 		}
 		newChilds.push({
-			label: TU.translate("charter.note.editNoteTypesList"),
+			label: TU.translate("chart.note.editNoteTypesList"),
 			color: 0xFF959829, icon: 4,
 			onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2;},
 			onSelect: editNoteTypesList

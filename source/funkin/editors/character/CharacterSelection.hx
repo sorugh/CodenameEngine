@@ -58,7 +58,7 @@ class CharacterSelection extends EditorTreeMenu
 
 		var list = generateList(modsList, isMods);
 
-		main = new OptionsScreen(TU.translate("characterEditor.name"), translate("desc"), list);
+		main = new OptionsScreen(TU.translate("editor.character.name"), translate("desc"), list);
 
 		DiscordUtil.call("onEditorTreeLoaded", ["Character Editor"]);
 	}

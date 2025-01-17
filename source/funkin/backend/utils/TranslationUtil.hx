@@ -266,12 +266,13 @@ final class TranslationUtil
 			}
 
 			var langNode = xml.node.language;
+			var prefix = langNode.getAtt("prefix").getDefault("");
 
 			//if (langNode.has.name) {
 			//	getConfig(lang).set("name", langNode.att.name);
 			//}
 
-			parseXml(langNode);
+			parseXml(langNode, prefix);
 		}
 
 		for(pair in translations) {

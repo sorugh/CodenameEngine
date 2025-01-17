@@ -6,44 +6,38 @@ import flixel.math.FlxPoint;
 class EditorPicker extends MusicBeatSubstate {
 	public var bg:FlxSprite;
 
-	// Name is for backwards compatability, dont use it, use id instead
+	// Name is for backwards compatibility, don't use it, use id instead
 	public var options:Array<Editor> = [
 		{
 			name: "Alphabet Editor",
-			id: "alphabetEditor",
-			iconID: -1,
+			id: "alphabet",
 			state: funkin.editors.alphabet.AlphabetSelection
 		},
 		{
 			name: "Chart Editor",
-			id: "charter",
-			iconID: 0,
+			id: "chart",
 			state: funkin.editors.charter.CharterSelection
 		},
 		{
 			name: "Character Editor",
-			id: "characterEditor",
-			iconID: 1,
+			id: "character",
 			state: funkin.editors.character.CharacterSelection
 		},
 		{
 			name: "Stage Editor",
-			id: "stageEditor",
-			iconID: 2,
+			id: "stage",
 			state: null
 		},
 		#if (debug || debug_ui)
 		{
 			name: "UI Debug State",
 			id: "uiDebug",
-			iconID: 3,
 			state: UIDebugState
 		},
 		#end
 		{
 			name: "Wiki",
 			id: "wiki",
-			iconID: 5,
 			state: null,
 			onClick: function() {
 				CoolUtil.openURL("https://codename-engine.com/");
@@ -52,7 +46,6 @@ class EditorPicker extends MusicBeatSubstate {
 		{
 			name: "Debug Options",
 			id: "debugOptions",
-			iconID: 4,
 			state: DebugOptions
 		}
 	];
@@ -87,8 +80,8 @@ class EditorPicker extends MusicBeatSubstate {
 
 		optionHeight = FlxG.height / options.length;
 		for(k=>o in options) {
-			var visualName = (o.id != null) ? TU.translate(o.id + ".name") : o.name;
-			var spr = new EditorPickerOption(visualName, o.iconID, optionHeight);
+			var visualName = (o.id != null) ? TU.translate("editor." + o.id + ".name") : o.name;
+			var spr = new EditorPickerOption(visualName, o.id, optionHeight);
 			spr.y = k * optionHeight;
 			add(spr);
 			sprites.push(spr);
@@ -170,7 +163,6 @@ class EditorPicker extends MusicBeatSubstate {
 typedef Editor = {
 	var name:String;
 	var id:String;
-	var iconID:Int;
 	var state:Class<MusicBeatState>;
 	var ?onClick:Void->Void;
 }
@@ -186,23 +178,17 @@ class EditorPickerOption extends FlxTypedSpriteGroup<FlxSprite> {
 	public var selectionLerp:Float = 0;
 
 	public var iconRotationCycle:Float = 0;
-	public function new(name:String, iconID:Int, height:Float) {
+	public function new(name:String, iconID:String, height:Float) {
 		super();
 
 		FlxG.mouse.visible = true;
 		iconSpr = new FlxSprite();
-		iconSpr.loadGraphic(Paths.image('editors/icons'), true, 128, 128);
-		if(iconID >= 0) {
-			iconSpr.animation.add("icon", [iconID], 24, true);
-			iconSpr.animation.play("icon");
-		} else {
+		if(iconID != null)
+			iconSpr.loadGraphic(Paths.image('editors/icons/$iconID'));
+		else
 			iconSpr.exists = false;
-		}
 		iconSpr.antialiasing = true;
-		if (height < 150) {
-			iconSpr.scale.set(height / 150, height / 150);
-			iconSpr.updateHitbox();
-		}
+		iconSpr.setUnstretchedGraphicSize(110, 110, false);
 		iconSpr.x = 25 + ((height - iconSpr.width) / 2);
 		iconSpr.y = (height - iconSpr.height) / 2;
 

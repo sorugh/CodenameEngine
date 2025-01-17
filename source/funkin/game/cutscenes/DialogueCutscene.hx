@@ -30,14 +30,14 @@ class DialogueCutscene extends ScriptedCutscene {
 	public static var cutscene:DialogueCutscene;
 	public var dialogueScript(get, set):Script;
 
-	public function set_curLine(val:DialogueLine) {
+	public inline function set_curLine(val:DialogueLine) {
 		lastLine = curLine;
 		return curLine = val;
 	}
 
 	// Backwards compat funcs  - Nex
-	public function set_dialogueScript(val:Script) return script = val;
-	public function get_dialogueScript() return script;
+	public inline function set_dialogueScript(val:Script) return script = val;
+	public inline function get_dialogueScript() return script;
 
 	public function new(dialoguePath:String, callback:Void->Void) {
 		super(this.dialoguePath = dialoguePath, callback);

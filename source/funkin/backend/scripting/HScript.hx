@@ -101,11 +101,15 @@ class HScript extends Script {
 
 	private function _errorHandler(error:Error) {
 		var fileName = error.origin;
+		var oldfn = '$fileName:${error.line}: ';
 		if(remappedNames.exists(fileName))
 			fileName = remappedNames.get(fileName);
 		var fn = '$fileName:${error.line}: ';
 		var err = error.toString();
-		if (err.startsWith(fn)) err = err.substr(fn.length);
+		while(err.startsWith(oldfn) || err.startsWith(fn)) {
+			if (err.startsWith(oldfn)) err = err.substr(oldfn.length);
+			if (err.startsWith(fn)) err = err.substr(fn.length);
+		}
 
 		Logs.traceColored([
 			Logs.logText(fn, GREEN),

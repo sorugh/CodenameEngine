@@ -1,34 +1,66 @@
 <!DOCTYPE codename-engine-alphabet-font>
-<alphabetFont fps="24" advance="30" lineGap="70" colorMode="offsets">
+<alphabetFont fps="12" advance="30" lineGap="70" colorMode="offsets">
 	<spritesheet>menus/alphabet</spritesheet>
 
-	<defaultAnim casing="upper">LETTER capital</defaultAnim>
-	<defaultAnim casing="lower">LETTER lowercase</defaultAnim>
+	<defaultAnim casing="upper">character-LOWERLETTER-capital</defaultAnim>
+	<defaultAnim casing="lower">character-LOWERLETTER-lowercase</defaultAnim>
 	<defaultAnim>LETTER</defaultAnim>
 
-	<anim char="g" y="-15">g lowercase</anim>
-	<anim char="j" y="-15">j lowercase</anim>
-	<anim char="p" y="-15">p lowercase</anim>
-	<anim char="q" y="-15">q lowercase</anim>
-	<anim char="y" y="-15">y lowercase</anim>
-	<anim char="→" y="9">right arrow</anim>
-	<anim char="←" y="9">left arrow</anim>
-	<anim char="↓" y="5">down arrow</anim>
-	<anim char="↑" y="4">up arrow</anim>
-	<anim char="`" y="32" scaleY="0.5">comma</anim>
-	<anim char="," y="-9">comma</anim>
-	<anim char="'" y="28">comma</anim>
-	<anim char=".">period</anim>
-	<anim char="!">exclamation point</anim>
-	<anim char="?">question mark</anim>
-	<anim char="/">forward slash</anim>
-	<anim char="&#34;" y="22">start parentheses</anim>
-	<anim char="-" y="15">-</anim>
-	<anim char="^" y="28">^</anim>
-	<anim char="~" y="17">~</anim>
-	<anim char="=" y="13">=</anim>
+	<anim char="g" y="-15">character-g-lowercase</anim>
+	<anim char="j" y="-15">character-j-lowercase</anim>
+	<anim char="p" y="-15">character-p-lowercase</anim>
+	<anim char="q" y="-15">character-q-lowercase</anim>
+	<anim char="y" y="-15">character-y-lowercase</anim>
 
-	<composite char="á">
+	<anim char="0">character-zero</anim>
+	<anim char="1">character-one</anim>
+	<anim char="2">character-two</anim>
+	<anim char="3">character-three</anim>
+	<anim char="4">character-four</anim>
+	<anim char="5">character-five</anim>
+	<anim char="6">character-six</anim>
+	<anim char="7">character-seven</anim>
+	<anim char="8">character-eight</anim>
+	<anim char="9">character-nine</anim>
+
+	<anim char="&amp;">character-ampersand</anim>
+	<anim char="&lt;">character-anglebracket-left</anim>
+	<anim char="&gt;">character-anglebracket-right</anim>
+	<anim char="→" y="9">character-arrow-right</anim>
+	<anim char="←" y="9">character-arrow-left</anim>
+	<anim char="↓" y="5">character-arrow-down</anim>
+	<anim char="↑" y="4">character-arrow-up</anim>
+	<anim char="*" y="30">character-asterisk</anim>
+	<anim char="@">character-at</anim>
+	<anim char="\">character-backslash</anim>
+	<anim char="`" y="30">character-backtick</anim>
+	<anim char="^" y="28">character-caret</anim>
+	<anim char=":">character-colon</anim>
+	<anim char="," y="-9">character-comma</anim>
+	<anim char="{">character-curlybracket-left</anim>
+	<anim char="}">character-curlybracket-right</anim>
+	<anim char="$">character-dollar</anim>
+	<anim char='"' y="28">character-doublequote-start</anim>
+	<anim char="=" y="13">character-equal</anim>
+	<anim char="!">character-exclamationmark</anim>
+	<anim char="-" y="20">character-minus</anim>
+	<anim char="%">character-percent</anim>
+	<anim char=".">character-period</anim>
+	<anim char="+" y="9">character-plus</anim>
+	<anim char="#" y="5">character-pound</anim>
+	<anim char="?">character-questionmark</anim>
+	<anim char="(">character-roundbracket-left</anim>
+	<anim char=")">character-roundbracket-right</anim>
+	<anim char=";" y="-9">character-semicolon</anim>
+	<anim char="'" y="28">character-singlequote</anim>
+	<anim char="/">character-slash</anim>
+	<anim char="[">character-squarebracket-left</anim>
+	<anim char="]">character-squarebracket-right</anim>
+	<anim char="~" y="17">character-tilde</anim>
+	<anim char="_">character-underscore</anim>
+	<anim char="|">character-verticalbar</anim>
+
+	<!-- <composite char="á">
 		<component anim="a lowercase0" x="0" y="0"/>
 		<component anim="comma" scaleY="0.5" x="7" y="35"/>
 	</composite>
@@ -56,7 +88,6 @@
 
 	<composite char="ą">
 		<component anim="a lowercase0" x="0" y="0"/>
-		<!-- temp character for now :sob: -->
 		<component anim="question hook0" scaleX="0.5" scaleY="0.5" x="10" y="-25" angle="200"/>
 	</composite>
 
@@ -83,5 +114,5 @@
 		<component anim="o lowercase0" x="0" y="0"/>
 		<component anim="period" x="0" y="35"/>
 		<component anim="period" x="20" y="35"/>
-	</composite>
+	</composite> -->
 </alphabetFont>

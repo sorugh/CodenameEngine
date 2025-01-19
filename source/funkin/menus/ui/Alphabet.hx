@@ -114,6 +114,7 @@ enum abstract AlphabetRenderMode(ByteUInt) from ByteUInt to ByteUInt {
 }
 
 @:allow(funkin.editors.alphabet.AlphabetEditor)
+@:allow(funkin.editors.alphabet.AlphabetMainDataScreen)
 class Alphabet extends FlxSprite {
 	public var effects:Array<RegionEffect> = [];
 	var __renderData:AlphabetRenderData;
@@ -128,7 +129,7 @@ class Alphabet extends FlxSprite {
 	public var alignment:AlphabetAlignment = LEFT;
 	public var forceCase:CaseMode = NONE;
 
-	var __laneWidths:Array<Float> = []; // TODO: add alignment.
+	var __laneWidths:Array<Float> = [];
 	var __forceWidth:Float = 0.0; // TODO: implement functionality for this.
 	var __queueResize:Bool = false;
 	var __animTime:Float = 0.0;
@@ -156,6 +157,7 @@ class Alphabet extends FlxSprite {
 		v[2] = [];
 		v;
 	};
+	var manualLetters:Array<String> = [];
 	var failedLetters:Array<String> = [];
 	var failedOutlines:Array<String> = [];
 
@@ -168,7 +170,8 @@ class Alphabet extends FlxSprite {
 	public function new(?x:Float, ?y:Float, ?text:String = "", ?font:OneOfTwo<String, Bool> = "normal") {
 		super(x, y);
 		this.text = text;
-		this.font = (font is String) ? font : ((font == true) ? "bold" : "normal"); // == true just in case
+		if (font != "<SKIP>")
+			this.font = (font is String) ? font : ((font == true) ? "bold" : "normal"); // == true just in case
 		this.__renderData = new AlphabetRenderData(this);
 	}
 
@@ -482,7 +485,7 @@ class Alphabet extends FlxSprite {
 		var name = char + Std.string(index);
 
 		var anim = (data.isDefault) ?
-			component.anim.replace("LETTER", char) :
+			component.anim.replace("LOWERLETTER", char.toLowerCase()).replace("UPPERLETTER", char.toUpperCase()).replace("LETTER", char) :
 			component.anim;
 		animation.addByPrefix(name, anim, fps);
 		return animation.exists(name) ? animation.getByName(name) : null;
@@ -494,7 +497,7 @@ class Alphabet extends FlxSprite {
 		if (animation.exists(name)) return animation.getByName(name);
 
 		var anim = (data.isDefault) ?
-			component.anim.replace("LETTER", char) :
+			component.anim.replace("LOWERLETTER", char.toLowerCase()).replace("UPPERLETTER", char.toUpperCase()).replace("LETTER", char) :
 			component.anim;
 		animation.addByPrefix(name, anim, fps);
 		if (!animation.exists(name)) {
@@ -634,6 +637,7 @@ class Alphabet extends FlxSprite {
 					components: components,
 					startIndex: startIndex
 				});
+				manualLetters.push(char);
 			case "anim":
 				if(!node.exists("char")) {
 					Logs.error("<anim> must have a char attribute", "Alphabet");
@@ -698,6 +702,7 @@ class Alphabet extends FlxSprite {
 					components: components,
 					startIndex: (node.get("hasOutline") == "true") ? 1 : 0
 				});
+				manualLetters.push(char);
 			case "languageSection": // used to only parse characters if a specific language is selected
 				if(!node.exists("langs")) {
 					Logs.error("<languageSection> must have a langs attribute", "Alphabet");
@@ -756,8 +761,8 @@ class Alphabet extends FlxSprite {
 		xml.set("fps", Std.string(fps));
 		xml.set("advance", Std.string(defaultAdvance));
 		xml.set("lineGap", Std.string(lineGap));
-		//xml.set("forceCasing", forceCase);
-		xml.set("useColorOffsets", colorMode == OFFSET ? "true" : "false");
+		xml.set("forceCasing", ["none", "upper", "lower"][forceCase]);
+		xml.set("useColorOffsets", ["tint", "offsets", "none"][colorMode]);
 		xml.set("antialiasing", antialiasing ? "true" : "false");
 
 		xml.attributeOrder = alphabetProperties;
@@ -780,9 +785,37 @@ class Alphabet extends FlxSprite {
 		return xml;
 	}
 
+	public function copyData(from:Alphabet) {
+		if (from.font == this.font) return;
+
+		__queueResize = true;
+		@:bypassAccessor @:bypassAccessor this.font = from.font; // double bypass in case haxe gets finicky
+		this.frames = from.frames;
+		this.antialiasing = from.antialiasing;
+		this.fps = from.fps;
+		this.defaultAdvance = from.defaultAdvance;
+		this.lineGap = from.lineGap;
+		this.forceCase = from.forceCase;
+		this.colorMode = from.colorMode;
+		this.letterData = from.letterData;
+		this.defaults = from.defaults;
+		this.loaded = from.loaded;
+		this.manualLetters = from.manualLetters;
+		this.failedLetters = from.failedLetters;
+		this.failedOutlines = from.failedOutlines;
+	}
+
 	override function destroy():Void {
 		originOffset = FlxDestroyUtil.destroy(originOffset);
-		failedLetters = [];
+		__drawScale = FlxDestroyUtil.put(__drawScale);
+		__renderData = null;
+		__laneWidths = null;
+		effects = null;
+		letterData = null;
+		defaults = null;
+		manualLetters = null;
+		failedLetters = null;
+		failedOutlines = null;
 		super.destroy();
 	}
 

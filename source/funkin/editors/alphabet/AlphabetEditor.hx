@@ -35,7 +35,7 @@ class AlphabetEditor extends UIState {
 		return TU.translate("editor.alphabet." + id, args);
 
 	public var tape:Alphabet;
-	public var bigletter:Alphabet;
+	public var bigLetter:Alphabet;
 	public var curLetter:Int = 0;
 	public var targetX:Float = 0;
 
@@ -43,7 +43,8 @@ class AlphabetEditor extends UIState {
 
 	public var curSelectedComponent:AlphabetComponent = null;
 
-	public var allChars:Array<String> = [];
+	public var defaultTmr:Float = 0.0;
+	public var charsForDefault:Array<String> = [];
 
 	public override function create() {
 		super.create();
@@ -73,6 +74,23 @@ class AlphabetEditor extends UIState {
 					}
 				]
 				// TODO: add more options
+			},
+			{
+				label: translate("topBar.edit"),
+				childs: [
+					{
+						label: translate("edit.undo"),
+						// TODO: add undo
+					},
+					{
+						label: translate("edit.redo"),
+						// TODO: add redo
+					},
+					{
+						label: "Edit Main Data", // TODO: add translations
+						onSelect: _edit_main
+					}
+				]
 			},
 			{
 				label: translate("topBar.glyph"),
@@ -143,51 +161,23 @@ class AlphabetEditor extends UIState {
 
 		topMenuSpr = new UITopMenu(topMenu);
 		topMenuSpr.cameras = uiGroup.cameras = [uiCamera];
-
-		//var alphabet:Alphabet = new Alphabet(0, 0, __typeface);
-		//add(alphabet);
-
-		allChars = [];
-
-		var helperAlphabet = new Alphabet(0, 0, "meow", __typeface);
-		for(cc in 33...0xffff) {
-			// todo: unicode
-			var letter = String.fromCharCode(cc);
-			var data = helperAlphabet.fastGetData(letter);
-			if(data == null) continue;
-			if(data.components.length == 0) continue;
-
-			var hasAnim = true;
-			var component;
-			for (i in 0...data.components.length) {
-				component = data.components[i];
-				var anim = helperAlphabet.fastGetLetterAnim(letter, data, component, i);
-				if(anim == null) {
-					hasAnim = false;
-					break;
-				}
-			}
-			if(!hasAnim) continue;
-
-			allChars.push(letter);
-		}
-		// todo get other characters
-
-
-		trace(allChars.join(" "));
-		tape = new Alphabet(0, 70, allChars.join(" "), __typeface);
+		
+		tape = new Alphabet(0, 70, "", __typeface);
 		tape.alignment = CENTER;
 		tape.renderMode = MONOSPACE;
-		tape.x = targetX = FlxG.width * 0.5 - tape.defaultAdvance * 0.5;
 		add(tape);
-
-		bigletter = new Alphabet(0, 0, "A", __typeface);
-		bigletter.alignment = CENTER;
-		bigletter.scale.set(4, 4);
+		
+		bigLetter = new Alphabet(0, 0, charsForDefault[0], "<SKIP>");
+		bigLetter.copyData(tape);
+		bigLetter.alignment = CENTER;
+		bigLetter.scale.set(4, 4);
 		// TODO: fix the offset issues, when not using updateHitbox
-		bigletter.updateHitbox();
-		bigletter.screenCenter();
-		add(bigletter);
+		bigLetter.updateHitbox();
+		bigLetter.screenCenter();
+		add(bigLetter);
+
+		updateTape();
+		tape.x = targetX;
 
 		var infoWindow = new GlyphInfoWindow();
 		infoWindow.info.text = [
@@ -253,15 +243,37 @@ class AlphabetEditor extends UIState {
 			}
 		}
 
+		var lastIdx = Math.floor(defaultTmr);
+		defaultTmr += elapsed * 0.5;
+		if (lastIdx != (lastIdx = Math.floor(defaultTmr)))
+			tape.text = charsForDefault[Math.floor(defaultTmr)] + " " + tape.manualLetters.join(" ");
 		tape.x = lerp(tape.x, targetX, 0.25);
 	}
 
+	function updateTape() {
+		charsForDefault = [];
+		for (i in 33...127) {
+			var letter = String.fromCharCode(i);
+			if (tape.manualLetters.contains(letter)) continue;
+
+			var data = tape.fastGetData(letter);
+			for (i => com in data.components) {
+				if (tape.fastGetLetterAnim(letter, data, com, i) == null)
+					continue;
+			}
+			charsForDefault.push(letter);
+		}
+		defaultTmr %= charsForDefault.length;
+		tape.text = charsForDefault[Math.floor(defaultTmr)] + " " + tape.manualLetters.join(" ");
+		changeLetter(0);
+	}
+
 	function changeLetter(inc:Int) {
-		curLetter = CoolUtil.positiveModuloInt(curLetter + inc, allChars.length);
+		curLetter = CoolUtil.positiveModuloInt(curLetter + inc, tape.manualLetters.length + 1);
 		targetX = FlxG.width * 0.5 - tape.defaultAdvance * (0.5 + curLetter * 2);
-		bigletter.text = allChars[curLetter];
-		bigletter.updateHitbox();
-		bigletter.screenCenter();
+		bigLetter.text = (curLetter == 0) ? charsForDefault[0] : tape.manualLetters[curLetter - 1];
+		bigLetter.updateHitbox();
+		bigLetter.screenCenter();
 	}
 
 	function _tape_left(_) {
@@ -291,6 +303,10 @@ class AlphabetEditor extends UIState {
 	function _file_exit(_) {
 		/*if (undos.unsaved) SaveWarning.triggerWarning();
 		else */FlxG.switchState(new AlphabetSelection());
+	}
+
+	function _edit_main(_) {
+		FlxG.state.openSubState(new AlphabetMainDataScreen());
 	}
 }
 

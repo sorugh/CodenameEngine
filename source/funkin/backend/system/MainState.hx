@@ -69,7 +69,7 @@ class MainState extends FlxState {
 		if(Framerate.isLoaded)
 			Framerate.instance.reload();
 
-		FlxG.switchState(new funkin.editors.alphabet.AlphabetEditor("bold"));
+		FlxG.switchState(new funkin.editors.alphabet.AlphabetEditor("normal"));
 		/*
 		if (Flags.DISABLE_BETA_WARNING_SCREEN || betaWarningShown)
 			FlxG.switchState(new TitleState());

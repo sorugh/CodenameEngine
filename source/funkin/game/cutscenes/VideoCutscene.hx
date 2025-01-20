@@ -62,6 +62,14 @@ class VideoCutscene extends Cutscene {
 		video.antialiasing = true;
 		video.autoPause = false;  // Imma handle it better inside this class, mainly because of the pause menu  - Nex
 		video.bitmap.onEndReached.add(close);
+		video.bitmap.onFormatSetup.add(function() if (video.bitmap != null && video.bitmap.bitmapData != null) {
+			final width = video.bitmap.bitmapData.width;
+			final height = video.bitmap.bitmapData.height;
+			final scale:Float = Math.min(FlxG.width / width, FlxG.height / height);
+			video.setGraphicSize(Std.int(width * scale), Std.int(height * scale));
+			video.updateHitbox();
+			video.screenCenter();
+		});
 
 		//cover = new FlxSprite(0, FlxG.height * 0.85).makeSolid(FlxG.width + 50, FlxG.height + 50, 0xFF000000);
 		//cover.scrollFactor.set(0, 0);
@@ -100,7 +108,7 @@ class VideoCutscene extends Cutscene {
 				File.saveBytes(localPath, Assets.getBytes(path));
 			}
 
-			if(video.load(localPath)) new FlxTimer().start(0.001, function(_) {mutex.acquire(); onReady(); mutex.release();});
+			if (video.load(localPath)) new FlxTimer().start(0.001, function(_) { mutex.acquire(); onReady(); mutex.release(); });
 			else { mutex.acquire(); close(); mutex.release(); }
 		});
 
@@ -236,6 +244,7 @@ class VideoCutscene extends Cutscene {
 
 	public override function destroy() {
 		FlxG.cameras.remove(cutsceneCamera, true);
+		video.destroy();
 		super.destroy();
 	}
 	#end

@@ -25,11 +25,8 @@ class Cutscene extends MusicBeatSubstate {
 		super();
 		canOpenCustomTransition = true;
 
+		__callback = callback;
 		__pausable = allowPause;
-		__callback = function() {
-			canOpenCustomTransition = false;
-			callback();
-		};
 
 		pauseItems = Flags.DEFAULT_CUTSCENE_PAUSE_ITEMS;
 		skippable = canSkip;
@@ -78,6 +75,7 @@ class Cutscene extends MusicBeatSubstate {
 	}
 
 	public override function close() {
+		canOpenCustomTransition = false;
 		__callback();
 		super.close();
 	}

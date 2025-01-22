@@ -859,8 +859,9 @@ class PlayState extends MusicBeatState
 	 * @param cutsceneScriptPath Optional: Custom script path.
 	 * @param callback Callback called after the cutscene ended. If equals to `null`, `startCountdown` will be called.
 	 * @param checkSeen Bool that by default is false, if true and `seenCutscene` is also true, it won't play the cutscene but directly call `callback` (PS: `seenCutscene` becomes true if the cutscene gets played and `checkSeen` was true)
+	 * @param canSkipTransIn Bool that by default is true makes the in transition skip on certain types of cutscenes like dialogues.
 	 */
-	public function startCutscene(prefix:String = "", ?cutsceneScriptPath:String, ?callback:Void->Void, checkSeen:Bool = false) {
+	public function startCutscene(prefix:String = "", ?cutsceneScriptPath:String, ?callback:Void->Void, checkSeen:Bool = false, canSkipTransIn:Bool = true) {
 		if (callback == null) callback = startCountdown;
 		if ((checkSeen && seenCutscene) || !playCutscenes) {
 			callback();
@@ -885,15 +886,15 @@ class PlayState extends MusicBeatState
 		if (cutsceneScriptPath != null && Assets.exists(cutsceneScriptPath)) {
 			openSubState(new ScriptedCutscene(cutsceneScriptPath, toCall));
 		} else if (Assets.exists(dialogue)) {
-			MusicBeatState.skipTransIn = true;
+			if (canSkipTransIn) MusicBeatState.skipTransIn = true;
 			openSubState(new DialogueCutscene(dialogue, toCall));
 		} else if (Assets.exists(videoCutsceneAlt)) {
-			MusicBeatState.skipTransIn = true;
+			if (canSkipTransIn) MusicBeatState.skipTransIn = true;
 			persistentUpdate = false;
 			openSubState(new VideoCutscene(videoCutsceneAlt, toCall));
 			persistentDraw = false;
 		} else if (Assets.exists(videoCutscene)) {
-			MusicBeatState.skipTransIn = true;
+			if (canSkipTransIn) MusicBeatState.skipTransIn = true;
 			persistentUpdate = false;
 			openSubState(new VideoCutscene(videoCutscene, toCall));
 			persistentDraw = false;
@@ -1525,8 +1526,7 @@ class PlayState extends MusicBeatState
 			#end
 		}
 
-		startCutscene("end-", endCutscene, nextSong);
-		resetSongInfos();
+		startCutscene("end-", endCutscene, nextSong, false, false);
 	}
 
 	private static inline function getSongChanges():Array<HighscoreChange> {
@@ -1542,6 +1542,8 @@ class PlayState extends MusicBeatState
 	 * Immediately switches to the next song, or goes back to the Story/Freeplay menu.
 	 */
 	public function nextSong() {
+		resetSongInfos();
+
 		if (isStoryMode)
 		{
 			campaignScore += songScore;

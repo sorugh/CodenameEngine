@@ -16,8 +16,8 @@ class Cutscene extends MusicBeatSubstate {
 	public var skippable(default, set):Bool;
 
 	public function set_skippable(val:Bool):Bool {
-		if(!val) pauseItems.remove('Skip Cutscene');
-		else if(!pauseItems.contains('Skip Cutscene')) pauseItems.insert(1, 'Skip Cutscene');
+		if (!val) pauseItems.remove('Skip Cutscene');
+		else if (!pauseItems.contains('Skip Cutscene')) pauseItems.insert(1, 'Skip Cutscene');
 		return skippable = val;
 	}
 

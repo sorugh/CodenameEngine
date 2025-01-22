@@ -69,8 +69,9 @@ class CharterNoteHoverer extends CharterNote {
 							sustainSpr.updateHitbox(); sustainSpr.alpha = alpha; sustainSpr.follow(this, 15, 20);
 							sustainSpr.exists = draggingNote.susLength != 0;
 
-							typeText.text = Std.string(draggingNote.type);
-							typeText.exists = draggingNote.type != 0;
+							type = draggingNote.type;
+							//typeText.text = Std.string(draggingNote.type);
+							//typeText.exists = draggingNote.type != 0;
 							typeText.follow(this, 20 - (typeText.frameWidth/2), 20 - (typeText.frameHeight/2));
 
 							super.draw();

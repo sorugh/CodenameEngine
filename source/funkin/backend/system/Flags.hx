@@ -18,7 +18,11 @@ class Flags {
 	public static var COMMIT_NUMBER:Int = GitCommitMacro.commitNumber;
 	public static var COMMIT_HASH:String = GitCommitMacro.commitHash;
 	public static var COMMIT_MESSAGE:String = 'Commit $COMMIT_NUMBER ($COMMIT_HASH)';
-	@:lazy public static var VERSION_MESSAGE:String = 'Codename Engine v${Application.current.meta.get('version')}';
+
+	@:lazy public static var TITLE:String = Application.current.meta.get('title');
+	@:lazy public static var VERSION:String = Application.current.meta.get('version');
+
+	@:lazy public static var VERSION_MESSAGE:String = 'Codename Engine v$VERSION';
 
 	public static var REPO_NAME:String = "CodenameEngine";
 	public static var REPO_OWNER:String = "CodenameCrew";
@@ -142,6 +146,14 @@ class Flags {
 	public static var DEFAULT_PAUSE_SCRIPT:String = "";
 	@:also(funkin.game.GameOverSubstate.script)
 	public static var DEFAULT_GAMEOVER_SCRIPT:String = "";
+
+	public static var URL_WIKI:String = "https://codename-engine.com/";
+	public static var URL_EDITOR_FALLBACK:String = "https://www.youtube.com/watch?v=9Youam7GYdQ";
+	public static var URL_FNF_ITCH:String = "https://ninja-muffin24.itch.io/funkin";
+
+	public static var DEFAULT_GLSL_VERSION:String = "120";
+	@:also(funkin.backend.utils.HttpUtil.userAgent)
+	public static var USER_AGENT:String = 'request';
 	// -- End of Codename's Default Flags --
 
 	/**

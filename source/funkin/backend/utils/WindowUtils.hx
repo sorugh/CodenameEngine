@@ -45,7 +45,7 @@ class WindowUtils {
 	 * Resets the window title to the application name and resets the prefix and suffix.
 	**/
 	public static inline function resetTitle() {
-		title = Lib.application.meta["name"];
+		title = Flags.TITLE;
 		resetAffixes();
 	}
 

@@ -26,7 +26,7 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 	public var onGLUpdate:FlxTypedSignal<Void->Void> = new FlxTypedSignal<Void->Void>();
 	public var onProcessGLData:FlxTypedSignal<(String, String)->Void> = new FlxTypedSignal<(String, String)->Void>();
 
-	public var glslVer:String = "120";
+	public var glslVer:String = Flags.DEFAULT_GLSL_VERSION;
 	public var fileName:String = "FunkinShader";
 	public var fragFileName:String = "FunkinShader";
 	public var vertFileName:String = "FunkinShader";
@@ -42,7 +42,8 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 	 * @param vert Vertex source (pass `null` to use default)
 	 * @param glslVer Version of GLSL to use (defaults to 120)
 	 */
-	public override function new(frag:String, vert:String, glslVer:String = "120") {
+	public override function new(frag:String, vert:String, glslVer:String = null) {
+		if (glslVer == null) glslVer = Flags.DEFAULT_GLSL_VERSION;
 		if (frag == null) frag = ShaderTemplates.defaultFragmentSource;
 		if (vert == null) vert = ShaderTemplates.defaultVertexSource;
 		this.glFragmentSource = frag;

@@ -92,10 +92,7 @@ class FlagMacro {
 						case macro: Array<Float>:
 							parser = macro value.split(",").map((e) -> Std.parseFloat(e));
 						case macro: Array<Bool>:
-							parser = macro value.split(",").map((e) -> {
-								e = e.trim();
-								e == "true" || e == "t" || e == "1";
-							});
+							parser = macro value.split(",").map(parseBool);
 						case macro: TrimmedString:
 							field.kind = FVar(macro: String, expr);
 							parser = macro value.trim();
@@ -106,7 +103,7 @@ class FlagMacro {
 						case macro: Float:
 							parser = macro Std.parseFloat(value);
 						case macro: Bool:
-							parser = macro value == "true" || value == "t" || value == "1";
+							parser = macro parseBool(value);
 						case TPath({name: "Allow", pack: [], params: params}):
 							final NONE = 0;
 							final STRING = 1;
@@ -268,6 +265,22 @@ class FlagMacro {
 					@:mergeBlock $b{parserExprs};
 
 					return false;
+				},
+				ret: macro: Bool
+			}),
+			pos: Context.currentPos(),
+			doc: null,
+			meta: []
+		});
+
+		fields.push({
+			name: "parseBool",
+			access: [APrivate, AStatic],
+			kind: FFun({
+				args: [{name: "e", type: macro: String}],
+				expr: macro {
+					e = e.trim();
+					return e == "true" || e == "t" || e == "1";
 				},
 				ret: macro: Bool
 			}),

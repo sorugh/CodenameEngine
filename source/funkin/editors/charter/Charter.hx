@@ -684,6 +684,7 @@ class Charter extends UIState {
 	public var dragStartPos:FlxPoint = new FlxPoint();
 	public var mousePos:FlxPoint = new FlxPoint();
 	public var selectionDragging:Bool = false;
+	public var isSelecting:Bool = false;
 
 	public function updateSelectionLogic() {
 		function select(s:ICharterSelectable) {
@@ -752,7 +753,7 @@ class Charter extends UIState {
 			case BOX_SELECTION:
 				if (gridBackdropDummy.hoveredByChild) {
 					selectionBox.visible = true;
-					if (FlxG.mouse.pressed) {
+					if (isSelecting) {
 						selectionBox.x = Math.min(mousePos.x, dragStartPos.x);
 						selectionBox.y = Math.min(mousePos.y, dragStartPos.y);
 						selectionBox.bWidth = Std.int(Math.abs(mousePos.x - dragStartPos.x));
@@ -862,26 +863,29 @@ class Charter extends UIState {
 
 				if (gridBackdropDummy.hovered) {
 					// AUTO DETECT
-					if (FlxG.mouse.pressed && (Math.abs(mousePos.x - dragStartPos.x) > 20 || Math.abs(mousePos.y - dragStartPos.y) > 20))
+					if (FlxG.mouse.justPressed && (Math.abs(mousePos.x - dragStartPos.x) > 20 || Math.abs(mousePos.y - dragStartPos.y) > 20)) {
+						isSelecting = true;
 						gridActionType = BOX_SELECTION;
+					}
 
 					var id = Math.floor(mousePos.x / 40);
 					var mouseOnGrid = id >= 0 && id < 4 * gridBackdrops.strumlinesAmount && mousePos.y >= 0;
 
 					if (FlxG.mouse.justReleased) {
-							for (n in selection) n.selected = false;
-							selection = [];
+						for (n in selection) n.selected = false;
+						selection = [];
 
-							if (mouseOnGrid && mousePos.y > 0 && mousePos.y < (__endStep)*40) {
-								var note = new CharterNote();
-								note.updatePos(
-									FlxMath.bound(FlxG.keys.pressed.SHIFT ? ((mousePos.y-20) / 40) : quantStep(mousePos.y/40), 0, __endStep-1),
-									id % 4, 0, noteType, strumLines.members[Std.int(id/4)]
-								);
-								notesGroup.add(note);
-								selection = [note];
-								undos.addToUndo(CCreateSelection([note]));
-							}
+						if (mouseOnGrid && mousePos.y > 0 && mousePos.y < (__endStep)*40) {
+							var note = new CharterNote();
+							note.updatePos(
+								FlxMath.bound(FlxG.keys.pressed.SHIFT ? ((mousePos.y-20) / 40) : quantStep(mousePos.y/40), 0, __endStep-1),
+								id % 4, 0, noteType, strumLines.members[Std.int(id/4)]
+							);
+							notesGroup.add(note);
+							selection = [note];
+							undos.addToUndo(CCreateSelection([note]));
+						}
+						isSelecting = false;
 					}
 				} else if (gridBackdropDummy.hoveredByChild) {
 					if (FlxG.mouse.pressed) {

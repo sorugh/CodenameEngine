@@ -94,6 +94,8 @@ class UISlider extends UISprite {
 
 	var __stepperWidth = 25;
 
+	public var isSliding:Bool = false;
+
 	public override function update(elapsed:Float) {
 		selectableHitbox.follow(this, 0, (height-selectableHitbox.height)/2);
 
@@ -103,10 +105,12 @@ class UISlider extends UISprite {
 
 		var lastBarProgress:Float = __barProgress;
 
-		if (selectableHitbox.hovered && FlxG.mouse.pressed) {
+		if (selectableHitbox.hovered && FlxG.mouse.justPressed) isSliding = true;
+		if (isSliding) {
 			var mousePos = FlxG.mouse.getScreenPosition(__lastDrawCameras[0], FlxPoint.get());
 			__barProgress = FlxMath.bound(mousePos.x-x, 0, barWidth)/barWidth;
 			mousePos.put();
+			if (FlxG.mouse.justReleased) isSliding = false;
 		}
 
 		if (__barProgress != lastBarProgress) {

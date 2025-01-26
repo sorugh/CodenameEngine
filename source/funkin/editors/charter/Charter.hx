@@ -758,6 +758,7 @@ class Charter extends UIState {
 						selectionBox.y = Math.min(mousePos.y, dragStartPos.y);
 						selectionBox.bWidth = Std.int(Math.abs(mousePos.x - dragStartPos.x));
 						selectionBox.bHeight = Std.int(Math.abs(mousePos.y - dragStartPos.y));
+						if (FlxG.mouse.justReleased) isSelecting = false;
 					} else {
 						if (FlxG.keys.pressed.SHIFT) {
 							for (group in [notesGroup, eventsGroup]) {
@@ -854,7 +855,7 @@ class Charter extends UIState {
 					currentCursor = ARROW;
 				}
 			case NONE:
-				if (FlxG.mouse.justPressed)
+				if (FlxG.mouse.justPressed) 
 					FlxG.mouse.getWorldPosition(charterCamera, dragStartPos);
 				else if (FlxG.mouse.justPressedRight) {
 					closeCurrentContextMenu();
@@ -863,8 +864,8 @@ class Charter extends UIState {
 
 				if (gridBackdropDummy.hovered) {
 					// AUTO DETECT
-					if (FlxG.mouse.justPressed && (Math.abs(mousePos.x - dragStartPos.x) > 20 || Math.abs(mousePos.y - dragStartPos.y) > 20)) {
-						isSelecting = true;
+					if (FlxG.mouse.justPressed) isSelecting = true;
+					if (isSelecting && (Math.abs(mousePos.x - dragStartPos.x) > 20 || Math.abs(mousePos.y - dragStartPos.y) > 20)) {
 						gridActionType = BOX_SELECTION;
 					}
 
@@ -1240,7 +1241,7 @@ class Charter extends UIState {
 					__camZoom = Math.pow(2, zoom);
 				}
 			} else {
-				if (!FlxG.sound.music.playing) {
+				if (!FlxG.sound.music.playing && FlxG.mouse.wheel != 0) {
 					Conductor.songPosition -= (__crochet * FlxG.mouse.wheel) - Conductor.songOffset;
 				}
 			}

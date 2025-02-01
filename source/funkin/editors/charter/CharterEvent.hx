@@ -1,5 +1,7 @@
 package funkin.editors.charter;
 
+import funkin.backend.shaders.CustomShader;
+import funkin.backend.system.Conductor;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxPoint;
 import flixel.system.FlxAssets.FlxGraphicAsset;
@@ -176,7 +178,7 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 		return healthIcon;
 	}
 
-	public static function generateEventIcon(event:ChartEvent):FlxSprite {
+	public static function generateEventIcon(event:ChartEvent, inMenu:Bool = true):FlxSprite {
 		var script = getUIScript(event, "event-icon");
 		if(script != null && !(script is DummyScript)) {
 			if(script.get("generateIcon") != null) {
@@ -201,8 +203,43 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 						num.active = false;
 						num;
 					});
+					if (Conductor.invalidEvents.contains(event)) generateEventIconWarning(group);
 					return group;
 				}
+			case "Continuous BPM Change":
+				if(event.params != null && event.params[1] != null) {
+					if (inMenu) {
+						var group = new EventIconGroup();
+						group.add(generateDefaultIcon("BPM Change Start"));
+						if (Conductor.invalidEvents.contains(event)) generateEventIconWarning(group);
+						return group;
+					}
+
+					var group = generateEventIconWithDuration(event.params[1], "BPM Change Start");
+					group.members[0].y -= 2;
+					generateEventIconNumbers(group, Std.int(event.params[0]), 15);
+					if (Conductor.invalidEvents.contains(event)) generateEventIconWarning(group);
+					return group;
+				} else {
+					return generateDefaultIcon("BPM Change Start");
+				}
+			case "BPM Change":
+				if(event.params != null && event.params[0] != null) {
+					if (inMenu) {
+						var group = new EventIconGroup();
+						group.add(generateDefaultIcon(event.name));
+						if (Conductor.invalidEvents.contains(event)) generateEventIconWarning(group);
+						return group;
+					}
+
+					var group = new EventIconGroup();
+					group.add(generateDefaultIcon(event.name));
+					group.members[0].y -= 2;
+					generateEventIconNumbers(group, Std.int(event.params[0]), 15);
+					if (Conductor.invalidEvents.contains(event)) generateEventIconWarning(group);
+					return group;
+				}
+
 			case "Camera Movement":
 				// camera movement, use health icon
 				if(event.params != null) {
@@ -211,6 +248,76 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 				}
 		}
 		return generateDefaultIcon(event.name);
+	}
+
+	private static function generateEventIconNumbers(group:EventIconGroup, number:Int, y:Float) {
+		var numString = Std.string(number);
+		var offset = (16 - (numString.length*5))/2;
+		for (num in 0...numString.length) {
+			group.add({
+				var num = new EventNumber(offset + num*5, y, Std.parseInt(numString.charAt(num)), EventNumber.ALIGN_CENTER);
+				num.active = false;
+				num;
+			});
+		}
+	}
+
+	private static function generateEventIconWithDuration(duration:Float, startIcon:String, endIcon:String = "") {
+		var group = new EventIconGroup();
+		group.add(generateDefaultIcon(startIcon));
+
+		var xOffset = 4;
+		var yGap = 24;
+		var endGap = 7;
+		if (endIcon == "") endGap = -2;
+
+		if (duration >= 0.65) { //min time for showing arrow
+			var tail = new FlxSprite(xOffset, yGap);
+			var arrow = new FlxSprite(xOffset, (duration * 40) + endGap);
+			var arrowSegment = new FlxSprite(xOffset, yGap);
+			tail.frames = arrow.frames = arrowSegment.frames = Paths.getSparrowAtlas("editors/charter/event-icons/components/arrow-down");
+
+			group.add({
+				tail.animation.addByPrefix("tail", "tail");
+				tail.animation.play("tail");
+				tail;
+			});
+
+			group.add({
+				arrowSegment.animation.addByPrefix("segment", "segment");
+				arrowSegment.animation.play("segment");
+				arrowSegment.scale.y = (duration * 40) - (tail.height + endGap + yGap);
+				arrowSegment.updateHitbox();
+				arrowSegment.y += tail.height;
+				arrowSegment;
+			});
+
+			group.add({
+				arrow.animation.addByPrefix("arrow", "arrow");
+				arrow.animation.play("arrow");
+				arrow;
+			});
+		}
+
+		if (endIcon != "") {
+			group.add({
+				var icon = generateDefaultIcon(endIcon);
+				icon.y = duration * 40;
+				icon;
+			});
+		}
+
+
+		return group;
+	}
+
+	private static function generateEventIconWarning(group:EventIconGroup) {
+		for (spr in group) {
+			spr.colorTransform.redMultiplier = spr.colorTransform.greenMultiplier = spr.colorTransform.blueMultiplier = 0.5;
+			spr.colorTransform.redOffset = 100;
+		}
+		group.add(getEventComponent("warning", 16, -8));
+		group.copyColorTransformToChildren = false;
 	}
 
 	public override function onHovered() {
@@ -238,26 +345,22 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 		}
 
 		for(event in events) {
-			var spr = generateEventIcon(event);
+			var spr = generateEventIcon(event, false);
 			icons.push(spr);
 			members.push(spr);
 		}
 
 		draggable = true;
-		for (event in events)
-			if (event.name == "BPM Change" || event.name == "Time Signature Change") {
-				draggable = false;
-				break;
-			}
 
 		x = (snappedToGrid && eventsBackdrop != null ? eventsBackdrop.x : 0) - (bWidth = 37 + (icons.length * 22));
 	}
 }
 
 class EventIconGroup extends FlxSpriteGroup {
-	public var forceWidth:Float = 32;
-	public var forceHeight:Float = 32;
+	public var forceWidth:Float = 16;
+	public var forceHeight:Float = 16;
 	public var dontTransformChildren:Bool = true;
+	public var copyColorTransformToChildren:Bool = true;
 
 	public function new() {
 		super();
@@ -298,6 +401,12 @@ class EventIconGroup extends FlxSpriteGroup {
 	override function get_height() {
 		return forceHeight;
 	}
+
+	override public function draw() {
+		@:privateAccess
+		if (copyColorTransformToChildren && colorTransform != null) for (child in members) child.colorTransform.__copyFrom(colorTransform);
+		super.draw();
+	}
 }
 
 class EventNumber extends FlxSprite {
@@ -312,10 +421,15 @@ class EventNumber extends FlxSprite {
 		super(x, y);
 		this.digits = [];
 		this.align = align;
-		while (number > 0) {
-			this.digits.insert(0, number % 10);
-			number = Std.int(number / 10);
+		if (number == 0) {
+			this.digits.insert(0, 0);
+		} else {
+			while (number > 0) {
+				this.digits.insert(0, number % 10);
+				number = Std.int(number / 10);
+			}
 		}
+
 		loadGraphic(Paths.image('editors/charter/event-icons/components/eventNums'), true, 6, 7);
 	}
 

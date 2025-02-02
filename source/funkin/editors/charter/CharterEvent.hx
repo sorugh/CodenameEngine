@@ -217,7 +217,7 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 
 					var group = generateEventIconWithDuration(event.params[1], "BPM Change Start");
 					group.members[0].y -= 2;
-					generateEventIconNumbers(group, Std.int(event.params[0]), 15);
+					generateEventIconNumbers(group, event.params[0], 15);
 					if (Conductor.invalidEvents.contains(event)) generateEventIconWarning(group);
 					return group;
 				} else {
@@ -235,7 +235,7 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 					var group = new EventIconGroup();
 					group.add(generateDefaultIcon(event.name));
 					group.members[0].y -= 2;
-					generateEventIconNumbers(group, Std.int(event.params[0]), 15);
+					generateEventIconNumbers(group, event.params[0], 15);
 					if (Conductor.invalidEvents.contains(event)) generateEventIconWarning(group);
 					return group;
 				}
@@ -250,16 +250,12 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 		return generateDefaultIcon(event.name);
 	}
 
-	private static function generateEventIconNumbers(group:EventIconGroup, number:Int, y:Float) {
-		var numString = Std.string(number);
-		var offset = (16 - (numString.length*5))/2;
-		for (num in 0...numString.length) {
-			group.add({
-				var num = new EventNumber(offset + num*5, y, Std.parseInt(numString.charAt(num)), EventNumber.ALIGN_CENTER);
-				num.active = false;
-				num;
-			});
-		}
+	private static function generateEventIconNumbers(group:EventIconGroup, number:Float, y:Float) {
+		group.add({
+			var num = new EventNumber(3, y, number, EventNumber.ALIGN_CENTER, 5);
+			num.active = false;
+			num;
+		});
 	}
 
 	private static function generateEventIconWithDuration(duration:Float, startIcon:String, endIcon:String = "") {
@@ -414,19 +410,39 @@ class EventNumber extends FlxSprite {
 	public static inline final ALIGN_CENTER:Int = 1;
 
 	public var digits:Array<Int> = [];
+	public static inline final FRAME_POINT:Int = 10;
+	public static inline final FRAME_NEGATIVE:Int = 11;
 
 	public var align:Int = ALIGN_NORMAL;
+	public var spacing:Float = 6;
 
-	public function new(x:Float, y:Float, number:Int, ?align:Int = ALIGN_NORMAL) {
+	public function new(x:Float, y:Float, number:Float, ?align:Int = ALIGN_NORMAL, spacing:Float = 6, precision:Int = 3) {
 		super(x, y);
 		this.digits = [];
 		this.align = align;
+		this.spacing = spacing;
+
+
+
 		if (number == 0) {
 			this.digits.insert(0, 0);
 		} else {
-			while (number > 0) {
-				this.digits.insert(0, number % 10);
-				number = Std.int(number / 10);
+
+			var decimals:Float = FlxMath.roundDecimal(Math.abs(number % 1), precision);
+			if (decimals > 0) this.digits.insert(0, FRAME_POINT);
+			while(decimals > 0) {
+				this.digits.push(Math.floor(decimals * 10));
+				decimals = FlxMath.roundDecimal((decimals * 10) % 1, precision);
+			}
+
+			var ints = Std.int(Math.abs(number));
+			while (ints > 0) {
+				this.digits.insert(0, ints % 10);
+				ints = Std.int(ints / 10);
+			}
+
+			if (number < 0) {
+				this.digits.insert(0, FRAME_NEGATIVE);
 			}
 		}
 
@@ -440,20 +456,20 @@ class EventNumber extends FlxSprite {
 	override function draw() {
 		var baseX = x;
 		var offsetX = 0.0;
-		if(align == ALIGN_CENTER) offsetX = -(digits.length - 1) * frameWidth * Math.abs(scale.x) / 2;
+		if(align == ALIGN_CENTER) offsetX = -(digits.length - 1) * spacing * Math.abs(scale.x) / 2;
 
 		x = baseX + offsetX;
 		for (i in 0...digits.length) {
 			frame = frames.frames[digits[i]];
 			super.draw();
-			x += frameWidth * Math.abs(scale.x);
+			x += spacing * Math.abs(scale.x);
 		}
 		x = baseX;
 	}
 
 	public var numWidth(get, never):Float;
 	private function get_numWidth():Float {
-		return Math.abs(scale.x) * frameWidth * digits.length;
+		return Math.abs(scale.x) * spacing * digits.length;
 	}
 	public var numHeight(get, never):Float;
 	private function get_numHeight():Float {
@@ -465,7 +481,7 @@ class EventNumber extends FlxSprite {
 		var numHeight = this.numHeight;
 		width = numWidth;
 		height = numHeight;
-		offset.set(-0.5 * (numWidth - frameWidth * digits.length), -0.5 * (numHeight - frameHeight));
+		offset.set(-0.5 * (numWidth - spacing * digits.length), -0.5 * (numHeight - frameHeight));
 		centerOrigin();
 	}
 }

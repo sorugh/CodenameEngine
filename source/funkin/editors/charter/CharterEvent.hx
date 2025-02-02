@@ -89,6 +89,9 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 			script.set("getIconFromStrumline", getIconFromStrumline);
 			script.set("getIconFromCharName", getIconFromCharName);
 			script.set("generateDefaultIcon", generateDefaultIcon);
+			script.set("generateEventIconDurationArrow", generateEventIconDurationArrow);
+			script.set("generateEventIconNumbers", generateEventIconNumbers);
+			script.set("generateEventIconWarning", generateEventIconWarning);
 			script.set("getPackData", getPackData);
 			script.set("getEventComponent", getEventComponent);
 			// data
@@ -181,6 +184,7 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 	public static function generateEventIcon(event:ChartEvent, inMenu:Bool = true):FlxSprite {
 		var script = getUIScript(event, "event-icon");
 		if(script != null && !(script is DummyScript)) {
+			script.set("inMenu", inMenu);
 			if(script.get("generateIcon") != null) {
 				var res:FlxSprite = script.call("generateIcon");
 				if(res != null)
@@ -208,16 +212,13 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 				}
 			case "Continuous BPM Change":
 				if(event.params != null && event.params[1] != null) {
-					if (inMenu) {
-						var group = new EventIconGroup();
-						group.add(generateDefaultIcon("BPM Change Start"));
-						if (Conductor.invalidEvents.contains(event)) generateEventIconWarning(group);
-						return group;
+					var group = new EventIconGroup();
+					group.add(generateDefaultIcon("BPM Change Start"));
+					if (!inMenu) {
+						generateEventIconDurationArrow(group, event.params[1]);
+						group.members[0].y -= 2;
+						generateEventIconNumbers(group, event.params[0], 3);
 					}
-
-					var group = generateEventIconWithDuration(event.params[1], "BPM Change Start");
-					group.members[0].y -= 2;
-					generateEventIconNumbers(group, event.params[0], 15);
 					if (Conductor.invalidEvents.contains(event)) generateEventIconWarning(group);
 					return group;
 				} else {
@@ -225,18 +226,23 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 				}
 			case "BPM Change":
 				if(event.params != null && event.params[0] != null) {
-					if (inMenu) {
-						var group = new EventIconGroup();
-						group.add(generateDefaultIcon(event.name));
-						if (Conductor.invalidEvents.contains(event)) generateEventIconWarning(group);
-						return group;
-					}
-
 					var group = new EventIconGroup();
 					group.add(generateDefaultIcon(event.name));
-					group.members[0].y -= 2;
-					generateEventIconNumbers(group, event.params[0], 15);
+					if (!inMenu) {
+						group.members[0].y -= 2;
+						generateEventIconNumbers(group, event.params[0], 3);
+					}
 					if (Conductor.invalidEvents.contains(event)) generateEventIconWarning(group);
+					return group;
+				}
+
+			case "Scroll Speed Change":
+				if(event.params != null && !inMenu) {
+					var group = new EventIconGroup();
+					group.add(generateDefaultIcon(event.name));
+					if (event.params[0]) generateEventIconDurationArrow(group, event.params[2]);
+					group.members[0].y -= 2;
+					generateEventIconNumbers(group, event.params[1]);
 					return group;
 				}
 
@@ -250,26 +256,28 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 		return generateDefaultIcon(event.name);
 	}
 
-	private static function generateEventIconNumbers(group:EventIconGroup, number:Float, y:Float) {
+	private static function generateEventIconNumbers(group:EventIconGroup, number:Float, x:Float = 4, y:Float = 15, spacing:Float = 5, precision:Int = 3) {
 		group.add({
-			var num = new EventNumber(3, y, number, EventNumber.ALIGN_CENTER, 5);
+			var num = new EventNumber(x, y, number, EventNumber.ALIGN_CENTER, spacing, precision);
+			if (num.numWidth > 20) {
+				num.scale.x = num.scale.y = 20 / num.numWidth;
+			}
 			num.active = false;
 			num;
 		});
 	}
 
-	private static function generateEventIconWithDuration(duration:Float, startIcon:String, endIcon:String = "") {
-		var group = new EventIconGroup();
-		group.add(generateDefaultIcon(startIcon));
+	private static function generateEventIconDurationArrow(group:EventIconGroup, stepDuration:Float) {
+		//var group = new EventIconGroup();
+		//group.add(generateDefaultIcon(startIcon));
 
 		var xOffset = 4;
 		var yGap = 24;
-		var endGap = 7;
-		if (endIcon == "") endGap = -2;
+		var endGap = 2;
 
-		if (duration >= 0.65) { //min time for showing arrow
+		if (stepDuration >= 0.55) { //min time for showing arrow
 			var tail = new FlxSprite(xOffset, yGap);
-			var arrow = new FlxSprite(xOffset, (duration * 40) + endGap);
+			var arrow = new FlxSprite(xOffset, (stepDuration * 40) + endGap);
 			var arrowSegment = new FlxSprite(xOffset, yGap);
 			tail.frames = arrow.frames = arrowSegment.frames = Paths.getSparrowAtlas("editors/charter/event-icons/components/arrow-down");
 
@@ -282,7 +290,7 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 			group.add({
 				arrowSegment.animation.addByPrefix("segment", "segment");
 				arrowSegment.animation.play("segment");
-				arrowSegment.scale.y = (duration * 40) - (tail.height + endGap + yGap);
+				arrowSegment.scale.y = endGap + (stepDuration * 40) - (tail.height + yGap);
 				arrowSegment.updateHitbox();
 				arrowSegment.y += tail.height;
 				arrowSegment;
@@ -294,17 +302,6 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 				arrow;
 			});
 		}
-
-		if (endIcon != "") {
-			group.add({
-				var icon = generateDefaultIcon(endIcon);
-				icon.y = duration * 40;
-				icon;
-			});
-		}
-
-
-		return group;
 	}
 
 	private static function generateEventIconWarning(group:EventIconGroup) {
@@ -403,6 +400,10 @@ class EventIconGroup extends FlxSpriteGroup {
 		if (copyColorTransformToChildren && colorTransform != null) for (child in members) child.colorTransform.__copyFrom(colorTransform);
 		super.draw();
 	}
+	
+	override function update(elapsed:Float) {
+		super.update(elapsed);
+	}
 }
 
 class EventNumber extends FlxSprite {
@@ -436,6 +437,7 @@ class EventNumber extends FlxSprite {
 			}
 
 			var ints = Std.int(Math.abs(number));
+			if (ints == 0) this.digits.insert(0, 0);
 			while (ints > 0) {
 				this.digits.insert(0, ints % 10);
 				ints = Std.int(ints / 10);

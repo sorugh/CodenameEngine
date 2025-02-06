@@ -151,7 +151,4 @@ class HashLinkFixer {
 		return fields;
 	}
 }
-#else
-class HashLinkFixer {
-}
 #end

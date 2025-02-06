@@ -81,7 +81,8 @@ class GlobalScript {
 			call("update", [FlxG.elapsed]);
 		});
 
-		onModSwitch(#if MOD_SUPPORT ModsFolder.currentModFolder #else null #end);
+		// Commented this out, because it might be the cause why global runs twice - Neo
+		//onModSwitch(#if MOD_SUPPORT ModsFolder.currentModFolder #else null #end);
 	}
 
 	public static function event<T:CancellableEvent>(name:String, event:T):T {

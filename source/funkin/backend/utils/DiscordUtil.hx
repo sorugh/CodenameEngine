@@ -305,7 +305,7 @@ class DiscordUtil
 		user = DUser.initRaw(request);
 
 		Logs.traceColored([
-			Logs.logText("[Discord] ", BLUE),
+			Logs.getPrefix("Discord"),
 			Logs.logText("Connected to User " + user.globalName + " ("),
 			Logs.logText(user.handle, GRAY),
 			Logs.logText(")")
@@ -321,7 +321,7 @@ class DiscordUtil
 		var finalMsg:String = cast(message, String);
 
 		Logs.traceColored([
-			Logs.logText("[Discord] ", BLUE),
+			Logs.getPrefix("Discord"),
 			Logs.logText("Disconnected ("),
 			Logs.logText('$errorCode: $finalMsg', RED),
 			Logs.logText(")")
@@ -335,7 +335,7 @@ class DiscordUtil
 		var finalMsg:String = cast(message, String);
 
 		Logs.traceColored([
-			Logs.logText("[Discord] ", BLUE),
+			Logs.getPrefix("Discord"),
 			Logs.logText('Error ($errorCode: $finalMsg)', RED)
 		], ERROR);
 
@@ -344,7 +344,7 @@ class DiscordUtil
 
 	private static function onJoin(joinSecret:cpp.ConstCharStar):Void
 	{
-		Logs.traceColored([Logs.logText("[Discord] ", BLUE), Logs.logText("Someone has just joined", GREEN)], INFO);
+		Logs.traceColored([Logs.getPrefix("Discord"), Logs.logText("Someone has just joined", GREEN)], INFO);
 
 		call("onJoinGame", [cast(joinSecret, String)]);
 	}
@@ -352,7 +352,7 @@ class DiscordUtil
 	private static function onSpectate(spectateSecret:cpp.ConstCharStar):Void
 	{
 		Logs.traceColored([
-			Logs.logText("[Discord] ", BLUE),
+			Logs.getPrefix("Discord"),
 			Logs.logText("Someone started spectating your game", YELLOW)
 		], INFO);
 
@@ -362,7 +362,7 @@ class DiscordUtil
 	private static function onJoinReq(request:cpp.RawConstPointer<DiscordUser>):Void
 	{
 		Logs.traceColored([
-			Logs.logText("[Discord] ", BLUE),
+			Logs.getPrefix("Discord"),
 			Logs.logText("Someone has just requested to join", YELLOW)
 		], WARNING);
 

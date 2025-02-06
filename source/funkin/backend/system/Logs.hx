@@ -143,25 +143,20 @@ class Logs {
 		traceColored(text, level);
 	}
 
-	public inline static function getPrefix(prefix:String) {
+	public inline static function getPrefix(prefix:String)
 		return logText('[${prefix}] ', BLUE);
-	}
 
-	public inline static function infos(text:String, color:ConsoleColor = LIGHTGRAY, ?prefix:String) {
+	public inline static function infos(text:String, color:ConsoleColor = LIGHTGRAY, ?prefix:String)
 		Logs.trace(text, INFO, color, prefix);
-	}
 
-	public inline static function verbose(text:String, color:ConsoleColor = LIGHTGRAY, ?prefix:String) {
-		Logs.trace(text, VERBOSE, color, prefix);
-	}
+	public inline static function verbose(text:String, color:ConsoleColor = LIGHTGRAY, ?prefix:String)
+		if (Main.verbose) Logs.trace(text, VERBOSE, color, prefix);
 
-	public inline static function warn(text:String, color:ConsoleColor = YELLOW, ?prefix:String) {
+	public inline static function warn(text:String, color:ConsoleColor = YELLOW, ?prefix:String)
 		Logs.trace(text, WARNING, color, prefix);
-	}
 
-	public inline static function error(text:String, color:ConsoleColor = RED, ?prefix:String) {
+	public inline static function error(text:String, color:ConsoleColor = RED, ?prefix:String)
 		Logs.trace(text, ERROR, color, prefix);
-	}
 }
 
 enum abstract Level(Int) {

@@ -64,8 +64,8 @@ class CommandLineHandler {
 					Main.noCwdFix = true;
 				case "-livereload":
 					// do nothing
-				case "-verbose":
-					// do nothing
+				case "-v" | "-verbose" | "--verbose":
+					Main.verbose = true;
 				default:
 					Sys.println("Unknown command");
 			}

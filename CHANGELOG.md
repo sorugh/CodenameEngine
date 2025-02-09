@@ -174,7 +174,7 @@ This changelog lists every change that has been added since the last update (inc
 - Fixed typos in funkin.game.StrumLine ([71b7daa](https://github.com/CodenameCrew/CodenameEngine/commit/71b7daabbfc742212f2b35d27b5655561504bf3a))
 - Fixed documentation typos ([165338f](https://github.com/CodenameCrew/CodenameEngine/commit/165338f36c1e394b377ed87c2df6306676cfb4c7))
 
-## Optimizations
+## Optimizations + Cleanup
 
 - Various optimizations and cleanup ([7b279bf](https://github.com/CodenameCrew/CodenameEngine/commit/7b279bfed0dea7b9d49fa7272fbb16d7ecdd4349), [8174fef](https://github.com/CodenameCrew/CodenameEngine/commit/8174fef53db028e5808239f87566a84d6467d9fd))
 - Small ram improvements

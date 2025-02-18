@@ -1,5 +1,6 @@
 package funkin.editors.character;
 
+import funkin.editors.extra.AxisGizmo;
 import flixel.math.FlxRect;
 import funkin.editors.stage.StageEditor;
 import funkin.game.Stage;
@@ -14,7 +15,6 @@ import funkin.editors.ui.UIContextMenu.UIContextMenuOptionSpr;
 import funkin.game.Character;
 import haxe.xml.Access;
 import haxe.xml.Printer;
-import funkin.editors.extra.DrawAxis;
 
 class CharacterEditor extends UIState {
 	static var __character:String;
@@ -33,7 +33,8 @@ class CharacterEditor extends UIState {
 	// public var dragOffsetsCheckbox:UICheckbox;
 	// public var lockCameraCheckbox:UICheckbox;
 	
-	public var drawAxis:DrawAxis;
+	public var axisGizmo:AxisGizmo;
+	public var characterGizmo:CharacterGizmos;
 	public var uiGroup:FlxTypedGroup<FlxSprite> = new FlxTypedGroup<FlxSprite>();
 
 	public var cameraHoverDummy:CameraHoverDummy;
@@ -42,6 +43,7 @@ class CharacterEditor extends UIState {
 	public var characterAnimsWindow:CharacterAnimsWindow;
 
 	public var charCamera:FlxCamera;
+	public var gizmosCamera:FlxCamera;
 	public var uiCamera:FlxCamera;
 
 	public var animationText:UIText;
@@ -255,6 +257,20 @@ class CharacterEditor extends UIState {
 
 		charCamera = FlxG.camera;
 
+		gizmosCamera = new FlxCamera();
+		gizmosCamera.bgColor = 0;
+		FlxG.cameras.add(gizmosCamera);
+
+		axisGizmo = new AxisGizmo();
+		axisGizmo.cameras = [gizmosCamera];
+		add(axisGizmo);
+
+		characterGizmo = new CharacterGizmos();
+		characterGizmo.boxGizmo = Options.characterHitbox;
+		characterGizmo.cameraGizmo = Options.characterCamera;
+		characterGizmo.cameras = [gizmosCamera];
+		add(characterGizmo);
+
 		uiCamera = new FlxCamera();
 		uiCamera.bgColor = 0;
 
@@ -264,16 +280,11 @@ class CharacterEditor extends UIState {
 		character.debugMode = true;
 		character.cameras = [charCamera];
 
-		character.debugHitbox = Options.characterHitbox;
-		character.debugCamera = Options.characterCamera;
+		characterGizmo.character = character;
 
 		changeCharacterIsPlayer(character.playerOffsets);
 
 		add(character);
-
-		drawAxis = new DrawAxis();
-		drawAxis.cameras = [charCamera];
-		add(drawAxis);
 
 		uiGroup.cameras = [uiCamera];
 		add(cameraHoverDummy = new CameraHoverDummy(uiGroup, FlxPoint.weak(0, 0)));
@@ -627,17 +638,17 @@ class CharacterEditor extends UIState {
 
 	function _view_character_show_hitbox(t) {
 		t.icon = (Options.characterHitbox = !Options.characterHitbox) ? 1 : 0;
-		character.debugHitbox = Options.characterHitbox;
+		characterGizmo.boxGizmo = Options.characterHitbox;
 	}
 
 	function _view_character_show_camera(t) {
 		t.icon = (Options.characterCamera = !Options.characterCamera) ? 1 : 0;
-		character.debugCamera = Options.characterCamera;
+		characterGizmo.cameraGizmo = Options.characterCamera;
 	}
 
 	function _view_character_show_axis(t) {
 		t.icon = (Options.characterAxis = !Options.characterAxis) ? 1 : 0;
-		drawAxis.visible = Options.characterAxis;
+		axisGizmo.visible = Options.characterAxis;
 	}
 
 	function _view_focus_character(_) {

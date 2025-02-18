@@ -1,5 +1,6 @@
 package funkin.backend.utils;
 
+import flixel.math.FlxRect;
 import flixel.util.FlxColor;
 import flixel.math.FlxAngle;
 import flixel.math.FlxPoint;
@@ -18,7 +19,7 @@ final class DrawUtil {
 		dot.draw();
 	}
 
-	public static inline function drawLine(point1:FlxPoint, point2:FlxPoint, sizeModify:Float = 1, ?color:Null<FlxColor>) {
+	public static inline function drawLine(point1:FlxPoint, point2:FlxPoint, thickness:Float = 1, ?color:Null<FlxColor>) {
 		if (line == null) createDrawers();
 
 		var dx:Float = point2.x - point1.x;
@@ -27,11 +28,12 @@ final class DrawUtil {
 		var angle:Float = Math.atan2(dy, dx);
 		var distance:Float = Math.sqrt(dx * dx + dy * dy);
 
-		line.setPosition(point1.x, point1.y);
+		// Math.ceil to prevent flickering
+		line.setPosition(Math.ceil(point1.x), Math.ceil(point1.y));
 		line.angle = angle * FlxAngle.TO_DEG;
 		line.origin.set(0, line.frameHeight / 2);
 		line.scale.x = distance / line.frameWidth;
-		line.scale.y = 0.20/line.cameras[0].zoom * sizeModify;
+		line.scale.y = thickness;
 		line.y -= line.height / 2;
 		if (color != null) line.color = color;
 		line.draw();
@@ -39,6 +41,15 @@ final class DrawUtil {
 		line.angle = 0;
 		line.scale.x = line.scale.y = 1;
 		line.updateHitbox();
+
+		point1.putWeak(); point2.putWeak();
+	}
+ 
+	public static inline function drawRect(rect:FlxRect, thickness:Float = 1, ?color:Null<FlxColor>) {
+		DrawUtil.drawLine(FlxPoint.weak(rect.x, rect.y), FlxPoint.weak(rect.x + rect.width, rect.y), thickness, color);
+		DrawUtil.drawLine(FlxPoint.weak(rect.x, rect.y), FlxPoint.weak(rect.x, rect.y + rect.height), thickness, color);
+		DrawUtil.drawLine(FlxPoint.weak(rect.x + rect.width, rect.y), FlxPoint.weak(rect.x + rect.width, rect.y + rect.height), thickness, color);
+		DrawUtil.drawLine(FlxPoint.weak(rect.x, rect.y + rect.height), FlxPoint.weak(rect.x + rect.width, rect.y + rect.height), thickness, color);
 	}
 
 	public static inline function createDrawers() {
@@ -50,7 +61,7 @@ final class DrawUtil {
 		dot.camera = FlxG.camera;
 		dot.forceIsOnScreen = true;
 
-		line = new FlxSprite().makeGraphic(30, 30, FlxColor.WHITE);
+		line = new FlxSprite().makeGraphic(1, 1, FlxColor.WHITE);
 		line.camera = FlxG.camera;
 		line.forceIsOnScreen = true;
 	}

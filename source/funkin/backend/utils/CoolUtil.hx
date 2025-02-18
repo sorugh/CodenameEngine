@@ -915,6 +915,28 @@ final class CoolUtil
 	}
 
 	/**
+	 * Returns the screen position of an point, while taking the camera zoom into account.
+	 *
+	 * @param	object	Any `FlxObject`
+	 * @param   camera  The desired "screen" coordinate space. If `null`, `FlxG.camera` is used.
+	 * @param   result  Optional arg for the returning point
+	 * @return  The screen position of the object.
+	 */
+	 public static function pointToScreenPosition(object:FlxPoint, ?camera:FlxCamera, ?result:FlxPoint) {
+		if (result == null)
+			result = FlxPoint.get();
+		if (camera == null)
+			camera = FlxG.camera;
+
+		result.set(object.x, object.y);
+		result.x = (((result.x - camera.scroll.x) * camera.zoom) - ((camera.width * 0.5) * (camera.zoom - camera.initialZoom)));
+		result.y = (((result.y - camera.scroll.y) * camera.zoom) - ((camera.height * 0.5) * (camera.zoom - camera.initialZoom)));
+
+		object.putWeak();
+		return result;
+	}
+
+	/**
 	 * Sorts an array alphabetically.
 	 * @param array Array to sort
 	 * @param lowercase Whenever the array should be sorted in lowercase

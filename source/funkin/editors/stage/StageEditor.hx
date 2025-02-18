@@ -427,7 +427,6 @@ class StageEditor extends UIState {
 	override function destroy() {
 		super.destroy();
 		nextScroll = FlxDestroyUtil.destroy(nextScroll);
-		DrawUtil.destroyDrawers();
 		if(Framerate.isLoaded) {
 			Framerate.fpsCounter.alpha = 1;
 			Framerate.memoryCounter.alpha = 1;

@@ -132,6 +132,7 @@ class UIState extends MusicBeatState {
 		super.destroy();
 		__mousePos.put();
 
+		DrawUtil.destroyDrawers();
 		WindowUtils.resetAffixes();
 		SaveWarning.reset();
 

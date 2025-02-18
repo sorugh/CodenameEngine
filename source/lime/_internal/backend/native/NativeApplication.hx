@@ -226,9 +226,7 @@ class NativeApplication
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
 				if (joystick != null) joystick.onHatMove.dispatch(joystickEventInfo.index, joystickEventInfo.eventValue);
 
-			case TRACKBALL_MOVE:
-				var joystick = Joystick.devices.get(joystickEventInfo.id);
-				if (joystick != null) joystick.onTrackballMove.dispatch(joystickEventInfo.index, joystickEventInfo.x, joystickEventInfo.y);
+			case TRACKBALL_MOVE: // I guess this was just removed ??
 
 			case BUTTON_DOWN:
 				var joystick = Joystick.devices.get(joystickEventInfo.id);

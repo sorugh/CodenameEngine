@@ -1247,7 +1247,7 @@ class Charter extends UIState {
 		+ '\nStep: ${curStep}'
 		+ '\nBeat: ${curBeat}'
 		+ '\nMeasure: ${curMeasure}'
-		+ '\nBPM: ${Conductor.bpm}'
+		+ '\nBPM: ${Math.floor(Conductor.bpm*1000)/1000}'
 		+ '\nTime Signature: ${Conductor.beatsPerMeasure}/${Conductor.stepsPerBeat}';
 
 		if (charterCamera.zoom != (charterCamera.zoom = lerp(charterCamera.zoom, __camZoom, __firstFrame ? 1 : 0.125)))

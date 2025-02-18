@@ -24,7 +24,7 @@ final class Logs {
 					);
 				}
 			}
-			__showInConsole(prepareColoredTrace(data, TRACE));
+			traceColored(data, TRACE);
 		};
 
 		LogFrontEnd.onLogs = function(data, style, fireOnce) {
@@ -134,16 +134,33 @@ final class Logs {
 		#end
 	}
 
-	public static function traceColored(text:Array<LogText>, level:Level = INFO)
+	public inline static function traceColored(text:Array<LogText>, level:Level = INFO)
 		__showInConsole(prepareColoredTrace(text, level));
 
-	public static function trace(text:String, level:Level = INFO, color:ConsoleColor = LIGHTGRAY) {
-		traceColored([
-			{
-				text: text,
-				color: color
-			}
-		], level);
+	public static function trace(text:String, level:Level = INFO, color:ConsoleColor = LIGHTGRAY, ?prefix:String) {
+		var text = [logText(text, color)];
+		if(prefix != null) text.insert(0, getPrefix(prefix));
+		traceColored(text, level);
+	}
+
+	public inline static function getPrefix(prefix:String) {
+		return logText('[${prefix}] ', BLUE);
+	}
+
+	public inline static function infos(text:String, color:ConsoleColor = LIGHTGRAY, ?prefix:String) {
+		Logs.trace(text, INFO, color, prefix);
+	}
+
+	public inline static function verbose(text:String, color:ConsoleColor = LIGHTGRAY, ?prefix:String) {
+		Logs.trace(text, VERBOSE, color, prefix);
+	}
+
+	public inline static function warn(text:String, color:ConsoleColor = YELLOW, ?prefix:String) {
+		Logs.trace(text, WARNING, color, prefix);
+	}
+
+	public inline static function error(text:String, color:ConsoleColor = RED, ?prefix:String) {
+		Logs.trace(text, ERROR, color, prefix);
 	}
 }
 

@@ -50,7 +50,7 @@ class DialogueCutscene extends ScriptedCutscene {
 	}
 
 	public override function onErrorScriptLoading() {
-		Logs.trace('Could not find script for dialogue cutscene at "${scriptPath}"', WARNING, YELLOW);
+		//Logs.trace('Could not find script for dialogue cutscene at "${scriptPath}"', WARNING, YELLOW);  // Too many warnings honestly, stawp  - Nex
 	}
 
 	var parentDisabler:FunkinParentDisabler;
@@ -62,26 +62,26 @@ class DialogueCutscene extends ScriptedCutscene {
 			var event = EventManager.get(DialogueStructureEvent).recycle(dialogueData);
 			event.dialogueData = new Access(Xml.parse(Assets.getText(dialoguePath)).firstElement());
 			dialogueScript.call('structureLoaded', [event]);
-			if(event.cancelled) return;
+			if (event.cancelled) return;
 			dialogueData = event.dialogueData;
 
 			// Add characters
-			for(char in dialogueData.nodes.char) {
+			for (char in dialogueData.nodes.char) {
 				if (!char.has.name) continue;
 				if (charMap.exists(char.att.name))
 					Logs.trace('2 dialogue characters share the same name (${char.att.name}, ${char.att.name}). The old character has been replaced.');
 
 				var leChar:DialogueCharacter = new DialogueCharacter(char.att.name, char.getAtt('position').getDefault('default'));
-				if(char.has.defaultAnim) leChar.defaultAnim = char.att.defaultAnim;
+				if (char.has.defaultAnim) leChar.defaultAnim = char.att.defaultAnim;
 				add(charMap[char.att.name] = leChar);
 			}
 
 			var useDef:Bool = false;
-			if(dialogueData.has.forceBoxDefaultTxtSound && dialogueData.att.forceBoxDefaultTxtSound == "true")
+			if (dialogueData.has.forceBoxDefaultTxtSound && dialogueData.att.forceBoxDefaultTxtSound == "true")
 				useDef = true;
 
 			// Add lines
-			for(node in dialogueData.nodes.line) {
+			for (node in dialogueData.nodes.line) {
 				var formats = XMLUtil.getTextFormats(XMLUtil.fixSpacingInNode(node));
 				var volume:Null<Float> = 0.8;
 				var line:DialogueLine = {
@@ -99,8 +99,8 @@ class DialogueCutscene extends ScriptedCutscene {
 					textSound: null
 				};
 
-				if(node.has.textSound) line.textSound = FlxG.sound.load(Paths.sound(node.att.textSound));
-				else if(!useDef) {
+				if (node.has.textSound) line.textSound = FlxG.sound.load(Paths.sound(node.att.textSound));
+				else if (!useDef) {
 					var char:DialogueCharacter = charMap[line.char];
 					if(char != null && char.charData != null && char.charData.has.textSound)
 						line.textSound = FlxG.sound.load(Paths.sound(char.charData.att.textSound));
@@ -188,16 +188,16 @@ class DialogueCutscene extends ScriptedCutscene {
 
 	public override function close() {
 		var event = new CancellableEvent();
-		for(c in charMap) c.dialogueCharScript.call("close", [event]);
-		dialogueBox.dialogueBoxScript.call("close", [event]);
+		for (c in charMap) c.dialogueCharScript.call("close", [event]);
+		if (dialogueBox != null) dialogueBox.dialogueBoxScript.call("close", [event]);
 		dialogueScript.call("close", [event]);
-		if(event.cancelled) return;
+		if (event.cancelled) return;
 
 		super.close();
 	}
 
 	public override function destroy() {
-		if(curMusic != null && !curMusic.persist) curMusic.destroy();
+		if (curMusic != null && !curMusic.persist) curMusic.destroy();
 
 		super.destroy();
 		cutscene = null;

@@ -179,8 +179,6 @@ class Main extends Sprite
 	}
 
 	public static function refreshAssets() @:privateAccess {
-		WindowUtils.resetTitle();
-
 		var game = FlxG.game;
 		var daSndTray = Type.createInstance(game._customSoundTray = funkin.menus.ui.FunkinSoundTray, []);
 		var index:Int = game.numChildren - 1;

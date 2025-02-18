@@ -40,7 +40,7 @@ class CreditsMain extends TreeMenu {
 			optionsTree.add(Type.createInstance(CreditsCodename, []));
 		}));
 		items.push(new TextOption("Friday Night Funkin'", "Select this to open the itch.io page of the original game to donate!", function() {
-			CoolUtil.openURL("https://ninja-muffin24.itch.io/funkin");
+			CoolUtil.openURL(Flags.URL_FNF_ITCH);
 		}));
 
 		main = new OptionsScreen('Credits', 'The people who made this possible!', items);

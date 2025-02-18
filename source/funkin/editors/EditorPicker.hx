@@ -34,7 +34,7 @@ class EditorPicker extends MusicBeatSubstate {
 			id: "wiki",
 			state: null,
 			onClick: function() {
-				CoolUtil.openURL("https://codename-engine.com/");
+				CoolUtil.openURL(Flags.URL_WIKI);
 			}
 		},
 		{
@@ -124,7 +124,7 @@ class EditorPicker extends MusicBeatSubstate {
 					});
 				});
 			} else {
-				CoolUtil.openURL("https://www.youtube.com/watch?v=9Youam7GYdQ");
+				CoolUtil.openURL(Flags.URL_EDITOR_FALLBACK);
 			}
 
 		}

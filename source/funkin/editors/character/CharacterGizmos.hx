@@ -23,12 +23,20 @@ class CharacterGizmos extends FlxSprite {
 				// TODO: ATLAS CALCUATIONS 
 				character._rect.set();
 			} else if (character._matrix != null && character.frame != null) {
-				character._rect.set(character._matrix.tx, character._matrix.ty, character.frame.frame.width * character._matrix.a, character.frame.frame.height * character._matrix.d);
+				character._rect.set(
+					character._matrix.tx, character._matrix.ty, 
+					Math.abs(character.frame.frame.width * character._matrix.a), 
+					Math.abs(character.frame.frame.height * character._matrix.d)
+				);
+				if (character._matrix.a < 0) character._rect.x -= character._rect.width;
+				if (character._matrix.d < 0) character._rect.y -= character._rect.height;
+				
 				character._rect.offset(-character.cameras[0].viewMarginLeft, -character.cameras[0].viewMarginTop);
 				character._rect.x *= character.cameras[0].zoom;
 				character._rect.y *= character.cameras[0].zoom;
 				character._rect.width *= character.cameras[0].zoom;
 				character._rect.height *= character.cameras[0].zoom;
+				trace(character._rect);
 			}
 
 			if (DrawUtil.line == null) DrawUtil.createDrawers();

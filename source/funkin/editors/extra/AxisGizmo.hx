@@ -8,7 +8,7 @@ class AxisGizmo extends FlxObject {
 
 		for (camera in cameras) {
 			if (DrawUtil.line == null) DrawUtil.createDrawers();
-			DrawUtil.line.camera = camera; DrawUtil.line.alpha = 0.75;
+			DrawUtil.line.camera = camera; DrawUtil.line.alpha = 0.85;
 
 			CoolUtil.pointToScreenPosition(FlxPoint.weak(), FlxG.camera, _worldPos);
 			// Stole these colors directly from godot >:D -luanr

@@ -18,39 +18,23 @@ class CharacterGizmos extends FlxSprite {
 	}
 
 	public function drawHitbox() {
-		// TODO: ATLAS VESION OF THIS CODE
-		if (character._matrix == null || character.frame == null) return;
-
 		for (camera in cameras) {
-			character._rect.set(character._matrix.tx, character._matrix.ty, character.frame.frame.width * character._matrix.a, character.frame.frame.height * character._matrix.d);
-			@:privateAccess character._rect = FlxG.camera.transformRect(character._rect);
-			trace(character._rect);
+			if (character.animateAtlas != null) {
+				// TODO: ATLAS CALCUATIONS 
+				character._rect.set();
+			} else if (character._matrix != null && character.frame != null) {
+				character._rect.set(character._matrix.tx, character._matrix.ty, character.frame.frame.width * character._matrix.a, character.frame.frame.height * character._matrix.d);
+				character._rect.offset(-character.cameras[0].viewMarginLeft, -character.cameras[0].viewMarginTop);
+				character._rect.x *= character.cameras[0].zoom;
+				character._rect.y *= character.cameras[0].zoom;
+				character._rect.width *= character.cameras[0].zoom;
+				character._rect.height *= character.cameras[0].zoom;
+			}
 
 			if (DrawUtil.line == null) DrawUtil.createDrawers();
-			DrawUtil.line.camera = camera; DrawUtil.line.alpha = 0.75;
+			DrawUtil.line.camera = camera; DrawUtil.line.alpha = 0.85;
 
-			DrawUtil.drawRect(character._rect, 1, 0xFF8F8A00);
-			// yes i made a drawRect function for this purpose, no im not using it >:D
-			DrawUtil.drawLine(
-				CoolUtil.pointToScreenPosition(FlxPoint.weak(character._rect.x, character._rect.y), FlxG.camera, FlxPoint.weak()), 
-				CoolUtil.pointToScreenPosition(FlxPoint.weak(character._rect.x + character._rect.width, character._rect.y), FlxG.camera, FlxPoint.weak()), 
-				1, 0xFF007B8F
-			);
-			DrawUtil.drawLine(
-				CoolUtil.pointToScreenPosition(FlxPoint.weak(character._rect.x, character._rect.y), FlxG.camera, FlxPoint.weak()), 
-				CoolUtil.pointToScreenPosition(FlxPoint.weak(character._rect.x, character._rect.y + character._rect.height), FlxG.camera, FlxPoint.weak()), 
-				1, 0xFF007B8F
-			);
-			DrawUtil.drawLine(
-				CoolUtil.pointToScreenPosition(FlxPoint.weak(character._rect.x + character._rect.width, character._rect.y), FlxG.camera, FlxPoint.weak()), 
-				CoolUtil.pointToScreenPosition(FlxPoint.weak(character._rect.x + character._rect.width, character._rect.y + character._rect.height), FlxG.camera, FlxPoint.weak()), 
-				1, 0xFF007B8F
-			);
-			DrawUtil.drawLine(
-				CoolUtil.pointToScreenPosition(FlxPoint.weak(character._rect.x, character._rect.y + character._rect.height), FlxG.camera, FlxPoint.weak()), 
-				CoolUtil.pointToScreenPosition(FlxPoint.weak(character._rect.x + character._rect.width, character._rect.y + character._rect.height), FlxG.camera, FlxPoint.weak()), 
-				1, 0xFF007B8F
-			);
+			DrawUtil.drawRect(character._rect, 1, 0xFF007B8F);
 		}
 	}
 
@@ -60,7 +44,7 @@ class CharacterGizmos extends FlxSprite {
 			camPos -= camera.scroll;
 
 			if (DrawUtil.line == null) DrawUtil.createDrawers();
-			DrawUtil.line.camera = camera; DrawUtil.line.alpha = 0.75;
+			DrawUtil.line.camera = camera; DrawUtil.line.alpha = 1;
 
 			DrawUtil.drawLine(
 				CoolUtil.pointToScreenPosition(FlxPoint.weak(camPos.x - 8, camPos.y), FlxG.camera, FlxPoint.weak()),

@@ -29,7 +29,7 @@ final class DrawUtil {
 		var distance:Float = Math.sqrt(dx * dx + dy * dy);
 
 		// Math.ceil to prevent flickering
-		line.setPosition(Math.ceil(point1.x), Math.ceil(point1.y));
+		line.setPosition(point1.x, point1.y);
 		line.angle = angle * FlxAngle.TO_DEG;
 		line.origin.set(0, line.frameHeight / 2);
 		line.scale.x = distance / line.frameWidth;
@@ -46,6 +46,7 @@ final class DrawUtil {
 	}
  
 	public static inline function drawRect(rect:FlxRect, thickness:Float = 1, ?color:Null<FlxColor>) {
+		if (rect.width <= 0 || rect.height <= 0) return;
 		DrawUtil.drawLine(FlxPoint.weak(rect.x, rect.y), FlxPoint.weak(rect.x + rect.width, rect.y), thickness, color);
 		DrawUtil.drawLine(FlxPoint.weak(rect.x, rect.y), FlxPoint.weak(rect.x, rect.y + rect.height), thickness, color);
 		DrawUtil.drawLine(FlxPoint.weak(rect.x + rect.width, rect.y), FlxPoint.weak(rect.x + rect.width, rect.y + rect.height), thickness, color);

@@ -437,7 +437,6 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		if (scale.x != 1) xml.set("scale", Std.string(FlxMath.roundDecimal(scale.x, 4)));
 		if (!antialiasing) xml.set("antialiasing", antialiasing == true ? "true" : "false");
 
-		trace(playerOffsets);
 		if (isPlayer) xml.set("isPlayer", isPlayer == true ? "true" : "false");
 
 		var anims:Array<AnimData> = [];

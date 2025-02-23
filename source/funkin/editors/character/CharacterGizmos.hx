@@ -30,13 +30,12 @@ class CharacterGizmos extends FlxSprite {
 				);
 				if (character._matrix.a < 0) character._rect.x -= character._rect.width;
 				if (character._matrix.d < 0) character._rect.y -= character._rect.height;
-				
+
 				character._rect.offset(-character.cameras[0].viewMarginLeft, -character.cameras[0].viewMarginTop);
 				character._rect.x *= character.cameras[0].zoom;
 				character._rect.y *= character.cameras[0].zoom;
 				character._rect.width *= character.cameras[0].zoom;
 				character._rect.height *= character.cameras[0].zoom;
-				trace(character._rect);
 			}
 
 			if (DrawUtil.line == null) DrawUtil.createDrawers();

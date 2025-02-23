@@ -81,16 +81,13 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 		if(!disableScripts)
 			script = Script.create(Paths.script(Path.withoutExtension(Paths.xml('characters/$curCharacter')), null, true));
-		else
-			script = new DummyScript(curCharacter);
-		script.load();
-
-		buildCharacter(xml);
-		scripts.call("create");
-
 		if (script == null)
 			script = new DummyScript(curCharacter);
 
+		script.load();
+
+		scripts.call("create");
+		buildCharacter(xml);
 		scripts.call("postCreate");
 	}
 
@@ -208,7 +205,7 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 	}
 
 	public function isFlippedOffsets()
-		return (isPlayer != playerOffsets) != (flipX != __baseFlipped);
+		return debugMode ? false : (isPlayer != playerOffsets) != (flipX != __baseFlipped);
 
 	var __reversePreDrawProcedure:Bool = false;
 
@@ -429,7 +426,8 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 
 		if (holdTime != 4) xml.set("holdTime", Std.string(FlxMath.roundDecimal(holdTime, 4)));
 
-		if (flipX) xml.set("flipX", Std.string(flipX));
+		var realFlipped:Bool = isPlayer ? !__baseFlipped : __baseFlipped;
+		if (realFlipped) xml.set("flipX", "true");
 		xml.set("icon", getIcon());
 
 		if (gameOverCharacter != Character.FALLBACK_DEAD_CHARACTER) xml.set("gameOverChar", gameOverCharacter);
@@ -439,7 +437,8 @@ class Character extends FunkinSprite implements IBeatReceiver implements IOffset
 		if (scale.x != 1) xml.set("scale", Std.string(FlxMath.roundDecimal(scale.x, 4)));
 		if (!antialiasing) xml.set("antialiasing", antialiasing == true ? "true" : "false");
 
-		if (playerOffsets) xml.set("isPlayer", playerOffsets == true ? "true" : "false");
+		trace(playerOffsets);
+		if (isPlayer) xml.set("isPlayer", isPlayer == true ? "true" : "false");
 
 		var anims:Array<AnimData> = [];
 		if (animsOrder != null) {

@@ -381,7 +381,7 @@ class CharacterEditor extends UIState {
 
 	inline function handleMouseOffsets() {
 		if (draggingCharacter) {
-			cameraHoverDummy.cursor = #if (mac) DRAG; #elseif (linux) DRAG; #else CLICK; #end
+			cameraHoverDummy.cursor = DRAG;
 
 			if (FlxG.mouse.justReleased) {
 				draggingOffset.x /= character.scale.x;
@@ -401,7 +401,7 @@ class CharacterEditor extends UIState {
 				StageEditor.calcSpriteBounds(character);
 				var bounds:FlxRect = cast character.extra.get(StageEditor.exID("bounds"));
 				if (bounds.containsPoint(point)) {
-					cameraHoverDummy.cursor = #if (mac) DRAG_OPEN; #elseif (linux) CLICK; #else MOVE; #end
+					cameraHoverDummy.cursor = #if (mac) DRAG_OPEN; #else CLICK; #end
 					if (FlxG.mouse.justPressed)
 						draggingCharacter = true;
 				}

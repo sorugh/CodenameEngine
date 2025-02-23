@@ -160,6 +160,7 @@ class CharacterAnimButton extends UIButton {
 		ghostIcon.animation.add("alive", [0]);
 		ghostIcon.animation.add("dead", [1]);
 		ghostIcon.animation.play("dead");
+		ghostIcon.color = 0xFFADADAD;
 		ghostIcon.antialiasing = false;
 		ghostIcon.updateHitbox();
 		members.push(ghostIcon);
@@ -365,9 +366,11 @@ class CharacterAnimButton extends UIButton {
 		if (parent.ghosts.indexOf(anim) == -1) {
 			parent.ghosts.push(anim);
 			ghostIcon.animation.play("alive", true);
+			ghostIcon.color = 0xFFFFFFFF;
 		} else {
 			parent.ghosts.remove(anim);
 			ghostIcon.animation.play("dead", true);
+			ghostIcon.color = 0xFFADADAD;
 		}
 	}
 

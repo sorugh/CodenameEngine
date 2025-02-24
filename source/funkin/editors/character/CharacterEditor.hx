@@ -684,20 +684,32 @@ class CharacterEditor extends UIState {
 		playAnimation(
 			characterAnimsWindow.animsList[
 				FlxMath.wrap(
-					characterAnimsWindow.animsList.indexOf(character.getAnimName()) - 1, 
+					characterAnimsWindow.animsList.indexOf(characterFakeAnim) - 1, 
 					0, characterAnimsWindow.animsList.length-1
 			)]
 		);
 	function _animation_down(_)
 		playAnimation(
 			characterAnimsWindow.animsList[FlxMath.wrap(
-					characterAnimsWindow.animsList.indexOf(character.getAnimName()) + 1, 
+					characterAnimsWindow.animsList.indexOf(characterFakeAnim) + 1, 
 					0, characterAnimsWindow.animsList.length-1
 			)]
 		);
 
+	// The animation thats playing regardless if its valid or not
+	public var characterFakeAnim:String = "";
 	public function playAnimation(anim:String) {
-		character.playAnim(anim, true);
+		characterFakeAnim = anim;
+		if (characterAnimsWindow.animButtons[anim] != null && characterAnimsWindow.animButtons[anim].valid) {
+			character.playAnim(anim, true);
+			character.colorTransform.redMultiplier = character.colorTransform.greenMultiplier = character.colorTransform.blueMultiplier = character.colorTransform.alphaMultiplier = 1;
+			character.colorTransform.redOffset = character.colorTransform.greenOffset = character.colorTransform.blueOffset = character.colorTransform.alphaOffset = 0;
+		} else {
+			var validAnimation:String = characterAnimsWindow.findValid();
+			if (validAnimation != null) character.playAnim(validAnimation, true);
+			_animation_stop(null);
+			character.colorTransform.color = 0xFFEF0202;
+		}
 
 		for(i in characterAnimsWindow.buttons.members)
 			i.alpha = i.anim == anim ? 1 : 0.25;

@@ -1,5 +1,6 @@
 package funkin.editors.character;
 
+import openfl.geom.ColorTransform;
 import flixel.animation.FlxAnimation;
 import funkin.game.Character;
 

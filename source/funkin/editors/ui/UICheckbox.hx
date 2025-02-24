@@ -29,10 +29,11 @@ class UICheckbox extends UISprite {
 
 	public override function update(elapsed:Float) {
 		// ANIMATION HANDLING
-		animation.play(hovered ? (pressed ? "pressed" : "hover") : "normal");
+		animation.play(hovered && selectable ? (pressed ? "pressed" : "hover") : "normal");
+		this.alpha = field.alpha = selectable ? 1 : 0.4;
 
 		// CHECKMARK HANDLING
-		check.alpha = checked ? 1 : 0;
+		check.alpha = selectable ? (checked ? 1 : 0) : 0;
 		check.scale.x = CoolUtil.fpsLerp(check.scale.x, 1, 0.25);
 		check.scale.y = CoolUtil.fpsLerp(check.scale.y, 1, 0.25);
 

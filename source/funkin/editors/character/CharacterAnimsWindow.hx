@@ -52,6 +52,8 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 	}
 
 	public function buildAnimDisplay(name:String, anim:FlxAnimation) {
+		if (anim.frames.length <= 0) return;
+		
 		var frameIndex:Int = anim.frames.getDefault([0])[0];
 		var frame:FlxFrame = displayWindowSprite.frames.frames[frameIndex];
 
@@ -60,6 +62,9 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 
 		displayAnimsFramesList.set(name, {frame: anim.frames.getDefault([0])[0], scale: 104/animBounds.height, animBounds: animBounds});
 	}
+
+	public function removeAnimDisplay(name:String)
+		displayAnimsFramesList.remove(name);
 
 	public function deleteAnimation(button:CharacterAnimButton) {
 		if (buttons.members.length <= 1) return;
@@ -95,13 +100,21 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 	}
 
 	public function addAnimation(animData:AnimData, animID:Int = -1) @:privateAccess {
-		XMLUtil.addAnimToSprite(character, animData);
-		buildAnimDisplay(animData.name, character.animation._animations[animData.name]);
-
 		var newButton:CharacterAnimButton = new CharacterAnimButton(0, 0, animData, this);
 		newButton.alpha = 0.25; animButtons.set(animData.name, newButton);
 
 		if (animID == -1) add(newButton);
 		else insert(newButton, animID);
+
+		if (newButton.valid) {
+			XMLUtil.addAnimToSprite(character, animData);
+			buildAnimDisplay(animData.name, character.animation._animations[animData.name]);
+		}
+	}
+
+	public function findValid():Null<String> {
+		for (button in buttons)
+			if (button.valid) return button.anim;
+		return null;
 	}
 }

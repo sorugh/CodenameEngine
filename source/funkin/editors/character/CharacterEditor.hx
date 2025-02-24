@@ -374,7 +374,7 @@ class CharacterEditor extends UIState {
 			animationText.x = animationTopButton.x + animationTopButton.bWidth + 6;
 			animationText.y = Std.int((animationTopButton.bHeight - animationText.height) / 2);
 		}
-		animationText.text = '"${character.getAnimName()}"';
+		animationText.text = '"${characterFakeAnim}"';
 
 		if (Options.characterDragging)
 			handleMouseOffsets();

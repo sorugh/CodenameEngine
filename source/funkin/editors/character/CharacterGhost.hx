@@ -26,7 +26,6 @@ class CharacterGhost extends Character {
 			}
 
 			if (ghosts.length > 0) {
-				trace(atlasPlayingAnim, ogFrame, oldTick, oldPlaying);
 				animateAtlas.anim.play(atlasPlayingAnim, true, false, ogFrame);
 				animateAtlas.anim._tick = oldTick;
 				animateAtlas.anim.isPlaying = oldPlaying;

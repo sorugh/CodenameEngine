@@ -306,6 +306,9 @@ class CharacterEditor extends UIState {
 		playAnimation(character.getAnimOrder()[0]);
 		changeStage("stage");
 
+		if (Options.editorsResizable)
+			UIState.setResolutionAware();
+
 		_view_focus_character(null);
 
 		if(Framerate.isLoaded) {
@@ -407,6 +410,20 @@ class CharacterEditor extends UIState {
 				}
 			}
 		}
+	}
+
+	public override function onResize(width:Int, height:Int) {
+		super.onResize(width, height);
+		if (!UIState.resolutionAware) return;
+
+		if (width < FlxG.initialWidth || height < FlxG.initialHeight) {
+			width = FlxG.initialWidth; height = FlxG.initialHeight;
+		}
+
+		characterPropertiesWindow.x = (FlxG.width-(440)-16) - (((500-16)-(440))/2);
+		characterAnimsWindow.x = (FlxG.width-(500-16)-16);
+
+		characterAnimsWindow.bHeight = Std.int(FlxG.height-(characterPropertiesWindow.y+characterPropertiesWindow.bHeight)-(32));
 	}
 
 	// TOP MENU OPTIONS

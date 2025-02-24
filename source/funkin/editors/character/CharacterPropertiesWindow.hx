@@ -8,6 +8,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 
 	public var positionXStepper:UINumericStepper;
 	public var positionYStepper:UINumericStepper;
+	public var positionXYComma:UIText;
 	public var scaleStepper:UINumericStepper;
 	public var editCharacterButton:UIButton;
 	public var editSpriteButton:UIButton;
@@ -15,15 +16,20 @@ class CharacterPropertiesWindow extends UISliceSprite {
 
 	public var cameraXStepper:UINumericStepper;
 	public var cameraYStepper:UINumericStepper;
+	public var cameraXYComma:UIText;
 	public var antialiasingCheckbox:UICheckbox;
 	public var testAsDropDown:UIDropDown;
 	public var designedAsDropDown:UIDropDown;
 
+	public var labels:Map<UISprite, UIText> = [];
+
 	public function new(x:Float, y:Float, character:Character) @:privateAccess {
 		super(x, y, 424+16, 204+20, "editors/ui/inputbox");
 
-		function addLabelOn(ui:UISprite, text:String)
-			members.push(new UIText(ui.x, ui.y - 24, 0, text));
+		function addLabelOn(ui:UISprite, text:String) {
+			var uiText:UIText = new UIText(ui.x, ui.y-24, 0, text);
+			members.push(uiText); labels.set(ui, uiText);
+		}
 
 		positionXStepper = new UINumericStepper(x+16, y+36, character.globalOffset.x, 0.001, 2, null, null, 104);
 		positionXStepper.onChange = (text:String) -> {
@@ -33,7 +39,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		members.push(positionXStepper);
 		addLabelOn(positionXStepper, "Position (X,Y)");
 
-		members.push(new UIText(positionXStepper.x+104-32+0, positionXStepper.y + 9, 0, ",", 22));
+		members.push(positionXYComma = new UIText(positionXStepper.x+104-32+0, positionXStepper.y + 9, 0, ",", 22));
 
 		positionYStepper = new UINumericStepper(positionXStepper.x+104-32+26, positionXStepper.y, character.globalOffset.y, 0.001, 2, null, null, 104);
 		positionYStepper.onChange = (text:String) -> {
@@ -70,7 +76,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		members.push(cameraXStepper);
 		addLabelOn(cameraXStepper, "Camera Position (X,Y)");
 
-		members.push(new UIText(cameraXStepper.x + 104-32+0, cameraXStepper.y+9, 0, ",", 22));
+		members.push(cameraXYComma = new UIText(cameraXStepper.x + 104-32+0, cameraXStepper.y+9, 0, ",", 22));
 
 		cameraYStepper = new UINumericStepper(cameraXStepper.x+104-32+26, cameraXStepper.y, character.cameraOffset.y, 0.001, 2, null, null, 104);
 		cameraYStepper.onChange = (text:String) -> {
@@ -164,5 +170,30 @@ class CharacterPropertiesWindow extends UISliceSprite {
 	public function changeAntialiasing(newAntialiasing:Bool) {
 		if (character.antialiasing == newAntialiasing) return;
 		character.antialiasing = newAntialiasing;
+	}
+
+	public function updateButtonsPos() {
+		positionXStepper.follow(this, 16, 36);
+		positionYStepper.follow(this, 16+104-32+26, 36);
+		positionXYComma.follow(this, 16+104-32+0, 36 + 9);
+		scaleStepper.follow(this, (16+104-32+26)+104-32+26, 36);
+		editCharacterButton.follow(this, ((16+104-32+26)+104-32+26)+90-32+26, 36-20);
+		editSpriteButton.follow(this, ((16+104-32+26)+104-32+26)+90-32+26, (36-20)+24+6);
+		flipXCheckbox.follow(this, (16+104-32+26)+104-32+26+22, 36+32+14);
+	
+		cameraXStepper.follow(this, 16, 36+32+32+4);
+		cameraYStepper.follow(this, (16)+104-32+26, 36+32+32+4);
+		cameraXYComma.follow(this, 16 + 104-32+0, (36+32+32+4)+9);
+		antialiasingCheckbox.follow(this, ((16+104-32+26)+104-32+26)+22, 36+32+14+32);
+		testAsDropDown.follow(this, 16, (36+32+32+4)+32+32+4);
+		designedAsDropDown.follow(this, (16)+193+22, (36+32+32+4)+32+32+4);
+
+		for (ui => text in labels)
+			text.follow(ui, 0, -24);
+	}
+
+	public override function draw() {
+		updateButtonsPos();
+		super.draw();
 	}
 }

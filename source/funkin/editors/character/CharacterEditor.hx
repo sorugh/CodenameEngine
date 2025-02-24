@@ -672,7 +672,7 @@ class CharacterEditor extends UIState {
 
 	function _animation_play(_) {
 		if (character.getNameList().length != 0)
-			playAnimation(character.getAnimName());
+			playAnimation(characterFakeAnim);
 	}
 
 	function _animation_stop(_) {
@@ -698,12 +698,11 @@ class CharacterEditor extends UIState {
 
 	// The animation thats playing regardless if its valid or not
 	public var characterFakeAnim:String = "";
-	public function playAnimation(anim:String) {
+	public function playAnimation(anim:String) @:privateAccess {
 		characterFakeAnim = anim;
 		if (characterAnimsWindow.animButtons[anim] != null && characterAnimsWindow.animButtons[anim].valid) {
 			character.playAnim(anim, true);
-			character.colorTransform.redMultiplier = character.colorTransform.greenMultiplier = character.colorTransform.blueMultiplier = character.colorTransform.alphaMultiplier = 1;
-			character.colorTransform.redOffset = character.colorTransform.greenOffset = character.colorTransform.blueOffset = character.colorTransform.alphaOffset = 0;
+			character.colorTransform.__identity();
 		} else {
 			var validAnimation:String = characterAnimsWindow.findValid();
 			if (validAnimation != null) character.playAnim(validAnimation, true);

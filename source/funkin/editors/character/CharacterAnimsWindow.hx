@@ -114,8 +114,7 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 	}
 
 	public function findValid():Null<String> {
-		for (button in buttons)
-			if (button.valid) return button.anim;
+		for (button in buttons) if (button.valid) return button.anim;
 		return null;
 	}
 }

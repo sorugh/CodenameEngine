@@ -23,10 +23,9 @@ class CharacterGhost extends Character {
 			}
 
 			frame = frames.frames[animation.frameIndex];	
+			setAnimOffset(animation.name);
+			alpha = 1; color = 0xFFFFFFFF;
 		}
-
-		setAnimOffset(animation.name);
-		alpha = 1; color = 0xFFFFFFFF;
 		ghostDraw = false; 
 		
 		super.draw();

@@ -108,7 +108,8 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 
 		if (newButton.valid) {
 			XMLUtil.addAnimToSprite(character, animData);
-			buildAnimDisplay(animData.name, character.animation._animations[animData.name]);
+			if (character.animation._animations[animData.name] != null)
+				buildAnimDisplay(animData.name, character.animation._animations[animData.name]);
 		}
 	}
 

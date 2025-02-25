@@ -1154,7 +1154,7 @@ class Charter extends UIState {
 				if (note.strumLineID == strumLineID)
 					selection.remove(note);
 				else i++;
-			}
+			} else i++;
 		}
 	}
 	#end

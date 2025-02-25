@@ -910,7 +910,7 @@ class PlayState extends MusicBeatState
 				var spr = event.spritePath;
 				if (!Assets.exists(spr)) spr = Paths.image('$spr');
 
-				sprite = new FlxSprite().loadAnimatedGraphic(spr);
+				sprite = new FunkinSprite().loadAnimatedGraphic(spr);
 				sprite.scrollFactor.set();
 				sprite.scale.set(event.scale, event.scale);
 				sprite.updateHitbox();
@@ -1233,8 +1233,11 @@ class PlayState extends MusicBeatState
 			accFormat.format.color = curRating.color;
 			accuracyTxt.text = 'Accuracy:${accuracy < 0 ? "-%" : '${CoolUtil.quantize(accuracy * 100, 100)}%'} - ${curRating.rating}';
 
-			accuracyTxt._formatRanges[0].range.start = accuracyTxt.text.length - curRating.rating.length;
-			accuracyTxt._formatRanges[0].range.end = accuracyTxt.text.length;
+			for (i => frmtRange in accuracyTxt._formatRanges) if (frmtRange.format == accFormat) {
+				accuracyTxt._formatRanges[i].range.start = accuracyTxt.text.length - curRating.rating.length;
+				accuracyTxt._formatRanges[i].range.end = accuracyTxt.text.length;
+				break;
+			}
 		}
 	}
 

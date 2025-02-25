@@ -293,7 +293,7 @@ class CharacterAnimButton extends UIButton {
 
 		parent.character.animOffsets[anim].set(animData.x, animData.y);
 
-		if (parent.character.getAnimName() == anim)
+		if (parent.character.getAnimName() == anim && Options.playAnimOnOffset)
 			CharacterEditor.instance.playAnimation(anim);
 
 		updateText();
@@ -371,7 +371,8 @@ class CharacterAnimButton extends UIButton {
 
 		try {
 			if (animData.indices.length > 0) {
-				// keeps on crashing, look at flxanimate FlxAnim.hx for refrence
+				parent.character.animateAtlas.anim.addBySymbolIndices(animData.name, animData.anim, animData.indices, animData.fps, animData.loop);
+				wasRefreshed = true;
 			} else {
 				for (name in parent.character.animateAtlas.anim.symbolDictionary.keys())
 					if (parent.character.animateAtlas.anim.startsWith(name, animData.anim)) {

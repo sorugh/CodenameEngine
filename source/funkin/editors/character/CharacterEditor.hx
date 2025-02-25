@@ -250,7 +250,13 @@ class CharacterEditor extends UIState {
 						label: "Change Animation ↓",
 						keybind: [S],
 						onSelect: _animation_down
-					}
+					},
+					null,
+					{
+						label: "Play Animation On Offset?",
+						onSelect: _animation_toggle_anim_playing_offsets,
+						icon: Options.playAnimOnOffset ? 1 : 0
+					},
 				]
 			},
 		];
@@ -712,6 +718,10 @@ class CharacterEditor extends UIState {
 					0, characterAnimsWindow.animsList.length-1
 			)]
 		);
+		
+	function _animation_toggle_anim_playing_offsets(t) {
+		t.icon = (Options.playAnimOnOffset = !Options.playAnimOnOffset) ? 1 : 0;
+	}
 
 	// The animation thats playing regardless if its valid or not
 	public var characterFakeAnim:String = "";

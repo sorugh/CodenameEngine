@@ -83,7 +83,8 @@ class Options
 	public static var characterHitbox:Bool = true;
 	public static var characterCamera:Bool = true;
 	public static var characterAxis:Bool = true;
-	public static var characterDragging:Bool = false;
+	public static var characterDragging:Bool = true;
+	public static var playAnimOnOffset:Bool = false;
 
 	/**
 	 * PLAYER 1 CONTROLS

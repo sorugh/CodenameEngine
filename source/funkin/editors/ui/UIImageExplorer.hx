@@ -125,8 +125,6 @@ class UIImageExplorer extends UIFileExplorer {
 		var image = null;
 		if (isAtlas && spritemapImages.length > 0) {
 			var spritemapPath:String = Path.join([directoryPath, spritemapImages[0]]);
-			trace("Loading spritemap: " + spritemapImages, spritemaps);
-			trace(directoryPath);
 
 			imagePath = Path.normalize(spritemapPath);
 			directoryPath = Path.directory(imagePath);

@@ -346,7 +346,7 @@ class CharacterEditor extends UIState {
 	public var draggingCharacter:Bool = false;
 	public var draggingOffset:FlxPoint = new FlxPoint();
 	public override function update(elapsed:Float) {
-		if(FlxG.keys.justPressed.ANY)
+		if(FlxG.keys.justPressed.ANY && currentFocus == null)
 			UIUtil.processShortcuts(topMenu);
 
 		if (cameraHoverDummy.hovered && !draggingCharacter) {
@@ -718,7 +718,7 @@ class CharacterEditor extends UIState {
 					0, characterAnimsWindow.animsList.length-1
 			)]
 		);
-		
+
 	function _animation_toggle_anim_playing_offsets(t) {
 		t.icon = (Options.playAnimOnOffset = !Options.playAnimOnOffset) ? 1 : 0;
 	}

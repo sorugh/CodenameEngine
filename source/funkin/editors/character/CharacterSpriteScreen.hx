@@ -30,7 +30,7 @@ class CharacterSpriteScreen extends UISubstateWindow {
 
 		super.create();
 
-		imageExplorer = new UIImageExplorer(20, windowSpr.y + 30 + 16 + 20, 320, 58, (_, _) -> {refreshWindowSize();});
+		imageExplorer = new UIImageExplorer(20, windowSpr.y + 30 + 16 + 20, imagePath, 320, 58, (_, _) -> {refreshWindowSize();});
 		add(imageExplorer);
 		addLabelOn(imageExplorer, "Character Image File").applyMarkup(
 			"Character Image File $* Required$",
@@ -55,6 +55,7 @@ class CharacterSpriteScreen extends UISubstateWindow {
 	}
 
 	public function refreshWindowSize() {
+		if (imageExplorer == null) return;
 		windowSpr.bWidth = 20 + imageExplorer.bWidth + 20;
 		windowSpr.bHeight = 30 + 16 + 20 + imageExplorer.bHeight + 14 + saveButton.bHeight + 14;
 

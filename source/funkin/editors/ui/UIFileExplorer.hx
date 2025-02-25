@@ -23,13 +23,7 @@ class UIFileExplorer extends UISliceSprite {
 
 		uploadButton = new UIButton(x + 8, y+ 8, null, function () {
 			var fileDialog = new FileDialog();
-			fileDialog.onSelect.add(function(path) {
-				filePath = path;
-				file = cast sys.io.File.getBytes(path);
-				deleteButton.visible = deleteButton.selectable = deleteIcon.visible = !(uploadButton.visible = uploadButton.selectable = false);
-
-				if (this.onFile != null) this.onFile(filePath, file);
-			});
+			fileDialog.onSelect.add(loadFile);
 			fileDialog.browse(OPEN, fileType);
 		}, bWidth - 16, bHeight - 16);
 		members.push(uploadButton);
@@ -62,6 +56,13 @@ class UIFileExplorer extends UISliceSprite {
 				uiElement.selectable = selectable;
 			}
 		}
+	}
+
+	public function loadFile(path:String) {
+		file = cast sys.io.File.getBytes(filePath = path);
+		deleteButton.visible = deleteButton.selectable = deleteIcon.visible = !(uploadButton.visible = uploadButton.selectable = false);
+
+		if (this.onFile != null) this.onFile(filePath, file);
 	}
 
 	public function removeFile() {

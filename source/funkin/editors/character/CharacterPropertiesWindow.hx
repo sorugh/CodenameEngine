@@ -143,7 +143,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 	}
 
 	public function editCharacterSpriteUI() {
-		CharacterEditor.instance.openSubState(new CharacterSpriteScreen(character.sprite, (sprite:String) -> {
+		CharacterEditor.instance.openSubState(new CharacterSpriteScreen('characters/${character.sprite}', (sprite:String) -> {
 			trace(sprite);
 		}));
 	}

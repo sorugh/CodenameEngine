@@ -15,7 +15,7 @@ using funkin.backend.utils.BitmapUtil;
 
 // TODO: make this limited if on web
 class UIImageExplorer extends UIFileExplorer {
-	public function new(x:Float, y:Float, ?w:Int, ?h:Int, ?onFile:(String, Bytes)->Void) {
+	public function new(x:Float, y:Float, image:String, ?w:Int, ?h:Int, ?onFile:(String, Bytes)->Void) {
 		super(x, y, w, h, "png, jpg", function (filePath, file) {
 			if (filePath != null && file != null) uploadImage(filePath, file);
 			if (onFile != null) onFile(filePath, file);
@@ -24,10 +24,16 @@ class UIImageExplorer extends UIFileExplorer {
 		deleteButton.bWidth = 26;
 		deleteButton.bHeight = 26;
 
-		this.allowAtlases = true; //allowAtlases;
+		var fullImagePath:String = '${Path.normalize(Sys.getCwd())}/${Paths.image(image)}'.replace('/', '\\');
+		var noExt = Path.withoutExtension(fullImagePath);
+		if (FileSystem.exists('$noExt\\spritemap1.png'))
+			fullImagePath = '$noExt\\spritemap1.png';
+
+		if (FileSystem.exists(fullImagePath))
+			loadFile(fullImagePath);
 	}
 
-	private var allowAtlases:Bool;
+	private var allowAtlases:Bool = true;
 
 	public var fileText:UIText;
 
@@ -119,7 +125,8 @@ class UIImageExplorer extends UIFileExplorer {
 		var image = null;
 		if (isAtlas && spritemapImages.length > 0) {
 			var spritemapPath:String = Path.join([directoryPath, spritemapImages[0]]);
-			trace("Loading spritemap: " + spritemapImages[0]);
+			trace("Loading spritemap: " + spritemapImages, spritemaps);
+			trace(directoryPath);
 
 			imagePath = Path.normalize(spritemapPath);
 			directoryPath = Path.directory(imagePath);

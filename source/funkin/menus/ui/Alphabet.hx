@@ -24,6 +24,7 @@ final class AlphabetOutline {
 @:structInit
 final class AlphabetComponent {
 	@:optional public var refIndex:Null<Int>;
+	@:optional public var outIndex:Null<Int>;
 	public var anim:String;
 	public var x:Float;
 	public var y:Float;
@@ -279,7 +280,7 @@ class Alphabet extends FlxSprite {
 				advance = (Math.isNaN(advance)) ? getAdvance(letter, anim, data) : advance;
 
 				if (anim == null || __renderData.alpha <= 0.0)
-					break; // shouldnt this be like continue?
+					continue;
 
 				var frameToGet = frameTime % anim.numFrames;
 				frame = frames.frames[anim.frames[frameToGet]];
@@ -420,7 +421,7 @@ class Alphabet extends FlxSprite {
 			}
 
 			var data = getData(letter);
-			__laneWidths[curLine] += (data != null) ? getAdvance(letter, getLetterAnim(letter, data, data.components[data.startIndex], data.startIndex), data) : defaultAdvance;
+			__laneWidths[curLine] += (data != null && data.components.length > 0) ? getAdvance(letter, getLetterAnim(letter, data, data.components[data.startIndex], data.startIndex), data) : defaultAdvance;
 			@:bypassAccessor textWidth = Math.max(textWidth, __laneWidths[curLine]);
 		}
 
@@ -613,6 +614,7 @@ class Alphabet extends FlxSprite {
 					}
 
 					components.push({
+						outIndex: (component.get("hasOutline") == "true") ? startIndex - 1 : null,
 						anim: component.get("anim"),
 
 						x: xOff,
@@ -680,6 +682,7 @@ class Alphabet extends FlxSprite {
 				}
 
 				components.push({
+					outIndex: (node.get("hasOutline") == "true") ? 0 : null,
 					anim: node.firstChild().nodeValue,
 
 					x: xOff,

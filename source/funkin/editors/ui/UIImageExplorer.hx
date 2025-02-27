@@ -1,5 +1,6 @@
 package funkin.editors.ui;
 
+import flixel.util.typeLimit.OneOfTwo;
 import flixel.text.FlxText.FlxTextFormat;
 import flixel.text.FlxText.FlxTextFormatMarkerPair;
 import flxanimate.data.SpriteMapData.AnimateAtlas;
@@ -15,6 +16,8 @@ using funkin.backend.utils.BitmapUtil;
 
 // TODO: make this limited if on web
 class UIImageExplorer extends UIFileExplorer {
+	private var allowAtlases:Bool = true;
+
 	public function new(x:Float, y:Float, image:String, ?w:Int, ?h:Int, ?onFile:(String, Bytes)->Void) {
 		super(x, y, w, h, "png, jpg", function (filePath, file) {
 			if (filePath != null && file != null) uploadImage(filePath, file);
@@ -33,32 +36,37 @@ class UIImageExplorer extends UIFileExplorer {
 			loadFile(fullImagePath);
 	}
 
-	private var allowAtlases:Bool = true;
-
-	public var fileText:UIText;
+	public var isAtlas:Bool = false;
 
 	static var ANIMATE_ATLAS_REGEX = ~/^(?:Animation\.json|spritemap(?:\d+)?\.json)$/i; // no .zip atlases tho
 	static var SPRITEMAP_JSON_REGEX = ~/^(?:spritemap(?:\d+)?\.json)$/i;
 	static var SPRITEMAP_PNG_REGEX = ~/^(?:spritemap(?:\d+)?\.png)$/i;
 
+	public var imageName:String = null;
+	public var imageFiles:Map<String, OneOfTwo<String, Bytes>> = [];
+	public var animationList:Array<String> = [];
+
+	public var fileText:UIText;
+
 	public function uploadImage(filePath:String, file:Bytes) {
+		__resetData();
+
 		var imagePath:Dynamic = Path.normalize(filePath);
 
 		var directoryPath:String = Path.directory(imagePath);
 		var fileName:String = Path.withoutDirectory(imagePath).toLowerCase();
 		var files:Array<String> = [];
 
-		var isAtlas:Bool = false;
+		// CHECK ATLAS
 		if(allowAtlases && ANIMATE_ATLAS_REGEX.match(fileName)) {
 			// check if directory has the other files
 			files = FileSystem.readDirectory(directoryPath);
 			var hasAnimationJson:Bool = false;
 			var hasSpritemapJson:Bool = false;
 			for(file in files) {
-				file = file.toLowerCase();
-				if(file == "animation.json")
+				if(file == "Animation.json")
 					hasAnimationJson = true;
-				else if(SPRITEMAP_JSON_REGEX.match(file))
+				else if(SPRITEMAP_JSON_REGEX.match(file.toLowerCase()))
 					hasSpritemapJson = true;
 
 				if(hasAnimationJson && hasSpritemapJson) {
@@ -77,7 +85,7 @@ class UIImageExplorer extends UIFileExplorer {
 					var json:AnimateAtlas = Json.parse(content);
 					if(json.meta.image.toLowerCase() == fileName.toLowerCase())
 						foundSpritemapJson = true;
-				} else if(file.toLowerCase() == "animation.json")
+				} else if(file == "Animation.json")
 					hasAnimationJson = true;
 
 				if(hasAnimationJson && foundSpritemapJson) {
@@ -87,6 +95,7 @@ class UIImageExplorer extends UIFileExplorer {
 			}
 		}
 
+		// IF ATLAS FIND SPRITMAPS
 		var spritemaps:Array<String> = [];
 		var spritemapImages:Array<String> = [];
 		if(isAtlas) {
@@ -96,7 +105,6 @@ class UIImageExplorer extends UIFileExplorer {
 					spritemaps.push(file);
 
 			spritemaps.sort(Reflect.compare);
-
 			for(spritemap in spritemaps) {
 				var content:String = CoolUtil.removeBOM(File.getContent(Path.join([directoryPath, spritemap])));
 				var json:AnimateAtlas = Json.parse(content);
@@ -115,14 +123,31 @@ class UIImageExplorer extends UIFileExplorer {
 				isAtlas = false;
 		}
 
-		var dataPathExt:String = !isAtlas ? CoolUtil.imageHasFrameData(imagePath) : null;
-		var animationList:Array<String> = [];
+		// GATHER ANIMATIONS/DATA FILES!!!
+		if (isAtlas) {
+			var dataPath:String = '$directoryPath/Animation.json'.replace('/', '\\');
 
-		if (dataPathExt != null)
-			animationList = CoolUtil.getAnimsListFromFrames(CoolUtil.loadFramesFromData(File.getContent(Path.withExtension(imagePath, dataPathExt)), dataPathExt), dataPathExt);
+			if (FileSystem.exists(dataPath)) {
+				var dataPathFile:String = File.getContent(dataPath);
+				animationList = CoolUtil.getAnimsListFromAtlas(cast haxe.Json.parse(dataPathFile));
 
-		var size = 0;
-		var image = null;
+				imageFiles.set(Path.withoutDirectory(dataPath), dataPathFile);
+			}
+		} else {
+			var dataPathExt:String = CoolUtil.imageHasFrameData(imagePath);
+			var dataPath:String = Path.withExtension(imagePath, dataPathExt);
+			var dataPathFile:String = !isAtlas ? File.getContent(dataPath) : null;
+	
+			if (dataPathExt != null) {
+				animationList = CoolUtil.getAnimsListFromFrames(CoolUtil.loadFramesFromData(dataPathFile, dataPathExt), dataPathExt);
+
+				imageFiles.set(Path.withoutDirectory(dataPath), dataPathFile);
+			}
+		}
+
+		// GATHER INFO!!!
+		var size:Float = 0;
+		var image:BitmapData = null;
 		if (isAtlas && spritemapImages.length > 0) {
 			var spritemapPath:String = Path.join([directoryPath, spritemapImages[0]]);
 
@@ -132,25 +157,31 @@ class UIImageExplorer extends UIFileExplorer {
 
 			for(spritemap in spritemapImages) {
 				var spritemapPath:String = Path.join([directoryPath, spritemap]);
+
 				var info = FileSystem.stat(spritemapPath);
 				size += info.size;
+
+				spritemapPath = spritemapPath.replace('/', '\\');
+				imageFiles.set(Path.withoutDirectory(spritemapPath), sys.io.File.getBytes(spritemapPath));
 			}
 
-			image = BitmapData.fromFile(spritemapPath).crop();
+			file = cast sys.io.File.getBytes(filePath = spritemapPath);
+			image = BitmapData.fromBytes(file).crop();
+
 		} else {
-			trace("Loading image");
 			size = file.length;
 			image = BitmapData.fromBytes(file).crop();
+
+			imageFiles.set(Path.withoutDirectory(imagePath), file);
 		}
 
+		// DISPLAY IMAGE!!
 		uiElement = new FlxSprite().loadGraphic(image);
-
 		var imageScale:Float = 1;
 		if (uiElement.width < 300 || uiElement.height < 200)
 			imageScale = Math.max(300/uiElement.width, 200/uiElement.height);
 		else if (uiElement.width > 700 || uiElement.height > 500)
 			imageScale = Math.min(700/uiElement.width, 500/uiElement.height);
-
 		uiElement.scale.set(imageScale, imageScale);
 		uiElement.updateHitbox();
 
@@ -160,31 +191,25 @@ class UIImageExplorer extends UIFileExplorer {
 		uiElement.antialiasing = true;
 		members.push(uiElement);
 
+		// GENERATE TEXT!!!
 		imagePath = new Path(imagePath);
+		imageName = isAtlas ? Path.withoutDirectory(directoryPath) : ${imagePath.file};
 
 		var message = new StringBuf();
+		if (isAtlas) message.add('${imageName}/');
 		message.add('${imagePath.file}.${imagePath.ext}');
-
 		message.add(' (${CoolUtil.getSizeString(size)}');
 
-		if(!isAtlas) {
-			if (animationList.length > 0) {
-				if(animationList.length == 1)
-					message.add(', ${animationList.length} Animation Found');
-				else
-					message.add(', ${animationList.length} Animations Found');
-			}
-			else
-				message.add(', #NO Animations Found#');
-		} else {
-			if(spritemaps.length == 1)
-				message.add(', ${spritemaps.length} Spritemap Found');
-			else
-				message.add(', ${spritemaps.length} Spritemaps Found');
+		if (animationList.length > 0) {
+			if(animationList.length == 1) message.add(', ${animationList.length} ${isAtlas ? "Symbol" : "Animation"} Found');
+			else message.add(', ${animationList.length} ${isAtlas ? "Symbol" : "Animation"}s Found');
+		} else message.add(', #NO ${isAtlas ? "Symbol" : "Animation"}s Found#');
+
+		if (isAtlas) {
+			if(spritemaps.length == 1) message.add(', ${spritemaps.length} Spritemap Found');
+			else message.add(', ${spritemaps.length} Spritemaps Found');
 		}
-
 		message.add(')');
-
 		message.add(isAtlas ? " - Atlas" : " - Spritemap");
 
 		fileText = new UIText(x+20, y+16, bWidth-20-deleteButton.bWidth-16, "");
@@ -196,22 +221,63 @@ class UIImageExplorer extends UIFileExplorer {
 
 		deleteIcon.x = deleteButton.x + deleteButton.bWidth/2 - 8;
 		deleteIcon.y = deleteButton.y + deleteButton.bHeight/2 - 8;
+		
+	}
 
-		/*
-		var normalFilePath:String = Path.normalize(filePath);
-		var gamePath:String = Path.normalize(Sys.getCwd());
+	public function saveFiles(directory:String, ?onFinishSaving:Void->Void, ?checkExisting:Bool = true) {
+		if (isAtlas) directory += '/$imageName';
 
-		if (normalFilePath.contains(gamePath))
-			normalFilePath = normalFilePath.replace(gamePath, ".");
-		*/
+		var alreadlyExistingFiles:Array<String> = [];
+		for (name => file in imageFiles)
+			if (FileSystem.exists('$directory/$name'))
+				alreadlyExistingFiles.push('$directory/$name');
+
+		function deleteExistingFiles() {
+			for (file in alreadlyExistingFiles)
+				FileSystem.deleteFile(file);
+			alreadlyExistingFiles = [];
+		}
+
+		function acuttalySaveFiles() {
+			for (name => file in imageFiles)
+				if (!alreadlyExistingFiles.contains('$directory/$name')) {
+					CoolUtil.safeSaveFile('$directory/$name', file);
+					trace('SAVED: $directory/$name');
+				}
+
+			if (onFinishSaving != null) onFinishSaving();
+		}
+
+		if (alreadlyExistingFiles.length > 0) {
+			(FlxG.state.subState != null ? FlxG.state.subState : FlxG.state).openSubState(new UIWarningSubstate("Alreadly Existing Files!!!", 
+				"The following files alreadly exist: \n\n" + alreadlyExistingFiles.join('\n') + "\n\nIMPORTANT: OVERRIDING CAN NOT BE UNDONE!!!!!!!!", 
+				[ {
+					label: "Override Files",
+					color: 0xFFFF0000,
+					onClick: (_) -> {
+						deleteExistingFiles();
+						acuttalySaveFiles();
+					}
+				}, 
+				{
+					label: "Use Existing",
+					onClick: (_) -> {if (onFinishSaving != null) onFinishSaving();}
+				}
+			], false));
+		} else acuttalySaveFiles();
 	}
 
 	public override function removeFile() {
+		__resetData();
 		bWidth = 320; bHeight = 58;
 
 		members.remove(fileText);
 		fileText.destroy();
 
 		super.removeFile();
+	}
+
+	@:noCompletion inline function __resetData() {
+		imageFiles.clear(); isAtlas = false; animationList = [];
 	}
 }

@@ -1,10 +1,12 @@
 package funkin.editors.character;
 
+import haxe.io.Path;
 import funkin.editors.character.CharacterInfoScreen.CharacterExtraInfo;
 import funkin.game.Character;
 
 class CharacterPropertiesWindow extends UISliceSprite {
 	public var character:Character;
+	public var animsWindow:CharacterAnimsWindow;
 
 	public var positionXStepper:UINumericStepper;
 	public var positionYStepper:UINumericStepper;
@@ -143,9 +145,41 @@ class CharacterPropertiesWindow extends UISliceSprite {
 	}
 
 	public function editCharacterSpriteUI() {
-		CharacterEditor.instance.openSubState(new CharacterSpriteScreen('characters/${character.sprite}', (sprite:String) -> {
-			trace(sprite);
+		CharacterEditor.instance.openSubState(new CharacterSpriteScreen('characters/${character.sprite}', (sprite:String, isAtlas:Bool) -> {
+			changeSprite(sprite);
 		}));
+	}
+
+	public function changeSprite(sprite:String) @:privateAccess {
+		var path:String = Paths.image('characters/$sprite');
+		var noExt:String = Path.withoutExtension(path);
+
+		character.sprite = sprite;
+
+		if (Assets.exists('$noExt/Animation.json')) {
+			character.atlasPath = noExt;
+			character.animateAtlas.loadAtlas(noExt);
+
+			character.animateAtlas.anim.animsMap.clear();
+			character.animateAtlas.anim.symbolDictionary.clear();
+
+			character.animateAtlas.anim.stop();
+		} else {
+			character.frames = Paths.getFrames(path, true);
+			character.animation.reset();
+
+			animsWindow.displayWindowSprite.animation.reset();
+			if (animsWindow.displayWindowGraphic != null) 
+				animsWindow.displayWindowGraphic.destroy();
+
+			animsWindow.displayWindowSprite.loadGraphicFromSprite(character);
+			if (Assets.exists(Paths.image('characters/${character.sprite}')))
+				animsWindow.displayWindowGraphic = FlxG.bitmap.add(Assets.getBitmapData(Paths.image('characters/${character.sprite}'), true, false));
+		}
+
+		character.animDatas.clear();
+		for (anim in animsWindow.buttons) 
+			anim.checkValid(); // Re-add all animations
 	}
 
 	public function changeFlipX(newFlipX:Bool) @:privateAccess {

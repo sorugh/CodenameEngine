@@ -305,7 +305,7 @@ class CharacterEditor extends UIState {
 		uiGroup.add(animationText);
 
 		characterAnimsWindow = new CharacterAnimsWindow((FlxG.width-(500-16)-16), characterPropertiesWindow.y+224+16, character);
-		uiGroup.add(characterAnimsWindow);
+		uiGroup.add(characterPropertiesWindow.animsWindow = characterAnimsWindow);
 
 		add(uiGroup);
 
@@ -505,6 +505,7 @@ class CharacterEditor extends UIState {
 	}
 
 	function _change_offset(x:Float, y:Float) {
+		if (character.getAnimName() == null) return;
 		_set_offset(
 			character.animOffsets[character.getAnimName()].x - x,
 			character.animOffsets[character.getAnimName()].y - y
@@ -512,6 +513,8 @@ class CharacterEditor extends UIState {
 	}
 
 	function _set_offset(x:Float, y:Float) {
+		trace(character.getAnimName(), characterAnimsWindow.animButtons);
+		if (character.getAnimName() == null) return;
 		characterAnimsWindow.animButtons.get(character.getAnimName()).changeOffset(
 			FlxMath.roundDecimal(x, 2), FlxMath.roundDecimal(y, 2)
 		);

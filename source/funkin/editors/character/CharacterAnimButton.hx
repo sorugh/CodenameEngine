@@ -264,18 +264,12 @@ class CharacterAnimButton extends UIButton {
 		if (parent.character.animateAtlas != null) 
 			__refreshAnimation();
 		else {
+			trace(parent.character.animation._animations);
 			var flxAnimation:FlxAnimation = __getFlxAnimation();
 			trace(parent.character.animation._animations);
 			flxAnimation.prefix = newAnim;
 
 			refreshFlxAnimationFrames(flxAnimation, animData);
-			if (valid) {
-				parent.buildAnimDisplay(anim, flxAnimation);
-				animationDisplayBG.alpha = 1;
-			} else {
-				parent.removeAnimDisplay(anim);
-				animationDisplayBG.alpha = 0.4;
-			}
 		}
 
 		if (parent.character.getAnimName() == anim)
@@ -349,8 +343,11 @@ class CharacterAnimButton extends UIButton {
 
 				flxAnimation.frames = frameIndices;
 			} else {
+				trace(flxAnimation.prefix);
 				final animFrames:Array<FlxFrame> = new Array<FlxFrame>();
 				parent.character.animation.findByPrefix(animFrames, flxAnimation.prefix);
+
+				trace(animFrames);
 
 				final frameIndices:Array<Int> = [];
 				parent.character.animation.byPrefixHelper(frameIndices, animFrames, flxAnimation.prefix);
@@ -361,8 +358,16 @@ class CharacterAnimButton extends UIButton {
 			if (flxAnimation.frames.length <= 0) invalidate();
 			else validate();
 		} catch (e) {
-			trace('$e');
+			trace('$e ${e.details}');
 			invalidate();
+		}
+
+		if (valid) {
+			parent.buildAnimDisplay(anim, flxAnimation);
+			animationDisplayBG.alpha = 1;
+		} else {
+			parent.removeAnimDisplay(anim);
+			animationDisplayBG.alpha = 0.4;
 		}
 	}
 
@@ -450,13 +455,18 @@ class CharacterAnimButton extends UIButton {
 		validate(false);
 
 	public inline function __getFlxAnimation():Null<FlxAnimation> @:privateAccess {
-		if (parent.character.animation._animations[anim] == null)
-			XMLUtil.addAnimToSprite(parent.character, data);
+		if (!parent.character.animation._animations.exists(anim)) {
+			final flxanim = new FlxAnimation(parent.character.animation, anim, [], data.fps, data.loop);
+			flxanim.prefix = data.anim; // sobbing
+
+			parent.character.animation._animations.set(anim, flxanim);
+			parent.character.animDatas.set(anim, data);
+		}
 		return parent.character.animation._animations[anim];
 	}
 
 	public inline function __getAnimationSymbol():Null<FlxSymbolAnimation> @:privateAccess {
-		if (parent.character.animateAtlas.anim.animsMap[anim] == null)
+		if (!parent.character.animateAtlas.anim.animsMap.exists(anim))
 			XMLUtil.addAnimToSprite(parent.character, data);
 		return parent.character.animateAtlas.anim.animsMap[anim];
 	}

@@ -39,6 +39,9 @@
 			<str id="pause.changeOptions">Change Options</str>
 			<str id="pause.exitToMenu">Exit to menu</str>
 			<str id="pause.exitToCharter">Exit to charter</str>
+			<str id="pause.resumeCutscene">Resume Cutscene</str>
+			<str id="pause.skipCutscene">Skip Cutscene</str>
+			<str id="pause.restartCutscene">Restart Cutscene</str>
 		</group>
 
 		<str id="pause.deathCounter">Blue balled: {0}</str>

@@ -34,6 +34,7 @@ class Main extends Sprite
 	public static var modToLoad:String = null;
 	public static var forceGPUOnlyBitmapsOff:Bool = #if windows false #else true #end;
 	public static var noTerminalColor:Bool = false;
+	public static var verbose:Bool = false;
 
 	public static var scaleMode:FunkinRatioScaleMode;
 	#if !mobile
@@ -180,8 +181,6 @@ class Main extends Sprite
 	}
 
 	public static function refreshAssets() @:privateAccess {
-		WindowUtils.resetTitle();
-
 		var game = FlxG.game;
 		var daSndTray = Type.createInstance(game._customSoundTray = funkin.menus.ui.FunkinSoundTray, []);
 		var index:Int = game.numChildren - 1;

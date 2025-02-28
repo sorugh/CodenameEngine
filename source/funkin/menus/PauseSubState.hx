@@ -4,17 +4,18 @@ import flixel.sound.FlxSound;
 import funkin.backend.FunkinText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import funkin.backend.FunkinText;
 import funkin.backend.scripting.Script;
+import funkin.backend.scripting.events.NameEvent;
 import funkin.backend.scripting.events.menu.MenuChangeEvent;
 import funkin.backend.scripting.events.menu.pause.*;
-import funkin.backend.scripting.events.NameEvent;
 import funkin.backend.system.Conductor;
 import funkin.backend.utils.FunkinParentDisabler;
 import funkin.editors.charter.Charter;
 import funkin.menus.StoryMenuState;
 import funkin.options.OptionsMenu;
-import funkin.options.keybinds.KeybindsOptions;
 import funkin.options.TreeMenu;
+import funkin.options.keybinds.KeybindsOptions;
 
 class PauseSubState extends MusicBeatSubstate
 {
@@ -22,14 +23,13 @@ class PauseSubState extends MusicBeatSubstate
 
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
-	// to translate these you need to convert them into ids
-	// Resume -> pause.resume
-	// Restart Song -> pause.restart
-	// Change Controls -> pause.changeControls
-	// Change Options -> pause.changeOptions
-	// Exit to menu -> pause.exitToMenu
-	// Exit to charter -> pause.exitToCharter
+	var levelInfo:FunkinText;
+	var levelDifficulty:FunkinText;
+	var deathCounter:FunkinText;
+	var multiplayerText:FunkinText;
+
 	var menuItems:Array<String>;
+
 	var curSelected:Int = 0;
 
 	var pauseMusic:FlxSound;
@@ -66,7 +66,6 @@ class PauseSubState extends MusicBeatSubstate
 
 		menuItems = event.options;
 
-
 		pauseMusic = FlxG.sound.load(Paths.music(event.music), 0, true);
 		pauseMusic.persist = false;
 		pauseMusic.group = FlxG.sound.defaultMusicGroup;
@@ -85,17 +84,16 @@ class PauseSubState extends MusicBeatSubstate
 									 PlayState.coopMode ? 'pause.opponentMode' :
 									 null;
 
-		var levelInfo:FunkinText = new FunkinText(20, 15, 0, PlayState.SONG.meta.displayName, 32, false);
-		var levelDifficulty:FunkinText = new FunkinText(20, 15, 0, TU.translateDiff(PlayState.difficulty).toUpperCase(), 32, false);
-		var deathCounter:FunkinText = new FunkinText(20, 15, 0, TU.translate("pause.deathCounter", [PlayState.deathCounter]), 32, false);
-		var multiplayerText:FunkinText = null;
+		levelInfo = new FunkinText(20, 15, 0, PlayState.SONG.meta.displayName, 32, false);
+		levelDifficulty = new FunkinText(20, 15, 0, TU.translateDiff(PlayState.difficulty).toUpperCase(), 32, false);
+		deathCounter = new FunkinText(20, 15, 0, TU.translate("pause.deathCounter", [PlayState.deathCounter]), 32, false);
+		multiplayerText = null;
 		if(multiplayerInfo != null)
 			multiplayerText = new FunkinText(20, 15, 0, TU.translate(multiplayerInfo), 32, false);
 
 		for(k=>label in [levelInfo, levelDifficulty, deathCounter, multiplayerText]) {
 			if(label == null) continue;
 			label.scrollFactor.set();
-			label.updateHitbox();
 			label.alpha = 0;
 			label.x = FlxG.width - (label.width + 20);
 			label.y = 15 + (32 * k);

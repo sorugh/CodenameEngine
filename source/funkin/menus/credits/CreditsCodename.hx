@@ -92,7 +92,7 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 			});
 			Options.contributors = contributors;
 		}
-		Logs.trace('[CreditsCodename] Contributors list Updated!', VERBOSE);
+		Logs.verbose('[CreditsCodename] Contributors list Updated!');
 
 		var errorOnMain:Bool = false;
 		var idk2 = GitHub.getOrganizationMembers(Flags.REPO_OWNER, function(e) {
@@ -103,7 +103,7 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 		});
 		if(!errorOnMain) {
 			Options.mainDevs = [for(m in idk2) m.id];
-			Logs.trace('[CreditsCodename] Main Devs list Updated!', VERBOSE);
+			Logs.verbose('[CreditsCodename] Main Devs list Updated!');
 		}
 
 		return true;

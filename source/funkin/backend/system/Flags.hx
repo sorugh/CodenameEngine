@@ -1,6 +1,6 @@
 package funkin.backend.system;
 
-import lime.utils.AssetLibrary;
+import lime.utils.AssetLibrary as LimeAssetLibrary;
 import lime.utils.AssetType;
 import flixel.util.FlxColor;
 
@@ -18,7 +18,11 @@ class Flags {
 	public static var COMMIT_NUMBER:Int = GitCommitMacro.commitNumber;
 	public static var COMMIT_HASH:String = GitCommitMacro.commitHash;
 	public static var COMMIT_MESSAGE:String = 'Commit $COMMIT_NUMBER ($COMMIT_HASH)';
-	@:lazy public static var VERSION_MESSAGE:String = 'Codename Engine v${Application.current.meta.get('version')}';
+
+	@:lazy public static var TITLE:String = Application.current.meta.get('name');
+	@:lazy public static var VERSION:String = Application.current.meta.get('version');
+
+	@:lazy public static var VERSION_MESSAGE:String = 'Codename Engine v$VERSION';
 
 	public static var REPO_NAME:String = "CodenameEngine";
 	public static var REPO_OWNER:String = "CodenameCrew";
@@ -110,6 +114,16 @@ class Flags {
 	public static var DEFAULT_HUD_ZOOM:Float = 1.0;
 	public static var MAX_CAMERA_ZOOM:Float = 1.35;
 
+	// to translate these you need to convert them into ids
+	// Resume -> pause.resume
+	// Restart Song -> pause.restart
+	// Change Controls -> pause.changeControls
+	// Change Options -> pause.changeOptions
+	// Exit to menu -> pause.exitToMenu
+	// Exit to charter -> pause.exitToCharter
+	// Resume Cutscene -> pause.resumeCutscene
+	// Skip Cutscene -> pause.skipCutscene
+	// Restart Cutscene -> pause.restartCutscene
 	public static var DEFAULT_PAUSE_ITEMS:Array<String> = ['Resume', 'Restart Song', 'Change Controls', 'Change Options', 'Exit to menu', "Exit to charter"];
 	public static var DEFAULT_CUTSCENE_PAUSE_ITEMS:Array<String> = ['Resume Cutscene', 'Skip Cutscene', 'Restart Cutscene', 'Exit to menu'];
 	public static var DEFAULT_GITAROO:Bool = true;
@@ -157,6 +171,14 @@ class Flags {
 	public static var DEFAULT_PAUSE_SCRIPT:String = "";
 	@:also(funkin.game.GameOverSubstate.script)
 	public static var DEFAULT_GAMEOVER_SCRIPT:String = "";
+
+	public static var URL_WIKI:String = "https://codename-engine.com/";
+	public static var URL_EDITOR_FALLBACK:String = "https://www.youtube.com/watch?v=9Youam7GYdQ";
+	public static var URL_FNF_ITCH:String = "https://ninja-muffin24.itch.io/funkin";
+
+	public static var DEFAULT_GLSL_VERSION:String = "120";
+	@:also(funkin.backend.utils.HttpUtil.userAgent)
+	public static var USER_AGENT:String = 'request';
 	// -- End of Codename's Default Flags --
 
 	/**
@@ -164,50 +186,68 @@ class Flags {
 	 */
 	@:bypass public static var customFlags:Map<String, String> = [];
 
-	public static function load() {
-		var flags:Map<String, String> = [];
+	public static function loadFromData(flags:Map<String, String>, data:String) {
+		var trimmed:String;
+		var splitContent = [for(e in data.split("\n")) if ((trimmed = e.trim()) != "") trimmed];
 
-		final flagsPath = Paths.getPath("flags.ini");
+		for(line in splitContent) {
+			if(line.startsWith(";")) continue;
+			if(line.startsWith("#")) continue;
+			if(line.startsWith("//")) continue;
+			if(line.length == 0) continue;
+			if(line.charAt(0) == "[" && line.charAt(line.length-1) == "]") continue;
 
-		for(lib in Paths.assetsTree.libraries) {
-			#if TRANSLATIONS_SUPPORT
-			// skip translations since it would be useless, if you wanna modify it set the flags inside of global.hx
-			if(lib is funkin.backend.assets.TranslatedAssetLibrary) continue;
-			#end
+			var index = line.indexOf("=");
+			if(index == -1) continue;
+			var name = line.substr(0, index).trim();
+			var value = line.substr(index+1).trim();
 
-			if(lib.exists(flagsPath, AssetType.TEXT)) {
-				var data:String = lib.getAsset(flagsPath, AssetType.TEXT);
-				var trimmed:String;
-				var splitContent = [for(e in data.split("\n")) if ((trimmed = e.trim()) != "") trimmed];
+			var wasQuoted = value.length > 1 && value.charCodeAt(0) == '"'.code && value.charCodeAt(value.length-1) == '"'.code;
+			if(wasQuoted) value = value.substr(1, value.length - 2);
+			if((!wasQuoted && value.length == 0) || name.length == 0)
+				continue;
 
-				for(line in splitContent) {
-					if(line.startsWith(";")) continue;
-					if(line.startsWith("#")) continue;
-					if(line.startsWith("//")) continue;
-					if(line.length == 0) continue;
-					if(line.charAt(0) == "[" && line.charAt(line.length-1) == "]") continue;
-
-					var index = line.indexOf("=");
-					if(index == -1) continue;
-					var name = line.substr(0, index).trim();
-					var value = line.substr(index+1).trim();
-
-					var wasQuoted = value.length > 1 && value.charCodeAt(0) == '"'.code && value.charCodeAt(value.length-1) == '"'.code;
-					if(wasQuoted) value = value.substr(1, value.length - 2);
-					if((!wasQuoted && value.length == 0) || name.length == 0)
-						continue;
-
-					if(!flags.exists(name))
-						flags[name] = value;
-				}
-			}
+			if(!flags.exists(name))
+				flags[name] = value;
 		}
+	}
 
+	public static function loadFromDatas(files:Array<String>) {
+		var flags:Map<String, String> = [];
+		for(file in files) {
+			var data:String = Assets.getText(file);
+			if(data != null)
+				loadFromData(flags, data);
+		}
+		return flags;
+	}
+
+	public static function parseFlags(flags:Map<String, String>) {
 		customFlags = [];
 		reset();
 		for(name=>value in flags)
-			if(!parse(name, value)) {
+			if(!parse(name, value))
 				customFlags.set(name, value);
-			}
+	}
+
+	/**
+	 * Loads the flags from the assets.
+	**/
+	public static function load(?libs:Array<LimeAssetLibrary> = null) {
+		if (libs == null)
+			libs = Paths.assetsTree.libraries;
+		final flagsPath = Paths.getPath("flags.ini");
+		var datas:Array<String> = [
+			for(lib in libs)
+				#if TRANSLATIONS_SUPPORT
+				// skip translations since it would be useless, if you wanna modify it set the flags inside of global.hx
+				if(!(lib is funkin.backend.assets.TranslatedAssetLibrary))
+				#end
+					if(lib.exists(flagsPath, AssetType.TEXT))
+						lib.getAsset(flagsPath, AssetType.TEXT)
+		];
+
+		var flags:Map<String, String> = loadFromDatas(datas);
+		parseFlags(flags);
 	}
 }

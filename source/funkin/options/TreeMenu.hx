@@ -8,6 +8,7 @@ import funkin.backend.FunkinText;
 import funkin.editors.ui.UIState;
 import funkin.menus.MainMenuState;
 import funkin.options.type.OptionType;
+import funkin.options.type.TextOption;
 import funkin.backend.system.framerate.Framerate;
 
 class TreeMenu extends UIState {
@@ -19,13 +20,13 @@ class TreeMenu extends UIState {
 
 	public static var lastState:Class<FlxState> = null;  // Static for fixing the softlock bugs when resetting the state  - Nex
 
-	public function new() {
+	public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
 		if(lastState == null) lastState = Type.getClass(FlxG.state);
-		super();
+		super(scriptsAllowed, scriptName);
 	}
 
 	public override function createPost() {
-		if (main == null) throw "\"main\" variable has not been set in extended class!";
+		if (main == null) main = new OptionsScreen("Fallback Treemenu", "Please set the \"main\" variable in your extended class before createPost", [new TextOption("Oops! No Options", "This doesn't look like it was supposed to happen...", () -> FlxG.resetState() ) ]);
 
 		FlxG.camera.scroll.set(-FlxG.width, 0);
 

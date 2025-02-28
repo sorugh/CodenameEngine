@@ -29,6 +29,14 @@ class GitCommitMacro {
 	 * Returns the current commit date + time
 	**/
 	public static var commitDate(get, never):Date;
+	/**
+	 * Returns the current branch name
+	**/
+	public static var currentBranch(get, never):String;
+	/**
+	 * Returns if there are uncommitted changes
+	**/
+	public static var hasUncommittedChanges(get, never):Bool;
 
 	// GETTERS
 	#if REGION
@@ -46,6 +54,11 @@ class GitCommitMacro {
 		return __getCommitAuthor();
 	private static inline function get_commitDate()
 		return __getCommitDate();
+
+	private static inline function get_currentBranch()
+		return __getCurrentBranch();
+	private static inline function get_hasUncommittedChanges()
+		return __getHasUncommittedChanges();
 	#end
 
 	// INTERNAL MACROS
@@ -147,6 +160,36 @@ class GitCommitMacro {
 			return macro Date.fromString($v{rawDate});
 		} catch(e) {}
 		return macro Date.fromString("1970-01-01T00:00:00"); // failed to parse date
+		#end
+	}
+
+	private static macro function __getCurrentBranch() {
+		#if display
+		return macro $v{"-"};
+		#else
+		try {
+			var process = new Process("git", ["rev-parse", "--abbrev-ref", "HEAD"], false);
+			if (process.exitCode() != 0)
+				throw 'Could not fetch current branch';
+
+			return macro $v{process.stdout.readLine().toString()};
+		} catch(e) {}
+		return macro $v{"-"}
+		#end
+	}
+
+	private static macro function __getHasUncommittedChanges() {
+		#if display
+		return macro $v{false};
+		#else
+		try {
+			var process = new Process("git", ["status", "--porcelain"], false);
+			if (process.exitCode() != 0)
+				throw 'Could not fetch current branch';
+
+			return macro $v{process.stdout.readLine().toString() != ""};
+		} catch(e) {}
+		return macro $v{false}
 		#end
 	}
 	#end

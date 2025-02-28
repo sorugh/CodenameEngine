@@ -45,7 +45,7 @@ class WindowUtils {
 	 * Resets the window title to the application name and resets the prefix and suffix.
 	**/
 	public static inline function resetTitle() {
-		title = Lib.application.meta["name"];
+		title = Flags.TITLE == null ? Lib.application.meta.get('name') : Flags.TITLE;
 		resetAffixes();
 	}
 
@@ -65,18 +65,18 @@ class WindowUtils {
 
 	// backwards compat
 	@:noCompletion public static var endfix(get, set):String;
-	@:noCompletion private static function set_endfix(value:String):String {
+	@:noCompletion private inline static function set_endfix(value:String):String {
 		return suffix = value;
 	}
-	@:noCompletion private static function get_endfix():String {
+	@:noCompletion private inline static function get_endfix():String {
 		return suffix;
 	}
 
 	@:noCompletion public static var winTitle(get, set):String;
-	@:noCompletion private static function get_winTitle():String {
+	@:noCompletion private inline static function get_winTitle():String {
 		return title;
 	}
-	@:noCompletion private static function set_winTitle(value:String):String {
+	@:noCompletion private inline static function set_winTitle(value:String):String {
 		return title = value;
 	}
 }

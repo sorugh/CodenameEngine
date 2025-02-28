@@ -42,7 +42,7 @@ class CreditsMain extends TreeMenu {
 			optionsTree.add(Type.createInstance(CreditsCodename, []));
 		}));
 		items.push(new TextOption("Friday Night Funkin'", TU.translate("credits.selectBase"), function() {
-			CoolUtil.openURL("https://ninja-muffin24.itch.io/funkin");
+			CoolUtil.openURL(Flags.URL_FNF_ITCH);
 		}));
 
 		main = new OptionsScreen(TU.translate("credits.name"), TU.translate("credits.madePossible"), items);

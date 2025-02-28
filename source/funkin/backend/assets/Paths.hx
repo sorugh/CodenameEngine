@@ -201,13 +201,15 @@ class Paths
 	 * @param Unique Whenever the image should be unique in the cache
 	 * @param Key Key to the image in the cache
 	 * @param SkipAtlasCheck Whenever the atlas check should be skipped.
+	 * @param SkipMultiCheck Whenever the multi spritesheet check should be skipped.
+	 * @param Ext Extension of the image.
 	 * @return FlxFramesCollection Frames
 	 */
-	static function loadFrames(path:String, Unique:Bool = false, Key:String = null, SkipAtlasCheck:Bool = false, ?Ext:String = null):FlxFramesCollection {
+	static function loadFrames(path:String, Unique:Bool = false, Key:String = null, SkipAtlasCheck:Bool = false, SkipMultiCheck:Bool = false, ?Ext:String = null):FlxFramesCollection {
 		var noExt = Path.withoutExtension(path);
 		var ext = Ext != null ? Ext : Flags.IMAGE_EXT;
 
-		if (Assets.exists('$noExt/1.${ext}')) {
+		if (!SkipMultiCheck && Assets.exists('$noExt/1.${ext}')) {
 			// MULTIPLE SPRITESHEETS!!
 
 			var graphic = FlxG.bitmap.add("flixel/images/logo/default.png", false, '$noExt/mult');
@@ -219,7 +221,7 @@ class Paths
 			var cur = 1;
 			var finalFrames = new MultiFramesCollection(graphic);
 			while(Assets.exists('$noExt/$cur.${ext}')) {
-				var spr = loadFrames('$noExt/$cur.${ext}');
+				var spr = loadFrames('$noExt/$cur.${ext}', false, null, false, true);
 				finalFrames.addFrames(spr);
 				cur++;
 			}

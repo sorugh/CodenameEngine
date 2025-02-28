@@ -25,6 +25,8 @@
 		<!-- <lib name="dox" /> -->
 		<lib name="markdown" />
 
+		<lib name="nape-haxe4" />
+
 		<!-- For building lime -->
 		<lib global="true" name="hxp" /> <lib name="hxp" />
 		<lib global="true" name="format" /> <lib name="format" />

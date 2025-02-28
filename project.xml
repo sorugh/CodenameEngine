@@ -68,6 +68,12 @@
 	<assets path='mods' rename='mods' embed='false'/>
 	<assets path='art/readme.txt' rename='do NOT readme.txt' />
 
+	<!-- OpenAL config -->
+	<section if="desktop">
+		<assets path="alsoft.txt" rename="plugins/alsoft.ini" type="text" if="windows"/>
+		<assets path="alsoft.txt" rename="plugins/alsoft.conf" type="text" unless="windows"/>
+	</section>
+
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
 	<haxeflag name="--macro" value="funkin.backend.system.macros.BuildInfo.printBuildInfo()" />
@@ -140,6 +146,9 @@
 	<!-- Comment this out to disable support for Funkin Audio Visualizer (reduces compile times) !-->
 	<define name="AUDIO_VIS_SUPPORT" />
 
+	<!-- Comment this out to disable support for Nape integration (flixel.addons.nape) (reduces compile times) !-->
+	<define name="NAPE_ENABLED" />
+
 	<!-- Comment this out to disable video cutscene support, in case of compilation errors. !-->
 	<section if="cpp">
 		<define name="VIDEO_CUTSCENES" if="desktop || android" />
@@ -150,6 +159,9 @@
 
 	<!-- Comment this out to disable dark mode windows -->
 	<define name="DARK_MODE_WINDOW"/>
+
+	<!-- Disable a optimization, to allow reflection to use more functions -->
+	<define name="FLX_NO_GENERIC" />
 
 	<haxedef name="analyzer-optimize" unless="debug" />
 
@@ -180,6 +192,7 @@
 	<haxelib name="grig.audio" if="AUDIO_VIS_SUPPORT" />
 	<haxelib name="format" />
 	<haxelib name="flxanimate" />
+	<haxelib name="nape-haxe4" if="NAPE_ENABLED"/>
 
 	<haxelib name="hscript-improved" />
 	<haxelib name="hxdiscord_rpc" if="DISCORD_RPC"/>

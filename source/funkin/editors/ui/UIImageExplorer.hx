@@ -193,7 +193,7 @@ class UIImageExplorer extends UIFileExplorer {
 
 		// GENERATE TEXT!!!
 		imagePath = new Path(imagePath);
-		imageName = isAtlas ? Path.withoutDirectory(directoryPath) : ${imagePath.file};
+		imageName = isAtlas ? Path.withoutDirectory(directoryPath) : imagePath.file;
 
 		var message = new StringBuf();
 		if (isAtlas) message.add('${imageName}/');

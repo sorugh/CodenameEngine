@@ -60,6 +60,8 @@ class CharacterInfoScreen extends UISubstateWindow {
 		add(iconColorWheel);
 		addLabelOn(iconColorWheel, "Icon Color");
 
+		if (character.iconColor != null)
+			iconColorWheel.colorChanged = true;
 		iconColorPicker.colorWheel = iconColorWheel;
 
 		durationStepper = new UINumericStepper(iconColorWheel.x, iconColorWheel.y + 125 + 36, character.holdTime == -1 ? 4 : character.holdTime, 0.001, 2, 0, 9999999, 74);

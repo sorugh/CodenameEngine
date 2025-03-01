@@ -1,20 +1,20 @@
 package funkin.menus;
 
 import flixel.sound.FlxSound;
-import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import funkin.backend.FunkinText;
 import funkin.backend.scripting.Script;
+import funkin.backend.scripting.events.NameEvent;
 import funkin.backend.scripting.events.menu.MenuChangeEvent;
 import funkin.backend.scripting.events.menu.pause.*;
-import funkin.backend.scripting.events.NameEvent;
 import funkin.backend.system.Conductor;
 import funkin.backend.utils.FunkinParentDisabler;
 import funkin.editors.charter.Charter;
 import funkin.menus.StoryMenuState;
 import funkin.options.OptionsMenu;
-import funkin.options.keybinds.KeybindsOptions;
 import funkin.options.TreeMenu;
+import funkin.options.keybinds.KeybindsOptions;
 
 class PauseSubState extends MusicBeatSubstate
 {
@@ -22,7 +22,13 @@ class PauseSubState extends MusicBeatSubstate
 
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
+	var levelInfo:FunkinText;
+	var levelDifficulty:FunkinText;
+	var deathCounter:FunkinText;
+	var multiplayerText:FunkinText;
+
 	var menuItems:Array<String>;
+
 	var curSelected:Int = 0;
 
 	var pauseMusic:FlxSound;
@@ -59,7 +65,6 @@ class PauseSubState extends MusicBeatSubstate
 
 		menuItems = event.options;
 
-
 		pauseMusic = FlxG.sound.load(Paths.music(event.music), 0, true);
 		pauseMusic.persist = false;
 		pauseMusic.group = FlxG.sound.defaultMusicGroup;
@@ -74,15 +79,13 @@ class PauseSubState extends MusicBeatSubstate
 		bg.scrollFactor.set();
 		add(bg);
 
-		var levelInfo:FlxText = new FlxText(20, 15, 0, PlayState.SONG.meta.displayName, 32);
-		var levelDifficulty:FlxText = new FlxText(20, 15, 0, PlayState.difficulty.toUpperCase(), 32);
-		var deathCounter:FlxText = new FlxText(20, 15, 0, "Blue balled: " + PlayState.deathCounter, 32);
-		var multiplayerText:FlxText = new FlxText(20, 15, 0, PlayState.opponentMode ? 'OPPONENT MODE' : (PlayState.coopMode ? 'CO-OP MODE' : ''), 32);
+		levelInfo = new FunkinText(20, 15, 0, PlayState.SONG.meta.displayName, 32, false);
+		levelDifficulty = new FunkinText(20, 15, 0, PlayState.difficulty.toUpperCase(), 32, false);
+		deathCounter = new FunkinText(20, 15, 0, "Blue balled: " + PlayState.deathCounter, 32, false);
+		multiplayerText = new FunkinText(20, 15, 0, PlayState.opponentMode ? 'OPPONENT MODE' : (PlayState.coopMode ? 'CO-OP MODE' : ''), 32, false);
 
 		for(k=>label in [levelInfo, levelDifficulty, deathCounter, multiplayerText]) {
 			label.scrollFactor.set();
-			label.setFormat(Paths.font('vcr.ttf'), 32);
-			label.updateHitbox();
 			label.alpha = 0;
 			label.x = FlxG.width - (label.width + 20);
 			label.y = 15 + (32 * k);

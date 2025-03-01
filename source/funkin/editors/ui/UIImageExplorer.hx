@@ -4,6 +4,7 @@ import flixel.util.typeLimit.OneOfTwo;
 import flixel.text.FlxText.FlxTextFormat;
 import flixel.text.FlxText.FlxTextFormatMarkerPair;
 import flxanimate.data.SpriteMapData.AnimateAtlas;
+import flixel.graphics.frames.FlxFramesCollection;
 import haxe.Json;
 import haxe.io.Bytes;
 import haxe.io.Path;
@@ -13,6 +14,7 @@ import sys.io.File;
 
 using StringTools;
 using funkin.backend.utils.BitmapUtil;
+using flixel.util.FlxSpriteUtil;
 
 // TODO: make this limited if on web
 class UIImageExplorer extends UIFileExplorer {
@@ -124,6 +126,7 @@ class UIImageExplorer extends UIFileExplorer {
 		}
 
 		// GATHER ANIMATIONS/DATA FILES!!!
+		var frames:FlxFramesCollection = null;
 		if (isAtlas) {
 			var dataPath:String = '$directoryPath/Animation.json'.replace('/', '\\');
 
@@ -139,7 +142,8 @@ class UIImageExplorer extends UIFileExplorer {
 			var dataPathFile:String = !isAtlas ? File.getContent(dataPath) : null;
 	
 			if (dataPathExt != null) {
-				animationList = CoolUtil.getAnimsListFromFrames(CoolUtil.loadFramesFromData(dataPathFile, dataPathExt), dataPathExt);
+				frames = CoolUtil.loadFramesFromData(dataPathFile, dataPathExt);
+				animationList = CoolUtil.getAnimsListFromFrames(frames, dataPathExt);
 
 				imageFiles.set(Path.withoutDirectory(dataPath), dataPathFile);
 			}
@@ -191,6 +195,12 @@ class UIImageExplorer extends UIFileExplorer {
 		uiElement.antialiasing = true;
 		members.push(uiElement);
 
+		if (!isAtlas && frames != null) {
+			for (frame in frames.frames) {
+				var rect = frame.frame;
+				uiElement.drawRect(rect.x, rect.y, rect.width, rect.height, 0x00161E87, {thickness: Std.int(1.75/imageScale), color: 0xFF11178C});
+			}
+		}
 		// GENERATE TEXT!!!
 		imagePath = new Path(imagePath);
 		imageName = isAtlas ? Path.withoutDirectory(directoryPath) : imagePath.file;

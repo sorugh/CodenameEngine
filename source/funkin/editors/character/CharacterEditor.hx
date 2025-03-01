@@ -513,7 +513,6 @@ class CharacterEditor extends UIState {
 	}
 
 	function _set_offset(x:Float, y:Float) {
-		trace(character.getAnimName(), characterAnimsWindow.animButtons);
 		if (character.getAnimName() == null) return;
 		characterAnimsWindow.animButtons.get(character.getAnimName()).changeOffset(
 			FlxMath.roundDecimal(x, 2), FlxMath.roundDecimal(y, 2)
@@ -627,14 +626,17 @@ class CharacterEditor extends UIState {
 			stage.characterPoses[stagePosition].revertCharacter(character);
 
 		changeCharacterIsPlayer(player);
-		remove(character);
-
-		if (stage.characterPoses.exists(stagePosition))
-			stage.applyCharStuff(character, stagePosition, 0);
+		updateCharacterStagePosition();
 		_animation_play(null);
 
 		characterPropertiesWindow.designedAsDropDown.index = characterPropertiesWindow.designedAsDropDown.options.indexOf(player ? "BOYFRIEND" : "DAD");
 		characterPropertiesWindow.designedAsDropDown.label.text = player ? "BOYFRIEND" : "DAD";
+	}
+
+	public inline function updateCharacterStagePosition() {
+		remove(character);
+		if (stage.characterPoses.exists(stagePosition))
+			stage.applyCharStuff(character, stagePosition, 0);
 	}
 
 	public function changeCharacterIsPlayer(player:Bool) @:privateAccess {

@@ -264,9 +264,7 @@ class CharacterAnimButton extends UIButton {
 		if (parent.character.animateAtlas != null) 
 			__refreshAnimation();
 		else {
-			trace(parent.character.animation._animations);
 			var flxAnimation:FlxAnimation = __getFlxAnimation();
-			trace(parent.character.animation._animations);
 			flxAnimation.prefix = newAnim;
 
 			refreshFlxAnimationFrames(flxAnimation, animData);
@@ -343,11 +341,8 @@ class CharacterAnimButton extends UIButton {
 
 				flxAnimation.frames = frameIndices;
 			} else {
-				trace(flxAnimation.prefix);
 				final animFrames:Array<FlxFrame> = new Array<FlxFrame>();
 				parent.character.animation.findByPrefix(animFrames, flxAnimation.prefix);
-
-				trace(animFrames);
 
 				final frameIndices:Array<Int> = [];
 				parent.character.animation.byPrefixHelper(frameIndices, animFrames, flxAnimation.prefix);
@@ -358,7 +353,7 @@ class CharacterAnimButton extends UIButton {
 			if (flxAnimation.frames.length <= 0) invalidate();
 			else validate();
 		} catch (e) {
-			trace('$e ${e.details}');
+			trace('ERROR REFRESHING FLXANIMATION FRAMES: $e');
 			invalidate();
 		}
 
@@ -375,19 +370,15 @@ class CharacterAnimButton extends UIButton {
 		var wasRefreshed:Bool = false;
 
 		try {
-			if (animData.indices.length > 0) {
+			parent.character.animateAtlas.anim.animsMap.remove(animData.name);
+			if (animData.indices.length > 0)
 				parent.character.animateAtlas.anim.addBySymbolIndices(animData.name, animData.anim, animData.indices, animData.fps, animData.loop);
-				wasRefreshed = true;
-			} else {
-				for (name in parent.character.animateAtlas.anim.symbolDictionary.keys())
-					if (parent.character.animateAtlas.anim.startsWith(name, animData.anim)) {
-						symbol.instance.symbol.name = name; 
-						wasRefreshed = true;
-						break;
-					}
-			}
+			else 
+				parent.character.animateAtlas.anim.addBySymbol(animData.name, animData.anim, animData.fps, animData.loop);
+			wasRefreshed = parent.character.animateAtlas.anim.animsMap.exists(animData.name);
+			if (!wasRefreshed) __getAnimationSymbol();
 		} catch (e) {
-			trace('$e');
+			trace('ERROR REFRESHING SYMBOL FRAMES: $e');
 		}
 
 		validate(wasRefreshed);

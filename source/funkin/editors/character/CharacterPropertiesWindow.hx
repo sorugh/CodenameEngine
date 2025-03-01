@@ -1,5 +1,6 @@
 package funkin.editors.character;
 
+import funkin.backend.FlxAnimate;
 import haxe.io.Path;
 import funkin.editors.character.CharacterInfoScreen.CharacterExtraInfo;
 import funkin.game.Character;
@@ -156,21 +157,27 @@ class CharacterPropertiesWindow extends UISliceSprite {
 
 		character.sprite = sprite;
 
+		animsWindow.displayWindowSprite.animation.reset();
+		animsWindow.displayAnimsFramesList.clear();
+		if (animsWindow.displayWindowGraphic != null) 
+			animsWindow.displayWindowGraphic.destroy();
+
 		if (Assets.exists('$noExt/Animation.json')) {
+			if (character.animateAtlas == null) {
+				character.animation.reset();
+				character.animateAtlas = new FlxAnimate(character.x, character.y);
+			} else
+				character.animateAtlas.anim.stop();
+
 			character.atlasPath = noExt;
 			character.animateAtlas.loadAtlas(noExt);
-
-			character.animateAtlas.anim.animsMap.clear();
-			character.animateAtlas.anim.symbolDictionary.clear();
-
-			character.animateAtlas.anim.stop();
 		} else {
+			if (character.animateAtlas != null) {
+				character.animateAtlas.destroy();
+				character.animateAtlas = null;
+				character.atlasPlayingAnim = character.atlasPath = null;
+			}
 			character.frames = Paths.getFrames(path, true);
-			character.animation.reset();
-
-			animsWindow.displayWindowSprite.animation.reset();
-			if (animsWindow.displayWindowGraphic != null) 
-				animsWindow.displayWindowGraphic.destroy();
 
 			animsWindow.displayWindowSprite.loadGraphicFromSprite(character);
 			if (Assets.exists(Paths.image('characters/${character.sprite}')))
@@ -178,8 +185,9 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		}
 
 		character.animDatas.clear();
-		for (anim in animsWindow.buttons) 
-			anim.checkValid(); // Re-add all animations
+		for (anim in animsWindow.buttons) anim.checkValid(); // Re-add all animations
+
+		CharacterEditor.instance.playAnimation(animsWindow.findValid().getDefault(animsWindow.buttons.members[0].anim));
 	}
 
 	public function changeFlipX(newFlipX:Bool) @:privateAccess {

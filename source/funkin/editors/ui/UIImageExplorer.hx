@@ -279,8 +279,8 @@ class UIImageExplorer extends UIFileExplorer {
 			if (onFinishSaving != null) onFinishSaving();
 		}
 
-		if (alreadlyExistingFiles.length > 0) {
-			(FlxG.state.subState != null ? FlxG.state.subState : FlxG.state).openSubState(new UIWarningSubstate("Alreadly Existing Files!!!", 
+		if (alreadlyExistingFiles.length > 0 && checkExisting) @:privateAccess {
+			(FlxG.state.subState != null && !FlxG.state._requestSubStateReset ? FlxG.state.subState : FlxG.state).openSubState(new UIWarningSubstate("Alreadly Existing Files!!!", 
 				"The following files alreadly exist: \n\n" + alreadlyExistingFiles.join('\n') + "\n\nIMPORTANT: OVERRIDING CAN NOT BE UNDONE!!!!!!!!", 
 				[ {
 					label: "Override Files",

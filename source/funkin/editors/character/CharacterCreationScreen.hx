@@ -49,8 +49,8 @@ class CharacterCreationScreen extends UISubstateWindow {
 		imageExplorer.maxSize.y -= 100;
 
 		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
-			createCharacter();
 			close();
+			createCharacter();
 		}, 125);
 		add(saveButton);
 

@@ -16,6 +16,12 @@ using StringTools;
 using funkin.backend.utils.BitmapUtil;
 using flixel.util.FlxSpriteUtil;
 
+typedef ImageSaveData = {
+	var imageName:String;
+	var isAtlas:Bool;
+	var imageFiles:Map<String, OneOfTwo<String, Bytes>>;
+}
+
 // TODO: make this limited if on web
 class UIImageExplorer extends UIFileExplorer {
 	private var allowAtlases:Bool = true;
@@ -29,13 +35,15 @@ class UIImageExplorer extends UIFileExplorer {
 		deleteButton.bWidth = 26;
 		deleteButton.bHeight = 26;
 
-		var fullImagePath:String = '${Path.normalize(Sys.getCwd())}/${Paths.image(image)}'.replace('/', '\\');
-		var noExt = Path.withoutExtension(fullImagePath);
-		if (FileSystem.exists('$noExt\\spritemap1.png'))
-			fullImagePath = '$noExt\\spritemap1.png';
-
-		if (FileSystem.exists(fullImagePath))
-			loadFile(fullImagePath);
+		if (image != null) {
+			var fullImagePath:String = '${Path.normalize(Sys.getCwd())}/${Paths.image(image)}'.replace('/', '\\');
+			var noExt = Path.withoutExtension(fullImagePath);
+			if (FileSystem.exists('$noExt\\spritemap1.png'))
+				fullImagePath = '$noExt\\spritemap1.png';
+	
+			if (FileSystem.exists(fullImagePath))
+				loadFile(fullImagePath);
+		}
 	}
 
 	public var isAtlas:Bool = false;
@@ -49,6 +57,8 @@ class UIImageExplorer extends UIFileExplorer {
 	public var animationList:Array<String> = [];
 
 	public var fileText:UIText;
+
+	public var maxSize:FlxPoint = FlxPoint.get(700, 500);
 
 	public function uploadImage(filePath:String, file:Bytes) {
 		__resetData();
@@ -139,7 +149,7 @@ class UIImageExplorer extends UIFileExplorer {
 		} else {
 			var dataPathExt:String = CoolUtil.imageHasFrameData(imagePath);
 			var dataPath:String = Path.withExtension(imagePath, dataPathExt);
-			var dataPathFile:String = !isAtlas ? File.getContent(dataPath) : null;
+			var dataPathFile:String = !isAtlas && dataPathExt != null ? File.getContent(dataPath) : null;
 	
 			if (dataPathExt != null) {
 				frames = CoolUtil.loadFramesFromData(dataPathFile, dataPathExt);
@@ -182,10 +192,10 @@ class UIImageExplorer extends UIFileExplorer {
 		// DISPLAY IMAGE!!
 		uiElement = new FlxSprite().loadGraphic(image);
 		var imageScale:Float = 1;
-		if (uiElement.width < 300 || uiElement.height < 200)
-			imageScale = Math.max(300/uiElement.width, 200/uiElement.height);
-		else if (uiElement.width > 700 || uiElement.height > 500)
-			imageScale = Math.min(700/uiElement.width, 500/uiElement.height);
+		if (uiElement.width < Math.min(300, maxSize.x) || uiElement.height < Math.min(200, maxSize.y))
+			imageScale = Math.max(Math.min(300, maxSize.x) / uiElement.width, Math.min(200, maxSize.y) / uiElement.height);
+		else if (uiElement.width > maxSize.x || uiElement.height > maxSize.y)
+			imageScale = Math.min(maxSize.x/uiElement.width, maxSize.y/uiElement.height);
 		uiElement.scale.set(imageScale, imageScale);
 		uiElement.updateHitbox();
 
@@ -231,14 +241,25 @@ class UIImageExplorer extends UIFileExplorer {
 
 		deleteIcon.x = deleteButton.x + deleteButton.bWidth/2 - 8;
 		deleteIcon.y = deleteButton.y + deleteButton.bHeight/2 - 8;
-		
 	}
 
-	public function saveFiles(directory:String, ?onFinishSaving:Void->Void, ?checkExisting:Bool = true) {
-		if (isAtlas) directory += '/$imageName';
+	public inline function getSaveData():ImageSaveData {
+		return {
+			imageName: this.imageName, 
+			isAtlas: this.isAtlas, 
+			imageFiles: this.imageFiles
+		};
+	}
+
+	public inline function saveFiles(directory:String, ?onFinishSaving:Void->Void, ?checkExisting:Bool = true) {
+		UIImageExplorer.saveFilesGlobal(getSaveData(), directory, onFinishSaving, checkExisting);
+	}
+
+	public static function saveFilesGlobal(imageData:ImageSaveData, directory:String, ?onFinishSaving:Void->Void, ?checkExisting:Bool = true) {
+		if (imageData.isAtlas) directory += '/${imageData.imageName}';
 
 		var alreadlyExistingFiles:Array<String> = [];
-		for (name => file in imageFiles)
+		for (name => file in imageData.imageFiles)
 			if (FileSystem.exists('$directory/$name'))
 				alreadlyExistingFiles.push('$directory/$name');
 
@@ -249,7 +270,7 @@ class UIImageExplorer extends UIFileExplorer {
 		}
 
 		function acuttalySaveFiles() {
-			for (name => file in imageFiles)
+			for (name => file in imageData.imageFiles)
 				if (!alreadlyExistingFiles.contains('$directory/$name')) {
 					CoolUtil.safeSaveFile('$directory/$name', file);
 					trace('SAVED: $directory/$name');
@@ -289,5 +310,10 @@ class UIImageExplorer extends UIFileExplorer {
 
 	@:noCompletion inline function __resetData() {
 		imageFiles.clear(); isAtlas = false; animationList = [];
+	}
+
+	public override function destroy() {
+		maxSize.put();
+		super.destroy();
 	}
 }

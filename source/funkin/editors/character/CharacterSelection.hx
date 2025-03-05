@@ -1,5 +1,7 @@
 package funkin.editors.character;
 
+import haxe.xml.Printer;
+import funkin.editors.ui.UIImageExplorer.ImageSaveData;
 import funkin.game.Character;
 import funkin.options.OptionsScreen;
 import funkin.options.type.IconOption;
@@ -44,9 +46,7 @@ class CharacterSelection extends EditorTreeMenu
 			}
 
 			list.insert(0, new NewOption("New Character", "New Character", function() {
-				openSubState(new UIWarningSubstate("New Character: Feature Not Implemented!", "This feature isn't implemented yet. Please wait for more cne updates to have this functional.\n\n\n- Codename Devs", [
-					{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
-				]));
+				openSubState(new CharacterCreationScreen(createCharacter));
 			}));
 
 			return list;
@@ -63,5 +63,31 @@ class CharacterSelection extends EditorTreeMenu
 		super.createPost();
 
 		main.changeSelection(1);
+	}
+
+	public function createCharacter(name:String, imageSaveData:ImageSaveData, xml:Xml) {
+		var characterAlreadyExists:Bool = Character.getList().contains(name);
+
+		if (characterAlreadyExists) {
+			openSubState(new UIWarningSubstate("Creating Character: Error!", "The character you are trying to create already exists, if you would like to override it delete the character first!", [
+				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
+			]));
+			return;
+		}
+
+		// Save Data file
+		var characterPath:String = '${Paths.getAssetsRoot()}/data/characters/${name}.xml';
+		CoolUtil.safeSaveFile(characterPath, "<!DOCTYPE codename-engine-character>\n" + Printer.print(xml, true));
+
+		// Save Image files 
+		UIImageExplorer.saveFilesGlobal(imageSaveData, '${Paths.getAssetsRoot()}/images/characters');
+
+		// Add to Menu >:D
+		var option:IconOption = new IconOption(name, "Press ACCEPT to edit this character.", Character.getIconFromCharName(name),
+			function() {
+				FlxG.switchState(new CharacterEditor(name));
+			}
+		);
+		optionsTree.members[optionsTree.members.length-1].insert(1, option);
 	}
 }

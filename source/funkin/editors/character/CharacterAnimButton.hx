@@ -417,7 +417,7 @@ class CharacterAnimButton extends UIButton {
 
 	public function updateText() {
 		field.applyMarkup(
-			'${anim} ' + (valid ? '(${parent.character.animOffsets[anim].x} ${parent.character.animOffsets[anim].y})' : "|(Invalid Animation!!!)|"),
+			'${anim} ' + (valid ? '(${parent.character.animOffsets[anim].x}, ${parent.character.animOffsets[anim].y})' : "|(Invalid Animation!!!)|"),
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFF29797), "|")]);
 	}
 

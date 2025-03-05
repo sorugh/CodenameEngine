@@ -92,7 +92,7 @@ class CharterSelection extends EditorTreeMenu {
 		var songAlreadyExists:Bool = [for (s in freeplayList.songs) s.name.toLowerCase()].contains(creation.meta.name.toLowerCase());
 
 		if (songAlreadyExists) {
-			openSubState(new UIWarningSubstate("Creating Song: Error!", "The song you are trying to create Already exists, if you would like to override it delete the song first!", [
+			openSubState(new UIWarningSubstate("Creating Song: Error!", "The song you are trying to create already exists, if you would like to override it delete the song first!", [
 				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
 			]));
 			return;

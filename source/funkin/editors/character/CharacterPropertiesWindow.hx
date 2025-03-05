@@ -212,6 +212,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 	public function changeAntialiasing(newAntialiasing:Bool) {
 		if (character.antialiasing == newAntialiasing) return;
 		character.antialiasing = newAntialiasing;
+		animsWindow.displayWindowSprite.antialiasing = newAntialiasing;
 	}
 
 	public function updateButtonsPos() {

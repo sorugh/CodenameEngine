@@ -4,6 +4,13 @@ import openfl.geom.ColorTransform;
 import flixel.animation.FlxAnimation;
 import funkin.game.Character;
 
+typedef AtlasState = {
+	var oldAnim:String;
+	var oldFrame:Int;
+	var oldTick:Float;
+	var oldPlaying:Bool;
+};
+
 class CharacterGhost extends Character {
 	public var ghosts:Array<String> = [];
 	public override function draw() @:privateAccess {
@@ -66,5 +73,15 @@ class CharacterGhost extends Character {
 		}
 
 		offset.set(globalOffset.x * (isPlayer != playerOffsets ? 1 : -1), -globalOffset.y);
+	}
+
+	var atlasState:AtlasState = null;
+	public function storeAtlasState():AtlasState {
+		return atlasState = {
+			oldAnim: atlasPlayingAnim,
+			oldFrame: animateAtlas.anim.curFrame,
+			oldTick: animateAtlas.anim._tick,
+			oldPlaying: animateAtlas.anim.isPlaying,
+		};
 	}
 }

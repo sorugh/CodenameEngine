@@ -409,6 +409,7 @@ class CharacterEditor extends UIState {
 			if(character.animateAtlas == null) {
 				StageEditor.calcSpriteBounds(character);
 				var bounds:FlxRect = cast character.extra.get(StageEditor.exID("bounds"));
+				trace(bounds);
 				if (bounds.containsPoint(point)) {
 					cameraHoverDummy.cursor = #if (mac) DRAG_OPEN; #else CLICK; #end
 					if (FlxG.mouse.justPressed)

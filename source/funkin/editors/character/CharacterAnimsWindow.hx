@@ -1,5 +1,6 @@
 package funkin.editors.character;
 
+import flixel.util.typeLimit.OneOfTwo;
 import funkin.backend.utils.XMLUtil.AnimData;
 import flixel.animation.FlxAnimation;
 import flixel.graphics.FlxGraphic;
@@ -14,7 +15,7 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 
 	public var displayWindowSprite:FlxSprite;
 	public var displayWindowGraphic:FlxGraphic;
-	public var displayAnimsFramesList:Map<String, {scale:Float, animBounds:Rectangle, frame:Int}> = [];
+	public var displayAnimsFramesList:Map<String, {scale:Float, animBounds:Rectangle, frame:OneOfTwo<Int, String>}> = [];
 
 	public var animButtons:Map<String, CharacterAnimButton> = [];
 	public var animsList:Array<String> = [];
@@ -28,7 +29,7 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 
 		buttonCameras.pixelPerfectRender = true;
 
-		if (Assets.exists(Paths.image('characters/${character.sprite}')))
+		if (Assets.exists(Paths.image('characters/${character.sprite}')) && character.animateAtlas == null)
 			displayWindowGraphic = FlxG.bitmap.add(Assets.getBitmapData(Paths.image('characters/${character.sprite}'), true, false));
 
 		displayWindowSprite = new FlxSprite();
@@ -53,16 +54,33 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 		character.ghosts = ghosts;
 	}
 
-	public function buildAnimDisplay(name:String, anim:FlxAnimation) {
-		if (anim.frames.length <= 0) return;
+	public function buildAnimDisplay(name:String, anim:AnimData) @:privateAccess {
+		if (character.animateAtlas == null) {
+			var anim:FlxAnimation = character.animation._animations[anim.name];
+			if (anim == null || anim.frames.length <= 0) return;
 		
-		var frameIndex:Int = anim.frames.getDefault([0])[0];
-		var frame:FlxFrame = displayWindowSprite.frames.frames[frameIndex];
+			var frameIndex:Int = anim.frames.getDefault([0])[0];
+			var frame:FlxFrame = displayWindowSprite.frames.frames[frameIndex];
+	
+			var frameRect:Rectangle = new Rectangle(frame.offset.x, frame.offset.y, frame.sourceSize.x, frame.sourceSize.y);
+			var animBounds:Rectangle = displayWindowGraphic != null ? displayWindowGraphic.bitmap.bounds(frameRect) : frameRect;
+	
+			displayAnimsFramesList.set(name, {frame: anim.frames.getDefault([0])[0], scale: 104/animBounds.height, animBounds: animBounds});
+		} else {
+			var ogFrame:Int = character.animateAtlas.anim.curFrame;
+			var oldTick:Float = character.animateAtlas.anim._tick; 
+			var oldPlaying:Bool = character.animateAtlas.anim.isPlaying;
 
-		var frameRect:Rectangle = new Rectangle(frame.offset.x, frame.offset.y, frame.sourceSize.x, frame.sourceSize.y);
-		var animBounds:Rectangle = displayWindowGraphic != null ? displayWindowGraphic.bitmap.bounds(frameRect) : frameRect;
+			character.animateAtlas.anim.play(anim.name, true, false, 0);
+			character.animateAtlas.anim.stop();
 
-		displayAnimsFramesList.set(name, {frame: anim.frames.getDefault([0])[0], scale: 104/animBounds.height, animBounds: animBounds});
+			var animBounds:Rectangle = MatrixUtil.getBounds(character).copyToFlash();
+			displayAnimsFramesList.set(name, {frame: anim.anim, scale: 104/animBounds.height, animBounds: animBounds});
+
+			character.animateAtlas.anim.play(atlasPlayingAnim, true, false, ogFrame);
+			character.animateAtlas.anim._tick = oldTick;
+			character.animateAtlas.anim.isPlaying = oldPlaying;
+		}
 	}
 
 	public function removeAnimDisplay(name:String)

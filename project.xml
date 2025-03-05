@@ -108,7 +108,7 @@
 
 	<!-- Comment this out to disable Discord RPC !-->
 	<section if="cpp">
-		<define name="DISCORD_RPC" if="desktop"/>
+		<!-- <define name="DISCORD_RPC" if="desktop"/> -->
 	</section>
 
 	<!-- Comment this out to disable modcharting features -->

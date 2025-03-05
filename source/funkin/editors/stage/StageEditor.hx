@@ -1001,9 +1001,18 @@ class StageEditor extends UIState {
 		}
 	}
 
-	public static function calcSpriteBounds(sprite:FlxSprite) {
+	public static function calcSpriteBounds(sprite:FunkinSprite) {
 		var oldWidth = sprite.width;
 		var oldHeight = sprite.height;
+
+		/*
+		if (sprite.animateAtlas != null) {
+			var rect:FlxRect = MatrixUtil.getBounds(sprite);
+			oldWidth = rect.width;
+			oldHeight = rect.height;
+		}
+		*/
+
 		var oldOffset = sprite.offset.clone(FlxPoint.weak());
 		var oldOrigin = sprite.origin.clone(FlxPoint.weak());
 		sprite.updateHitbox();

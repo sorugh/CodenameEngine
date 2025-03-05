@@ -36,3 +36,14 @@ class FakeCamera extends FlxCamera {
 
 	public override function setScale(X:Float, Y:Float):Void {}
 }
+
+class FakeCallCamera extends FakeCamera {
+	public static final instance = new FakeCallCamera();
+
+	public dynamic function onDraw(?frame:FlxFrame, ?pixels:BitmapData, matrix:FlxMatrix, ?transform:ColorTransform, ?blend:BlendMode, ?smoothing:Bool = false, ?shader:FlxShader, smooth:Bool = false, ?shader:FlxShader) {
+	}
+
+	override function drawPixels(?frame:FlxFrame, ?pixels:BitmapData, matrix:FlxMatrix, ?transform:ColorTransform, ?blend:BlendMode, ?smoothing:Bool = false, ?shader:FlxShader) {
+		onDraw(frame, pixels, matrix, transform, blend, smoothing, shader);
+	}
+}

@@ -41,6 +41,8 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 		for (anim in character.getAnimOrder())
 			addAnimation(character.animDatas.get(anim));
 		addButton.callback = generateAnimation;
+
+		setAnimAutoComplete(CoolUtil.getAnimsListFromSprite(character));
 	}
 
 	public var ghosts:Array<String> = [];
@@ -111,6 +113,11 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 			if (character.animation._animations[animData.name] != null)
 				buildAnimDisplay(animData.name, character.animation._animations[animData.name]);
 		}
+	}
+
+	public inline function setAnimAutoComplete(anims:Array<String>) {
+		for (button in buttons)
+			button.animTextBox.suggestItems = anims;
 	}
 
 	public function findValid():Null<String> {

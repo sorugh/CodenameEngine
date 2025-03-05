@@ -25,7 +25,7 @@ class CharacterAnimButton extends UIButton {
 
 	public var animationDisplayBG:UISliceSprite;
 	public var nameTextBox:UITextBox;
-	public var animTextBox:UITextBox;
+	public var animTextBox:UIAutoCompleteTextBox;
 	public var positionXStepper:UINumericStepper;
 	public var positionYStepper:UINumericStepper;
 	public var fpsStepper:UINumericStepper;
@@ -78,7 +78,7 @@ class CharacterAnimButton extends UIButton {
 		foldableButtons.push(nameTextBox);
 		addLabelOn(nameTextBox, "Name", 12);
 
-		animTextBox = new UITextBox(nameTextBox.x + 100, nameTextBox.y, animData.anim, 156, 22, false, true);
+		animTextBox = new UIAutoCompleteTextBox(nameTextBox.x + 100, nameTextBox.y, animData.anim, 156, 22, false, true);
 		animTextBox.onChange = (newAnim:String) -> {this.changeAnim(newAnim);};
 		members.push(animTextBox);
 		foldableButtons.push(animTextBox);

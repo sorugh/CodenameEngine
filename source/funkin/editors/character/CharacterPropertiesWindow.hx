@@ -188,6 +188,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		for (anim in animsWindow.buttons) anim.checkValid(); // Re-add all animations
 
 		CharacterEditor.instance.playAnimation(animsWindow.findValid().getDefault(animsWindow.buttons.members[0].anim));
+		animsWindow.setAnimAutoComplete(CoolUtil.getAnimsListFromSprite(character));
 	}
 
 	public function changeFlipX(newFlipX:Bool) @:privateAccess {

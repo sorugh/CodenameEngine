@@ -1184,6 +1184,13 @@ final class CoolUtil
 		return animsList;
 	}
 
+	public static function getAnimsListFromSprite(spr:FunkinSprite):Array<String> {
+		if (spr.animateAtlas != null) {
+			return [for (symbol => timeline in spr.animateAtlas.anim.symbolDictionary) symbol];
+		} else 
+			return getAnimsListFromFrames(spr.frames);
+	}
+
 	// TODO: check this for bugs
 	// Code from https://github.com/elnabo/equals/blob/master/src/equals/Equal.hx, (MIT License), but updated to work with haxe 4
 	public static function deepEqual<T> (a:T, b:T) : Bool {

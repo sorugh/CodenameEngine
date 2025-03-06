@@ -181,7 +181,7 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 	public function copyAtlasValues()
 	{
 		@:privateAccess {
-			animateAtlas.cameras = cameras;
+			animateAtlas.cameras = cameras; // investigate if we can use _cameras
 			animateAtlas.scrollFactor = scrollFactor;
 			animateAtlas.scale = scale;
 			animateAtlas.offset = offset;

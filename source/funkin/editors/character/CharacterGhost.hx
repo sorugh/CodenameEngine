@@ -20,10 +20,7 @@ class CharacterGhost extends Character {
 		colorTransform.__identity();
 
 		if (animateAtlas != null) {
-			var ogFrame:Int = animateAtlas.anim.curFrame;
-			var oldTick:Float = animateAtlas.anim._tick; 
-			var oldPlaying:Bool = animateAtlas.anim.isPlaying;
-
+			storeAtlasState();
 			for (anim in ghosts) {
 				animateAtlas.anim.play(anim, true, false, 0);
 				setAnimOffset(anim);
@@ -32,11 +29,7 @@ class CharacterGhost extends Character {
 				super.draw();
 			}
 
-			if (ghosts.length > 0) {
-				animateAtlas.anim.play(atlasPlayingAnim, true, false, ogFrame);
-				animateAtlas.anim._tick = oldTick;
-				animateAtlas.anim.isPlaying = oldPlaying;
-			}
+			if (ghosts.length > 0) restoreAtlasState();
 		}
 		else {
 			for (anim in ghosts) @:privateAccess {
@@ -75,13 +68,22 @@ class CharacterGhost extends Character {
 		offset.set(globalOffset.x * (isPlayer != playerOffsets ? 1 : -1), -globalOffset.y);
 	}
 
-	var atlasState:AtlasState = null;
-	public function storeAtlasState():AtlasState {
+	// This gets annoying lmao -lunar
+	private var atlasState:AtlasState = null;
+	public function storeAtlasState():AtlasState @:privateAccess {
 		return atlasState = {
 			oldAnim: atlasPlayingAnim,
 			oldFrame: animateAtlas.anim.curFrame,
 			oldTick: animateAtlas.anim._tick,
 			oldPlaying: animateAtlas.anim.isPlaying,
 		};
+	}
+
+	public function restoreAtlasState(state:AtlasState = null) @:privateAccess {
+		if (state == null) state = atlasState;
+
+		animateAtlas.anim.play(state.oldAnim, true, false, state.oldFrame);
+		animateAtlas.anim._tick = state.oldTick;
+		animateAtlas.anim.isPlaying = state.oldPlaying;
 	}
 }

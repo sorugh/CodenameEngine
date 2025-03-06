@@ -25,6 +25,8 @@ interface IPrePostDraw {
 
 @:access(flixel.FlxCamera)
 @:access(flixel.FlxSprite)
+@:access(flixel.math.FlxMatrix)
+@:access(openfl.geom.Matrix)
 final class MatrixUtil {
 	public static function getMatrixPosition(sprite:FlxSprite, points:OneOfTwo<FlxPoint, Array<FlxPoint>>, ?camera:FlxCamera, _width:Float = 1, _height:Float = 1):Array<FlxPoint>
 	{
@@ -42,46 +44,149 @@ final class MatrixUtil {
 		nc.scroll.set(camera.scroll.x, camera.scroll.y);
 		nc.pixelPerfectRender = camera.pixelPerfectRender;
 
+		var points:Array<FlxPoint> = cast points;
+
 		if(isAnimateAtlas) {
-			var nc = FakeCallCamera.instance;
+			var cnc = FakeCallCamera.instance;
 			var sprite = funkinSprite;
-			var oldOnDraw = nc.onDraw;
-			nc.onDraw = function(?frame:FlxFrame, ?pixels:BitmapData, matrix:FlxMatrix, ?transform:ColorTransform, ?blend:BlendMode, ?smoothing:Bool = false, ?shader:FlxShader, smooth:Bool = false, ?shader:FlxShader) {
-				// pixels is null
-				
+			var oldOnDraw = cnc.onDraw;
+
+			// TODO: fix rotation
+			// TODO: fix skew
+
+			var boundsTopLeft = new FlxPoint(Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY);
+			var boundsTopRight = new FlxPoint(Math.NEGATIVE_INFINITY, Math.POSITIVE_INFINITY);
+			var boundsBottomLeft = new FlxPoint(Math.POSITIVE_INFINITY, Math.NEGATIVE_INFINITY);
+			var boundsBottomRight = new FlxPoint(Math.NEGATIVE_INFINITY, Math.NEGATIVE_INFINITY);
+
+			cnc.onDraw = function(?frame:FlxFrame, ?pixels:BitmapData, matrix:FlxMatrix, ?transform:ColorTransform, ?blend:BlendMode, ?smoothing:Bool = false, ?shader:FlxShader) {
+				// cnc is already perfect rn
+				// so we need to manually process the limb
+				var points = [
+					// corners
+					FlxPoint.get(0, 0),
+					FlxPoint.get(1, 0),
+					FlxPoint.get(0, 1),
+					FlxPoint.get(1, 1)
+				];
+
+				rawTransformPoints(points, matrix, frame.sourceSize.x, frame.sourceSize.y);
+
+				// sort the points, incase like they were transformed with a scale -1 matrix
+
+				var topLeft:FlxPoint = points[0];
+				var topRight:FlxPoint = points[1];
+				var bottomLeft:FlxPoint = points[2];
+				var bottomRight:FlxPoint = points[3];
+
+				if (points[0].y > points[1].y) {
+					topLeft = points[1];
+					topRight = points[0];
+				}
+				if (points[2].y > points[3].y) {
+					bottomLeft = points[3];
+					bottomRight = points[2];
+				}
+
+				if (topLeft.x > topRight.x) {
+					var temp = topLeft;
+					topLeft = topRight;
+					topRight = temp;
+				}
+
+				if (bottomLeft.x > bottomRight.x) {
+					var temp = bottomLeft;
+					bottomLeft = bottomRight;
+					bottomRight = temp;
+				}
+
+				// points should now contain the corners of the limb
+
+				trace("Corners of limb: " + points);
+
+				// set the max bounds of each corner of the limb
+				if(topLeft.x < boundsTopLeft.x) boundsTopLeft.x = topLeft.x;
+				if(topLeft.y < boundsTopLeft.y) boundsTopLeft.y = topLeft.y;
+				if(topRight.x > boundsTopRight.x) boundsTopRight.x = topRight.x;
+				if(topRight.y < boundsTopRight.y) boundsTopRight.y = topRight.y;
+				if(bottomLeft.x < boundsBottomLeft.x) boundsBottomLeft.x = bottomLeft.x;
+				if(bottomLeft.y > boundsBottomLeft.y) boundsBottomLeft.y = bottomLeft.y;
+				if(bottomRight.x > boundsBottomRight.x) boundsBottomRight.x = bottomRight.x;
+				if(bottomRight.y > boundsBottomRight.y) boundsBottomRight.y = bottomRight.y;
+
+				// recycle the points
+				for(point in points) point.put();
 			}
-			var cameras = sprite.animateAtlas._cameras;
-			sprite.animateAtlas._cameras = [nc];
-			if(sprite is IPrePostDraw) {
-				var postDraw = cast(sprite, IPrePostDraw);
-				postDraw.preDraw();
-				@:privateAccess sprite.draw();
-				postDraw.postDraw();
-			} else {
-				@:privateAccess sprite.draw();
+			var cameras = sprite._cameras;
+			var oldVisible = cnc.visible;
+			cnc.visible = true;
+			sprite._cameras = [cnc];
+			sprite.draw();
+			sprite._cameras = cameras;
+			cnc.visible = oldVisible;
+			cnc.onDraw = oldOnDraw;
+
+			// fake transform
+
+			//trace("");
+			//trace("topLeft: " + boundsTopLeft);
+			//trace("topRight: " + boundsTopRight);
+			//trace("bottomLeft: " + boundsBottomLeft);
+			//trace("bottomRight: " + boundsBottomRight);
+			//trace("Before transform");
+			//trace(points);
+
+			for(point in points) {
+				//var x = matrix.__transformX(point.x * _width, point.y * _height);
+				//var y = matrix.__transformY(point.x * _width, point.y * _height);
+				// apply using boundsTopLeft, boundsTopRight, boundsBottomLeft, boundsBottomRight
+				// matrix doesnt work for this
+				var x = FlxMath.lerp(
+					FlxMath.lerp(boundsTopLeft.x, boundsTopRight.x, point.x),
+					FlxMath.lerp(boundsBottomLeft.x, boundsBottomRight.x, point.x),
+					point.y
+				);
+				var y = FlxMath.lerp(
+					FlxMath.lerp(boundsTopLeft.y, boundsTopRight.y, point.x),
+					FlxMath.lerp(boundsBottomLeft.y, boundsBottomRight.y, point.x),
+					point.y
+				);
+
+				//trace("(" + point.x + ", " + point.y + ") -> (" + x + ", " + y + ")");
+
+				// reset to ingame coords
+				x += camera.scroll.x;
+				y += camera.scroll.y;
+
+				if(isFunkinSprite) {
+					var ratio = 1 - FlxMath.lerp(1 / camera.zoom, 1, funkinSprite.zoomFactor);
+					x += camera.width / 2 * ratio;
+					y += camera.height / 2 * ratio;
+				}
+				point.set(x, y);
 			}
-			sprite.animateAtlas._cameras = cameras;
-			nc.onDraw = oldOnDraw;
+
+			//trace("After transform");
+			//trace(points);
 		} else {
 			if(sprite is IPrePostDraw) {
 				var postDraw = cast(sprite, IPrePostDraw);
 				postDraw.preDraw();
-				@:privateAccess sprite.drawComplex(nc);
+				sprite.drawComplex(nc);
 				postDraw.postDraw();
 			} else {
-				@:privateAccess sprite.drawComplex(nc);
+				sprite.drawComplex(nc);
 			}
+			transformPoints(sprite, points, sprite._matrix, camera, _width, _height);
 		}
 
-		var points:Array<FlxPoint> = cast points;
-		transformPoints(sprite, points, sprite._matrix, camera, _width, _height);
 		return points;
 	}
 
 	/**
 	 * Warning: modifies the points in the array
 	**/
-	public static function transformPoints(sprite:FlxSprite, points:Array<FlxPoint>, matrix:FlxMatrix, ?camera:FlxCamera, _width:Float = 1, _height:Float = 1):Array<FlxPoint> {
+	public static function transformPoints(sprite:FlxSprite, points:Array<FlxPoint>, matrix:FlxMatrix, ?camera:FlxCamera, _width:Float = 1, _height:Float = 1, doCameraTransform:Bool = true):Array<FlxPoint> {
 		var isFunkinSprite = sprite is FunkinSprite;
 		var funkinSprite:FunkinSprite = null;
 		if(isFunkinSprite) funkinSprite = cast sprite;
@@ -90,15 +195,27 @@ final class MatrixUtil {
 			var x = matrix.__transformX(point.x * _width, point.y * _height);
 			var y = matrix.__transformY(point.x * _width, point.y * _height);
 
-			// reset to ingame coords
-			x += camera.scroll.x;
-			y += camera.scroll.y;
+			if(doCameraTransform) {
+				// reset to ingame coords
+				x += camera.scroll.x;
+				y += camera.scroll.y;
 
-			if(isFunkinSprite) {
-				var ratio = 1 - FlxMath.lerp(1 / camera.zoom, 1, funkinSprite.zoomFactor);
-				x += camera.width / 2 * ratio;
-				y += camera.height / 2 * ratio;
+				if(isFunkinSprite) {
+					var ratio = 1 - FlxMath.lerp(1 / camera.zoom, 1, funkinSprite.zoomFactor);
+					x += camera.width / 2 * ratio;
+					y += camera.height / 2 * ratio;
+				}
 			}
+			point.set(x, y);
+		}
+		return points;
+	}
+
+	private static function rawTransformPoints(points:Array<FlxPoint>, matrix:FlxMatrix, _width:Float = 1, _height:Float = 1):Array<FlxPoint> {
+		for(point in points) {
+			var x = matrix.__transformX(point.x * _width, point.y * _height);
+			var y = matrix.__transformY(point.x * _width, point.y * _height);
+
 			point.set(x, y);
 		}
 		return points;

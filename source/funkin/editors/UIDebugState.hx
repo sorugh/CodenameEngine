@@ -4,6 +4,7 @@ import funkin.editors.ui.old.OldUISliceSpriteTri;
 import funkin.editors.ui.UITopMenu.UITopMenuButton;
 import flixel.tweens.FlxTween;
 import funkin.editors.ui.*;
+import funkin.game.Character;
 
 class UIDebugState extends UIState {
 	public var topMenuSpr:UITopMenu;
@@ -20,6 +21,10 @@ class UIDebugState extends UIState {
 		bg.updateHitbox();
 		bg.scrollFactor.set();
 		add(bg);
+
+		var gf = new Character(0, 0, "gf");
+		gf.dance();
+		add(gf);
 
 		add(topMenuSpr = new UITopMenu([
 			{

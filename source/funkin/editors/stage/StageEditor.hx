@@ -19,6 +19,7 @@ import openfl.ui.Mouse;
 
 using funkin.backend.utils.MatrixUtil;
 
+@:access(flixel.FlxSprite)
 class StageEditor extends UIState {
 	static var __stage:String;
 	public var stage:Stage;
@@ -491,9 +492,11 @@ class StageEditor extends UIState {
 						var sprites = getRealSprites();
 						for (i in 0...sprites.length) {
 							var sprite = sprites[sprites.length - i - 1];
-							if(sprite.animateAtlas != null) continue;
+							//if(sprite.animateAtlas != null) continue;
 
 							calcSpriteBounds(sprite);
+							//trace("Sprite: " + sprite);
+							//trace("Sprite bounds: " + sprite.extra.get(exID("bounds")));
 							if (cast(sprite.extra.get(exID("bounds")), FlxRect).containsPoint(point)) {
 								selectSprite(sprite); break;
 							}
@@ -923,10 +926,8 @@ class StageEditor extends UIState {
 		super.draw();
 
 		for(sprite in selection) {
-			if(sprite is FunkinSprite) {
-				@:privateAccess if(sprite._frame == null) continue;
+			if(sprite is FunkinSprite)
 				drawGuides(cast sprite);
-			}
 		}
 	}
 
@@ -934,7 +935,10 @@ class StageEditor extends UIState {
 	var circleColor:FlxColor = 0xFF99a8f2;
 	var hollowColor:FlxColor = 0xffb2beff;
 
-	function drawGuides(sprite:FlxSprite) {
+	function drawGuides(sprite:FunkinSprite) {
+		//if(sprite._frame == null) return;
+		if(sprite.offset == null) return; // destroyed
+
 		var corners = calcSpriteBounds(sprite);
 		var funkinSprite = sprite is FunkinSprite ? cast(sprite, FunkinSprite) : null;
 
@@ -991,7 +995,6 @@ class StageEditor extends UIState {
 				DrawUtil.dot.animation.play("hollow");
 				buttonBoxes.push(corner);
 			}
-			
 		}
 
 		if(funkinSprite == null) {
@@ -1037,6 +1040,9 @@ class StageEditor extends UIState {
 			FlxPoint.get(0.5, -0.5), // angle
 			FlxPoint.get(1, 0) // rotate corner
 		], sprite.camera, sprite.frameWidth, sprite.frameHeight);
+		//if(sprite.animateAtlas != null) {
+		//	trace("Corners: " + corners);
+		//}
 		@:privateAccess corners[corners.length - 1].add(
 			dotCheckSize * 0.35 * sprite._cosAngle + dotCheckSize * 0.35 * sprite._sinAngle,
 			-dotCheckSize * 0.35 * sprite._cosAngle + dotCheckSize * 0.35 * sprite._sinAngle

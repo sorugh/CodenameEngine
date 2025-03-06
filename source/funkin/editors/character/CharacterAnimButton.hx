@@ -268,6 +268,14 @@ class CharacterAnimButton extends UIButton {
 			flxAnimation.prefix = newAnim;
 
 			refreshFlxAnimationFrames(flxAnimation, animData);
+
+			if (valid) {
+				parent.buildAnimDisplay(anim, data);
+				animationDisplayBG.alpha = 1;
+			} else {
+				parent.removeAnimDisplay(anim);
+				animationDisplayBG.alpha = 0.4;
+			}
 		}
 
 		if (parent.character.getAnimName() == anim)
@@ -355,14 +363,6 @@ class CharacterAnimButton extends UIButton {
 		} catch (e) {
 			trace('ERROR REFRESHING FLXANIMATION FRAMES: $e');
 			invalidate();
-		}
-
-		if (valid) {
-			parent.buildAnimDisplay(anim, flxAnimation);
-			animationDisplayBG.alpha = 1;
-		} else {
-			parent.removeAnimDisplay(anim);
-			animationDisplayBG.alpha = 0.4;
 		}
 	}
 
@@ -466,6 +466,14 @@ class CharacterAnimButton extends UIButton {
 	@:noCompletion function __refreshAnimation() @:privateAccess {
 		if (parent.character.animateAtlas != null) refreshSymbolKeyFrames(__getAnimationSymbol(), data);
 		else refreshFlxAnimationFrames(__getFlxAnimation(), data);
+
+		if (valid) {
+			parent.buildAnimDisplay(anim, data);
+			animationDisplayBG.alpha = 1;
+		} else {
+			parent.removeAnimDisplay(anim);
+			animationDisplayBG.alpha = 0.4;
+		}
 	}
 
 	public inline function checkValid()

@@ -58,28 +58,26 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 		if (character.animateAtlas == null) {
 			var anim:FlxAnimation = character.animation._animations[anim.name];
 			if (anim == null || anim.frames.length <= 0) return;
-		
+
 			var frameIndex:Int = anim.frames.getDefault([0])[0];
 			var frame:FlxFrame = displayWindowSprite.frames.frames[frameIndex];
-	
+
 			var frameRect:Rectangle = new Rectangle(frame.offset.x, frame.offset.y, frame.sourceSize.x, frame.sourceSize.y);
 			var animBounds:Rectangle = displayWindowGraphic != null ? displayWindowGraphic.bitmap.bounds(frameRect) : frameRect;
-	
+
 			displayAnimsFramesList.set(name, {frame: anim.frames.getDefault([0])[0], scale: 104/animBounds.height, animBounds: animBounds});
 		} else {
-			var ogFrame:Int = character.animateAtlas.anim.curFrame;
-			var oldTick:Float = character.animateAtlas.anim._tick; 
-			var oldPlaying:Bool = character.animateAtlas.anim.isPlaying;
+			character.storeAtlasState();
 
+			/*
 			character.animateAtlas.anim.play(anim.name, true, false, 0);
 			character.animateAtlas.anim.stop();
 
 			var animBounds:Rectangle = MatrixUtil.getBounds(character).copyToFlash();
 			displayAnimsFramesList.set(name, {frame: anim.anim, scale: 104/animBounds.height, animBounds: animBounds});
+			*/
 
-			character.animateAtlas.anim.play(atlasPlayingAnim, true, false, ogFrame);
-			character.animateAtlas.anim._tick = oldTick;
-			character.animateAtlas.anim.isPlaying = oldPlaying;
+			character.restoreAtlasState();
 		}
 	}
 
@@ -90,11 +88,11 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 		if (buttons.members.length <= 1) return;
 		if (character.getAnimName() == button.anim)
 			@:privateAccess CharacterEditor.instance._animation_down(null);
-		
+
 		character.removeAnimation(button.anim);
 		if (character.animOffsets.exists(button.anim)) character.animOffsets.remove(button.anim);
 		if (character.animDatas.exists(button.anim)) character.animDatas.remove(button.anim);
-		
+
 		remove(button); button.destroy();
 	}
 
@@ -128,8 +126,7 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 
 		if (newButton.valid) {
 			XMLUtil.addAnimToSprite(character, animData);
-			if (character.animation._animations[animData.name] != null)
-				buildAnimDisplay(animData.name, character.animation._animations[animData.name]);
+			buildAnimDisplay(animData.name, animData);
 		}
 	}
 

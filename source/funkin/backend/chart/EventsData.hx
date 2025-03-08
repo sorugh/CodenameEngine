@@ -100,7 +100,14 @@ class EventsData {
 				var finalParams:Array<EventParamInfo> = [];
 				for (paramData in cast(data.params, Array<Dynamic>)) {
 					try {
-						finalParams.push({name: paramData.name, type: hscriptInterp.expr(hscriptParser.parseString(paramData.type)), defValue: paramData.defaultValue});
+						finalParams.push({
+							name: paramData.name,
+							type: hscriptInterp.expr(hscriptParser.parseString(paramData.type)),
+							defValue: paramData.defaultValue,
+
+							x: paramData.x,
+							y: paramData.y
+						});
 					} catch (e) {trace('Error parsing event param ${paramData.name} - ${eventName}: $e'); finalParams.push(null);}
 				}
 				eventsParams.set(eventName, finalParams);
@@ -120,6 +127,9 @@ typedef EventParamInfo = {
 	var name:String;
 	var type:EventParamType;
 	var defValue:Dynamic;
+
+	@:optional var x:Float;
+	@:optional var y:Float;
 }
 
 enum EventParamType {

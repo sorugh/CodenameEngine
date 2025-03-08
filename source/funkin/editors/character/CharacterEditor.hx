@@ -382,6 +382,8 @@ class CharacterEditor extends UIState {
 		}
 		animationText.text = '"${characterFakeAnim}"';
 
+		StageEditor.calcSpriteBounds(character);
+
 		if (Options.characterDragging)
 			handleMouseOffsets();
 
@@ -406,15 +408,11 @@ class CharacterEditor extends UIState {
 			}
 		} else {
 			var point = FlxG.mouse.getWorldPosition(charCamera, _point);
-			if(character.animateAtlas == null) {
-				StageEditor.calcSpriteBounds(character);
-				var bounds:FlxRect = cast character.extra.get(StageEditor.exID("bounds"));
-				trace(bounds);
-				if (bounds.containsPoint(point)) {
-					cameraHoverDummy.cursor = #if (mac) DRAG_OPEN; #else CLICK; #end
-					if (FlxG.mouse.justPressed)
-						draggingCharacter = true;
-				}
+			var bounds:FlxRect = cast character.extra.get(StageEditor.exID("bounds"));
+			if (bounds.containsPoint(point)) {
+				cameraHoverDummy.cursor = #if (mac) DRAG_OPEN; #else CLICK; #end
+				if (FlxG.mouse.justPressed)
+					draggingCharacter = true;
 			}
 		}
 	}

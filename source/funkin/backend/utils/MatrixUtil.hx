@@ -102,7 +102,7 @@ final class MatrixUtil {
 
 				// points should now contain the corners of the limb
 
-				trace("Corners of limb: " + points);
+				// trace("Corners of limb: " + points);
 
 				// set the max bounds of each corner of the limb
 				if(topLeft.x < boundsTopLeft.x) boundsTopLeft.x = topLeft.x;

@@ -39,11 +39,12 @@ class FakeCamera extends FlxCamera {
 
 class FakeCallCamera extends FakeCamera {
 	public static final instance = new FakeCallCamera();
+	public var ignoreDraws:Bool = false;
 
 	public dynamic function onDraw(?frame:FlxFrame, ?pixels:BitmapData, matrix:FlxMatrix, ?transform:ColorTransform, ?blend:BlendMode, ?smoothing:Bool = false, ?shader:FlxShader) {
 	}
 
 	override function drawPixels(?frame:FlxFrame, ?pixels:BitmapData, matrix:FlxMatrix, ?transform:ColorTransform, ?blend:BlendMode, ?smoothing:Bool = false, ?shader:FlxShader) {
-		onDraw(frame, pixels, matrix, transform, blend, smoothing, shader);
+		if (!ignoreDraws) onDraw(frame, pixels, matrix, transform, blend, smoothing, shader);
 	}
 }

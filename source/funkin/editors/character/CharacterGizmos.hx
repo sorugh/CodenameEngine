@@ -1,5 +1,7 @@
 package funkin.editors.character;
 
+import funkin.editors.stage.StageEditor;
+import flixel.math.FlxRect;
 import funkin.game.Character;
 
 class CharacterGizmos extends FlxSprite {
@@ -20,8 +22,11 @@ class CharacterGizmos extends FlxSprite {
 	public function drawHitbox() {
 		for (camera in cameras) {
 			if (character.animateAtlas != null) {
-				// TODO: ATLAS CALCUATIONS 
-				character._rect.set();
+				var bounds:FlxRect = cast character.extra.get(StageEditor.exID("bounds"));
+				character._rect.copyFrom(bounds.getDefault(FlxRect.weak()));
+
+				character._rect.x -= character.cameras[0].viewX;
+				character._rect.y -= character.cameras[0].viewY;
 			} else if (character._matrix != null && character.frame != null) {
 				character._rect.set(
 					character._matrix.tx, character._matrix.ty, 
@@ -32,11 +37,12 @@ class CharacterGizmos extends FlxSprite {
 				if (character._matrix.d < 0) character._rect.y -= character._rect.height;
 
 				character._rect.offset(-character.cameras[0].viewMarginLeft, -character.cameras[0].viewMarginTop);
-				character._rect.x *= character.cameras[0].zoom;
-				character._rect.y *= character.cameras[0].zoom;
-				character._rect.width *= character.cameras[0].zoom;
-				character._rect.height *= character.cameras[0].zoom;
 			}
+
+			character._rect.x *= character.cameras[0].zoom;
+			character._rect.y *= character.cameras[0].zoom;
+			character._rect.width *= character.cameras[0].zoom;
+			character._rect.height *= character.cameras[0].zoom;
 
 			if (DrawUtil.line == null) DrawUtil.createDrawers();
 			DrawUtil.line.camera = camera; DrawUtil.line.alpha = 0.85;

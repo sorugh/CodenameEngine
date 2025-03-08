@@ -1,5 +1,6 @@
 package funkin.editors.character;
 
+import funkin.backend.system.FakeCamera.FakeCallCamera;
 import openfl.geom.ColorTransform;
 import flixel.animation.FlxAnimation;
 import funkin.game.Character;
@@ -14,7 +15,7 @@ typedef AtlasState = {
 class CharacterGhost extends Character {
 	public var ghosts:Array<String> = [];
 	public override function draw() @:privateAccess {
-		ghostDraw = true;
+		ghostDraw = FakeCallCamera.instance.ignoreDraws = true;
 
 		var wasInvalidFrame:Bool = !colorTransform.__isDefault(false);
 		colorTransform.__identity();
@@ -46,7 +47,7 @@ class CharacterGhost extends Character {
 			if (ghosts.length > 0)
 				frame = frames.frames[animation.frameIndex];
 		}
-		ghostDraw = false; 
+		ghostDraw = FakeCallCamera.instance.ignoreDraws = false; 
 
 		alpha = 1; color = 0xFFFFFFFF;
 		if (wasInvalidFrame) {
@@ -55,6 +56,7 @@ class CharacterGhost extends Character {
 			colorTransform.color = 0xFFEF0202;
 		} else
 			setAnimOffset(animateAtlas != null ? atlasPlayingAnim : animation.name);
+		
 		super.draw();
 	}
 

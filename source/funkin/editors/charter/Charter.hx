@@ -642,7 +642,7 @@ class Charter extends UIState {
 		// Just for now until i add event stacking -lunar
 		try {__relinkUndos();}
 		catch (e) {Logs.trace('Failed to relink undos: ${Std.string(e)}', ERROR);}
-		
+
 		__applyPlaytestInfo();
 	}
 
@@ -1791,7 +1791,7 @@ class Charter extends UIState {
 	function _view_scrollreset(_) {
 		sideScroll = 0;
 	}
-	
+
 	inline function _snap_increasesnap(_) changequant(1);
 	inline function _snap_decreasesnap(_) changequant(-1);
 	inline function _snap_resetsnap(_) setquant(16);

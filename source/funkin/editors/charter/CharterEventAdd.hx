@@ -33,7 +33,7 @@ class CharterEventAdd extends UISliceSprite {
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		text.follow(this, global ? bWidth - text.width - (text.text == "Add event" ? 15 : 20) : 20, (bHeight - text.height) / 2);
+		text.follow(this, global ? bWidth - text.width - 20 : 20, (bHeight - text.height) / 2);
 		alpha = sprAlpha * 0.75;
 		text.alpha = sprAlpha;
 	}
@@ -42,7 +42,7 @@ class CharterEventAdd extends UISliceSprite {
 		curCharterEvent = null;
 		this.step = step;
 		this.y = (step * 40) - (bHeight / 2);
-		text.text = "Add event";
+		text.text = "Add " + (global ? "global" : "local") + " event";
 		framesOffset = 0; bWidth = 37 + Math.ceil(text.width);
 		x = global ? Charter.instance.strumLines.members[Charter.instance.strumLines.members.length-1].x + (40*Charter.instance.strumLines.members[Charter.instance.strumLines.members.length-1].keyCount) : -(bWidth);
 	}

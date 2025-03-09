@@ -48,6 +48,8 @@ class Charter extends UIState {
 	public var scrollBar:UIScrollBar;
 	public var songPosInfo:UIText;
 
+	public var shouldScroll:Bool = true;
+
 	public var quantButtons:Array<CharterQuantButton> = [];
 	public var playBackSlider:UISlider;
 
@@ -1332,7 +1334,7 @@ class Charter extends UIState {
 				UIUtil.processShortcuts(topMenu);
 
 			if (!topMenuSpr.anyMenuOpened) {
-				if (FlxG.mouse.wheel != 0) {
+				if (FlxG.mouse.wheel != 0 && shouldScroll) {
 					if (FlxG.keys.pressed.CONTROL) {
 						zoom += 0.25 * FlxG.mouse.wheel;
 						__camZoom = Math.pow(2, zoom);

@@ -22,9 +22,9 @@ class CharterEventAdd extends UISliceSprite {
 
 	public override function onHovered() {
 		super.onHovered();
-		if (FlxG.mouse.justReleased) {
+		if (FlxG.mouse.justReleased && FlxG.state.subState == null) {
 			if (curCharterEvent != null)
-				Charter.instance.openSubState(new CharterEventScreen(step, global, curCharterEvent));
+				Charter.instance.openSubState(new CharterEventScreenNew(x + 40, y, curCharterEvent));
 			else
 				Charter.instance.openSubState(new CharterEventScreen(step, global));
 		}

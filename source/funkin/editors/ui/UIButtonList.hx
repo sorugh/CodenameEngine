@@ -62,7 +62,7 @@ class UIButtonList<T:UIButton> extends UIWindow {
 
 	public inline function remove(button:T) {
 		nextscrollY -= button.bHeight;
-		buttons.members.remove(button);
+		buttons.remove(button, true);
 		button.destroy();
 	}
 

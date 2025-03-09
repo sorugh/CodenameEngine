@@ -1,23 +1,27 @@
 package funkin.editors.charter;
 // ! FUCK YOU CHUF (your biggest fan -lunar) <3
 
-//import flixel.FlxLayer;
-import funkin.editors.charter.CharterEvent;
-import funkin.editors.extra.CameraHoverDummy;
+// import flixel.FlxLayer;
 import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxPoint;
 import flixel.sound.FlxSound;
+import flixel.util.FlxSort;
 import funkin.backend.chart.*;
 import funkin.backend.chart.ChartData;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.framerate.Framerate;
 import funkin.editors.charter.CharterBackdropGroup.EventBackdrop;
+import funkin.editors.charter.CharterEvent;
 import funkin.editors.charter.CharterStrumline;
+import funkin.editors.extra.CameraHoverDummy;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOptionSpr;
 import funkin.editors.ui.UIState;
 import funkin.editors.ui.UITopMenu.UITopMenuButton;
 import haxe.Json;
+#if sys
+import sys.FileSystem;
+#end
 
 class Charter extends UIState {
 	public static var __song:String;
@@ -110,7 +114,7 @@ class Charter extends UIState {
 
 		WindowUtils.suffix = " (Chart Editor)";
 		SaveWarning.selectionClass = CharterSelection;
-		SaveWarning.saveFunc = () -> {_file_save(null);};
+		SaveWarning.saveFunc = () -> _file_save_all(null);
 
 		topMenu = [
 			{
@@ -121,55 +125,57 @@ class Charter extends UIState {
 					},
 					null,*/
 					{
-						label: "Save",
+						label: "Save everything",
 						keybind: [CONTROL, S],
-						onSelect: _file_save,
+						onSelect: _file_save_all,
 					},
+					null,
 					{
-						label: "Save As...",
+						label: "Save chart",
 						keybind: [CONTROL, SHIFT, S],
-						onSelect: _file_saveas,
+						onSelect: (_) -> _file_save(),
+					},
+					{
+						label: "Save chart as...",
+						onSelect: (_) -> _file_saveas(),
 					},
 					null,
 					{
-						label: "Save Without Events",
-						keybind: [CONTROL, ALT, TAB, S],
-						onSelect: _file_save_no_events,
+						label: "Save global events",
+						keybind: [CONTROL, B, S],
+						onSelect: (_) -> _file_events_save(),
 					},
 					{
-						label: "Save Without Events As...",
-						keybind: [CONTROL, SHIFT, ALT, TAB, S],
-						onSelect: _file_saveas_no_events,
+						label: "Save global events as...",
+						onSelect: (_) -> _file_events_saveas(),
 					},
 					{
-						label: "Save Events Separately",
-						keybind: [CONTROL, TAB, S],
-						onSelect: _file_events_save,
-					},
-					{
-						label: "Save Events Separately As...",
-						keybind: [CONTROL, SHIFT, TAB, S],
-						onSelect: _file_events_saveas,
-					},
-					null,
-					{
-						label: "Save Meta",
+						label: "Save chart without local events",
 						keybind: [CONTROL, ALT, S],
-						onSelect: _file_meta_save,
+						onSelect: (_) -> _file_save_no_events(),
 					},
 					{
-						label: "Save Meta As...",
-						keybind: [CONTROL, ALT ,SHIFT, S],
-						onSelect: _file_meta_saveas,
+						label: "Save chart without local events as...",
+						onSelect: (_) -> _file_saveas_no_events(),
 					},
 					null,
 					{
-						label: "Export For FNF Legacy...",
-						onSelect: _file_saveas_fnflegacy,
+						label: "Save meta",
+						keybind: [CONTROL, M, S],
+						onSelect: (_) -> _file_meta_save(),
 					},
 					{
-						label: "Export For Psych Engine...",
-						onSelect: _file_saveas_psych,
+						label: "Save meta as...",
+						onSelect: (_) -> _file_meta_saveas(),
+					},
+					null,
+					{
+						label: "Export for FNF Legacy as...",
+						onSelect: (_) -> _file_saveas_fnflegacy(),
+					},
+					{
+						label: "Export for Psych Engine as...",
+						onSelect: (_) -> _file_saveas_psych(),
 					},
 					null,
 					{
@@ -433,7 +439,7 @@ class Charter extends UIState {
 		// thank you neo for pointing out im stupid -lunar
 		localEventsBackdrop.cameras = localEventsGroup.cameras = [charterCamera];
 		localEventsGroup.eventsBackdrop = localEventsBackdrop;
-		
+
 		globalEventsBackdrop = new EventBackdrop(true);
 		globalEventsBackdrop.x = 0;
 		// thank you neo for pointing out im stupid -lunar
@@ -449,7 +455,7 @@ class Charter extends UIState {
 		noteHoverer = new CharterNoteHoverer();
 		noteDeleteAnims = new CharterDeleteAnim();
 
-		selectionBox.cameras = notesGroup.cameras = gridBackdrops.cameras = 
+		selectionBox.cameras = notesGroup.cameras = gridBackdrops.cameras =
 		noteHoverer.cameras = noteDeleteAnims.cameras = [charterCamera];
 
 		topMenuSpr = new UITopMenu(topMenu);
@@ -545,7 +551,7 @@ class Charter extends UIState {
 
 		loadSong();
 
-		if(Framerate.isLoaded) {
+		if (Framerate.isLoaded) {
 			Framerate.fpsCounter.alpha = 0.4;
 			Framerate.memoryCounter.alpha = 0.4;
 			Framerate.codenameBuildField.alpha = 0.4;
@@ -616,25 +622,25 @@ class Charter extends UIState {
 		notesGroup.autoSort = true;
 
 		// create events
-		localEventsGroup.autoSort = false;
+		globalEventsGroup.autoSort = localEventsGroup.autoSort = false;
 		var __last:CharterEvent = null;
 		var __lastTime:Float = Math.NaN;
-		for(e in PlayState.SONG.events) {
+		for (e in PlayState.SONG.events) {
 			if (e == null) continue;
 			if (__last != null && __lastTime == e.time) {
 				__last.events.push(e);
 			} else {
 				__last = new CharterEvent(Conductor.getStepForTime(e.time), [e]);
 				__lastTime = e.time;
-				localEventsGroup.add(__last);
+				(__last.global ? globalEventsGroup : localEventsGroup).add(__last);
 			}
 		}
 
-		localEventsGroup.sortEvents();
-		localEventsGroup.autoSort = true;
-
-		for(e in localEventsGroup.members)
-			e.refreshEventIcons();
+		for (grp in [localEventsGroup, globalEventsGroup]) {
+			grp.sortEvents();
+			grp.autoSort = true;
+			for (e in grp.members) e.refreshEventIcons();
+		}
 
 		buildNoteTypesUI();
 		refreshBPMSensitive();
@@ -759,21 +765,21 @@ class Charter extends UIState {
 		if (autoSaveTimer < Options.charterAutoSaveWarningTime && !autoSaveNotif.cancelled && !autoSaveNotif.showedAnimation) {
 			if (Options.charterAutoSavesSeparateFolder)
 				__autoSaveLocation = __diff.toLowerCase() + DateTools.format(Date.now(), "%m-%d_%H-%M");
-			autoSaveNotif.startAutoSave(autoSaveTimer, 
-				!Options.charterAutoSavesSeparateFolder ? 'Saved chart at ${__diff.toLowerCase()}.json!' : 
+			autoSaveNotif.startAutoSave(autoSaveTimer,
+				!Options.charterAutoSavesSeparateFolder ? 'Saved chart at ${__diff.toLowerCase()}.json!' :
 				'Saved chart at $__autoSaveLocation.json!'
 			);
 		}
 		if (autoSaveTimer <= 0) {
 			autoSaveTimer = Options.charterAutoSaveTime;
 			if (!autoSaveNotif.cancelled) {
-				buildChart(); 
+				buildChart();
 				var songPath:String = '${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}';
-	
+
 				if (Options.charterAutoSavesSeparateFolder)
-					Chart.save(songPath, PlayState.SONG, __autoSaveLocation, {saveMetaInChart: false, folder: "autosaves", prettyPrint: Options.editorPrettyPrint});
-				else 
-					Chart.save(songPath, PlayState.SONG, __diff.toLowerCase(), {saveMetaInChart: false, prettyPrint: Options.editorPrettyPrint});
+					Chart.save(songPath, PlayState.SONG, __autoSaveLocation, {saveMetaInChart: true, saveLocalEvents: true, saveGlobalEvents: true, folder: "autosaves", prettyPrint: Options.editorPrettyPrint});
+				else  // These two chart saves are particular, to avoid any kind of loss, stuff like meta, global and local events will be save all together  - Nex
+					Chart.save(songPath, PlayState.SONG, __diff.toLowerCase(), {saveMetaInChart: true, saveLocalEvents: true, saveGlobalEvents: true, prettyPrint: Options.editorPrettyPrint});
 				undos.save();
 			}
 			autoSaveNotif.cancelled = false;
@@ -1013,8 +1019,8 @@ class Charter extends UIState {
 
 		// Event Spr
 		for (addEventSpr in [localAddEventSpr, globalAddEventSpr]) {
-			if ((!addEventSpr.global ? (mousePos.x < 0 && mousePos.x > -addEventSpr.bWidth) : 
-				(mousePos.x > strumLines.totalKeyCount * 40 && mousePos.x < strumLines.totalKeyCount * 40 + addEventSpr.bWidth)) 
+			if ((!addEventSpr.global ? (mousePos.x < 0 && mousePos.x > -addEventSpr.bWidth) :
+				(mousePos.x > strumLines.totalKeyCount * 40 && mousePos.x < strumLines.totalKeyCount * 40 + addEventSpr.bWidth))
 				&& gridActionType == NONE && inBoundsY) {
 
 				addEventSpr.incorporeal = false;
@@ -1022,7 +1028,7 @@ class Charter extends UIState {
 				var event = getHoveredEvent(mousePos.y, !addEventSpr.global ? localEventsGroup : globalEventsGroup);
 				if (event != null) addEventSpr.updateEdit(event);
 				else addEventSpr.updatePos(FlxG.keys.pressed.SHIFT ? ((mousePos.y) / 40) : quantStepRounded(mousePos.y/40));
-			} else  addEventSpr.sprAlpha = lerp(addEventSpr.sprAlpha, 0, 0.25);
+			} else addEventSpr.sprAlpha = lerp(addEventSpr.sprAlpha, 0, 0.25);
 		}
 
 		noteHoverer.showHoverer = Charter.instance.gridBackdropDummy.hovered;
@@ -1422,90 +1428,106 @@ class Charter extends UIState {
 		else {undos = null; FlxG.switchState(new CharterSelection()); PlayState.resetSongInfos(); Charter.instance.__clearStatics();}
 	}
 
-	function _file_save(_) {
+	function _file_save_all(_) {
+		buildChart();
+		_file_save(false);
+		_file_events_save(false);
+		_file_meta_save(false);
+	}
+
+	function _file_save(shouldBuild:Bool = true) {
 		#if sys
-		saveTo('${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}');
+		saveTo('${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}', false, shouldBuild);
 		undos.save();
-		return;
+		#else
+		_file_saveas(shouldBuild);
 		#end
-		_file_saveas(_);
 	}
 
-	function _file_saveas(_) {
-		openSubState(new SaveSubstate(Json.stringify(Chart.filterChartForSaving(PlayState.SONG, false), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null), {
+	function _file_saveas(shouldBuild:Bool = true) {
+		saveAs(Chart.filterChartForSaving(PlayState.SONG, false, true, false), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null, {
 			defaultSaveFile: '${__diff.toLowerCase()}.json'
-		}));
+		}, null, shouldBuild);
 		undos.save();
 	}
 
-	function _file_save_no_events(_) {
+	function _file_events_save(shouldBuild:Bool = true) {
 		#if sys
-		saveTo('${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}', true);
-		undos.save();
-		return;
+		if (shouldBuild) buildChart();
+		var data = {events: Chart.filterChartForSaving(PlayState.SONG, false, false, true).events};
+
+		var path = '${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}/events.json';
+		if (data == null || data.events.length == 0) FileSystem.deleteFile(path);  // Instead of replacing with a useless empty file, deletes the file directly  - Nex
+		else CoolUtil.safeSaveFile(path, Json.stringify(data, null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null));
+		#else
+		_file_events_saveas(shouldBuild);
 		#end
-		_file_saveas(_);
 	}
 
-	function _file_saveas_no_events(_) {
-		openSubState(new SaveSubstate(Json.stringify(Chart.filterChartForSaving(PlayState.SONG, false, false), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null), {
+	function _file_events_saveas(shouldBuild:Bool = true) {
+		if (shouldBuild) buildChart();
+		var data = {events: Chart.filterChartForSaving(PlayState.SONG, false, false, true).events};
+
+		saveAs(data, null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null, {
+			defaultSaveFile: 'events.json'
+		}, null, false);
+	}
+
+	function _file_save_no_events(shouldBuild:Bool = true) {
+		#if sys
+		saveTo('${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}', true, shouldBuild);
+		undos.save();
+		#else
+		_file_saveas(shouldBuild);
+		#end
+	}
+
+	function _file_saveas_no_events(shouldBuild:Bool = true) {
+		saveAs(Chart.filterChartForSaving(PlayState.SONG, false, false, false), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null, {
 			defaultSaveFile: '${__diff.toLowerCase()}.json'
-		}));
+		}, null, shouldBuild);
 		undos.save();
 	}
 
-	function _file_meta_save(_) {
+	function _file_meta_save(shouldBuild:Bool = true) {
 		#if sys
+		if (shouldBuild) buildChart();
 		CoolUtil.safeSaveFile(
 			'${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}/meta.json',
-			Json.stringify(PlayState.SONG.meta == null ? {} : PlayState.SONG.meta, null, Flags.JSON_PRETTY_PRINT)
+			Json.stringify(PlayState.SONG.meta == null ? {} : Chart.filterChartForSaving(PlayState.SONG, true, false, false).meta, null, Flags.JSON_PRETTY_PRINT)
 		);
 		#else
-		_file_meta_saveas(_);
+		_file_meta_saveas(shouldBuild);
 		#end
 	}
 
-	function _file_meta_saveas(_) {
-		openSubState(new SaveSubstate(Json.stringify(PlayState.SONG.meta == null ? {} : PlayState.SONG.meta, null, Flags.JSON_PRETTY_PRINT), { // always pretty print meta
+	function _file_meta_saveas(shouldBuild:Bool = true) {
+		saveAs(PlayState.SONG.meta == null ? {} : Chart.filterChartForSaving(PlayState.SONG, true, false, false).meta, null, Flags.JSON_PRETTY_PRINT, { // always pretty print meta
 			defaultSaveFile: 'meta.json'
-		}));
+		}, null, shouldBuild);
 	}
 
-	function _file_saveas_fnflegacy(_) {
-		openSubState(new SaveSubstate(Json.stringify(FNFLegacyParser.encode(PlayState.SONG), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null), {
+	function _file_saveas_fnflegacy(shouldBuild:Bool = true) {
+		saveAs(FNFLegacyParser.encode(PlayState.SONG), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null, {
 			defaultSaveFile: '${__song.toLowerCase().replace(" ", "-")}${__diff.toLowerCase() == Flags.DEFAULT_DIFFICULTY ? "" : '-${__diff.toLowerCase()}'}.json',
-		}));
+		}, null, shouldBuild);
 	}
 
-	function _file_saveas_psych(_) {
-		openSubState(new SaveSubstate(Json.stringify(PsychParser.encode(PlayState.SONG), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null), {
+	function _file_saveas_psych(shouldBuild:Bool = true) {
+		saveAs(PsychParser.encode(PlayState.SONG), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null, {
 			defaultSaveFile: '${__song.toLowerCase().replace(" ", "-")}${__diff.toLowerCase() == Flags.DEFAULT_DIFFICULTY ? "" : '-${__diff.toLowerCase()}'}.json',
-		}));
+		}, null, shouldBuild);
 	}
 
-	function _file_events_save(_) {
-		#if sys
-		CoolUtil.safeSaveFile(
-			'${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}/events.json',
-			Json.stringify({events: PlayState.SONG.events == null ? [] : PlayState.SONG.events}, null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null)
-		);
-		#else
-		_file_events_saveas(_);
-		#end
-	}
-
-	function _file_events_saveas(_) {
-		#if sys
-		openSubState(new SaveSubstate(Json.stringify({events: PlayState.SONG.events == null ? [] : PlayState.SONG.events}, null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null), {
-			defaultSaveFile: 'events.json'
-		}));
-		#end
+	function saveAs(data:Dynamic, ?replacer:(key:Dynamic, value:Dynamic) -> Dynamic, ?space:String, ?options:SaveSubstate.SaveSubstateData, ?saveOptions:Map<String, Bool>, shouldBuild:Bool = true) {
+		if (shouldBuild) buildChart();
+		openSubState(new SaveSubstate(Json.stringify(data, replacer, space), options, saveOptions));
 	}
 
 	#if sys
-	function saveTo(path:String, separateEvents:Bool = false) {
-		buildChart();
-		Chart.save(path, PlayState.SONG, __diff.toLowerCase(), {saveMetaInChart: false, saveEventsInChart: !separateEvents, prettyPrint: Options.editorPrettyPrint});
+	function saveTo(path:String, separateEvents:Bool = false, shouldBuild:Bool = true) {
+		if (shouldBuild) buildChart();
+		Chart.save(path, PlayState.SONG, __diff.toLowerCase(), {saveMetaInChart: false, saveLocalEvents: !separateEvents, prettyPrint: Options.editorPrettyPrint});
 	}
 	#end
 
@@ -1657,7 +1679,7 @@ class Charter extends UIState {
 			case CEditEventGroups(events):
 				for (event in events) event.displayGlobal = !event.global;
 				updateEventsGroups(cast events);
-				
+
 			case CEditChartData(oldData, newData):
 				PlayState.SONG.stage = newData.stage;
 				PlayState.SONG.scrollSpeed = newData.speed;
@@ -1976,13 +1998,12 @@ class Charter extends UIState {
 
 	public function buildEvents() {
 		PlayState.SONG.events = [];
-		// TODO!!!!
-		localEventsGroup.sortEvents();
-		for(e in localEventsGroup.members) {
-			for(event in e.events) {
-				event.time = Conductor.getTimeForStep(e.step);
-				PlayState.SONG.events.push(event);
-			}
+
+		var events:Array<CharterEvent> = localEventsGroup.members.concat(globalEventsGroup.members);
+		events.sort(globalEventsGroup.sortEventsFilter.bind(FlxSort.ASCENDING));
+		for (e in events) for (event in e.events) {
+			event.time = Conductor.getTimeForStep(e.step);
+			PlayState.SONG.events.push(event);
 		}
 	}
 

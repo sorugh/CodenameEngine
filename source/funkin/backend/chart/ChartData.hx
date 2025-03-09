@@ -61,6 +61,7 @@ typedef ChartEvent = {
 	var name:String;
 	var time:Float;
 	var params:Array<Dynamic>;
+	var ?global:Bool;  // If its from a global event file like events.json; this field might be saved rarely in the chart json directly but modders can mess with this for messing with the saving funcs too  - Nex
 }
 
 enum abstract ChartStrumLineType(Int) from Int to Int {

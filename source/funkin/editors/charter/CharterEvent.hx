@@ -19,15 +19,19 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 	public var eventsBackdrop:EventBackdrop;
 	public var snappedToGrid:Bool = true;
 
-	public var global:Bool = false;
 	public var displayGlobal:Bool = false;
+	public var global(default, set):Bool = false;
+	private function set_global(val:Bool) {
+		for (event in events) event.global = val;
+		return global = val;
+	}
 
-	public function new(step:Float, ?events:Array<ChartEvent>, ?global:Bool = false) {
+	public function new(step:Float, ?events:Array<ChartEvent>, ?global:Bool) {
 		super(-100, (step * 40) - 17, 100, 34, 'editors/charter/event-spr');
 		this.step = step;
 		this.events = events.getDefault([]);
 
-		this.global = displayGlobal = global;
+		this.global = displayGlobal = (global == null ? events[0] != null && events[0].global == true : global);
 		__redOffset = global ? 20 : 0;
 
 		cursor = CLICK;

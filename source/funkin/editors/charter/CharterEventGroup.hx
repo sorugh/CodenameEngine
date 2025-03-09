@@ -33,9 +33,7 @@ class CharterEventGroup extends FlxTypedGroup<CharterEvent> {
 
 	public inline function sortEvents() {
 		__lastSort = members.length;
-		this.sort(function(i, e1, e2) {
-			return FlxSort.byValues(FlxSort.ASCENDING, e1.step, e2.step);
-		});
+		this.sort(sortEventsFilter);
 		updateEventsIDs();
 		updateEventsBackdrop();
 	}
@@ -44,7 +42,7 @@ class CharterEventGroup extends FlxTypedGroup<CharterEvent> {
 		for (i => n in members) n.ID = i;
 
 	public inline function updateEventsBackdrop()
-		for (event in members) 
+		for (event in members)
 			event.eventsBackdrop = eventsBackdrop;
 
 	public inline function filterEvents() {
@@ -54,4 +52,7 @@ class CharterEventGroup extends FlxTypedGroup<CharterEvent> {
 				event.kill();
 			}
 	}
+
+	public dynamic function sortEventsFilter(i:Int, e1:CharterEvent, e2:CharterEvent)
+		return FlxSort.byValues(FlxSort.ASCENDING, e1.step, e2.step);
 }

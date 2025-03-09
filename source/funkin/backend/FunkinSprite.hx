@@ -134,6 +134,7 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 		{
 			frames = Paths.getFrames(path, true);
 		}
+		return this;
 	}
 
 	public function onPropertySet(property:String, value:Dynamic) {

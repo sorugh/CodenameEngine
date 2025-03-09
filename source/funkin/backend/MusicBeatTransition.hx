@@ -8,6 +8,7 @@ import funkin.backend.scripting.events.ResizeEvent;
 import funkin.backend.scripting.events.TransitionCreationEvent;
 import funkin.backend.utils.FunkinParentDisabler;
 import funkin.editors.ui.UIState;
+
 class MusicBeatTransition extends MusicBeatSubstate {
 	public static var script:String = Flags.DEFAULT_TRANSITION_SCRIPT;
 	public var transitionScript:Script;
@@ -55,8 +56,7 @@ class MusicBeatTransition extends MusicBeatSubstate {
 
 		add(blackSpr = new FlxSprite(0, transOut ? -transitionCamera.height : transitionCamera.height).makeGraphic(1, 1, -1));
 		blackSpr.color = 0xFF000000;
-		add(transitionSprite = new FunkinSprite());
-		transitionSprite.loadSprite(Paths.image('menus/transitionSpr'));
+		add(transitionSprite = new FunkinSprite().loadSprite(Paths.image('menus/transitionSpr')));
 		resizeDefaultSprites();
 
 		transitionCamera.flipY = !transOut;

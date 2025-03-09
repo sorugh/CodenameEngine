@@ -77,9 +77,8 @@ class Chart {
 		if (Assets.exists(path)) {
 			try {
 				data = Json.parse(Assets.getText(path)).events;
-			} catch(e) {
-				Logs.trace('Failed to load song event data for ${songName} ($path): ${Std.string(e)}', ERROR);
-			}
+				for (event in data) event.global = true;
+			} catch(e) Logs.trace('Failed to load song event data for ${songName} ($path): ${Std.string(e)}', ERROR);
 		}
 		return data;
 	}
@@ -259,9 +258,10 @@ class Chart {
 		if (saveSettings == null) saveSettings = {};
 
 		if (saveSettings.saveMetaInChart == null) saveSettings.saveMetaInChart = true;
-		if (saveSettings.saveEventsInChart == null) saveSettings.saveEventsInChart = true;
+		if (saveSettings.saveLocalEvents == null) saveSettings.saveLocalEvents = true;
+		if (saveSettings.saveGlobalEvents == null) saveSettings.saveGlobalEvents = false;
 
-		var filteredChart = filterChartForSaving(chart, saveSettings.saveMetaInChart, saveSettings.saveEventsInChart);
+		var filteredChart = filterChartForSaving(chart, saveSettings.saveMetaInChart, saveSettings.saveLocalEvents, saveSettings.saveGlobalEvents);
 		var meta = filteredChart.meta;
 
 		#if sys
@@ -282,16 +282,26 @@ class Chart {
 		return filteredChart;
 	}
 
-	public static function filterChartForSaving(chart:ChartData, ?saveMetaInChart:Null<Bool>, ?saveEventsInChart:Null<Bool>):ChartData {
+	public static function filterChartForSaving(chart:ChartData, ?saveMetaInChart:Bool, ?saveLocalEvents:Bool, ?saveGlobalEvents:Bool):ChartData {
 		var data = Reflect.copy(chart); // make a copy of the chart to leave the OG intact
 		if (saveMetaInChart != true) {
 			data.meta = null;
 		} else {
 			data.meta = Reflect.copy(chart.meta); // also make a copy of the metadata to leave the OG intact.
-			if(data.meta != null && Reflect.hasField(data.meta, "parsedColor")) Reflect.deleteField(data.meta, "parsedColor");
+			if (data.meta != null && Reflect.hasField(data.meta, "parsedColor")) Reflect.deleteField(data.meta, "parsedColor");
 		}
 
-		data.events = saveEventsInChart != true ? null : Reflect.copy(chart.events); // same here once again
+		if (saveLocalEvents != true && saveGlobalEvents != true) data.events = null;
+		else {
+			data.events = [];
+			for (event in chart.events) if ((saveLocalEvents == true && event.global != true) || (saveGlobalEvents == true && event.global == true)) {
+				var copy = Reflect.copy(event);
+				if (saveLocalEvents == true ? event.global != true : event.global == true) Reflect.deleteField(copy, "global");  // should NOT delete the field when saving with the local events and the event should have been global  - Nex
+				data.events.push(copy);
+			}
+			if (data.events.length == 0) data.events = null;
+		}
+
 		data.fromMods = null;
 
 		var sortedData:Dynamic = {};
@@ -307,7 +317,8 @@ class Chart {
 typedef ChartSaveSettings = {
 	var ?overrideExistingMeta:Bool;
 	var ?saveMetaInChart:Bool;
-	var ?saveEventsInChart:Bool;
+	var ?saveLocalEvents:Bool;
+	var ?saveGlobalEvents:Bool;
 	var ?prettyPrint:Bool;
 	var ?folder:String;
 }

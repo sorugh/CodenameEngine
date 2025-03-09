@@ -5,6 +5,7 @@ import funkin.editors.charter.CharterBackdropGroup.EventBackdrop;
 
 class CharterEventGroup extends FlxTypedGroup<CharterEvent> {
 	public var eventsBackdrop:EventBackdrop;
+	public var eventsRowText:UIText;
 
 	public var autoSort:Bool = true;
 	var __lastSort:Int = 0;
@@ -14,6 +15,7 @@ class CharterEventGroup extends FlxTypedGroup<CharterEvent> {
 		if (autoSort && members.length != __lastSort)
 			sortEvents();
 
+		eventsRowText.y = FlxMath.lerp(eventsRowText.y, -40 + (members[0] != null ? Math.min(members[0].y, 0) : 0), 1/20);
 		super.update(elapsed);
 	}
 

@@ -49,14 +49,20 @@ class CharterStrumLineGroup extends FlxTypedGroup<CharterStrumline> {
 		for (i=>strum in members)
 			if (strum != null && !strum.dragging) strum.x = CoolUtil.fpsLerp(strum.x, 40*strum.startingID, 0.225);
 
-		if (Charter.instance.localEventsBackdrop != null && members[0] != null) {
-			Charter.instance.localEventsBackdrop.x = members[0].button.x - Charter.instance.localEventsBackdrop.width;
-			Charter.instance.localEventsBackdrop.alpha = members[0].strumLine.visible ? 0.9 : 0.4;
+		if (Charter.instance.leftEventsBackdrop != null && members[0] != null) {
+			Charter.instance.leftEventsBackdrop.x = members[0].button.x - Charter.instance.leftEventsBackdrop.width;
+			Charter.instance.leftEventsBackdrop.alpha = members[0].strumLine.visible ? 0.9 : 0.4;
+
+			if (Charter.instance.leftEventRowText != null)
+				Charter.instance.leftEventRowText.x = members[0].button.x - Charter.instance.leftEventRowText.width - 42;
 		}
 		
-		if (Charter.instance.globalEventsBackdrop != null && members[CoolUtil.maxInt(0, members.length-1)] != null) {
-			Charter.instance.globalEventsBackdrop.x = members[members.length-1].x + (40*members[members.length-1].keyCount);
-			Charter.instance.globalEventsBackdrop.alpha = members[CoolUtil.maxInt(0, members.length-1)].strumLine.visible ? 0.9 : 0.4;
+		if (Charter.instance.rightEventsBackdrop != null && members[CoolUtil.maxInt(0, members.length-1)] != null) {
+			Charter.instance.rightEventsBackdrop.x = members[members.length-1].x + (40*members[members.length-1].keyCount);
+			Charter.instance.rightEventsBackdrop.alpha = members[CoolUtil.maxInt(0, members.length-1)].strumLine.visible ? 0.9 : 0.4;
+
+			if (Charter.instance.rightEventRowText != null)
+				Charter.instance.rightEventRowText.x = Charter.instance.rightEventsBackdrop.x + 42;
 		}
 		
 		if (Charter.instance.strumlineLockButton != null && members[0] != null)
@@ -102,7 +108,7 @@ class CharterStrumLineGroup extends FlxTypedGroup<CharterStrumline> {
 	}
 
 	public inline function fixEvents() {
-		for (eventsGroup in [Charter.instance.localEventsGroup, Charter.instance.globalEventsGroup]) {
+		for (eventsGroup in [Charter.instance.leftEventsGroup, Charter.instance.rightEventsGroup]) {
 			for (i in eventsGroup) {
 				for (j in i.events) {
 					var paramTypes:Array<EventParamInfo> = EventsData.getEventParams(j.name);

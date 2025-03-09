@@ -1,5 +1,6 @@
 package funkin.editors.charter;
 
+import openfl.geom.ColorTransform;
 import flixel.math.FlxPoint;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import funkin.backend.chart.ChartData.ChartEvent;
@@ -7,6 +8,8 @@ import funkin.editors.charter.Charter.ICharterSelectable;
 import funkin.editors.charter.CharterBackdropGroup.EventBackdrop;
 import funkin.game.Character;
 import funkin.game.HealthIcon;
+
+using flixel.util.FlxColorTransformUtil;
 
 class CharterEvent extends UISliceSprite implements ICharterSelectable {
 	public var events:Array<ChartEvent>;
@@ -32,12 +35,11 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 		this.events = events.getDefault([]);
 
 		this.global = displayGlobal = (global == null ? events[0] != null && events[0].global == true : global);
-		__redOffset = global ? 20 : 0;
+		this.color = displayGlobal ? 0xffc8bd23 : 0xFFFFFFFF;
 
 		cursor = CLICK;
 	}
 
-	var __redOffset:Float = 0;
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
 
@@ -50,16 +52,28 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 			i.follow(this, (k * 22) + 30 - (i.width / 2), (bHeight - i.height) / 2);
 		}
 
-		colorTransform.redMultiplier = colorTransform.greenMultiplier = colorTransform.blueMultiplier = selected ? 0.75 : 1;
-		colorTransform.redOffset = colorTransform.greenOffset = selected ? 96 : 0;
-		colorTransform.blueOffset = selected ? 168 : 0;
+		@:bypassAccessor color = CoolUtil.lerpColor(this.color, displayGlobal ? 0xffc8bd23 : 0xFFFFFFFF, 1/3);
+		colorTransform.setMultipliers(color.redFloat, color.greenFloat, color.blueFloat, alpha);
+		colorTransform.setOffsets(0, 0, 0, 0);
+		selectedColorTransform(colorTransform);
+		useColorTransform = true;
 
-		for (sprite in icons)
-			sprite.colorTransform = colorTransform;
+		for (sprite in icons) {
+			@:privateAccess sprite.colorTransform.__identity();
+			selectedColorTransform(sprite.colorTransform);
+		}
 
 		flipX = displayGlobal;
-		__redOffset = FlxMath.lerp(__redOffset, displayGlobal ? 200 : 0, elapsed*3);
-		colorTransform.greenOffset += __redOffset;
+	}
+
+	@:noCompletion private inline function selectedColorTransform(transform:ColorTransform) {
+		transform.redMultiplier *= selected ? 0.75 : 1;
+		transform.greenMultiplier *= selected ? 0.75 : 1;
+		transform.blueMultiplier *= selected ? 0.75 : 1;
+		
+		transform.redOffset += selected ? 96 : 0;
+		transform.greenOffset += selected ? 96 : 0;
+		transform.blueOffset += selected ? 168 : 0;
 	}
 
 	private static function generateDefaultIcon(name:String) {

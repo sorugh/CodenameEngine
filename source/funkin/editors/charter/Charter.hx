@@ -436,7 +436,7 @@ class Charter extends UIState {
 		gridBackdrops = new CharterBackdropGroup(strumLines);
 		gridBackdrops.notesGroup = this.notesGroup;
 
-		leftEventRowText = new UIText(0, -40, 0, "Global Events\n(All Difficulties)", 12);
+		leftEventRowText = new UIText(0, -40, 0, "Local Events\n(Only This Difficulty)", 12);
 		leftEventRowText.alignment = "center"; leftEventRowText.alpha = 0.75;
 
 		leftEventsBackdrop = new EventBackdrop(false);
@@ -446,13 +446,13 @@ class Charter extends UIState {
 		leftEventsGroup.eventsBackdrop = leftEventsBackdrop;
 		leftEventsGroup.eventsRowText = leftEventRowText;
 
-		rightEventRowText = new UIText(0, -40, 0, "Local Events\n(Only This Difficulty)", 12);
+		rightEventRowText = new UIText(0, -40, 0, "Global Events\n(All Difficulties)", 12);
 		rightEventRowText.alignment = "center"; rightEventRowText.alpha = 0.75;
 
 		rightEventsBackdrop = new EventBackdrop(true);
 		rightEventsBackdrop.x = 0;
 
-		rightEventsBackdrop.cameras = rightEventsGroup.cameras = [charterCamera];
+		rightEventRowText.cameras = rightEventsBackdrop.cameras = rightEventsGroup.cameras = [charterCamera];
 		rightEventsGroup.eventsBackdrop = rightEventsBackdrop;
 		rightEventsGroup.eventsRowText = rightEventRowText;
 

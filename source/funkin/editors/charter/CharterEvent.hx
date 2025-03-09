@@ -70,7 +70,7 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 		transform.redMultiplier *= selected ? 0.75 : 1;
 		transform.greenMultiplier *= selected ? 0.75 : 1;
 		transform.blueMultiplier *= selected ? 0.75 : 1;
-		
+
 		transform.redOffset += selected ? 96 : 0;
 		transform.greenOffset += selected ? 96 : 0;
 		transform.blueOffset += selected ? 168 : 0;

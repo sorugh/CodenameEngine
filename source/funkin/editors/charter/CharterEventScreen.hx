@@ -75,14 +75,12 @@ class CharterEventScreen extends UISubstateWindow {
 				Charter.instance.deleteSelection([chartEvent]);
 			else if (events.length > 0) {
 				var oldEvents:Array<ChartEvent> = chartEvent.events.copy();
-				chartEvent.events = [
-					for (i in eventsList.buttons.members) i.event
-				];
+				chartEvent.events = [for (i in eventsList.buttons.members) i.event];
+				chartEvent.global = global;
 
 				if (creatingEvent && events.length > 0)
 					Charter.instance.createSelection([chartEvent]);
 				else {
-					chartEvent.events = [for (i in eventsList.buttons.members) i.event];
 					chartEvent.refreshEventIcons();
 					Charter.instance.updateBPMEvents();
 

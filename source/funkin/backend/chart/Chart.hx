@@ -291,6 +291,7 @@ class Chart {
 			if (data.meta != null && Reflect.hasField(data.meta, "parsedColor")) Reflect.deleteField(data.meta, "parsedColor");
 		}
 
+		// in this part abt the events, i gotta account that these booleans can be null  - Nex
 		if (saveLocalEvents != true && saveGlobalEvents != true) data.events = null;
 		else {
 			data.events = [];

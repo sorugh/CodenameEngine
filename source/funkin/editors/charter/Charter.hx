@@ -125,7 +125,7 @@ class Charter extends UIState {
 					},
 					null,*/
 					{
-						label: "Save everything",
+						label: "Save",
 						keybind: [CONTROL, S],
 						onSelect: _file_save_all,
 					},
@@ -1457,7 +1457,7 @@ class Charter extends UIState {
 		var data = {events: Chart.filterChartForSaving(PlayState.SONG, false, false, true).events};
 
 		var path = '${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}/events.json';
-		if (data == null || data.events.length == 0) FileSystem.deleteFile(path);  // Instead of replacing with a useless empty file, deletes the file directly  - Nex
+		if (FileSystem.exists(path) && (data.events == null || data.events.length == 0)) FileSystem.deleteFile(path);  // Instead of replacing with a useless empty file, deletes the file directly  - Nex
 		else CoolUtil.safeSaveFile(path, Json.stringify(data, null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null));
 		#else
 		_file_events_saveas(shouldBuild);

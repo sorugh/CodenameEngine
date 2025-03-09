@@ -1414,8 +1414,7 @@ class PlayState extends MusicBeatState
 					for (char in strumLines.members[event.params[0]].characters)
 						if (char != null) char.playAnim(event.params[1], event.params[2], null);
 			case "Time Signature Change": 
-				if (Conductor.curBeat <= 0) lastTimeSigBeat = 0; // figure out a real solution instead of this failsafe eventually -sen
-				else lastTimeSigBeat = Conductor.curBeat; 
+				lastTimeSigBeat = Conductor.getTimeInBeats(event.time); 
 				// the rest is automatically handled by conductor
 			case "Unknown": // nothing
 		}

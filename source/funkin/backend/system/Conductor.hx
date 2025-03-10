@@ -32,6 +32,8 @@ final class Conductor
 	public static var onBeatHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal();
 	public static var onStepHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal();
 	public static var onBPMChange:FlxTypedSignal<(Float,Float)->Void> = new FlxTypedSignal();
+	public static var onContinuousBPMChangeStart:FlxTypedSignal<(Float,Float)->Void> = new FlxTypedSignal();
+	public static var onContinuousBPMChangeEnd:FlxTypedSignal<(Float,Float)->Void> = new FlxTypedSignal();
 	public static var onTimeSignatureChange:FlxTypedSignal<(Float,Float)->Void> = new FlxTypedSignal();
 
 	/**
@@ -248,6 +250,7 @@ final class Conductor
 			curChange.endStepTime = curChange.stepTime + params[1];
 			curChange.continuous = true;
 			curChange.endSongTime = endTime;	
+			onContinuousBPMChangeStart.dispatch(curChange.bpm, curChange.endSongTime);
 		}
 		return curChange;
 	}
@@ -329,6 +332,12 @@ final class Conductor
 
 		if ((curChangeIndex = getTimeInChangeIndex(songPosition, curChangeIndex)) > 0) {
 			var change = curChange;
+
+			if (change.continuous && songPosition >= change.endSongTime) {
+				onContinuousBPMChangeEnd.dispatch(change.bpm, change.endSongTime);
+				change.continuous = false; //used to mark the current continuous change as 'ended'
+			}
+
 			curStepFloat = getTimeWithBPMInSteps(songPosition, curChangeIndex, getTimeWithIndexInBPM(songPosition, curChangeIndex));
 			curBeatFloat = change.beatTime + (curStepFloat - change.stepTime) / change.stepsPerBeat;
 			curMeasureFloat = change.measureTime + (curBeatFloat - change.beatTime) / change.beatsPerMeasure;

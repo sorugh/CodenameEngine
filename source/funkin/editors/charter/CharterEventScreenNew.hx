@@ -22,16 +22,12 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 	public var paramsPanel:FlxGroup;
 	public var paramsFields:Array<FlxBasic> = [];
 
-	public var xPos:Float;
-	public var yPos:Float;
-
 	public var bWidth:Float;
 
 	var bg:UISliceSprite;
 
-	public function new(xPos:Float, yPos:Float, ?chartEvent:Null<CharterEvent>) {
+	public function new(?chartEvent:Null<CharterEvent>) {
 		if (chartEvent != null) this.chartEvent = chartEvent;
-		this.xPos = xPos; this.yPos = yPos;
 		super();
 	}
 
@@ -46,15 +42,13 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 
 		FlxG.state.persistentUpdate = true;
 
-		camera = cam = new FlxCamera(xPos, yPos, 0, 0);
+		camera = cam = new FlxCamera();
 		cam.bgColor = 0;
 		FlxG.cameras.add(cam, false);
 
-		bg = new UISliceSprite(xPos + 100, yPos, 0, 0, 'editors/ui/inputbox');
+		bg = new UISliceSprite(0, 0, 0, 0, 'editors/ui/inputbox');
 		bg.alpha = 0.75;
 		bg.cameras = [cam];
-		cam.x = bg.getScreenPosition(Charter.instance.charterCamera).x;
-		cam.y = bg.getScreenPosition(Charter.instance.charterCamera).y;
 		bg.setPosition(0, 0);
 		add(bg);
 
@@ -62,30 +56,38 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 		paramsPanel.cameras = [cam];
 		add(paramsPanel);
 
-		eventName = new UIText(95, 10, 0, "", 24);
+		eventName = new UIText(10+75+10, 10, 0, "", 24);
 		eventName.cameras = [cam];
 		add(eventName);
 
-		eventsList = new UIButtonList<EventButtonNew>(10,-20,75, 570, null, FlxPoint.get(75, 40), null, 0);
+		eventsList = new UIButtonList<EventButtonNew>(10, 10, 75, 570, null, FlxPoint.get(75, 40), null, 0);
 		eventsList.alpha = 0;
 		eventsList.cameras = [cam];
-		eventsList.addButton.callback = () -> openSubState(new CharterEventTypeSelection(function(eventName) {
-			events.push({
-				time: Conductor.getTimeForStep(chartEvent.step),
-				params: [],
-				name: eventName
-			});
-			eventsList.add(new EventButtonNew(events[events.length-1], CharterEvent.generateEventIcon(events[events.length-1]), events.length-1, this, eventsList));
-			changeTab(events.length-1);
-		}));
+		eventsList.addButton.callback = () -> {
+			__ignoreLastClick = true; // Stop closing >:D
+			openSubState(new CharterEventTypeSelection(function(eventName) {
+				events.push({
+					time: Conductor.getTimeForStep(chartEvent.step),
+					params: [],
+					name: eventName
+				});
+				eventsList.add(new EventButtonNew(events[events.length-1], CharterEvent.generateEventIcon(events[events.length-1]), events.length-1, this, eventsList));
+				changeTab(events.length-1);
+			}));
+		};
 		for (k=>i in events)
 			eventsList.add(new EventButtonNew(i, CharterEvent.generateEventIcon(i), k, this, eventsList));
 		add(eventsList);
 
+		// this took forever to find out omg >:D -lunar
+		eventsList.cameraSpacing = 0; eventsList.topHeight = 0;
+
 		changeTab(0);
+		boundWindow();
 	}
 
 	public var curEvent:Int = -1;
+	public var winHeight:Float = 0;
 
 	public function changeTab(id:Int, save:Bool = true) {
 		if (save)
@@ -103,43 +105,48 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 			var curEvent = events[curEvent];
 			eventName.text = curEvent.name;
 			// add new elements
-			var y:Float = eventName.y + eventName.height + 10;
+			winHeight = eventName.y + eventName.height + 6;
+			bWidth = eventName.x + eventName.width+16;
+
 			for(k=>param in EventsData.getEventParams(curEvent.name)) {
 				function addLabel() {
-					var label:UIText = new UIText(eventName.x, y, 0, param.name);
-					y += label.height + 4;
+					var label:UIText = new UIText(eventName.x+6, winHeight, 0, param.name);
+					winHeight += label.height + 4;
 					paramsPanel.add(label);
+
+					bWidth = Math.max(bWidth, label.x+label.width+10);
 				};
 
 				var value:Dynamic = CoolUtil.getDefault(curEvent.params[k], param.defValue);
 				var lastAdded = switch(param.type) {
 					case TString:
 						addLabel();
-						var textBox:UITextBox = new UITextBox(eventName.x, y, cast value);
+						var textBox:UITextBox = new UITextBox(eventName.x+6, winHeight, cast value);
 						paramsPanel.add(textBox); paramsFields.push(textBox);
 						textBox;
 					case TBool:
-						var checkbox = new UICheckbox(eventName.x, y, param.name, cast value);
+						winHeight += 2;
+						var checkbox = new UICheckbox(eventName.x+8, winHeight, param.name, cast value);
 						paramsPanel.add(checkbox); paramsFields.push(checkbox);
 						checkbox;
 					case TInt(min, max, step):
 						addLabel();
-						var numericStepper = new UINumericStepper(eventName.x, y, cast value, step.getDefault(1), 0, min, max);
+						var numericStepper = new UINumericStepper(eventName.x+6, winHeight, cast value, step.getDefault(1), 0, min, max);
 						paramsPanel.add(numericStepper); paramsFields.push(numericStepper);
 						numericStepper;
 					case TFloat(min, max, step, precision):
 						addLabel();
-						var numericStepper = new UINumericStepper(eventName.x, y, cast value, step.getDefault(1), precision, min, max);
+						var numericStepper = new UINumericStepper(eventName.x+6, winHeight, cast value, step.getDefault(1), precision, min, max);
 						paramsPanel.add(numericStepper); paramsFields.push(numericStepper);
 						numericStepper;
 					case TStrumLine:
 						addLabel();
-						var dropdown = new UIDropDown(eventName.x, y, 320, 32, [for(k=>s in cast(FlxG.state, Charter).strumLines.members) 'Strumline #${k+1} (${s.strumLine.characters[0]})'], cast value);
+						var dropdown = new UIDropDown(eventName.x+6, winHeight, 320, 32, [for(k=>s in cast(FlxG.state, Charter).strumLines.members) 'Strumline #${k+1} (${s.strumLine.characters[0]})'], cast value);
 						paramsPanel.add(dropdown); paramsFields.push(dropdown);
 						dropdown;
 					case TColorWheel:
 						addLabel();
-						var colorWheel = new UIColorwheel(eventName.x, y, value is String ? FlxColor.fromString(value) : Std.int(value));
+						var colorWheel = new UIColorwheel(eventName.x+6, winHeight, value is String ? FlxColor.fromString(value) : Std.int(value));
 						paramsPanel.add(colorWheel); paramsFields.push(colorWheel);
 						colorWheel;
 					case TDropDown(options):
@@ -148,20 +155,20 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 						if(optionIndex < 0) {
 							optionIndex = 0;
 						}
-						var dropdown = new UIDropDown(eventName.x, y, 320, 32, options, optionIndex);
+						var dropdown = new UIDropDown(eventName.x+6, winHeight, 320, 32, options, optionIndex);
 						paramsPanel.add(dropdown); paramsFields.push(dropdown);
 						dropdown;
 					case TCharacter:
 						addLabel();
 						var charFileList = Character.getList(false);
-						var textBox:UIAutoCompleteTextBox = new UIAutoCompleteTextBox(eventName.x, y, cast value);
+						var textBox:UIAutoCompleteTextBox = new UIAutoCompleteTextBox(eventName.x+6, winHeight, cast value);
 						textBox.suggestItems = charFileList;
 						paramsPanel.add(textBox); paramsFields.push(textBox);
 						textBox;
 					case TStage:
 						addLabel();
 						var stageFileList = Stage.getList(false);
-						var textBox:UIAutoCompleteTextBox = new UIAutoCompleteTextBox(eventName.x, y, cast value);
+						var textBox:UIAutoCompleteTextBox = new UIAutoCompleteTextBox(eventName.x+6, winHeight, cast value);
 						textBox.suggestItems = stageFileList;
 						paramsPanel.add(textBox); paramsFields.push(textBox);
 						textBox;
@@ -170,28 +177,16 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 						null;
 				}
 				if (lastAdded is UISliceSprite) {
-					y += cast(lastAdded, UISliceSprite).bHeight + 4;
-					bWidth = Math.max(bWidth, cast(lastAdded, UISliceSprite).bWidth + eventName.x + 10);
+					winHeight += cast(lastAdded, UISliceSprite).bHeight + 4;
+					bWidth = Math.max(bWidth, eventName.x + 6 + cast(lastAdded, UISliceSprite).bWidth + 6 + 10);
 				}
 				else if (lastAdded is FlxSprite) {
-					y += cast(lastAdded, FlxSprite).height + 6;
-					bWidth = Math.max(bWidth, cast(lastAdded, UISliceSprite).width + eventName.x + 10);
+					winHeight += cast(lastAdded, FlxSprite).height + 6;
+					bWidth = Math.max(bWidth, eventName.x + 6 + cast(lastAdded, FlxSprite).width + 6 + 10);
 				}
 			}
 
-			y = Math.max(y, eventsList.buttonSize.y * (eventsList.buttons.length + 1));
-			
-			if (bg.getScreenPosition(Charter.instance.charterCamera).y + y > FlxG.height) {
-				var ychange = (bg.getScreenPosition(Charter.instance.charterCamera).y + y) - FlxG.height;
-				cam.y -= ychange;
-				bg.y -= ychange;
-			}
-
-			bg.bWidth = cast bWidth;
-			bg.bHeight = cast y + 10;
-			cam.width = cast bWidth;
-			cam.height = cast y + 10;
-			eventsList.bHeight = cast y + 30;
+			winHeight = Math.max(winHeight - 4, (eventsList.buttonSize.y * (eventsList.buttons.length + 1)) + 4);
 		} else {
 			eventName.text = "No event";
 			curEvent = -1;
@@ -199,21 +194,44 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 		update(0);
 	}
 
-	var clickedWhileHovering = false;
+	public function boundWindow() {
+		var screenPos:FlxPoint = CoolUtil.pointToScreenPosition(FlxPoint.get(chartEvent.x, chartEvent.y + chartEvent.bHeight));
+		screenPos.x -= chartEvent.global ? -8 : 68+12; screenPos.y += 8;
+
+		var screenSpaceY:Float = (screenPos.y + winHeight + 10) - FlxG.height;
+		if (screenSpaceY > -8) winHeight -= screenSpaceY + 8;
+
+		screenPos.x = FlxMath.bound(screenPos.x, 4, FlxG.width - bWidth - 4);
+
+		bg.bWidth = cam.width = cast bWidth-6;
+		bg.bHeight = cam.height = cast winHeight + 10;
+		eventsList.bHeight = cast winHeight - 10;
+
+		cam.x = screenPos.x; cam.y = screenPos.y;
+		screenPos.put();
+	}
+
+	@:noCompletion var __clickedWhileHovering = false;
+	@:noCompletion var __ignoreLastClick:Bool = false;
 	override public function update(elapsed:Float) {
 		var mousepoint = FlxG.mouse.getPositionInCameraView(cam);
-		if (FlxG.mouse.justPressed && (FlxMath.inBounds(mousepoint.x, 0, cam.width) && FlxMath.inBounds(mousepoint.y, 0, cam.height))) clickedWhileHovering = true;
+		if (FlxG.mouse.justPressed && (FlxMath.inBounds(mousepoint.x, 0, bg.bWidth) && FlxMath.inBounds(mousepoint.y, 0, bg.bHeight))) __clickedWhileHovering = true;
 
-		if (FlxMath.inBounds(mousepoint.x, 0, cam.width) && FlxMath.inBounds(mousepoint.y, 0, cam.height)) {
+		if (FlxMath.inBounds(mousepoint.x, 0, bg.bWidth) && FlxMath.inBounds(mousepoint.y, 0, bg.bHeight)) {
 			Charter.instance.shouldScroll = false;
 		}
-		else if (Charter.instance.curContextMenu == null && ((FlxG.mouse.justReleased && !clickedWhileHovering) || FlxG.mouse.wheel != 0)) {
-			Charter.instance.shouldScroll = true;
-			quit();
+		else if (Charter.instance.curContextMenu == null && ((FlxG.mouse.justReleased && !__clickedWhileHovering) || FlxG.mouse.wheel != 0)) {
+			if (__ignoreLastClick) 
+				__ignoreLastClick = false;
+			else {
+				Charter.instance.shouldScroll = true;
+				quit();
+			}
 		}
 		super.update(elapsed);
 		
-		if (FlxG.mouse.justReleased) clickedWhileHovering = false;
+		if (FlxG.mouse.justReleased) __clickedWhileHovering = false;
+		boundWindow();
 	}
 
 	public function quit() {

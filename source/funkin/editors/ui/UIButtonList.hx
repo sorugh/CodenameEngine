@@ -132,9 +132,10 @@ class UIButtonList<T:UIButton> extends UIWindow {
 		addButton.selectable = (hovered && !dragging);
 
 		if (__lastDrawCameras[0] != null) {
-			buttonCameras.height = bHeight - cameraSpacing - 1; // -1 for the little gap at the bottom of the window
+			// -1 on each vertical sides for the little gap at the bottom of the window
+			buttonCameras.height = bHeight - cameraSpacing - 2;
 			buttonCameras.x = __lastDrawCameras[0].x + x - __lastDrawCameras[0].scroll.x;
-			buttonCameras.y = __lastDrawCameras[0].y + y + cameraSpacing - __lastDrawCameras[0].scroll.y;
+			buttonCameras.y = __lastDrawCameras[0].y + y + cameraSpacing - __lastDrawCameras[0].scroll.y+1;
 			buttonCameras.zoom = __lastDrawCameras[0].zoom;
 		}
 	}

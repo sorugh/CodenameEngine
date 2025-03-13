@@ -115,14 +115,16 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 			paramsPanel.remove(e);
 		}
 
+		winHeight = eventName.y + eventName.height + 6;
+		eventCam.scroll.y = 0;
+
 		if (id >= 0 && id < events.length) {
 			curEvent = id;
 			var curEvent = events[curEvent];
 			eventName.text = curEvent.name;
-			// add new elements
-			winHeight = eventName.y + eventName.height + 6;
 			bWidth = eventName.x + eventName.width+16;
 
+			// add new elements
 			for(k=>param in EventsData.getEventParams(curEvent.name)) {
 				function addLabel() {
 					var label:UIText = new UIText(eventName.x+6, winHeight, 0, param.name);
@@ -200,14 +202,15 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 					bWidth = Math.max(bWidth, eventName.x + 6 + cast(lastAdded, FlxSprite).width + 6 + 10);
 				}
 			}
-
-			bWidth += 10+75+10+4; // add events list width to account for event name being on a diff cam +4 because margins >:D
-			winHeight = Math.max(winHeight, (eventsList.buttonSize.y * (eventsList.buttons.length + 1))-4) + 10;
-			eventCam.scroll.y = 0;
 		} else {
 			eventName.text = "No event";
 			curEvent = -1;
+
+			bWidth = eventName.x + eventName.width+16;
 		}
+
+		winHeight = Math.max(winHeight, (eventsList.buttonSize.y * (eventsList.buttons.length + 1))-4) + 10;
+		bWidth += 10+75+10+4; // add events list width to account for event name being on a diff cam +4 because margins >:D
 		update(0);
 	}
 
@@ -287,12 +290,13 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 		if (events.length <= 0)
 			Charter.instance.deleteSelection([chartEvent]);
 		else if (events.length > 0) {
-			chartEvent.events = [for (i in eventsList.buttons.members) i.event];
 			var oldEvents:Array<ChartEvent> = chartEvent.events.copy();
+			chartEvent.events = [for (i in eventsList.buttons.members) i.event];
 			chartEvent.refreshEventIcons();
 			Charter.instance.updateBPMEvents();
 
 			Charter.undos.addToUndo(CEditEvent(chartEvent, oldEvents, [for (event in events) Reflect.copy(event)]));
+			
 		}
 
 		close();

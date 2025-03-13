@@ -12,6 +12,7 @@ using StringTools;
 
 class CharterEventScreenNew extends MusicBeatSubstate {
 	public var cam:FlxCamera;
+	public var eventCam:FlxCamera;
 	public var chartEvent:CharterEvent;
 
 	public var events:Array<ChartEvent> = [];
@@ -21,6 +22,8 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 
 	public var paramsPanel:FlxGroup;
 	public var paramsFields:Array<FlxBasic> = [];
+
+	public var downIndicator:UIText;
 
 	public var bWidth:Float;
 
@@ -44,7 +47,12 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 
 		camera = cam = new FlxCamera();
 		cam.bgColor = 0;
+
+		eventCam = new FlxCamera();
+		eventCam.bgColor = 0;
+
 		FlxG.cameras.add(cam, false);
+		FlxG.cameras.add(eventCam, false);
 
 		bg = new UISliceSprite(0, 0, 0, 0, 'editors/ui/inputbox');
 		bg.alpha = 0.75;
@@ -53,12 +61,19 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 		add(bg);
 
 		paramsPanel = new FlxGroup();
-		paramsPanel.cameras = [cam];
+		paramsPanel.cameras = [eventCam];
 		add(paramsPanel);
 
-		eventName = new UIText(10+75+10, 10, 0, "", 24);
-		eventName.cameras = [cam];
+		eventName = new UIText(0, 0, 0, "", 24);
+		eventName.cameras = [eventCam];
 		add(eventName);
+
+		downIndicator = new UIText(0, 0, 0, "↓", 16);
+		downIndicator.cameras = [eventCam];
+		downIndicator.scrollFactor.set();
+		downIndicator.borderSize = 2;
+		downIndicator.alpha = 0;
+		add(downIndicator);
 
 		eventsList = new UIButtonList<EventButtonNew>(10, 10, 75, 570, null, FlxPoint.get(75, 40), null, 0);
 		eventsList.alpha = 0;
@@ -186,7 +201,9 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 				}
 			}
 
-			winHeight = Math.max(winHeight - 4, (eventsList.buttonSize.y * (eventsList.buttons.length + 1)) + 4);
+			bWidth += 10+75+10+4; // add events list width to account for event name being on a diff cam +4 because margins >:D
+			winHeight = Math.max(winHeight, (eventsList.buttonSize.y * (eventsList.buttons.length + 1))-4) + 10;
+			eventCam.scroll.y = 0;
 		} else {
 			eventName.text = "No event";
 			curEvent = -1;
@@ -198,29 +215,54 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 		var screenPos:FlxPoint = CoolUtil.pointToScreenPosition(FlxPoint.get(chartEvent.x, chartEvent.y + chartEvent.bHeight));
 		screenPos.x -= chartEvent.global ? -8 : 68+12; screenPos.y += 8;
 
-		var screenSpaceY:Float = (screenPos.y + winHeight + 10) - FlxG.height;
-		if (screenSpaceY > -8) winHeight -= screenSpaceY + 8;
-
-		screenPos.x = FlxMath.bound(screenPos.x, 4, FlxG.width - bWidth - 4);
-
 		bg.bWidth = cam.width = cast bWidth-6;
 		bg.bHeight = cam.height = cast winHeight + 10;
 		eventsList.bHeight = cast winHeight - 10;
 
+		// Bound stuff from being off screen 
+		var screenSpaceY:Float = (screenPos.y + winHeight + 10) - FlxG.height;
+		screenPos.x = FlxMath.bound(screenPos.x, 4, FlxG.width - bWidth - 4);
+		if (screenSpaceY > -8) { // border of 8 of screen >:D
+			bg.bHeight -= cast screenSpaceY + 8; cam.height -= cast screenSpaceY + 8;
+
+			screenSpaceY -= 20; // events list is slight diff with its camera
+			if (screenSpaceY > -8) eventsList.bHeight -= cast screenSpaceY + 8;
+		}
+
 		cam.x = screenPos.x; cam.y = screenPos.y;
+
+		eventCam.x = cam.x+10+75+10; eventCam.y = cam.y+10;
+		eventCam.width = bg.bWidth-(10+75+10); eventCam.height = bg.bHeight - 20;
+
 		screenPos.put();
 	}
 
 	@:noCompletion var __clickedWhileHovering = false;
 	@:noCompletion var __ignoreLastClick:Bool = false;
+	var sinner:Float = 0;
 	override public function update(elapsed:Float) {
 		var mousepoint = FlxG.mouse.getPositionInCameraView(cam);
+		boundWindow();
+
 		if (FlxG.mouse.justPressed && (FlxMath.inBounds(mousepoint.x, 0, bg.bWidth) && FlxMath.inBounds(mousepoint.y, 0, bg.bHeight))) __clickedWhileHovering = true;
+
+		var boundingParamY:Float = 0;
+		var lastParamSprite:FlxObject = paramsFields != null ? cast paramsFields[paramsFields.length-1] : null;
+		if (lastParamSprite != null) boundingParamY = lastParamSprite.y;
 
 		if (FlxMath.inBounds(mousepoint.x, 0, bg.bWidth) && FlxMath.inBounds(mousepoint.y, 0, bg.bHeight)) {
 			Charter.instance.shouldScroll = false;
-		}
-		else if (Charter.instance.curContextMenu == null && ((FlxG.mouse.justReleased && !__clickedWhileHovering) || FlxG.mouse.wheel != 0)) {
+			if (FlxMath.inBounds(mousepoint.x, 10+75+10, eventCam.width) && FlxMath.inBounds(mousepoint.y, 10, eventCam.height)) {
+				var boundingParamYHeight:Float = boundingParamY;
+				if (lastParamSprite != null) {
+					if (lastParamSprite is UISliceSprite) boundingParamYHeight += cast(lastParamSprite, UISliceSprite).bHeight;
+					else if (lastParamSprite is FlxSprite) boundingParamYHeight += cast(lastParamSprite, FlxSprite).height;
+				}
+
+				if (boundingParamYHeight > eventCam.height)
+					eventCam.scroll.y = CoolUtil.bound(eventCam.scroll.y - (FlxG.mouse.wheel * 12), 0, boundingParamYHeight - eventCam.height);
+			}
+		} else if (Charter.instance.curContextMenu == null && ((FlxG.mouse.justReleased && !__clickedWhileHovering) || FlxG.mouse.wheel != 0)) {
 			if (__ignoreLastClick) 
 				__ignoreLastClick = false;
 			else {
@@ -231,7 +273,11 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 		super.update(elapsed);
 		
 		if (FlxG.mouse.justReleased) __clickedWhileHovering = false;
-		boundWindow();
+
+		sinner += elapsed;
+
+		downIndicator.setPosition(((eventCam.width/2)) - (downIndicator.fieldWidth/2), (eventCam.height-downIndicator.height) - 2 - (FlxMath.fastSin(sinner*2) * 2));
+		downIndicator.alpha = CoolUtil.fpsLerp(downIndicator.alpha, (eventCam.scroll.y+eventCam.height > boundingParamY) ? 0 : 1, 1/3);
 	}
 
 	public function quit() {
@@ -284,6 +330,7 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 	public override function destroy() {
 		super.destroy();
 		FlxG.cameras.remove(cam);
+		FlxG.cameras.remove(eventCam);
 	}
 }
 

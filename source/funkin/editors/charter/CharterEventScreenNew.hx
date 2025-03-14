@@ -296,9 +296,7 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 			Charter.instance.updateBPMEvents();
 
 			Charter.undos.addToUndo(CEditEvent(chartEvent, oldEvents, [for (event in events) Reflect.copy(event)]));
-			
 		}
-
 		close();
 	}
 

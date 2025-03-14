@@ -201,6 +201,10 @@ class CharterNote extends UISprite implements ICharterSelectable {
 
 		drawMembers();
 		drawSuper();
+		drawNoteTypeText();
+	}
+
+	public inline function drawNoteTypeText() {
 		if(typeText.exists && typeText.visible && typeVisible) {
 			typeText.alpha = typeAlpha;
 			typeText.follow(this, 20 - (typeText.frameWidth/2), 20 - (typeText.frameHeight/2));

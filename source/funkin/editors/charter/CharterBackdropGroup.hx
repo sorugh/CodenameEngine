@@ -89,8 +89,7 @@ class CharterBackdropGroup extends FlxTypedGroup<CharterBackdrop> {
 			notesGroup.forEach((n) -> {
 				if(n.exists && n.visible) {
 					var onStr:Bool = (n.snappedToGrid ? n.strumLineID : CoolUtil.boundInt(Std.int((n.x+n.width)/(40*strumLine.keyCount)), 0, strumLineGroup.members.length-1)) == i;
-					if(onStr)
-						grid.notesGroup.add(n);
+					if(onStr) grid.notesGroup.add(n);
 				}
 			});
 
@@ -118,13 +117,48 @@ class CharterBackdropGroup extends FlxTypedGroup<CharterBackdrop> {
 		if (cameras != null)
 			FlxCamera._defaultCameras = cameras;
 
-		while (i < length)
-		{
+		while (i < length) {
 			basic = members[i++];
 			if (basic != null && basic != draggingObj && basic.exists && basic.visible)
 				basic.draw();
 		}
 		if (draggingObj != null) draggingObj.draw();
+
+		FlxCamera._defaultCameras = oldDefaultCameras;
+	}
+}
+
+// Batches note draws (neos idea) >:D -lunar
+class NotesDrawGroup extends FlxFastTypedGroup<CharterNote> {
+	public override function draw() @:privateAccess {
+		var oldDefaultCameras = FlxCamera._defaultCameras;
+		if (cameras != null)
+			FlxCamera._defaultCameras = cameras;
+
+		var i:Int = 0;
+		var note:CharterNote = null;
+
+		while (i < length) {
+			note = members[i++];
+			if (note != null && note.exists && note.visible) {
+				if (note.snappedToGrid) note.x = (note.strumLine != null ? note.strumLine.x : 0) + (note.id % (note.strumLine != null ? note.strumLine.keyCount : 4)) * 40;
+				note.drawMembers();
+			}
+		}
+
+		i = 0; note = null;
+		while (i < length) {
+			note = members[i++];
+			if (note != null && note.exists && note.visible)
+				note.drawSuper();
+		}
+
+		i = 0; note = null;
+		while (i < length) {
+			note = members[i++];
+			if (note != null && note.exists && note.visible)
+				note.drawNoteTypeText();
+		}
 
 		FlxCamera._defaultCameras = oldDefaultCameras;
 	}
@@ -143,7 +177,7 @@ class CharterBackdrop extends FlxTypedGroup<FlxBasic> {
 	public var beatSeparator:FlxBackdrop;
 	public var sectionSeparator:FlxBackdrop;
 
-	public var notesGroup:FlxFastTypedGroup<CharterNote> = new FlxFastTypedGroup<CharterNote>();
+	public var notesGroup:NotesDrawGroup  = new NotesDrawGroup();
 	public var strumLine:CharterStrumline;
 
 	public var gridShader:CustomShader = new CustomShader("engine/charterGrid");

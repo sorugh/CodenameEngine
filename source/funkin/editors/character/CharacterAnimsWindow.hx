@@ -106,9 +106,12 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
             animName = 'New Anim - $newAnimCount';
         }
 
+		if (__autoCompleteAnims.length <= 0)
+			setAnimAutoComplete(CoolUtil.getAnimsListFromSprite(character));
+
 		var animData:AnimData = {
 			name: animName,
-			anim: character.frames.getByIndex(0).name,
+			anim: __autoCompleteAnims[0],
 			fps: 24, loop: false,
 			x: 0, y: 0,
 			indices: [],
@@ -118,21 +121,24 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 	}
 
 	public function addAnimation(animData:AnimData, animID:Int = -1) @:privateAccess {
+		XMLUtil.addAnimToSprite(character, animData);
+
 		var newButton:CharacterAnimButton = new CharacterAnimButton(0, 0, animData, this);
 		newButton.alpha = 0.25; animButtons.set(animData.name, newButton);
+		newButton.animTextBox.suggestItems = __autoCompleteAnims;
 
 		if (animID == -1) add(newButton);
 		else insert(newButton, animID);
 
-		if (newButton.valid) {
-			XMLUtil.addAnimToSprite(character, animData);
+		if (newButton.valid)
 			buildAnimDisplay(animData.name, animData);
-		}
 	}
 
+	@:noCompletion var __autoCompleteAnims:Array<String> = [];
 	public inline function setAnimAutoComplete(anims:Array<String>) {
+		__autoCompleteAnims = anims.copy();
 		for (button in buttons)
-			button.animTextBox.suggestItems = anims;
+			button.animTextBox.suggestItems = __autoCompleteAnims;
 	}
 
 	public function findValid():Null<String> {

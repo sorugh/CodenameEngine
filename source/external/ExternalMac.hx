@@ -1,6 +1,6 @@
 package external;
 
-#if mac
+#if (mac && cpp)
 @:build(external.LinkerMacro.xml('external_code.xml'))
 @:include('Mac.h')
 @:native('ExternalMac')

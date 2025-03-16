@@ -207,7 +207,7 @@ class NativeAPI {
 	 * Set cursor icon.
 	**/
 	public static function setCursorIcon(icon:CodeCursor) {
-		#if mac
+		#if (mac && cpp)
 		Mac.setMouseCursorIcon(cast icon);
 		#else
 		Mouse.cursor = icon.toOpenFL();

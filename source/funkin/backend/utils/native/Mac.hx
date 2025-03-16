@@ -1,6 +1,6 @@
 package funkin.backend.utils.native;
 
-#if mac
+#if (mac && cpp)
 import funkin.backend.utils.NativeAPI.CodeCursor;
 import openfl.ui.Mouse;
 

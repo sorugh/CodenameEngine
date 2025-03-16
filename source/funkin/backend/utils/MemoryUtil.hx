@@ -88,14 +88,18 @@ final class MemoryUtil {
 	 */
 	public static function getTotalMem():Float
 	{
-		#if windows
-		return funkin.backend.utils.native.Windows.getTotalRam();
-		#elseif mac
-		return funkin.backend.utils.native.Mac.getTotalRam();
-		#elseif linux
-		return funkin.backend.utils.native.Linux.getTotalRam();
+		#if cpp
+			#if windows
+			return funkin.backend.utils.native.Windows.getTotalRam();
+			#elseif mac
+			return funkin.backend.utils.native.Mac.getTotalRam();
+			#elseif linux
+			return funkin.backend.utils.native.Linux.getTotalRam();
+			#else
+			return 0;
+			#end
 		#else
-		return 0;
+			return 0;
 		#end
 	}
 

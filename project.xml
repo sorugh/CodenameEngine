@@ -62,10 +62,11 @@
 	<section unless="TEST_BUILD">
 		<assets path="assets/"    rename="assets"	exclude="*.ogg" if="web"/>
 		<assets path="assets/"    rename="assets"	exclude="*.mp3" unless="web"/>
+
+		<!-- TODO: make it copy this manually, instead of using assets node, so it doesn't manually check for fonts -->
+		<assets path='mods' rename='mods' embed='false'/>
 	</section>
 
-	<!-- TODO: make it copy this manually, instead of using assets node, so it doesn't manually check for fonts -->
-	<assets path='mods' rename='mods' embed='false'/>
 	<assets path='art/readme.txt' rename='do NOT readme.txt' />
 
 	<!-- OpenAL config -->

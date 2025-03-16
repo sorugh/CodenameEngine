@@ -134,7 +134,7 @@ class CoolUtil
 		if(result.isNothing) Logs.trace('The file where it has been tried to get the attributes from, might be corrupted or inexistent (code: ${result.getValue()})', WARNING);
 		return result;
 		#else
-		return 0;
+		return new FileAttributeWrapper(0);
 		#end
 	}
 

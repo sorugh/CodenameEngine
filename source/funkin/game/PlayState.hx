@@ -1224,7 +1224,7 @@ class PlayState extends MusicBeatState
 						if (SaveWarning.selectionClass != null) FlxG.switchState(Type.createInstance(SaveWarning.selectionClass, []));
 					} else {
 						WindowUtils.preventClosing = false; WindowUtils.resetClosing();
-						Sys.exit(0);
+						openfl.system.System.exit(0);
 					}
 				}
 			},
@@ -1237,7 +1237,7 @@ class PlayState extends MusicBeatState
 						if (SaveWarning.selectionClass != null) FlxG.switchState(Type.createInstance(SaveWarning.selectionClass, []));
 					} else {
 						WindowUtils.preventClosing = false; WindowUtils.resetClosing();
-						Sys.exit(0);
+						openfl.system.System.exit(0);
 					}
 				}
 			},

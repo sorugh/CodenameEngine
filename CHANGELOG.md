@@ -5,7 +5,7 @@ This changelog lists every change that has been added since the last update (inc
 ## Flags System
 
 - Added a brand new flags system, which allows you to modify the game constants using a simple `flags.ini` file ([f8d1cf0](https://github.com/CodenameCrew/CodenameEngine/commit/f8d1cf08ad9f6cdda4e971a3d8adff6fce5130d2))
-- Added the ability to change the way the mod songs/weeks are added to the menu ([cb1d6fc](https://github.com/CodenameCrew/CodenameEngine/commit/cb1d6fcacf4ad0e2888ed7e76d16a6f85c09b021))
+- Added the ability to change the way the mod songs/weeks are added into the menu ([cb1d6fc](https://github.com/CodenameCrew/CodenameEngine/commit/cb1d6fcacf4ad0e2888ed7e76d16a6f85c09b021))
 - Added the ability to disable editors, transtions and beta warning state ([90a8c27](https://github.com/CodenameCrew/CodenameEngine/commit/90a8c2711ce36c9eaf85e705d551d46876991aa9))
 - Added the ability to set the default Transition, Pause, Game Over scripts ([fd0c188](https://github.com/CodenameCrew/CodenameEngine/commit/fd0c188577cf58e34e8ed706e59903a989ee2d11))
 - Added the ability to set the default glsl version ([cbbb598](https://github.com/CodenameCrew/CodenameEngine/commit/cbbb598f52b3f7c0f156cf72cd03e165aa38a4f1))
@@ -91,6 +91,9 @@ This changelog lists every change that has been added since the last update (inc
 - Improved readability of the events macro ([47cf72d](https://github.com/CodenameCrew/CodenameEngine/commit/47cf72d53b985bcc818286a90fdbbaa92f4a9396))
 - Changed how editor icons are stored ([16672e9](https://github.com/CodenameCrew/CodenameEngine/commit/16672e9f597fd4e621d7ee2c000ba559d3837662), [18ea916](https://github.com/CodenameCrew/CodenameEngine/commit/18ea916f1af4c03db765ba55841acc13d7108766))
 - Changed `WindowUtils.winTitle` to `WindowUtils.title` ([a6c9975](https://github.com/CodenameCrew/CodenameEngine/commit/a6c99754fd1bfe56db61b82b9749f073a1a0a170))
+- Added property parsing and cloning property values ([503ff87](https://github.com/CodenameCrew/CodenameEngine/commit/503ff87ab3f6ccd4b0ab74e2403a29fff70cc1e1))
+- Added syncing booleans between strums and notes ([1af6931](https://github.com/CodenameCrew/CodenameEngine/commit/1af69313bb30a1d8faf91bc34b29c319290e0ea5))
+- Added ``onReturnToMenu`` event in GameOverSubstate ([cda9311](https://github.com/CodenameCrew/CodenameEngine/commit/cda9311a905a8b9d226f14b8f1e3430f54e70ee5))
 
 ## Removals
 
@@ -152,10 +155,12 @@ This changelog lists every change that has been added since the last update (inc
 - Fixed pasting and added copying in `UITextBox` ([c4abac4](https://github.com/CodenameCrew/CodenameEngine/commit/c4abac4ba1ef0692325a736f1123a511965368a6))
 - Made the Freeplay Autoplay change the bpm ([f90782d](https://github.com/CodenameCrew/CodenameEngine/commit/f90782d7123970215324ace99c55584ad78ca028))
 - Prevent accidental mouse inputs when pressing on the unfocused window ([300f38d](https://github.com/CodenameCrew/CodenameEngine/commit/300f38d290bb8c31a5c1e67afdf981c644b27f8a))
-- Fix notes not being destroyed when the strumline is destroyed ([1f224be](https://github.com/CodenameCrew/CodenameEngine/commit/1f224bef228c496d789aeed1f44c6517668107a9))
+- Fixed notes not being destroyed when the strumline is destroyed ([1f224be](https://github.com/CodenameCrew/CodenameEngine/commit/1f224bef228c496d789aeed1f44c6517668107a9))
 - Fixed the credits and options menu backgorunds not being animated if the background is animated ([1facc82](https://github.com/CodenameCrew/CodenameEngine/commit/1facc82073b9a06b861d1987a162f8aecbec46f1))
 - Fixed duplicated line messages in the log ([1aa1364](https://github.com/CodenameCrew/CodenameEngine/commit/1aa136469d1ecadb4e9c49c04d6d6287d4b39884))
 - Selection fixes in Editors ([0102cbb](https://github.com/CodenameCrew/CodenameEngine/commit/0102cbbdb6812f315697f6e389760ce948ff1993), [accc197](https://github.com/CodenameCrew/CodenameEngine/commit/accc197407c86a6fe9aaf1c557c93148674879ff))
+- Fixed Hscript Call event not calling public and static functions (also can now call character scripts) ([650c0f4](https://github.com/CodenameCrew/CodenameEngine/commit/650c0f4aed546ff80a0a590365b59427e4e45db6))
+- Made some menus remember the current selected item ([d36f4fa](https://github.com/CodenameCrew/CodenameEngine-Dev/commit/d36f4fa48430ac73d7f2c8701894283041898ce6), [6bed0a7](https://github.com/CodenameCrew/CodenameEngine-Dev/commit/6bed0a789f2b809dc6311c8227c8307c0f2fe522))
 
 ## Crash fixes
 

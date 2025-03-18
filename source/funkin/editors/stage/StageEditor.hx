@@ -35,7 +35,7 @@ class StageEditor extends UIState {
 	public var topMenuSpr:UITopMenu;
 
 	public var uiGroup:FlxTypedGroup<FlxSprite> = new FlxTypedGroup<FlxSprite>();
-	public var stageSpritesWindow:UIButtonList<StageElementButton>;
+	public var stageSpritesWindow:StageSpritesWindow;
 
 	public var xmlMap:Map<FlxObject, Access> = new Map<FlxObject, Access>();
 
@@ -219,6 +219,50 @@ class StageEditor extends UIState {
 		// Load from xml
 		var order:Array<Dynamic> = [];
 		var orderNodes:Array<Access> = [];
+
+		loadStage(order, orderNodes);
+
+		topMenuSpr = new UITopMenu(topMenu);
+		topMenuSpr.cameras = uiGroup.cameras = [uiCamera];
+
+		stageSpritesWindow = new StageSpritesWindow(Std.int(FlxG.width - 400), 25);
+		for (i=>sprite in order) {
+			var xml = (sprite != null) ? xmlMap.get(sprite) : orderNodes[i];
+			if (xml != null) {
+				if (sprite is Character) {
+					var char:Character = cast sprite;
+					var button = new StageCharacterButton(0,0, char, xml);
+					char.extra.set(exID("button"), button);
+					stageSpritesWindow.add(button);
+				} else if (sprite is FunkinSprite) {
+					var sprite:FunkinSprite = cast sprite;
+					var type = sprite.extra.get(exID("type"));
+					var button:StageElementButton = (type == "box" || type == "solid") ? new StageSolidButton(0,0, sprite, xml) : new StageSpriteButton(0,0, sprite, xml);
+					sprite.extra.set(exID("button"), button);
+					stageSpritesWindow.add(button);
+				} else if(sprite == null) {
+					var basic = new FlxBasic(); // prevent awkward layering
+					insert(i, basic);
+					var button = new StageUnknownButton(0,0, basic, xml);
+					stageSpritesWindow.add(button);
+				}
+			}
+		}
+		uiGroup.add(stageSpritesWindow);
+
+		add(topMenuSpr);
+		add(uiGroup);
+
+		if(Framerate.isLoaded) {
+			Framerate.fpsCounter.alpha = 0.4;
+			Framerate.memoryCounter.alpha = 0.4;
+			Framerate.codenameBuildField.alpha = 0.4;
+		}
+
+		// DiscordUtil.call("onEditorLoaded", ["Stage Editor", __stage]);
+	}
+
+	function loadStage(order:Array<Dynamic>, orderNodes:Array<Access>) {
 		stage = new Stage(__stage, this, false);
 		stage.onXMLLoaded = function(xml:Access, elems:Array<Access>) {
 			return elems;
@@ -291,88 +335,6 @@ class StageEditor extends UIState {
 		add(stage);
 
 		setZoom(stage.defaultZoom);
-
-		topMenuSpr = new UITopMenu(topMenu);
-		topMenuSpr.cameras = uiGroup.cameras = [uiCamera];
-
-		final margin = 0;//22;
-		final width = SPRITE_WINDOW_WIDTH;
-		final TOP_MENU_HEIGHT = 25;
-		var buttonSize:FlxPoint = FlxPoint.get(width-margin*2, SPRITE_WINDOW_BUTTON_HEIGHT);
-		stageSpritesWindow = new UIButtonList<StageElementButton>(Std.int(FlxG.width - width), TOP_MENU_HEIGHT, width, Std.int(FlxG.height - TOP_MENU_HEIGHT), "Stage Sprites", buttonSize);
-		stageSpritesWindow.collapsable = true;
-		stageSpritesWindow.topAlpha = 0.9;
-		stageSpritesWindow.middleAlpha = 0.5;
-		stageSpritesWindow.bottomAlpha = 0.5;
-		stageSpritesWindow.buttonSpacing = 0;
-		stageSpritesWindow.dragCallback = (button, oldID, newID) -> {
-			var sprite:FlxBasic = (button is StageUnknownButton) ? cast(button, StageUnknownButton).basic : button.getSprite();
-			var idx = members.indexOf(sprite);
-			members.splice(idx, 1);
-			members.insert(newID, sprite);
-		}
-		stageSpritesWindow.addButton.callback = () -> {
-			var lastDrawCam = stageSpritesWindow.addButton.__lastDrawCameras[0];
-			var screenPos = stageSpritesWindow.addButton.getScreenPosition(null, lastDrawCam == null ? FlxG.camera : lastDrawCam);
-			openContextMenu([
-				{
-					label: "Sprite",
-					onSelect: _sprite_new,
-					color: 0xFF00FF00,
-					icon: 2
-				},
-				{
-					label: "Box",
-					onSelect: function(_) {
-						UIState.state.displayNotification(new UIBaseNotification("Creating a box isnt implemented yet!", 2, BOTTOM_LEFT));
-						CoolUtil.playMenuSFX(WARNING, 0.45);
-					},
-					color: 0xFF00FF00,
-					icon: 2
-				},
-				{
-					label: "Character",
-					onSelect: _character_new,
-					color: 0xFF00FF00,
-					icon: 2
-				}
-			], null, lastDrawCam.x + screenPos.x, lastDrawCam.y + screenPos.y + stageSpritesWindow.addButton.bHeight, stageSpritesWindow.addButton.bWidth);
-			screenPos.put();
-		}
-		for (i=>sprite in order) {
-			var xml = (sprite != null) ? xmlMap.get(sprite) : orderNodes[i];
-			if (xml != null) {
-				if (sprite is Character) {
-					var char:Character = cast sprite;
-					var button = new StageCharacterButton(0,0, char, xml);
-					char.extra.set(exID("button"), button);
-					stageSpritesWindow.add(button);
-				} else if (sprite is FunkinSprite) {
-					var sprite:FunkinSprite = cast sprite;
-					var type = sprite.extra.get(exID("type"));
-					var button:StageElementButton = (type == "box" || type == "solid") ? new StageSolidButton(0,0, sprite, xml) : new StageSpriteButton(0,0, sprite, xml);
-					sprite.extra.set(exID("button"), button);
-					stageSpritesWindow.add(button);
-				} else if(sprite == null) {
-					var basic = new FlxBasic(); // prevent awkward layering
-					insert(i, basic);
-					var button = new StageUnknownButton(0,0, basic, xml);
-					stageSpritesWindow.add(button);
-				}
-			}
-		}
-		uiGroup.add(stageSpritesWindow);
-
-		add(topMenuSpr);
-		add(uiGroup);
-
-		if(Framerate.isLoaded) {
-			Framerate.fpsCounter.alpha = 0.4;
-			Framerate.memoryCounter.alpha = 0.4;
-			Framerate.codenameBuildField.alpha = 0.4;
-		}
-
-		//DiscordUtil.call("onEditorLoaded", ["Stage Editor", __stage]);
 	}
 
 	function prepareCharacter(charPos:StageCharPos, node:Access):Character {

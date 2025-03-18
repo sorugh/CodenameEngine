@@ -224,7 +224,7 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 
 		// Bound stuff from being off screen 
 		var screenSpaceY:Float = (screenPos.y + winHeight + 10) - FlxG.height;
-		screenPos.x = FlxMath.bound(screenPos.x, 4, FlxG.width - bWidth - 4);
+		screenPos.x = FlxMath.bound(screenPos.x, 4, (FlxG.width - 20) - bWidth - 4); // FlxG.width - 20 for the scroll bar on the right
 		if (screenSpaceY > -8) { // border of 8 of screen >:D
 			bg.bHeight -= cast screenSpaceY + 8; cam.height -= cast screenSpaceY + 8;
 

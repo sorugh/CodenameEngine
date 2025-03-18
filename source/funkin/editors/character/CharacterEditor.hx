@@ -265,7 +265,7 @@ class CharacterEditor extends UIState {
 
 		gizmosCamera = new FlxCamera();
 		gizmosCamera.bgColor = 0;
-		FlxG.cameras.add(gizmosCamera);
+		FlxG.cameras.add(gizmosCamera, false);
 
 		axisGizmo = new AxisGizmo();
 		axisGizmo.cameras = [gizmosCamera];

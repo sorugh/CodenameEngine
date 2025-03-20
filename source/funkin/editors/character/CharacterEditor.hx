@@ -398,7 +398,7 @@ class CharacterEditor extends UIState {
 				draggingOffset.x /= character.scale.x;
 				draggingOffset.y /= character.scale.y;
 
-				_change_offset((draggingOffset.x * (character.isPlayer != character.playerOffsets  ? -1 : 1)), draggingOffset.y);
+				_change_offset((draggingOffset.x * (character.isFlippedOffsets()  ? -1 : 1)), draggingOffset.y);
 
 				draggingOffset.set(0, 0); draggingCharacter = false;
 				character.extraOffset = draggingOffset;

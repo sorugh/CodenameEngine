@@ -511,7 +511,7 @@ class CharacterEditor extends UIState {
 			case CAnimDelete(animID, animData):
 				characterAnimsWindow.addAnimation(animData, animID, false);
 				playAnimation(animData.name);
-				case CAnimEditOrder(animID, newAnimID):
+			case CAnimEditOrder(animID, newAnimID):
 				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[newAnimID];
 				characterAnimsWindow.buttons.members.remove(button);
 				characterAnimsWindow.buttons.members.insert(animID, button);

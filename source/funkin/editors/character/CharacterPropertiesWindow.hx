@@ -113,36 +113,58 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		this.character = character;
 	}
 
-	public function changePosition(newPosX:Null<Float>, newPosY:Null<Float>) {
+	public function changePosition(newPosX:Null<Float>, newPosY:Null<Float>, addToUndo:Bool = true) {
 		if (newPosX != null && newPosY != null && newPosX == character.globalOffset.x && newPosY == character.globalOffset.y)
 			return;
-		else {
+		else if (addToUndo) {
 			if (newPosX != null && newPosX == character.globalOffset.x) return;
 			if (newPosY != null && newPosY == character.globalOffset.y) return;
 		}
+		var oldPosition:FlxPoint = character.globalOffset.clone();
 
 		if (newPosX != null) character.globalOffset.x = newPosX;
 		if (newPosY != null) character.globalOffset.y = newPosY;
 
 		CharacterEditor.instance.playAnimation(character.getAnimName());
+
+		positionXStepper.label.text = Std.string(character.globalOffset.x);
+		positionYStepper.label.text = Std.string(character.globalOffset.y);
+
+		if (addToUndo) CharacterEditor.undos.addToUndo(CCharEditPosition(oldPosition, character.globalOffset.clone()));
+		else oldPosition.put();
 	}
 
-	public function changeScale(newScale:Float) {
+	public function changeScale(newScale:Float, addToUndo:Bool = true) {
 		if (character.scale.x == newScale) return;
+		var oldScale:Float = character.scale.x;
 
 		character.scale.set(newScale, newScale);
 		character.updateHitbox();
 
 		CharacterEditor.instance.playAnimation(character.getAnimName());
+
+		scaleStepper.label.text = Std.string(newScale);
+		if (addToUndo) CharacterEditor.undos.addToUndo(CCharEditScale(oldScale, newScale));
 	}
 
 	public function editCharacterInfoUI() {
-		CharacterEditor.instance.openSubState(new CharacterInfoScreen(character, (info:CharacterExtraInfo) -> {
-			character.icon = info.icon;
-			character.iconColor = info.iconColor;
-			character.holdTime = info.holdTime;
-			character.extra = info.customProperties.copy();
-		}));
+		CharacterEditor.instance.openSubState(new CharacterInfoScreen(character, (info:CharacterExtraInfo) -> {editCharacterInfo(info);}));
+	}
+
+	public function editCharacterInfo(info:CharacterExtraInfo, addToUndo:Bool = true) {
+		var oldInfo:CharacterExtraInfo = {
+			icon: character.icon,
+			iconColor: character.iconColor,
+			holdTime: character.holdTime,
+			customProperties: character.extra.copy()
+		};
+
+		character.icon = info.icon;
+		character.iconColor = info.iconColor;
+		character.holdTime = info.holdTime;
+		character.extra = info.customProperties.copy();
+
+		if (addToUndo) CharacterEditor.undos.addToUndo(CCharEditInfo(oldInfo, info));
 	}
 
 	public function editCharacterSpriteUI() {
@@ -191,29 +213,42 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		animsWindow.setAnimAutoComplete(CoolUtil.getAnimsListFromSprite(character));
 	}
 
-	public function changeFlipX(newFlipX:Bool) @:privateAccess {
+	public function changeFlipX(newFlipX:Bool, addToUndo:Bool = true) @:privateAccess {
 		character.flipX = character.isPlayer ? !newFlipX : newFlipX;
 		character.__baseFlipped = character.flipX;
-
+		
 		CharacterEditor.instance.playAnimation(character.getAnimName());
+
+		flipXCheckbox.checked = newFlipX;
+		if (addToUndo) CharacterEditor.undos.addToUndo(CCharEditFlipped(newFlipX));
 	}
 
-	public function changeCamPosition(newPosX:Null<Float>, newPosY:Null<Float>) {
+	public function changeCamPosition(newPosX:Null<Float>, newPosY:Null<Float>, addToUndo:Bool = true) {
 		if (newPosX != null && newPosY != null && newPosX == character.cameraOffset.x && newPosY == character.cameraOffset.y)
 			return;
-		else {
+		else if (addToUndo) {
 			if (newPosX != null && newPosX == character.cameraOffset.x) return;
 			if (newPosY != null && newPosY == character.cameraOffset.y) return;
 		}
+		var oldCamPosition:FlxPoint = character.cameraOffset.clone();
 
 		if (newPosX != null) character.cameraOffset.x = newPosX;
 		if (newPosY != null) character.cameraOffset.y = newPosY;
+
+		cameraXStepper.label.text = Std.string(character.cameraOffset.x);
+		cameraYStepper.label.text = Std.string(character.cameraOffset.y);
+
+		if (addToUndo) CharacterEditor.undos.addToUndo(CCharEditCamPosition(oldCamPosition, character.cameraOffset.clone()));
+		else oldCamPosition.put();
 	}
 
-	public function changeAntialiasing(newAntialiasing:Bool) {
+	public function changeAntialiasing(newAntialiasing:Bool, addToUndo:Bool = true) {
 		if (character.antialiasing == newAntialiasing) return;
 		character.antialiasing = newAntialiasing;
 		animsWindow.displayWindowSprite.antialiasing = newAntialiasing;
+
+		antialiasingCheckbox.checked = newAntialiasing;
+		if (addToUndo) CharacterEditor.undos.addToUndo(CCharEditAntialiasing(newAntialiasing));
 	}
 
 	public function updateButtonsPos() {

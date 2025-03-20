@@ -1,5 +1,6 @@
 package funkin.editors.character;
 
+import funkin.editors.character.CharacterInfoScreen.CharacterExtraInfo;
 import funkin.editors.extra.AxisGizmo;
 import flixel.math.FlxRect;
 import funkin.editors.stage.StageEditor;
@@ -54,6 +55,8 @@ class CharacterEditor extends UIState {
 	public var stageSprites:Array<FlxBasic> = [];
 	public var stagePosition:String  = null;
 
+	public static var undos:UndoList<CharacterEditorChange>;
+
 	public function new(character:String) {
 		super();
 		if (character != null) __character = character;
@@ -61,6 +64,8 @@ class CharacterEditor extends UIState {
 
 	public override function create() {
 		super.create();
+
+		undos = new UndoList<CharacterEditorChange>();
 
 		WindowUtils.suffix = " (Character Editor)";
 		SaveWarning.selectionClass = CharacterSelection;
@@ -387,6 +392,9 @@ class CharacterEditor extends UIState {
 		if (Options.characterDragging)
 			handleMouseOffsets();
 
+		WindowUtils.prefix = undos.unsaved ? Flags.UNDO_PREFIX : "";
+		SaveWarning.showWarning = undos.unsaved;
+
 		super.update(elapsed);
 	}
 
@@ -445,17 +453,19 @@ class CharacterEditor extends UIState {
 		#else
 		_file_saveas(_);
 		#end
+		undos.save();
 	}
 
 	function _file_saveas(_) {
 		openSubState(new SaveSubstate(buildCharacter(), {
 			defaultSaveFile: '${character.curCharacter}.xml'
 		}));
+		undos.save();
 	}
 
 	function _file_exit(_) {
-		/*if (undos.unsaved) SaveWarning.triggerWarning();
-		else*/ FlxG.switchState(new CharacterSelection());
+		if (undos.unsaved) SaveWarning.triggerWarning();
+		else {undos = null; FlxG.switchState(new CharacterSelection());}
 	}
 
 	function buildCharacter():String {
@@ -477,9 +487,77 @@ class CharacterEditor extends UIState {
 	function _edit_paste_offset(_) {
 		_set_offset(clipboard.x, clipboard.y);
 	}
+	
+	function _undo(undo:CharacterEditorChange) {
+		switch (undo) {
+			case null: // do nothing
+			case CCharEditPosition(oldPos, newPos):
+				characterPropertiesWindow.changePosition(oldPos.x, oldPos.y, false);
+			case CCharEditCamPosition(oldPos, newPos):
+				characterPropertiesWindow.changeCamPosition(oldPos.x, oldPos.y, false);
+			case CCharEditScale(oldScale, newScale):
+				characterPropertiesWindow.changeScale(oldScale, false);
+			case CCharEditFlipped(newFlipped):
+				characterPropertiesWindow.changeFlipX(!newFlipped, false);
+			case CCharEditAntialiasing(newAntialiasing):
+				characterPropertiesWindow.changeAntialiasing(!newAntialiasing, false);
+			case CCharEditDesignedAs(newIsPlayer):
+				changeCharacterDesginedAs(!newIsPlayer, false);
+			case CCharEditInfo(oldInfo, newInfo):
+				characterPropertiesWindow.editCharacterInfo(oldInfo, false);
+			case CCharEditSprite(oldSprite, newSprite):
+			case CAnimCreate(animID, animData):
+			case CAnimDelete(animID, animData):
+			case CAnimEditOrder(animID, newAnimID):
+			case CAnimEditName(animID, oldName, newName):
+			case CAnimEditAnim(animID, oldAnim, newAnim):
+			case CAnimEditOffset(animID, oldOffset, newOffset):
+			case CAnimEditFPS(animID, oldFPS, newFPS):
+			case CAnimEditLooping(animID, newLooping):
+			case CAnimEditIndices(animID, oldIndicies, newIndicies):
+			case CCharClearOffsets(oldOffsets):
+		}
+	}
 
-	function _edit_undo(_) {}
-	function _edit_redo(_) {}
+	function _edit_undo(_) {
+		if (draggingCharacter) return;
+		_undo(undos.undo());
+	}
+
+	function _redo(undo:CharacterEditorChange) {
+		switch (undo) {
+			case null: // do nothing
+			case CCharEditPosition(oldPos, newPos):
+				characterPropertiesWindow.changePosition(newPos.x, newPos.y, false);
+			case CCharEditCamPosition(oldPos, newPos):
+				characterPropertiesWindow.changeCamPosition(newPos.x, newPos.y, false);
+			case CCharEditScale(oldScale, newScale):
+				characterPropertiesWindow.changeScale(newScale, false);
+			case CCharEditFlipped(newFlipped):
+				characterPropertiesWindow.changeFlipX(newFlipped, false);
+			case CCharEditAntialiasing(newAntialiasing):
+				characterPropertiesWindow.changeAntialiasing(newAntialiasing, false);
+			case CCharEditDesignedAs(newIsPlayer):
+				changeCharacterDesginedAs(newIsPlayer, false);
+			case CCharEditInfo(oldInfo, newInfo):
+				characterPropertiesWindow.editCharacterInfo(newInfo, false);
+			case CCharEditSprite(oldSprite, newSprite):
+			case CAnimCreate(animID, animData):
+			case CAnimDelete(animID, animData):
+			case CAnimEditOrder(animID, newAnimID):
+			case CAnimEditName(animID, oldName, newName):
+			case CAnimEditAnim(animID, oldAnim, newAnim):
+			case CAnimEditOffset(animID, oldOffset, newOffset):
+			case CAnimEditFPS(animID, oldFPS, newFPS):
+			case CAnimEditLooping(animID, newLooping):
+			case CAnimEditIndices(animID, oldIndicies, newIndicies):
+			case CCharClearOffsets(oldOffsets):
+		}
+	}
+
+	function _edit_redo(_) {
+		_redo(undos.redo());
+	}
 
 	function _edit_info(_)
 		characterPropertiesWindow.editCharacterInfoUI();
@@ -581,7 +659,7 @@ class CharacterEditor extends UIState {
 			]);
 
 			changeStagePosition(stagePosition);
-			changeCharacterDesginedAs(stagePosition.toUpperCase() == "BOYFRIEND");
+			changeCharacterDesginedAs(stagePosition.toUpperCase() == "BOYFRIEND", false);
 		}
 
 		currentStage = __stage;
@@ -615,7 +693,7 @@ class CharacterEditor extends UIState {
 		characterPropertiesWindow.testAsDropDown.label.text = stagePosition.toUpperCase();
 	}
 
-	public function changeCharacterDesginedAs(player:Bool) @:privateAccess {
+	public function changeCharacterDesginedAs(player:Bool, addToUndo:Bool = true) @:privateAccess {
 		if (stage == null) {
 			changeCharacterIsPlayer(player);
 			return;
@@ -630,6 +708,8 @@ class CharacterEditor extends UIState {
 
 		characterPropertiesWindow.designedAsDropDown.index = characterPropertiesWindow.designedAsDropDown.options.indexOf(player ? "BOYFRIEND" : "DAD");
 		characterPropertiesWindow.designedAsDropDown.label.text = player ? "BOYFRIEND" : "DAD";
+
+		if (addToUndo) CharacterEditor.undos.addToUndo(CCharEditDesignedAs(player));
 	}
 
 	public inline function updateCharacterStagePosition() {
@@ -745,4 +825,29 @@ class CharacterEditor extends UIState {
 			i.alpha = i.anim == anim ? 1 : 0.25;
 	}
 	#end
+}
+
+enum CharacterEditorChange {
+	CCharEditPosition(oldPos:FlxPoint, newPos:FlxPoint);
+	CCharEditCamPosition(oldPos:FlxPoint, newPos:FlxPoint);
+	CCharEditScale(oldScale:Float, newScale:Float);
+	CCharEditFlipped(newFlipped:Bool);
+	CCharEditAntialiasing(newAntialiasing:Bool);
+	CCharEditDesignedAs(newIsPlayer:Bool);
+
+	CCharEditInfo(oldInfo:CharacterExtraInfo, newInfo:CharacterExtraInfo);
+	CCharEditSprite(oldSprite:String, newSprite:String);
+
+	CAnimCreate(animID:Int, animData:AnimData);
+	CAnimDelete(animID:Int, animData:AnimData);
+	CAnimEditOrder(animID:Int, newAnimID:Int);
+
+	CAnimEditName(animID:Int, oldName:String, newName:String);
+	CAnimEditAnim(animID:Int, oldAnim:String, newAnim:String);
+	CAnimEditOffset(animID:Int, oldOffset:FlxPoint, newOffset:FlxPoint);
+	CAnimEditFPS(animID:Int, oldFPS:Float, newFPS:Float);
+	CAnimEditLooping(animID:Int, newLooping:Bool);
+	CAnimEditIndices(animID:Int, oldIndicies:Array<Int>, newIndicies:Array<Int>);
+
+	CCharClearOffsets(oldOffsets:Map<String, FlxPoint>);
 }

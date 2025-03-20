@@ -112,19 +112,22 @@
 		<!-- <define name="DISCORD_RPC" if="desktop"/> -->
 	</section>
 
+	<!-- Uncomment this to achive faster compile times, will strip extraneous and commonly unused features. -->
+	<define name="STRIPPED_COMPILE" unless="debug"/>
+
 	<!-- Comment this out to disable modcharting features -->
-	<define name="MODCHARTING_FEATURES"/>
+	<define name="MODCHARTING_FEATURES" unless="STRIPPED_COMPILE" />
 
 	<!-- Comment this out to disable GitHub API integration !-->
 	<define name="GITHUB_API" unless="web || hl"/>
 
 	<!-- Comment this out to prevent unused classes from being compiled.
 		 Reduces compilation time at the cost of limited HScript flexibility. !-->
-	<define name="COMPILE_ALL_CLASSES" />
+	<define name="COMPILE_ALL_CLASSES" unless="STRIPPED_COMPILE" />
 
 	<!-- Comment this out to prevent extending classes in hscript.
 		 Reduces compilation time at the cost of limited HScript flexibility. !-->
-	<define name="CUSTOM_CLASSES" />
+	<define name="CUSTOM_CLASSES" unless="STRIPPED_COMPILE" />
 
 	<!-- Comment this out to disable multithreading !-->
 	<haxedef name="ALLOW_MULTITHREADING" unless="web || flash" />
@@ -145,13 +148,13 @@
 	<haxedef name="NDLLS_SUPPORTED" unless="web || iphonesim || hl" />
 
 	<!-- Comment this out to disable support for Away3D Flixel Integration (reduces compile times) !-->
-	<define name="THREE_D_SUPPORT" />
+	<define name="THREE_D_SUPPORT" unless="STRIPPED_COMPILE" />
 
 	<!-- Comment this out to disable support for Funkin Audio Visualizer (reduces compile times) !-->
-	<define name="AUDIO_VIS_SUPPORT" />
+	<define name="AUDIO_VIS_SUPPORT" unless="STRIPPED_COMPILE" />
 
 	<!-- Comment this out to disable support for Nape integration (flixel.addons.nape) (reduces compile times) !-->
-	<define name="NAPE_ENABLED" />
+	<define name="NAPE_ENABLED" unless="STRIPPED_COMPILE" />
 
 	<!-- Comment this out to disable video cutscene support, in case of compilation errors. !-->
 	<section if="cpp">

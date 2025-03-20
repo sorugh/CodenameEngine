@@ -45,6 +45,7 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 
 		setAnimAutoComplete(CoolUtil.getAnimsListFromSprite(character));
 
+		nextscrollY = 0;
 		// dragCallback = (button:CharacterAnimButton, oldID:Int, newID:Int) -> {}
 	}
 
@@ -146,7 +147,13 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 		if (newButton.valid)
 			buildAnimDisplay(animData.name, animData);
 
-		if (addToUndo) CharacterEditor.undos.addToUndo(CAnimCreate(newButton.ID, newButton.data));
+		if (addToUndo)
+			CharacterEditor.undos.addToUndo(CAnimCreate(newButton.ID, newButton.data));
+
+		var nextButtonY:Float = 0;
+		for (buttonID in 0...newButton.ID)
+			nextButtonY += buttons.members[buttonID].bHeight + buttonOffset.y;
+		nextscrollY = nextButtonY;
 	}
 
 	@:noCompletion var __autoCompleteAnims:Array<String> = [];

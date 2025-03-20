@@ -510,7 +510,8 @@ class CharacterEditor extends UIState {
 				characterAnimsWindow.deleteAnimation(characterAnimsWindow.buttons.members[animID], false);
 			case CAnimDelete(animID, animData):
 				characterAnimsWindow.addAnimation(animData, animID, false);
-			case CAnimEditOrder(animID, newAnimID):
+				playAnimation(animData.name);
+				case CAnimEditOrder(animID, newAnimID):
 				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[newAnimID];
 				characterAnimsWindow.buttons.members.remove(button);
 				characterAnimsWindow.buttons.members.insert(animID, button);
@@ -552,6 +553,7 @@ class CharacterEditor extends UIState {
 			case CCharEditSprite(oldSprite, newSprite):
 			case CAnimCreate(animID, animData):
 				characterAnimsWindow.addAnimation(animData, animID, false);
+				playAnimation(animData.name);
 			case CAnimDelete(animID, animData):
 				characterAnimsWindow.deleteAnimation(characterAnimsWindow.buttons.members[animID], false);
 			case CAnimEditOrder(animID, newAnimID):

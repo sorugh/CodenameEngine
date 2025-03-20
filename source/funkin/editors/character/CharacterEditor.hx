@@ -507,8 +507,13 @@ class CharacterEditor extends UIState {
 				characterPropertiesWindow.editCharacterInfo(oldInfo, false);
 			case CCharEditSprite(oldSprite, newSprite):
 			case CAnimCreate(animID, animData):
+				characterAnimsWindow.deleteAnimation(characterAnimsWindow.buttons.members[animID], false);
 			case CAnimDelete(animID, animData):
+				characterAnimsWindow.addAnimation(animData, animID, false);
 			case CAnimEditOrder(animID, newAnimID):
+				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[newAnimID];
+				characterAnimsWindow.buttons.members.remove(button);
+				characterAnimsWindow.buttons.members.insert(animID, button);
 			case CAnimEditName(animID, oldName, newName):
 			case CAnimEditAnim(animID, oldAnim, newAnim):
 			case CAnimEditOffset(animID, oldOffset, newOffset):
@@ -516,6 +521,9 @@ class CharacterEditor extends UIState {
 			case CAnimEditLooping(animID, newLooping):
 			case CAnimEditIndices(animID, oldIndicies, newIndicies):
 			case CCharClearOffsets(oldOffsets):
+				for (anim => offset in oldOffsets)
+					if (characterAnimsWindow.animButtons[anim] != null)
+						characterAnimsWindow.animButtons[anim].changeOffset(offset.x, offset.y);
 		}
 	}
 
@@ -543,8 +551,13 @@ class CharacterEditor extends UIState {
 				characterPropertiesWindow.editCharacterInfo(newInfo, false);
 			case CCharEditSprite(oldSprite, newSprite):
 			case CAnimCreate(animID, animData):
+				characterAnimsWindow.addAnimation(animData, animID, false);
 			case CAnimDelete(animID, animData):
+				characterAnimsWindow.deleteAnimation(characterAnimsWindow.buttons.members[animID], false);
 			case CAnimEditOrder(animID, newAnimID):
+				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[animID];
+				characterAnimsWindow.buttons.members.remove(button);
+				characterAnimsWindow.buttons.members.insert(newAnimID, button);
 			case CAnimEditName(animID, oldName, newName):
 			case CAnimEditAnim(animID, oldAnim, newAnim):
 			case CAnimEditOffset(animID, oldOffset, newOffset):
@@ -552,6 +565,7 @@ class CharacterEditor extends UIState {
 			case CAnimEditLooping(animID, newLooping):
 			case CAnimEditIndices(animID, oldIndicies, newIndicies):
 			case CCharClearOffsets(oldOffsets):
+				clearOffsets(false);
 		}
 	}
 
@@ -576,9 +590,18 @@ class CharacterEditor extends UIState {
 		t.icon = (Options.characterDragging = !Options.characterDragging) ? 1 : 0;
 	}
 
-	function _offsets_clear(_) {
+	function _offsets_clear(_) clearOffsets();
+
+	function clearOffsets(addToUndo:Bool = true) {
+		var oldOffsets:Map<String, FlxPoint> = [
+			for (anim => offsets in character.animOffsets)
+				anim => offsets.clone()
+		];
+
 		for (anim => button in characterAnimsWindow.animButtons)
 			button.changeOffset(0, 0);
+		
+		if (addToUndo) undos.addToUndo(CCharClearOffsets(oldOffsets));
 	}
 
 	function _change_offset(x:Float, y:Float) {

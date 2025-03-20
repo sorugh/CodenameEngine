@@ -40,15 +40,27 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 		alpha = 0.7;
 
 		for (anim in character.getAnimOrder())
-			addAnimation(character.animDatas.get(anim));
+			addAnimation(character.animDatas.get(anim), -1, false);
 		addButton.callback = generateAnimation;
 
 		setAnimAutoComplete(CoolUtil.getAnimsListFromSprite(character));
+
+		// dragCallback = (button:CharacterAnimButton, oldID:Int, newID:Int) -> {}
 	}
 
 	public var ghosts:Array<String> = [];
+	var __movingAnimOldOrder:Int = -1;
 	public override function update(elapsed:Float) {
+		var __oldMoving:CharacterAnimButton = curMoving;
 		super.update(elapsed);
+
+		if (curMoving != null && __oldMoving == null) 
+			__movingAnimOldOrder = curMoving.ID;
+
+		if (curMoving == null && __oldMoving != null)
+			if (__movingAnimOldOrder != __oldMoving.ID) 
+				CharacterEditor.undos.addToUndo(CAnimEditOrder(__movingAnimOldOrder, __oldMoving.ID));
+		
 
 		animsList = [for (button in buttons) button.anim];
 		character.ghosts = ghosts;
@@ -84,7 +96,7 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 	public function removeAnimDisplay(name:String)
 		displayAnimsFramesList.remove(name);
 
-	public function deleteAnimation(button:CharacterAnimButton) {
+	public function deleteAnimation(button:CharacterAnimButton, addToUndo:Bool = true) {
 		if (buttons.members.length <= 1) return;
 		if (character.getAnimName() == button.anim)
 			@:privateAccess CharacterEditor.instance._animation_down(null);
@@ -93,6 +105,7 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 		if (character.animOffsets.exists(button.anim)) character.animOffsets.remove(button.anim);
 		if (character.animDatas.exists(button.anim)) character.animDatas.remove(button.anim);
 
+		if (addToUndo) CharacterEditor.undos.addToUndo(CAnimDelete(button.ID, button.data));
 		remove(button); button.destroy();
 	}
 
@@ -120,7 +133,7 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 		addAnimation(animData);
 	}
 
-	public function addAnimation(animData:AnimData, animID:Int = -1) @:privateAccess {
+	public function addAnimation(animData:AnimData, animID:Int = -1, addToUndo:Bool = true) @:privateAccess {
 		XMLUtil.addAnimToSprite(character, animData);
 
 		var newButton:CharacterAnimButton = new CharacterAnimButton(0, 0, animData, this);
@@ -132,6 +145,8 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 
 		if (newButton.valid)
 			buildAnimDisplay(animData.name, animData);
+
+		if (addToUndo) CharacterEditor.undos.addToUndo(CAnimCreate(newButton.ID, newButton.data));
 	}
 
 	@:noCompletion var __autoCompleteAnims:Array<String> = [];

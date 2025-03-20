@@ -505,7 +505,6 @@ class CharacterEditor extends UIState {
 				changeCharacterDesginedAs(!newIsPlayer, false);
 			case CCharEditInfo(oldInfo, newInfo):
 				characterPropertiesWindow.editCharacterInfo(oldInfo, false);
-			case CCharEditSprite(oldSprite, newSprite):
 			case CAnimCreate(animID, animData):
 				characterAnimsWindow.deleteAnimation(characterAnimsWindow.buttons.members[animID], false);
 			case CAnimDelete(animID, animData):
@@ -516,15 +515,27 @@ class CharacterEditor extends UIState {
 				characterAnimsWindow.buttons.members.remove(button);
 				characterAnimsWindow.buttons.members.insert(animID, button);
 			case CAnimEditName(animID, oldName, newName):
+				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[animID];
+				button.changeName(oldName, false);
 			case CAnimEditAnim(animID, oldAnim, newAnim):
+				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[animID];
+				button.changeAnim(oldAnim, false);
 			case CAnimEditOffset(animID, oldOffset, newOffset):
+				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[animID];
+				button.changeOffset(oldOffset.x, oldOffset.y, false);
 			case CAnimEditFPS(animID, oldFPS, newFPS):
+				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[animID];
+				button.changeFPS(oldFPS, false);
 			case CAnimEditLooping(animID, newLooping):
+				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[animID];
+				button.changeLooping(!newLooping, false);
 			case CAnimEditIndices(animID, oldIndicies, newIndicies):
+				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[animID];
+				button.changeIndicies(oldIndicies, false);
 			case CCharClearOffsets(oldOffsets):
 				for (anim => offset in oldOffsets)
 					if (characterAnimsWindow.animButtons[anim] != null)
-						characterAnimsWindow.animButtons[anim].changeOffset(offset.x, offset.y);
+						characterAnimsWindow.animButtons[anim].changeOffset(offset.x, offset.y, false);
 		}
 	}
 
@@ -550,7 +561,6 @@ class CharacterEditor extends UIState {
 				changeCharacterDesginedAs(newIsPlayer, false);
 			case CCharEditInfo(oldInfo, newInfo):
 				characterPropertiesWindow.editCharacterInfo(newInfo, false);
-			case CCharEditSprite(oldSprite, newSprite):
 			case CAnimCreate(animID, animData):
 				characterAnimsWindow.addAnimation(animData, animID, false);
 				playAnimation(animData.name);
@@ -561,11 +571,23 @@ class CharacterEditor extends UIState {
 				characterAnimsWindow.buttons.members.remove(button);
 				characterAnimsWindow.buttons.members.insert(newAnimID, button);
 			case CAnimEditName(animID, oldName, newName):
+				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[animID];
+				button.changeName(newName, false);
 			case CAnimEditAnim(animID, oldAnim, newAnim):
+				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[animID];
+				button.changeAnim(newAnim, false);
 			case CAnimEditOffset(animID, oldOffset, newOffset):
+				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[animID];
+				button.changeOffset(newOffset.x, newOffset.y, false);
 			case CAnimEditFPS(animID, oldFPS, newFPS):
+				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[animID];
+				button.changeFPS(newFPS, false);
 			case CAnimEditLooping(animID, newLooping):
+				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[animID];
+				button.changeLooping(newLooping, false);
 			case CAnimEditIndices(animID, oldIndicies, newIndicies):
+				var button:CharacterAnimButton = characterAnimsWindow.buttons.members[animID];
+				button.changeIndicies(newIndicies, false);
 			case CCharClearOffsets(oldOffsets):
 				clearOffsets(false);
 		}
@@ -601,7 +623,7 @@ class CharacterEditor extends UIState {
 		];
 
 		for (anim => button in characterAnimsWindow.animButtons)
-			button.changeOffset(0, 0);
+			button.changeOffset(0, 0, false);
 		
 		if (addToUndo) undos.addToUndo(CCharClearOffsets(oldOffsets));
 	}
@@ -861,7 +883,6 @@ enum CharacterEditorChange {
 	CCharEditDesignedAs(newIsPlayer:Bool);
 
 	CCharEditInfo(oldInfo:CharacterExtraInfo, newInfo:CharacterExtraInfo);
-	CCharEditSprite(oldSprite:String, newSprite:String);
 
 	CAnimCreate(animID:Int, animData:AnimData);
 	CAnimDelete(animID:Int, animData:AnimData);

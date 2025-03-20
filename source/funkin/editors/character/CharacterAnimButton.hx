@@ -216,7 +216,7 @@ class CharacterAnimButton extends UIButton {
 		super.update(elapsed);
 	}
 
-	public function changeName(newName:String) @:privateAccess {
+	public function changeName(newName:String, addToUndo:Bool = true) @:privateAccess {
 		if (newName == anim) return;
 
 		if  (parent.character.getNameList().indexOf(newName) != -1) {
@@ -224,6 +224,7 @@ class CharacterAnimButton extends UIButton {
 			return;
 		}
 
+		var oldName:String = anim;
 		if (parent.character.animateAtlas != null) {
 			var animSymbol:FlxSymbolAnimation = __getAnimationSymbol();
 
@@ -252,13 +253,17 @@ class CharacterAnimButton extends UIButton {
 		parent.displayAnimsFramesList.set(newName, displayFrame);
 
 		this.anim = newName;
+		nameTextBox.label.text = newName;
 		updateText();
+
+		if (addToUndo) CharacterEditor.undos.addToUndo(CAnimEditName(ID, oldName, newName));
 	}
 
-	public function changeAnim(newAnim:String) @:privateAccess {
+	public function changeAnim(newAnim:String, addToUndo:Bool = true) @:privateAccess {
 		var animData:AnimData = parent.character.animDatas[anim];
 		if (newAnim == animData.anim) return;
 
+		var oldAnim:String = animData.anim;
 		animData.anim = newAnim;
 
 		if (parent.character.animateAtlas != null) 
@@ -280,13 +285,19 @@ class CharacterAnimButton extends UIButton {
 
 		if (parent.character.getAnimName() == anim)
 			CharacterEditor.instance.playAnimation(anim);
+
+		animTextBox.label.text = newAnim;
+
+		if (addToUndo) CharacterEditor.undos.addToUndo(CAnimEditAnim(ID, oldAnim, newAnim));
 	}
 
-	public function changeOffset(newOffsetX:Null<Float>, newOffsetY:Null<Float>) {
+	public function changeOffset(newOffsetX:Null<Float>, newOffsetY:Null<Float>, addToUndo:Bool = true) {
 		var animData:AnimData = parent.character.animDatas[anim];
 
 		if (newOffsetX != null && newOffsetY != null && newOffsetX == animData.x && newOffsetY == animData.y)
 			return;
+		
+		var oldPosition:FlxPoint = FlxPoint.get(animData.x, animData.y);
 
 		if (newOffsetX != null) animData.x = newOffsetX;
 		if (newOffsetY != null) animData.y = newOffsetY;
@@ -296,11 +307,17 @@ class CharacterAnimButton extends UIButton {
 		if (parent.character.getAnimName() == anim && Options.playAnimOnOffset)
 			CharacterEditor.instance.playAnimation(anim);
 
+		positionXStepper.label.text = Std.string(animData.x);
+		positionYStepper.label.text = Std.string(animData.y);
+
 		updateText();
+
+		if (addToUndo) CharacterEditor.undos.addToUndo(CAnimEditOffset(ID, oldPosition, FlxPoint.get(animData.x, animData.y)));
 	}
 
-	public function changeFPS(newFPS:Float) @:privateAccess {
+	public function changeFPS(newFPS:Float, addToUndo:Bool = true) @:privateAccess {
 		var animData:AnimData = parent.character.animDatas[anim];
+		var oldFPS:Float = animData.fps;
 		animData.fps = newFPS;
 
 		if (parent.character.animateAtlas != null) {
@@ -313,10 +330,15 @@ class CharacterAnimButton extends UIButton {
 
 		if (parent.character.getAnimName() == anim)
 			CharacterEditor.instance.playAnimation(anim);
+
+		fpsStepper.label.text = Std.string(newFPS);
+
+		if (addToUndo) CharacterEditor.undos.addToUndo(CAnimEditFPS(ID, oldFPS, newFPS));
 	}
 
-	public function changeLooping(newLooping:Bool) @:privateAccess {
+	public function changeLooping(newLooping:Bool, addToUndo:Bool = true) @:privateAccess {
 		var animData:AnimData = parent.character.animDatas[anim];
+
 		animData.loop = newLooping;
 
 		if (parent.character.animateAtlas != null) {
@@ -329,16 +351,26 @@ class CharacterAnimButton extends UIButton {
 
 		if (parent.character.getAnimName() == anim)
 			CharacterEditor.instance.playAnimation(anim);
+
+		loopedCheckbox.checked = newLooping;
+
+		if (addToUndo) CharacterEditor.undos.addToUndo(CAnimEditLooping(ID, newLooping));
 	}
 
-	public function changeIndicies(indicies:Array<Int>) @:privateAccess {
+	public function changeIndicies(indicies:Array<Int>, addToUndo:Bool = true) @:privateAccess {
 		var animData:AnimData = parent.character.animDatas[anim];
+		var oldIndices:Array<Int> = animData.indices.copy();
+
 		animData.indices = indicies;
 
 		__refreshAnimation();
 
 		if (parent.character.getAnimName() == anim)
 			CharacterEditor.instance.playAnimation(anim);
+		
+		indicesTextBox.label.text = animData.indices.join(", ");
+
+		if (addToUndo) CharacterEditor.undos.addToUndo(CAnimEditIndices(ID, oldIndices, indicies));
 	}
 
 	public inline function refreshFlxAnimationFrames(flxAnimation:FlxAnimation, animData:AnimData) @:privateAccess {

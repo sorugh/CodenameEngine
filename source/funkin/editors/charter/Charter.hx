@@ -1034,18 +1034,20 @@ class Charter extends UIState {
 
 		// Event Spr
 		for (addEventSpr in [localAddEventSpr, globalAddEventSpr]) {
-			if ((!addEventSpr.global ? (mousePos.x < 0 && mousePos.x > -addEventSpr.bWidth) :
-				(mousePos.x > strumLines.totalKeyCount * 40 && mousePos.x < strumLines.totalKeyCount * 40 + addEventSpr.bWidth))
-				&& gridActionType == NONE && inBoundsY) {
-
-				addEventSpr.incorporeal = false;
-				addEventSpr.sprAlpha = lerp(addEventSpr.sprAlpha, 0.75, 0.25);
+			addEventSpr.incorporeal = true;
+			if ((!addEventSpr.global ? mousePos.x < 0 : mousePos.x > strumLines.totalKeyCount * 40) && gridActionType == NONE && inBoundsY) {
 				var event = getHoveredEvent(mousePos.y, !addEventSpr.global ? leftEventsGroup : rightEventsGroup);
-				if (event != null) addEventSpr.updateEdit(event);
-				else addEventSpr.updatePos(FlxG.keys.pressed.SHIFT ? ((mousePos.y) / 40) : quantStepRounded(mousePos.y/40));
-			} else addEventSpr.sprAlpha = lerp(addEventSpr.sprAlpha, 0, 0.25);
-		}
+				var hoveredWidth:Float = event != null ? 27 + 40 + event.bWidth : addEventSpr.bWidth;
 
+				if ((!addEventSpr.global ? mousePos.x > -hoveredWidth : mousePos.x < strumLines.totalKeyCount * 40 + hoveredWidth)) {
+					addEventSpr.incorporeal = false;
+
+					if (event != null) addEventSpr.updateEdit(event);
+					else addEventSpr.updatePos(FlxG.keys.pressed.SHIFT ? ((mousePos.y) / 40) : quantStepRounded(mousePos.y/40));
+				}
+			}
+			addEventSpr.sprAlpha = lerp(addEventSpr.sprAlpha, !addEventSpr.incorporeal ? 0.75 : 0, 0.25);
+		}
 		noteHoverer.showHoverer = Charter.instance.gridBackdropDummy.hovered;
 	}
 

@@ -16,6 +16,9 @@ import funkin.editors.ui.UIContextMenu.UIContextMenuOptionSpr;
 import funkin.game.Character;
 import haxe.xml.Access;
 import haxe.xml.Printer;
+import funkin.editors.ui.UIImageExplorer.ImageSaveData;
+import sys.FileSystem;
+import sys.io.File;
 
 class CharacterEditor extends UIState {
 	static var __character:String;
@@ -505,6 +508,20 @@ class CharacterEditor extends UIState {
 				changeCharacterDesginedAs(!newIsPlayer, false);
 			case CCharEditInfo(oldInfo, newInfo):
 				characterPropertiesWindow.editCharacterInfo(oldInfo, false);
+			case CCharEditSprite(fileID):
+				var cneisdPath:String = './.temp/__undo__${Type.getClassName(Type.getClass(FlxG.state))}__${fileID}.cneisd';
+				if (FileSystem.exists(cneisdPath)) {
+					try {
+						var cneisdData:String = File.getContent(cneisdPath);
+						var imageSaveData:ImageSaveData = UIImageExplorer.deserializeSaveDataGlobal(cneisdData);
+
+						UIImageExplorer.saveFilesGlobal(imageSaveData, '${Paths.getAssetsRoot()}/images/characters', () -> {
+							characterPropertiesWindow.changeSprite(imageSaveData.imageName);
+						}, false);
+					} catch (e) {
+						trace('ERROR COMPLETING UNDO: $e');
+					};
+				}
 			case CAnimCreate(animID, animData):
 				characterAnimsWindow.deleteAnimation(characterAnimsWindow.buttons.members[animID], false);
 			case CAnimDelete(animID, animData):
@@ -544,8 +561,8 @@ class CharacterEditor extends UIState {
 		_undo(undos.undo());
 	}
 
-	function _redo(undo:CharacterEditorChange) {
-		switch (undo) {
+	function _redo(redo:CharacterEditorChange) {
+		switch (redo) {
 			case null: // do nothing
 			case CCharEditPosition(oldPos, newPos):
 				characterPropertiesWindow.changePosition(newPos.x, newPos.y, false);
@@ -561,6 +578,20 @@ class CharacterEditor extends UIState {
 				changeCharacterDesginedAs(newIsPlayer, false);
 			case CCharEditInfo(oldInfo, newInfo):
 				characterPropertiesWindow.editCharacterInfo(newInfo, false);
+			case CCharEditSprite(fileID):
+				var cneisdPath:String = './.temp/__redo__${Type.getClassName(Type.getClass(FlxG.state))}__${fileID}.cneisd';
+				if (FileSystem.exists(cneisdPath)) {
+					try {
+						var cneisdData:String = File.getContent(cneisdPath);
+						var imageSaveData:ImageSaveData = UIImageExplorer.deserializeSaveDataGlobal(cneisdData);
+
+						UIImageExplorer.saveFilesGlobal(imageSaveData, '${Paths.getAssetsRoot()}/images/characters', () -> {
+							characterPropertiesWindow.changeSprite(imageSaveData.imageName);
+						}, false);
+					} catch (e) {
+						trace('ERROR COMPLETING UNDO: $e');
+					};
+				}
 			case CAnimCreate(animID, animData):
 				characterAnimsWindow.addAnimation(animData, animID, false);
 				playAnimation(animData.name);
@@ -629,16 +660,16 @@ class CharacterEditor extends UIState {
 	}
 
 	function _change_offset(x:Float, y:Float) {
-		if (character.getAnimName() == null) return;
+		if (characterFakeAnim == null) return;
 		_set_offset(
-			character.animOffsets[character.getAnimName()].x - x,
-			character.animOffsets[character.getAnimName()].y - y
+			character.animOffsets[characterFakeAnim].x - x,
+			character.animOffsets[characterFakeAnim].y - y
 		);
 	}
 
 	function _set_offset(x:Float, y:Float) {
-		if (character.getAnimName() == null) return;
-		characterAnimsWindow.animButtons.get(character.getAnimName()).changeOffset(
+		if (characterAnimsWindow.animButtons[characterFakeAnim] == null || !characterAnimsWindow.animButtons[characterFakeAnim].valid) return;
+		characterAnimsWindow.animButtons.get(characterFakeAnim).changeOffset(
 			FlxMath.roundDecimal(x, 2), FlxMath.roundDecimal(y, 2)
 		);
 	}
@@ -883,6 +914,7 @@ enum CharacterEditorChange {
 	CCharEditDesignedAs(newIsPlayer:Bool);
 
 	CCharEditInfo(oldInfo:CharacterExtraInfo, newInfo:CharacterExtraInfo);
+	CCharEditSprite(fileID:Int);
 
 	CAnimCreate(animID:Int, animData:AnimData);
 	CAnimDelete(animID:Int, animData:AnimData);

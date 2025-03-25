@@ -247,13 +247,19 @@ class UIImageExplorer extends UIFileExplorer {
 		return {
 			imageName: this.imageName, 
 			isAtlas: this.isAtlas, 
-			imageFiles: this.imageFiles
+			imageFiles: this.imageFiles.copy()
 		};
 	}
 
 	public inline function saveFiles(directory:String, ?onFinishSaving:Void->Void, ?checkExisting:Bool = true) {
 		UIImageExplorer.saveFilesGlobal(getSaveData(), directory, onFinishSaving, checkExisting);
 	}
+
+	public static function serializeSaveDataGlobal(data:ImageSaveData):String
+		return haxe.Serializer.run(data);
+
+	public static function deserializeSaveDataGlobal(data:String):ImageSaveData
+		return cast haxe.Unserializer.run(data);
 
 	public static function saveFilesGlobal(imageData:ImageSaveData, directory:String, ?onFinishSaving:Void->Void, ?checkExisting:Bool = true) {
 		if (imageData.isAtlas) directory += '/${imageData.imageName}';

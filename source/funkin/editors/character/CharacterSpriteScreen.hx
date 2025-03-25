@@ -3,13 +3,14 @@ package funkin.editors.character;
 import haxe.io.Bytes;
 import flixel.util.typeLimit.OneOfTwo;
 import flixel.text.FlxText.FlxTextFormat;
+import funkin.editors.ui.UIImageExplorer.ImageSaveData;
 import flixel.text.FlxText.FlxTextFormatMarkerPair;
 
 class CharacterSpriteScreen extends UISubstateWindow {
 	private var imagePath:String = null;
 	private var onSave:(String, Bool) -> Void = null;
 
-	public var ogImageFiles:Map<String, OneOfTwo<String, Bytes>> = [];
+	public var ogImageSaveData:ImageSaveData;
 	public var imageExplorer:UIImageExplorer;
 
 	public var saveButton:UIButton;
@@ -39,9 +40,10 @@ class CharacterSpriteScreen extends UISubstateWindow {
 			"Character Image File $* Required$",
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
-		ogImageFiles = imageExplorer.imageFiles.copy();
+		ogImageSaveData = imageExplorer.getSaveData();
 
 		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight - 20, "Save & Close", function() {
+			addToUndo(); // should be async?? -lunar
 			imageExplorer.saveFiles('${Paths.getAssetsRoot()}/images/characters', () -> {
 				onSave(imageExplorer.imageName, imageExplorer.isAtlas);
 				close();
@@ -67,7 +69,7 @@ class CharacterSpriteScreen extends UISubstateWindow {
 		refreshWindowSize();
 
 		if (imageExplorer == null || imageExplorer.imageFiles == null) return;
-		var filesSame = CoolUtil.deepEqual(ogImageFiles, imageExplorer.imageFiles);
+		var filesSame = CoolUtil.deepEqual(ogImageSaveData.imageFiles, imageExplorer.imageFiles);
 		saveButton.selectable = !filesSame && !CoolUtil.isMapEmpty(imageExplorer.imageFiles) && (imageExplorer.animationList.length > 0);
 	}
 
@@ -79,5 +81,14 @@ class CharacterSpriteScreen extends UISubstateWindow {
 		saveButton.x = windowSpr.x + windowSpr.bWidth - 20 - saveButton.bWidth;
 		closeButton.x = saveButton.x - 20 - closeButton.bWidth; 
 		closeButton.y = saveButton.y = imageExplorer.y + imageExplorer.bHeight + 14;
+	}
+
+	public static var idCounter:Int = -1;
+	public inline function addToUndo() {
+		idCounter = FlxMath.wrap(idCounter + FlxG.random.int(1, 57349), 0, 9999);
+		CharacterEditor.undos.addToUndo(CCharEditSprite(idCounter));
+	
+		CoolUtil.safeSaveFile('./.temp/__undo__${Type.getClassName(Type.getClass(FlxG.state))}__${idCounter}.cneisd', UIImageExplorer.serializeSaveDataGlobal(ogImageSaveData));
+		CoolUtil.safeSaveFile('./.temp/__redo__${Type.getClassName(Type.getClass(FlxG.state))}__${idCounter}.cneisd', UIImageExplorer.serializeSaveDataGlobal(imageExplorer.getSaveData()));
 	}
 }

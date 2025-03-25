@@ -516,7 +516,7 @@ class CharacterEditor extends UIState {
 						var imageSaveData:ImageSaveData = UIImageExplorer.deserializeSaveDataGlobal(cneisdData);
 
 						UIImageExplorer.saveFilesGlobal(imageSaveData, '${Paths.getAssetsRoot()}/images/characters', () -> {
-							characterPropertiesWindow.changeSprite(imageSaveData.imageName);
+							characterPropertiesWindow.changeSprite('${imageSaveData.directory.length > 0 ? '${imageSaveData.directory}/' : ""}' + imageSaveData.imageName);
 						}, false);
 					} catch (e) {
 						trace('ERROR COMPLETING UNDO: $e');
@@ -586,7 +586,7 @@ class CharacterEditor extends UIState {
 						var imageSaveData:ImageSaveData = UIImageExplorer.deserializeSaveDataGlobal(cneisdData);
 
 						UIImageExplorer.saveFilesGlobal(imageSaveData, '${Paths.getAssetsRoot()}/images/characters', () -> {
-							characterPropertiesWindow.changeSprite(imageSaveData.imageName);
+							characterPropertiesWindow.changeSprite('${imageSaveData.directory.length > 0 ? '${imageSaveData.directory}/' : ""}' + imageSaveData.imageName);
 						}, false);
 					} catch (e) {
 						trace('ERROR COMPLETING UNDO: $e');

@@ -18,6 +18,7 @@ using flixel.util.FlxSpriteUtil;
 
 typedef ImageSaveData = {
 	var imageName:String;
+	var directory:String;
 	var isAtlas:Bool;
 	var imageFiles:Map<String, OneOfTwo<String, Bytes>>;
 }
@@ -25,15 +26,35 @@ typedef ImageSaveData = {
 // TODO: make this limited if on web
 class UIImageExplorer extends UIFileExplorer {
 	private var allowAtlases:Bool = true;
+	private var allowDirectories:Bool = true;
 
-	public function new(x:Float, y:Float, image:String, ?w:Int, ?h:Int, ?onFile:(String, Bytes)->Void) {
+	public var directoryButton:UIButton;
+	public var directoryIcon:UIText;
+
+	public var directoryBG:UISliceSprite;
+	public var directoryTextBoxLabel:UIText;
+	public var directoryTextBox:UITextBox;
+
+	public function new(x:Float, y:Float, image:String, ?w:Int, ?h:Int, ?onFile:(String, Bytes)->Void, ?directory:String = "images") {
 		super(x, y, w, h, "png, jpg", function (filePath, file) {
 			if (filePath != null && file != null) uploadImage(filePath, file);
 			if (onFile != null) onFile(filePath, file);
 		});
-
+		
 		deleteButton.bWidth = 26;
 		deleteButton.bHeight = 26;
+
+		directoryButton = new UIButton(x + bWidth - (bHeight - 16) - 8, y + 8, null, () -> {directoryBG.visible = !directoryBG.visible;}, 26, 26);
+		members.push(directoryButton);
+
+	 	directoryIcon = new UIText(directoryButton.x, directoryButton.y, 0, "/", 14);
+		members.push(directoryIcon);
+
+		directoryBG = new UISliceSprite(0, 0, 210+16, 8+12+4+22+8, 'editors/ui/inputbox');
+		directoryBG.alpha = 0.9; directoryBG.members.push(directoryTextBoxLabel = new UIText(8, 6, 0, 'Directory ($directory/)', 12));
+		
+		directoryTextBox = new UITextBox(8, 8+12+4, "", 210, 22, false, true);
+		directoryBG.members.push(directoryTextBox);
 
 		if (image != null) {
 			var fullImagePath:String = '${Path.normalize(Sys.getCwd())}/${Paths.image(image)}'.replace('/', '\\');
@@ -44,6 +65,9 @@ class UIImageExplorer extends UIFileExplorer {
 			if (FileSystem.exists(fullImagePath))
 				loadFile(fullImagePath);
 		}
+
+		allowDirectories = CoolUtil.isMapEmpty(imageFiles); __firstLoad = false;
+		directoryButton.visible = directoryButton.selectable = directoryIcon.visible = directoryBG.visible = false;
 	}
 
 	public var isAtlas:Bool = false;
@@ -60,6 +84,7 @@ class UIImageExplorer extends UIFileExplorer {
 
 	public var maxSize:FlxPoint = FlxPoint.get(700, 500);
 
+	@:noCompletion var __firstLoad:Bool = true;
 	public function uploadImage(filePath:String, file:Bytes) {
 		__resetData();
 
@@ -205,12 +230,12 @@ class UIImageExplorer extends UIFileExplorer {
 		uiElement.antialiasing = true;
 		members.push(uiElement);
 
-		if (!isAtlas && frames != null) {
-			for (frame in frames.frames) {
-				var rect = frame.frame;
-				uiElement.drawRect(rect.x, rect.y, rect.width, rect.height, 0x00161E87, {thickness: Std.int(1.75/imageScale), color: 0xFF11178C});
-			}
-		}
+		//if (!isAtlas && frames != null) {
+		//	for (frame in frames.frames) {
+		//		var rect = frame.frame;
+		//		uiElement.drawRect(rect.x, rect.y, rect.width, rect.height, 0x00161E87, {thickness: Std.int(1.75/imageScale), color: 0xFF11178C});
+		//	}
+		//}
 		// GENERATE TEXT!!!
 		imagePath = new Path(imagePath);
 		imageName = isAtlas ? Path.withoutDirectory(directoryPath) : imagePath.file;
@@ -241,11 +266,36 @@ class UIImageExplorer extends UIFileExplorer {
 
 		deleteIcon.x = deleteButton.x + deleteButton.bWidth/2 - 8;
 		deleteIcon.y = deleteButton.y + deleteButton.bHeight/2 - 8;
+
+		directoryButton.x = deleteButton.x - deleteButton.bWidth - 12;
+		directoryButton.y = y + 12;
+
+		directoryIcon.x = directoryButton.x + directoryButton.bWidth/2 - (directoryIcon.width/2);
+		directoryIcon.y = directoryButton.y + directoryButton.bHeight/2 - (directoryIcon.height/2);
+		
+		directoryBG.x = x + bWidth - directoryBG.bWidth - 16;
+		directoryBG.y = directoryButton.y + directoryButton.bHeight + 8;
+
+		directoryTextBoxLabel.x = directoryBG.x + 8;
+		directoryTextBoxLabel.y = directoryBG.y + 6;
+
+		directoryTextBox.x = directoryBG.x + 8;
+		directoryTextBox.y = directoryBG.y + 8+12+4;
+
+		if (!__firstLoad) allowDirectories = true;
+
+		directoryButton.visible = directoryButton.selectable = directoryIcon.visible = allowDirectories;
+		directoryBG.visible = false;
+		if (directoryButton.visible) fileText.fieldWidth -= directoryButton.bWidth + 12;
+
+		members.push(directoryBG); __firstLoad = false;
 	}
 
+	public var saveData:ImageSaveData = null;
 	public inline function getSaveData():ImageSaveData {
-		return {
+		return saveData = {
 			imageName: this.imageName, 
+			directory: Path.removeTrailingSlashes(directoryTextBox.label.text),
 			isAtlas: this.isAtlas, 
 			imageFiles: this.imageFiles.copy()
 		};
@@ -262,6 +312,7 @@ class UIImageExplorer extends UIFileExplorer {
 		return cast haxe.Unserializer.run(data);
 
 	public static function saveFilesGlobal(imageData:ImageSaveData, directory:String, ?onFinishSaving:Void->Void, ?checkExisting:Bool = true) {
+		directory += '${directory.length > 0 ? '/${imageData.directory}' : ""}';
 		if (imageData.isAtlas) directory += '/${imageData.imageName}';
 
 		var alreadlyExistingFiles:Array<String> = [];
@@ -310,6 +361,9 @@ class UIImageExplorer extends UIFileExplorer {
 
 		members.remove(fileText);
 		fileText.destroy();
+
+		members.remove(directoryBG);
+		directoryButton.visible = directoryButton.selectable = directoryIcon.visible = directoryBG.visible = false;
 
 		super.removeFile();
 	}

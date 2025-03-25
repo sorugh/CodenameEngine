@@ -41,7 +41,7 @@ class CharacterCreationScreen extends UISubstateWindow {
 			"Character File Name $* Required$",
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
-		imageExplorer = new UIImageExplorer(characterNameTextBox.x, characterNameTextBox.y + 30 + 16 + 20, null, 320, 58, (_, _) -> {onLoadImage();});
+		imageExplorer = new UIImageExplorer(characterNameTextBox.x, characterNameTextBox.y + 30 + 16 + 20, null, 320, 58, (_, _) -> {onLoadImage();}, "images/characters");
 		add(imageExplorer);
 		addLabelOn(imageExplorer, "Character Image File").applyMarkup(
 			"Character Image File $* Required$",
@@ -88,7 +88,7 @@ class CharacterCreationScreen extends UISubstateWindow {
 		var xml:Xml = Xml.createElement("character");
 		xml.attributeOrder = Character.characterProperties.copy();
 
-		xml.set("sprite", imageSaveData.imageName);
+		xml.set("sprite", '${imageSaveData.directory.length > 0 ? '${imageSaveData.directory}/' : ""}' + imageSaveData.imageName);
 
 		// Look for animations >:D
 		var animationList:Array<String> = imageExplorer.animationList.copy();

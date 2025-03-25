@@ -34,7 +34,7 @@ class CharacterSpriteScreen extends UISubstateWindow {
 
 		super.create();
 
-		imageExplorer = new UIImageExplorer(20, windowSpr.y + 30 + 16 + 20, imagePath, 320, 58, (_, _) -> {onLoadImage();});
+		imageExplorer = new UIImageExplorer(20, windowSpr.y + 30 + 16 + 20, imagePath, 320, 58, (_, _) -> {onLoadImage();}, "images/characters");
 		add(imageExplorer);
 		addLabelOn(imageExplorer, "Character Image File").applyMarkup(
 			"Character Image File $* Required$",
@@ -45,7 +45,7 @@ class CharacterSpriteScreen extends UISubstateWindow {
 		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight - 20, "Save & Close", function() {
 			addToUndo(); // should be async?? -lunar
 			imageExplorer.saveFiles('${Paths.getAssetsRoot()}/images/characters', () -> {
-				onSave(imageExplorer.imageName, imageExplorer.isAtlas);
+				onSave('${imageExplorer.saveData.directory.length > 0 ? '${imageExplorer.saveData.directory}/' : ""}' + imageExplorer.imageName, imageExplorer.isAtlas);
 				close();
 			});
 		}, 125);

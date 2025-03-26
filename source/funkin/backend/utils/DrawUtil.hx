@@ -8,19 +8,19 @@ import flixel.math.FlxPoint;
 final class DrawUtil {
 	public static var line:FlxSprite = null;
 	public static var dot:FlxSprite = null;
-	public static var sqaure:FlxSprite = null;
+	public static var square:FlxSprite = null;
 
-	public static inline function drawSqaure(x:Float, y:Float, ?scale:Float = 1) {
-		if (sqaure == null) createDrawers();
+	public static inline function drawSquare(x:Float, y:Float, ?scale:Float = 1) {
+		if (square == null) createDrawers();
 
-		sqaure.setPosition(x, y);
+		square.setPosition(x, y);
 
-		sqaure.scale.set(scale, scale);
-		sqaure.updateHitbox();
+		square.scale.set(scale, scale);
+		square.updateHitbox();
 		
-		sqaure.x -= sqaure.width / 2;
-		sqaure.y -= sqaure.height / 2;
-		sqaure.draw();
+		square.x -= square.width / 2;
+		square.y -= square.height / 2;
+		square.draw();
 	}
 
 	public static inline function drawDot(x:Float, y:Float, ?scale:Float = 1) {
@@ -83,9 +83,9 @@ final class DrawUtil {
 		line.camera = FlxG.camera;
 		line.forceIsOnScreen = true;
 
-		sqaure = new FlxSprite().makeGraphic(32, 32, FlxColor.WHITE);
-		sqaure.camera = FlxG.camera;
-		sqaure.forceIsOnScreen = true;
+		square = new FlxSprite().makeGraphic(32, 32, FlxColor.WHITE);
+		square.camera = FlxG.camera;
+		square.forceIsOnScreen = true;
 	}
 
 	public static function destroyDrawers() {
@@ -97,9 +97,9 @@ final class DrawUtil {
 			line.destroy();
 			line = null;
 		}
-		if(sqaure != null) {
-			sqaure.destroy();
-			sqaure = null;
+		if(square != null) {
+			square.destroy();
+			square = null;
 		}
 	}
 }

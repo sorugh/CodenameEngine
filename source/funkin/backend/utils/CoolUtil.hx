@@ -301,7 +301,7 @@ final class CoolUtil
 	 * @param size Size to convert to string
 	 * @return String Result string representation
 	 */
-	public static function getSizeString(size: #if cpp Float64 #else Float #end):String {
+	public static function getSizeString(size:Float):String {
 		var rSize:Float = size;
 		var label:Int = 0;
 		var len = sizeLabels.length;
@@ -311,6 +311,23 @@ final class CoolUtil
 		}
 		return Std.int(rSize) + ((label <= 1) ? "" : "." + addZeros(Std.string(Std.int((rSize % 1) * 100)), 2)) + sizeLabels[label];
 	}
+
+	/**
+	 * Returns a string representation of a size, following this format: `1.02 GB`, `134.00 MB`, using Float64 on cpp targets
+	 * @param size Size to convert to string
+	 * @return String Result string representation
+	 */
+	 public static function getSizeString64(size: #if cpp Float64 #else Float #end):String {
+		var rSize: #if cpp Float64 #else Float #end = size;
+		var label:Int = 0;
+		var len = sizeLabels.length;
+		while(rSize >= 1024 && label < len-1) {
+			label++;
+			rSize /= 1024;
+		}
+		return Std.int(rSize) + ((label <= 1) ? "" : "." + addZeros(Std.string(Std.int((rSize % 1) * 100)), 2)) + sizeLabels[label];
+	}
+
 
 	/**
 	 * Replaces in a string any kind of IP with `[Your IP]` making the string safer to trace.
@@ -809,7 +826,17 @@ final class CoolUtil
 	 * @param path
 	 */
 	public static inline function browsePath(path:String) {
-
+		var formattedPath:String = Path.normalize(path);
+		
+		#if windows
+		formattedPath = formattedPath.replace("/", "\\");
+		Sys.command("explorer", [formattedPath]);
+		#elseif mac
+		Sys.command("open", [formattedPath]);
+		#elseif linux
+		var cmd = Sys.command("xdg-open", [formattedPath]);
+		if (cmd != 0) cmd = Sys.command("/usr/bin/xdg-open", [formattedPath]);
+		#end
 	}
 
 	/**

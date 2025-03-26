@@ -100,7 +100,7 @@ class SystemInfo extends FramerateCategory {
 						Logs.trace('Unable to grab GPU VRAM', ERROR, RED);
 					else {
 						var vRAMBytesFloat:#if cpp Float64 #else Float #end = vRAMBytes*1024;
-						vRAM = CoolUtil.getSizeString(vRAMBytesFloat);
+						vRAM = CoolUtil.getSizeString64(vRAMBytesFloat);
 					}
 				}
 			} else

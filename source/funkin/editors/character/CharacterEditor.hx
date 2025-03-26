@@ -364,8 +364,9 @@ class CharacterEditor extends UIState {
 			}
 
 			if (FlxG.mouse.justReleasedRight) {
+				var mousePos = FlxG.mouse.getScreenPosition(uiCamera);
 				closeCurrentContextMenu();
-				openContextMenu(topMenu[2].childs);
+				openContextMenu(topMenu[2].childs, null, mousePos.x, mousePos.y);
 			}
 
 			if (FlxG.mouse.pressed && !FlxG.mouse.justPressed) {

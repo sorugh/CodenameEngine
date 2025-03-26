@@ -68,7 +68,7 @@ class CharterWaveformHandler extends FlxBasic {
 
 		var waveData:BitmapData = waveDatas.get(name);
 
-		var waveShader:CustomShader = new CustomShader("engine/editorWaveforms");
+		var waveShader:CustomShader = new CustomShader(Options.charterRainbowWaveforms ? "engine/editorWaveformsRainbow" : "engine/editorWaveforms");
 		waveShader.data.waveformSize.value = [waveData.width, waveData.height];
 		var waveformInput:ShaderInput<BitmapData> = cast waveShader.data.waveformTexture;
 		waveformInput.input = waveData;
@@ -76,6 +76,9 @@ class CharterWaveformHandler extends FlxBasic {
 		waveShader.data.textureRes.value = [0, 0];
 		waveShader.data.pixelOffset.value = [0];
 		waveShader.data.lowDetail.value = [Options.charterLowDetailWaveforms];
+
+		if (Options.charterRainbowWaveforms)
+			waveShader.data.time.value = [0];
 
 		waveShaders.set(name, waveShader);
 		return waveShader;

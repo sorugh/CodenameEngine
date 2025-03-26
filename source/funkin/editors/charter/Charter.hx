@@ -301,6 +301,11 @@ class Charter extends UIState {
 					},
 					null,
 					{
+						label: 'Rainbow Waveforms',
+						onSelect: _view_switchWaveformRainbow,
+						icon: Options.charterRainbowWaveforms ? 1 : 0
+					},
+					{
 						label: 'Low Detail Waveforms',
 						onSelect: _view_switchWaveformDetail,
 						icon: Options.charterLowDetailWaveforms ? 1 : 0
@@ -686,7 +691,7 @@ class Charter extends UIState {
 		return sound != null && sound._sound != null && sound._sound.length > 0;
 	}
 
-	public function updateWaveforms() {
+	public function getWavesToGenerate():Array<{name:String, sound:FlxSound}> {
 		var wavesToGenerate:Array<{name:String, sound:FlxSound}> = [];
 
 		if(isSoundLoaded(FlxG.sound.music))
@@ -701,6 +706,12 @@ class Charter extends UIState {
 					name: 'Voices${strumLine.strumLine.vocalsSuffix}.ogg',
 					sound: strumLine.vocals
 				});
+			
+		return wavesToGenerate;
+	}
+
+	public function updateWaveforms() {
+		var wavesToGenerate:Array<{name:String, sound:FlxSound}> = getWavesToGenerate();
 
 		var oldWaveformList:Array<String> = waveformHandler.waveformList;
 		var newWaveformList:Array<String> = [for (data in wavesToGenerate) data.name];
@@ -1275,7 +1286,14 @@ class Charter extends UIState {
 
 	var __crochet:Float;
 	var __firstFrame:Bool = true;
+	var __timer:Float = 0;
 	public override function update(elapsed:Float) {
+		if (Options.charterRainbowWaveforms) {
+			__timer += elapsed/8;
+			for (shader in waveformHandler.waveShaders)
+				shader.data.time.value = [__timer];
+		}
+
 		updateNoteLogic(elapsed);
 		updateAutoSaving(elapsed);
 
@@ -1817,6 +1835,12 @@ class Charter extends UIState {
 	function _view_showeventBeatSeparator(t) {
 		t.icon = (Options.charterShowBeats = !Options.charterShowBeats) ? 1 : 0;
 		leftEventsBackdrop.eventBeatSeparator.visible = rightEventsBackdrop.eventBeatSeparator.visible = gridBackdrops.beatsVisible = Options.charterShowBeats;
+	}
+	function _view_switchWaveformRainbow(t) {
+		t.icon = (Options.charterRainbowWaveforms = !Options.charterRainbowWaveforms) ? 1 : 0;
+
+		waveformHandler.clearWaveforms();
+		updateWaveforms();
 	}
 	function _view_switchWaveformDetail(t) {
 		t.icon = (Options.charterLowDetailWaveforms = !Options.charterLowDetailWaveforms) ? 1 : 0;

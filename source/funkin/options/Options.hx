@@ -70,6 +70,7 @@ class Options
 	public static var charterShowSections:Bool = true;
 	public static var charterShowBeats:Bool = true;
 	public static var charterEnablePlaytestScripts:Bool = true;
+	public static var charterRainbowWaveforms:Bool = false;
 	public static var charterLowDetailWaveforms:Bool = false;
 	public static var charterAutoSaves:Bool = true;
 	public static var charterAutoSaveTime:Float = 60*5;

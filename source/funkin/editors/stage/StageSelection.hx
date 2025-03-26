@@ -28,7 +28,7 @@ class StageSelection extends EditorTreeMenu
 			}
 		];
 
-		list.insert(0, new NewOption("New Stage", "New Stage", function() {
+		list.insert(0, new NewOption("New Stage", "Press ACCEPT to create a new stage.", function() {
 			FlxG.state.openSubState(new StageCreationScreen(saveStage));
 		}));
 

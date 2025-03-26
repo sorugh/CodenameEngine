@@ -45,7 +45,7 @@ class CharacterSelection extends EditorTreeMenu
 				}
 			}
 
-			list.insert(0, new NewOption("New Character", "New Character", function() {
+			list.insert(0, new NewOption("New Character", "Press ACCEPT to create a new character.", function() {
 				openSubState(new CharacterCreationScreen(createCharacter));
 			}));
 

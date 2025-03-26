@@ -34,14 +34,14 @@ class CharterSelection extends EditorTreeMenu {
 							FlxG.switchState(new Charter(s.name, d));
 						})
 				];
-				list.push(new NewOption("New Difficulty", "New Difficulty", function() {
+				list.push(new NewOption("New Difficulty", "Press ACCEPT to create a new difficulty.", function() {
 					FlxG.state.openSubState(new ChartCreationScreen(saveChart));
 				}));
 				optionsTree.add(new OptionsScreen(s.name, "Select a difficulty to continue.", list));
 			}, s.parsedColor.getDefault(0xFFFFFFFF))
 		];
 
-		list.insert(0, new NewOption("New Song", "New Song", function() {
+		list.insert(0, new NewOption("New Song", "Press ACCEPT to create a new song.", function() {
 			FlxG.state.openSubState(new SongCreationScreen(saveSong));
 		}));
 
@@ -122,7 +122,7 @@ class CharterSelection extends EditorTreeMenu {
 						FlxG.switchState(new Charter(creation.meta.name, d));
 					})
 			];
-			list.push(new NewOption("New Difficulty", "New Difficulty", function() {
+			list.push(new NewOption("New Difficulty", "Press ACCEPT to create a new difficulty.", function() {
 				FlxG.state.openSubState(new ChartCreationScreen(saveChart));
 			}));
 			optionsTree.insert(1, new OptionsScreen(creation.meta.name, "Select a difficulty to continue.", list));

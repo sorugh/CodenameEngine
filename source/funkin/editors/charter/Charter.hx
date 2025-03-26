@@ -555,7 +555,9 @@ class Charter extends UIState {
 		add(leftEventsGroup);
 		add(rightEventsGroup);
 		add(leftEventRowText);
+		add(localAddEventSpr.sideText);
 		add(rightEventRowText);
+		add(globalAddEventSpr.sideText);
 
 		add(noteHoverer);
 		add(noteDeleteAnims);

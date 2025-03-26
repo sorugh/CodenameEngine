@@ -1,5 +1,8 @@
 package funkin.backend.utils;
 
+#if cpp
+import cpp.Float64;
+#end
 import flxanimate.data.AnimationData.AnimAtlas;
 import flixel.graphics.FlxGraphic;
 import openfl.display.BitmapData;
@@ -298,11 +301,11 @@ final class CoolUtil
 	 * @param size Size to convert to string
 	 * @return String Result string representation
 	 */
-	public static function getSizeString(size:Float):String {
+	public static function getSizeString(size: #if cpp Float64 #else Float #end):String {
 		var rSize:Float = size;
 		var label:Int = 0;
 		var len = sizeLabels.length;
-		while(rSize > 1024 && label < len-1) {
+		while(rSize >= 1024 && label < len-1) {
 			label++;
 			rSize /= 1024;
 		}
@@ -799,6 +802,14 @@ final class CoolUtil
 		#else
 		FlxG.openURL(url);
 		#end
+	}
+
+	/**
+	 * Browse a path in the operating system's explorer
+	 * @param path
+	 */
+	public static inline function browsePath(path:String) {
+
 	}
 
 	/**

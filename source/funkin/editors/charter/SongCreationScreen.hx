@@ -3,17 +3,23 @@ package funkin.editors.charter;
 import flixel.group.FlxGroup;
 import flixel.text.FlxText.FlxTextFormat;
 import flixel.text.FlxText.FlxTextFormatMarkerPair;
-import funkin.backend.chart.ChartData.ChartMetaData;
+import funkin.backend.chart.BaseGameParser;
+import funkin.backend.chart.ChartData;
+import funkin.backend.utils.ZipUtil;
+import haxe.Json;
 import haxe.io.Bytes;
+import haxe.io.BytesInput;
 
 typedef SongCreationData = {
 	var meta:ChartMetaData;
 	var instBytes:Bytes;
 	var voicesBytes:Bytes;
+	@:optional var playerVocals:Bytes;
+	@:optional var oppVocals:Bytes;
 }
 
 class SongCreationScreen extends UISubstateWindow {
-	private var onSave:Null<SongCreationData> -> Void = null;
+	private var onSave:Null<SongCreationData> -> Null<String -> SongCreationData -> Void> -> Void = null;
 
 	public var songNameTextBox:UITextBox;
 	public var bpmStepper:UINumericStepper;
@@ -21,6 +27,7 @@ class SongCreationScreen extends UISubstateWindow {
 	public var stepsPerBeatStepper :UINumericStepper;
 	public var instExplorer:UIFileExplorer;
 	public var voicesExplorer:UIFileExplorer;
+	public var importFrom:UIButton;
 
 	public var displayNameTextBox:UITextBox;
 	public var iconTextBox:UITextBox;
@@ -30,6 +37,14 @@ class SongCreationScreen extends UISubstateWindow {
 	public var colorWheel:UIColorwheel;
 	public var difficultiesTextBox:UITextBox;
 
+	public var engineDropdown:UIDropDown;
+	public var createSong:UIButton;
+
+	public var importInstExplorer:UIFileExplorer;
+	public var importVoicesExplorer:UIFileExplorer;
+
+	public var importChartFile:UIFileExplorer;
+
 	public var backButton:UIButton;
 	public var saveButton:UIButton;
 	public var closeButton:UIButton;
@@ -37,11 +52,21 @@ class SongCreationScreen extends UISubstateWindow {
 	public var songDataGroup:FlxGroup = new FlxGroup();
 	public var menuDataGroup:FlxGroup = new FlxGroup();
 
+	public var selectFormatGroup:FlxGroup = new FlxGroup();
+	public var importAudioGroup:FlxGroup = new FlxGroup();
+	public var importChartGroup:FlxGroup = new FlxGroup();
+
 	public var pages:Array<FlxGroup> = [];
 	public var pageSizes:Array<FlxPoint> = [];
+
+	public var importPages:Array<FlxGroup> = [];
+	public var importPageSizes:Array<FlxPoint> = [];
+
+	public var isImporting = false;
+
 	public var curPage:Int = 0;
 
-	public function new(?onSave:SongCreationData->Void) {
+	public function new(?onSave:SongCreationData -> Null<String -> SongCreationData -> Void> -> Void) {
 		super();
 		if (onSave != null) this.onSave = onSave;
 	}
@@ -80,8 +105,6 @@ class SongCreationScreen extends UISubstateWindow {
 		stepsPerBeatStepper = new UINumericStepper(beatsPerMeasureStepper.x + 30 + 24, beatsPerMeasureStepper.y, 4, 1, 0, 1, null, 54);
 		songDataGroup.add(stepsPerBeatStepper);
 
-		var voicesUIText:UIText = null;
-
 		instExplorer = new UIFileExplorer(songNameTextBox.x, songNameTextBox.y + 32 + 36, null, null, Flags.SOUND_EXT, function (res) {
 			var audioPlayer:UIAudioPlayer = new UIAudioPlayer(instExplorer.x + 8, instExplorer.y + 8, res);
 			instExplorer.members.push(audioPlayer);
@@ -99,6 +122,14 @@ class SongCreationScreen extends UISubstateWindow {
 		});
 		songDataGroup.add(voicesExplorer);
 		addLabelOn(voicesExplorer, "Vocal Audio File");
+
+		importFrom = new UIButton(windowSpr.x + 20, windowSpr.y + windowSpr.bHeight - 16 - 32, "Import From...", function() {
+			winTitle = "Importing Song";
+			isImporting = true;
+			updatePagesTexts();
+			refreshPages();
+		}, 150);
+		songDataGroup.add(importFrom);
 
 		var menuTitle:UIText;
 		menuDataGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Menus Data (Freeplay/Story)", 28));
@@ -132,7 +163,53 @@ class SongCreationScreen extends UISubstateWindow {
 		for (checkbox in [opponentModeCheckbox, coopAllowedCheckbox])
 			{checkbox.y += 6; checkbox.x += 4;}
 
+		var menuTitle:UIText;
+		selectFormatGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Import From:", 28));
+
+		engineDropdown = new UIDropDown(menuTitle.x, menuTitle.y + menuTitle.height + 36, 320, 32, ["Psych/Legacy FNF", "V-Slice Project (.fnfc)"]);
+		selectFormatGroup.add(engineDropdown);
+		addLabelOn(engineDropdown, "Chart Format");
+
+		createSong = new UIButton(windowSpr.x + 20, windowSpr.y + windowSpr.bHeight - 16 - 32, "< Back", function() {
+			winTitle = "Creating New Song";
+			isImporting = false;
+			updatePagesTexts();
+			refreshPages();
+		}, 120);
+		selectFormatGroup.add(createSong);
+
+		var menuTitle:UIText;
+		importAudioGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Add Audios", 28));
+
+		importInstExplorer = new UIFileExplorer(menuTitle.x, menuTitle.y + menuTitle.height + 36, null, null, Flags.SOUND_EXT, function (res) {
+			var audioPlayer:UIAudioPlayer = new UIAudioPlayer(importInstExplorer.x + 8, importInstExplorer.y + 8, res);
+			importInstExplorer.members.push(audioPlayer);
+			importInstExplorer.uiElement = audioPlayer;
+		});
+		importAudioGroup.add(importInstExplorer);
+		addLabelOn(importInstExplorer, "Inst Audio File").applyMarkup(
+			"Inst Audio File $* Required$",
+			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
+
+		importVoicesExplorer = new UIFileExplorer(importInstExplorer.x + 320 + 26, importInstExplorer.y, null, null, Flags.SOUND_EXT, function (res) {
+			var audioPlayer:UIAudioPlayer = new UIAudioPlayer(importVoicesExplorer.x + 8, importVoicesExplorer.y + 8, res);
+			importVoicesExplorer.members.push(audioPlayer);
+			importVoicesExplorer.uiElement = audioPlayer;
+		});
+		importAudioGroup.add(importVoicesExplorer);
+		addLabelOn(importVoicesExplorer, "Vocal Audio File");
+
+		var menuTitle:UIText;
+		importChartGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Add Chart", 28));
+
+		importChartFile = new UIFileExplorer(menuTitle.x, menuTitle.y + menuTitle.height + 36, null, null, "fnfc");
+		importChartGroup.add(importChartFile);
+		addLabelOn(importChartFile, "Chart File").applyMarkup(
+			"Chart File $* Required$",
+			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
+
 		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
+			var pages = isImporting ? importPages : pages;
 			if (curPage == pages.length-1) {
 				saveSongInfo();
 				close();
@@ -165,17 +242,36 @@ class SongCreationScreen extends UISubstateWindow {
 		pages.push(cast add(menuDataGroup));
 		pageSizes.push(FlxPoint.get(748 - 32 + 40, 400));
 
+		importPages.push(cast add(selectFormatGroup));
+		importPageSizes.push(FlxPoint.get(500, 250));
+
+		importPages.push(cast add(importAudioGroup));
+		importPageSizes.push(FlxPoint.get(705, 250));
+
+		importPages.push(cast add(importChartGroup));
+		importPageSizes.push(FlxPoint.get(460, 250));
+
 		refreshPages();
 		updatePagesTexts();
 	}
 
 	public override function update(elapsed:Float) {
-		if (curPage == 0) {
-			if (instExplorer.file != null)
+		if (isImporting)
+		{
+			if (curPage == 1) {
+				importInstExplorer.selectable = importVoicesExplorer.selectable = (engineDropdown.index != 1);
+				saveButton.selectable = (engineDropdown.index == 1) ? true : (importInstExplorer.file != null);
+			} else if (curPage == 2) {
+				importChartFile.fileType = (engineDropdown.index == 1) ? "fnfc" : "json";
+				saveButton.selectable = (importChartFile.file != null);
+			} else
 				saveButton.selectable = true;
-			else saveButton.selectable = false;
-		} else
-			saveButton.selectable = true;
+		} else {
+			if (curPage == 0)
+				saveButton.selectable = (instExplorer.file != null);
+			else
+				saveButton.selectable = true;
+		}
 
 		saveButton.alpha = saveButton.field.alpha = saveButton.selectable ? 1 : 0.4;
 		super.update(elapsed);
@@ -183,10 +279,15 @@ class SongCreationScreen extends UISubstateWindow {
 
 	function refreshPages() {
 		for (i=>page in pages)
-			page.visible = page.exists = i == curPage;
+			page.visible = page.exists = i == curPage && !isImporting;
+
+		for (i=>page in importPages)
+			page.visible = page.exists = i == curPage && isImporting;
 	}
 
 	function updatePagesTexts() {
+		var pageSizes = isImporting ? importPageSizes : pageSizes;
+		var pages = isImporting ? importPages : pages;
 		windowSpr.bWidth = Std.int(pageSizes[curPage].x);
 		windowSpr.bHeight = Std.int(pageSizes[curPage].y);
 
@@ -194,7 +295,7 @@ class SongCreationScreen extends UISubstateWindow {
 		titleSpr.y = windowSpr.y + ((30 - titleSpr.height) / 2);
 
 		saveButton.field.text = curPage == pages.length-1 ? "Save & Close" : 'Next >';
-		titleSpr.text = 'Creating New Song (${curPage+1}/${pages.length})';
+		titleSpr.text = '$winTitle (${curPage+1}/${pages.length})';
 
 		backButton.field.text = '< Back';
 		backButton.visible = backButton.exists = curPage > 0;
@@ -202,7 +303,7 @@ class SongCreationScreen extends UISubstateWindow {
 		backButton.x = (saveButton.x = windowSpr.x + windowSpr.bWidth - 20 - 125) - 20 - saveButton.bWidth;
 		closeButton.x = (curPage > 0 ? backButton : saveButton).x - 20 - saveButton.bWidth;
 
-		for (button in [saveButton, backButton, closeButton])
+		for (button in [saveButton, backButton, closeButton, importFrom, createSong])
 			button.y = windowSpr.y + windowSpr.bHeight - 16 - 32;
 	}
 
@@ -226,28 +327,100 @@ class SongCreationScreen extends UISubstateWindow {
 	}
 
 	function saveSongInfo() {
-		for (stepper in [bpmStepper, beatsPerMeasureStepper, stepsPerBeatStepper])
-			@:privateAccess stepper.__onChange(stepper.label.text);
+		if (isImporting)
+		{
+			if (engineDropdown.index == 1)
+			{
+				var reader = new ZipReader(new BytesInput(importChartFile.file));
+				var fields = reader.read();
+				var files:Map<String, Any> = [];
 
-		var meta:ChartMetaData = {
-			name: songNameTextBox.label.text,
-			bpm: bpmStepper.value,
-			beatsPerMeasure: Std.int(beatsPerMeasureStepper.value),
-			stepsPerBeat: Std.int(stepsPerBeatStepper.value),
-			displayName: displayNameTextBox.label.text,
-			icon: iconTextBox.label.text,
-			color: colorWheel.curColorString,
-			parsedColor: colorWheel.curColor,
-			opponentModeAllowed: opponentModeCheckbox.checked,
-			coopAllowed: coopAllowedCheckbox.checked,
-			difficulties: [for (diff in difficultiesTextBox.label.text.split(",")) diff.trim()],
-		};
+				for(k=>field in fields) {
+					var fileName = field.fileName;
+					var fileContent = field.data;
+					files.set(fileName, fileContent);
+				}
 
-		if (onSave != null) onSave({
-			meta: meta,
-			instBytes: instExplorer.file,
-			voicesBytes: voicesExplorer.file
-		});
+				var manifest = Json.parse(files.get("manifest.json"));
+				var vslicemeta = Json.parse(files.get('${manifest.songId}-metadata.json'));
+				var firstTimeChange = vslicemeta.timeChanges[0];
+				var vslicechart = Json.parse(files.get('${manifest.songId}-chart.json'));
+				var difficulties = Reflect.fields(vslicechart.notes);
+
+				var playData = vslicemeta.playData;
+
+				var instFile = files.get('Inst.${Flags.SOUND_EXT}');
+				var voicesFiles = files.get('Voices.${Flags.SOUND_EXT}'); //it may exist
+				var playerVoices = files.get('Voices-${playData.characters.playerVocals[0]}.${Flags.SOUND_EXT}');
+				var oppVoices = files.get('Voices-${playData.characters.opponentVocals[0]}.${Flags.SOUND_EXT}');
+
+				var meta:ChartMetaData = {
+					name: manifest.songId,
+					bpm: CoolUtil.getDefault(firstTimeChange.bpm, 100),
+					beatsPerMeasure: CoolUtil.getDefault(firstTimeChange.n, Flags.DEFAULT_BEATS_PER_MEASURE),
+					stepsPerBeat: CoolUtil.getDefault(firstTimeChange.d, 4),
+					displayName: vslicemeta.songName,
+					icon: Flags.DEFAULT_HEALTH_ICON,
+					color: "#FFFFFF",
+					parsedColor: 0xFFFFFF,
+					opponentModeAllowed: true,
+					coopAllowed: true,
+					difficulties: difficulties,
+				};
+	
+				if (onSave != null) onSave({
+					meta: meta,
+					instBytes: instFile,
+					voicesBytes: voicesFiles,
+					playerVocals: playerVoices,
+					oppVocals: oppVoices,
+				}, (songFolder:String, creation: SongCreationData) -> {
+					#if sys
+					for (diff in difficulties)
+					{
+						var vsliceChartData = Reflect.field(vslicechart.notes, diff);
+						var chartPath = Paths.chart(manifest.songId, diff);
+						var base:ChartData = {
+							strumLines: [],
+							noteTypes: [],
+							events: [],
+							meta: {
+								name: null
+							},
+							scrollSpeed: Reflect.field(vslicechart.scrollSpeed, diff),
+							stage: Flags.DEFAULT_STAGE,
+							codenameChart: true,
+							fromMods: Paths.assetsTree.existsSpecific(chartPath, "TEXT", MODS)
+						};
+						BaseGameParser.parseChart(vsliceChartData, vslicemeta, vslicechart.events, base);
+						CoolUtil.safeSaveFile('$songFolder/charts/$diff.json', Json.stringify(base, Flags.JSON_PRETTY_PRINT));
+					}
+					#end
+				});
+			}
+		} else {
+			for (stepper in [bpmStepper, beatsPerMeasureStepper, stepsPerBeatStepper])
+				@:privateAccess stepper.__onChange(stepper.label.text);
+
+			var meta:ChartMetaData = {
+				name: songNameTextBox.label.text,
+				bpm: bpmStepper.value,
+				beatsPerMeasure: Std.int(beatsPerMeasureStepper.value),
+				stepsPerBeat: Std.int(stepsPerBeatStepper.value),
+				displayName: displayNameTextBox.label.text,
+				icon: iconTextBox.label.text,
+				color: colorWheel.curColorString,
+				parsedColor: colorWheel.curColor,
+				opponentModeAllowed: opponentModeCheckbox.checked,
+				coopAllowed: coopAllowedCheckbox.checked,
+				difficulties: [for (diff in difficultiesTextBox.label.text.split(",")) diff.trim()],
+			};
+
+			if (onSave != null) onSave({
+				meta: meta,
+				instBytes: instExplorer.file,
+				voicesBytes: voicesExplorer.file
+			}, null);
+		}
 	}
-
 }

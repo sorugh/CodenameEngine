@@ -177,7 +177,7 @@ class Chart {
 		#if REGION
 		if (data != null) switch (detectChartFormat(data)) {
 			case CODENAME:
-				// backward compat on events since its caused problems
+				// backward compat on events since it caused problems
 				var eventTypesToString:Map<Int, String> = [
 					-1 => "HScript Call",
 					0 => "Unknown",

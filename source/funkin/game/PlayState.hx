@@ -581,6 +581,9 @@ class PlayState extends MusicBeatState
 	@:dox(hide) override public function create()
 	{
 		Note.__customNoteTypeExists = [];
+		seenCutscene = false;
+		deathCounter = 0;
+
 		// SCRIPTING & DATA INITIALIZATION
 		#if REGION
 		instance = this;
@@ -1028,10 +1031,9 @@ class PlayState extends MusicBeatState
 		Note.__customNoteTypeExists = [];
 	}
 
-	public static function resetSongInfos() {
-		deathCounter = 0;
-		seenCutscene = false;
-	}
+	// keping this for backwards compat  - Nex
+	@:deprecated("resetSongInfos is deprecated, it's now handled in new PlayState()")
+	public static function resetSongInfos() {}
 
 	@:dox(hide) private function generateSong(?songData:ChartData):Void
 	{
@@ -1545,8 +1547,6 @@ class PlayState extends MusicBeatState
 	 * Immediately switches to the next song, or goes back to the Story/Freeplay menu.
 	 */
 	public function nextSong() {
-		resetSongInfos();
-
 		if (isStoryMode)
 		{
 			campaignScore += songScore;

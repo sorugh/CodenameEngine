@@ -1308,7 +1308,7 @@ class Charter extends UIState {
 	#if REGION
 	function _file_exit(_) {
 		if (undos.unsaved) SaveWarning.triggerWarning();
-		else {undos = null; FlxG.switchState(new CharterSelection()); PlayState.resetSongInfos(); Charter.instance.__clearStatics();}
+		else {undos = null; FlxG.switchState(new CharterSelection()); Charter.instance.__clearStatics();}
 	}
 
 	function _file_save(_) {
@@ -1931,7 +1931,7 @@ class Charter extends UIState {
 	}
 
 	@:noCompletion public function __clearStatics() {
-		selection = null; undos = null; clipboard = null; playtestInfo = null; 
+		selection = null; undos = null; clipboard = null; playtestInfo = null;
 		waveformHandler.destroy(); Charter.waveformHandler = null; autoSaveTimer = 0;
 	}
 

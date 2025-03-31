@@ -43,7 +43,9 @@ class SongCreationScreen extends UISubstateWindow {
 	public var importInstExplorer:UIFileExplorer;
 	public var importVoicesExplorer:UIFileExplorer;
 
+	public var importIdTextBox:UITextBox;
 	public var importChartFile:UIFileExplorer;
+	public var importMetaFile:UIFileExplorer;
 
 	public var backButton:UIButton;
 	public var saveButton:UIButton;
@@ -54,7 +56,7 @@ class SongCreationScreen extends UISubstateWindow {
 
 	public var selectFormatGroup:FlxGroup = new FlxGroup();
 	public var importAudioGroup:FlxGroup = new FlxGroup();
-	public var importChartGroup:FlxGroup = new FlxGroup();
+	public var importDataGroup:FlxGroup = new FlxGroup();
 
 	public var pages:Array<FlxGroup> = [];
 	public var pageSizes:Array<FlxPoint> = [];
@@ -166,7 +168,7 @@ class SongCreationScreen extends UISubstateWindow {
 		var menuTitle:UIText;
 		selectFormatGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Import From:", 28));
 
-		engineDropdown = new UIDropDown(menuTitle.x, menuTitle.y + menuTitle.height + 36, 320, 32, ["Psych/Legacy FNF", "V-Slice Project (.fnfc)"]);
+		engineDropdown = new UIDropDown(menuTitle.x, menuTitle.y + menuTitle.height + 36, 480, 32, ["Psych/Legacy FNF (Can also work on runtime)", "V-Slice", "V-Slice Project (.fnfc)"]);
 		selectFormatGroup.add(engineDropdown);
 		addLabelOn(engineDropdown, "Chart Format");
 
@@ -200,12 +202,23 @@ class SongCreationScreen extends UISubstateWindow {
 		addLabelOn(importVoicesExplorer, "Vocal Audio File");
 
 		var menuTitle:UIText;
-		importChartGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Add Chart", 28));
+		importDataGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Add Data", 28));
 
-		importChartFile = new UIFileExplorer(menuTitle.x, menuTitle.y + menuTitle.height + 36, null, null, "fnfc");
-		importChartGroup.add(importChartFile);
-		addLabelOn(importChartFile, "Chart File").applyMarkup(
-			"Chart File $* Required$",
+		importDataGroup.add(importIdTextBox = new UITextBox(menuTitle.x, menuTitle.y + menuTitle.height + 36, "satin-panties"));
+		addLabelOn(importIdTextBox, "Song file name").applyMarkup(
+			"Song file name $* Required$",
+			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
+
+		importChartFile = new UIFileExplorer(importIdTextBox.x, importIdTextBox.y + importIdTextBox.height + 56, null, null, "fnfc");
+		importDataGroup.add(importChartFile);
+		addLabelOn(importChartFile, "Data/Chart File").applyMarkup(
+			"Data/Chart File $* Required$",
+			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
+
+		importMetaFile = new UIFileExplorer(importChartFile.x + 320 + 26, importChartFile.y, null, null, "json");
+		importDataGroup.add(importMetaFile);
+		addLabelOn(importMetaFile, "Meta File").applyMarkup(
+			"Meta File $* Required$",
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
 		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
@@ -248,8 +261,8 @@ class SongCreationScreen extends UISubstateWindow {
 		importPages.push(cast add(importAudioGroup));
 		importPageSizes.push(FlxPoint.get(705, 250));
 
-		importPages.push(cast add(importChartGroup));
-		importPageSizes.push(FlxPoint.get(460, 250));
+		importPages.push(cast add(importDataGroup));
+		importPageSizes.push(FlxPoint.get(705, 300));
 
 		refreshPages();
 		updatePagesTexts();
@@ -258,12 +271,17 @@ class SongCreationScreen extends UISubstateWindow {
 	public override function update(elapsed:Float) {
 		if (isImporting)
 		{
+			var name = engineDropdown.options[engineDropdown.index];
+			var project = name == "V-Slice Project (.fnfc)";
+
 			if (curPage == 1) {
-				importInstExplorer.selectable = importVoicesExplorer.selectable = (engineDropdown.index != 1);
-				saveButton.selectable = (engineDropdown.index == 1) ? true : (importInstExplorer.file != null);
+				importInstExplorer.selectable = importVoicesExplorer.selectable = !project;
+				saveButton.selectable = project ? true : (importInstExplorer.file != null);
 			} else if (curPage == 2) {
-				importChartFile.fileType = (engineDropdown.index == 1) ? "fnfc" : "json";
-				saveButton.selectable = (importChartFile.file != null);
+				importIdTextBox.selectable = !project;
+				importChartFile.fileType = project ? "fnfc" : "json";
+				importMetaFile.selectable = name == "V-Slice";
+				saveButton.selectable = importChartFile.file != null && (!importMetaFile.selectable || importMetaFile.file != null) && (!importIdTextBox.selectable || importIdTextBox.label.text.trim().length > 0);
 			} else
 				saveButton.selectable = true;
 		} else {
@@ -329,74 +347,25 @@ class SongCreationScreen extends UISubstateWindow {
 	function saveSongInfo() {
 		if (isImporting)
 		{
-			if (engineDropdown.index == 1)
+			switch(engineDropdown.options[engineDropdown.index])
 			{
-				var reader = new ZipReader(new BytesInput(importChartFile.file));
-				var fields = reader.read();
-				var files:Map<String, Any> = [];
-
-				for(k=>field in fields) {
-					var fileName = field.fileName;
-					var fileContent = field.data;
-					files.set(fileName, fileContent);
-				}
-
-				var manifest = Json.parse(files.get("manifest.json"));
-				var vslicemeta = Json.parse(files.get('${manifest.songId}-metadata.json'));
-				var firstTimeChange = vslicemeta.timeChanges[0];
-				var vslicechart = Json.parse(files.get('${manifest.songId}-chart.json'));
-				var difficulties = Reflect.fields(vslicechart.notes);
-
-				var playData = vslicemeta.playData;
-
-				var instFile = files.get('Inst.${Flags.SOUND_EXT}');
-				var voicesFiles = files.get('Voices.${Flags.SOUND_EXT}'); //it may exist
-				var playerVoices = files.get('Voices-${playData.characters.playerVocals[0]}.${Flags.SOUND_EXT}');
-				var oppVoices = files.get('Voices-${playData.characters.opponentVocals[0]}.${Flags.SOUND_EXT}');
-
-				var meta:ChartMetaData = {
-					name: manifest.songId,
-					bpm: CoolUtil.getDefault(firstTimeChange.bpm, 100),
-					beatsPerMeasure: CoolUtil.getDefault(firstTimeChange.n, Flags.DEFAULT_BEATS_PER_MEASURE),
-					stepsPerBeat: CoolUtil.getDefault(firstTimeChange.d, 4),
-					displayName: vslicemeta.songName,
-					icon: Flags.DEFAULT_HEALTH_ICON,
-					color: "#FFFFFF",
-					parsedColor: 0xFFFFFF,
-					opponentModeAllowed: true,
-					coopAllowed: true,
-					difficulties: difficulties,
-				};
-	
-				if (onSave != null) onSave({
-					meta: meta,
-					instBytes: instFile,
-					voicesBytes: voicesFiles,
-					playerVocals: playerVoices,
-					oppVocals: oppVoices,
-				}, (songFolder:String, creation: SongCreationData) -> {
-					#if sys
-					for (diff in difficulties)
-					{
-						var vsliceChartData = Reflect.field(vslicechart.notes, diff);
-						var chartPath = Paths.chart(manifest.songId, diff);
-						var base:ChartData = {
-							strumLines: [],
-							noteTypes: [],
-							events: [],
-							meta: {
-								name: null
-							},
-							scrollSpeed: Reflect.field(vslicechart.scrollSpeed, diff),
-							stage: Flags.DEFAULT_STAGE,
-							codenameChart: true,
-							fromMods: Paths.assetsTree.existsSpecific(chartPath, "TEXT", MODS)
-						};
-						BaseGameParser.parseChart(vsliceChartData, vslicemeta, vslicechart.events, base);
-						CoolUtil.safeSaveFile('$songFolder/charts/$diff.json', Json.stringify(base, Flags.JSON_PRETTY_PRINT));
+				case "V-Slice Project (.fnfc)":
+					var files:Map<String, Any> = [];
+					for (field in new ZipReader(new BytesInput(importChartFile.file)).read()) {
+						var fileName = field.fileName;
+						var fileContent = field.data;
+						files.set(fileName, fileContent);
 					}
-					#end
-				});
+					saveVslice(files);
+
+				case "V-Slice":
+					var songId = importIdTextBox.label.text;
+					var files:Map<String, Any> = [];
+					files.set('${songId}-metadata.json', importMetaFile.file);
+					files.set('${songId}-chart.json', importChartFile.file);
+					files.set('Inst.${Flags.SOUND_EXT}', importInstExplorer.file);
+					files.set('Voices.${Flags.SOUND_EXT}', importVoicesExplorer.file);
+					saveVslice(files, songId);
 			}
 		} else {
 			for (stepper in [bpmStepper, beatsPerMeasureStepper, stepsPerBeatStepper])
@@ -422,5 +391,64 @@ class SongCreationScreen extends UISubstateWindow {
 				voicesBytes: voicesExplorer.file
 			}, null);
 		}
+	}
+
+	function saveVslice(files:Map<String, Any>, ?name:String) {
+		var songId = name == null && files.exists("manifest.json") ? Json.parse(files.get("manifest.json")).songId : name;
+		var vslicemeta = Json.parse(files.get('${songId}-metadata.json'));
+		var firstTimeChange = vslicemeta.timeChanges[0];
+		var vslicechart = Json.parse(files.get('${songId}-chart.json'));
+		var difficulties = Reflect.fields(vslicechart.notes);
+
+		var playData = vslicemeta.playData;
+
+		var instFile = files.get('Inst.${Flags.SOUND_EXT}');
+		var voicesFiles = files.get('Voices.${Flags.SOUND_EXT}'); //it may exist
+		var playerVoices = files.get('Voices-${playData.characters.playerVocals != null ? playData.characters.playerVocals[0] : playData.characters.player}.${Flags.SOUND_EXT}');
+		var oppVoices = files.get('Voices-${playData.characters.opponentVocals != null ? playData.characters.opponentVocals[0] : playData.characters.opponent}.${Flags.SOUND_EXT}');
+
+		var meta:ChartMetaData = {
+			name: songId,
+			bpm: CoolUtil.getDefault(firstTimeChange.bpm, 100),
+			beatsPerMeasure: CoolUtil.getDefault(firstTimeChange.n, Flags.DEFAULT_BEATS_PER_MEASURE),
+			stepsPerBeat: CoolUtil.getDefault(firstTimeChange.d, 4),
+			displayName: vslicemeta.songName,
+			icon: Flags.DEFAULT_HEALTH_ICON,
+			color: "#FFFFFF",
+			parsedColor: 0xFFFFFF,
+			opponentModeAllowed: true,
+			coopAllowed: true,
+			difficulties: difficulties,
+		};
+
+		if (onSave != null) onSave({
+			meta: meta,
+			instBytes: instFile,
+			voicesBytes: voicesFiles,
+			playerVocals: playerVoices,
+			oppVocals: oppVoices,
+		}, (songFolder:String, creation: SongCreationData) -> {
+			#if sys
+			for (diff in difficulties)
+			{
+				var vsliceChartData = Reflect.field(vslicechart.notes, diff);
+				var chartPath = Paths.chart(songId, diff);
+				var base:ChartData = {
+					strumLines: [],
+					noteTypes: [],
+					events: [],
+					meta: {
+						name: null
+					},
+					scrollSpeed: Reflect.field(vslicechart.scrollSpeed, diff),
+					stage: Flags.DEFAULT_STAGE,
+					codenameChart: true,
+					fromMods: Paths.assetsTree.existsSpecific(chartPath, "TEXT", MODS)
+				};
+				BaseGameParser.parseChart(vsliceChartData, vslicemeta, vslicechart.events, base);
+				CoolUtil.safeSaveFile('$songFolder/charts/$diff.json', Json.stringify(base, Flags.JSON_PRETTY_PRINT));
+			}
+			#end
+		});
 	}
 }

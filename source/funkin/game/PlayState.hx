@@ -581,8 +581,6 @@ class PlayState extends MusicBeatState
 	@:dox(hide) override public function create()
 	{
 		Note.__customNoteTypeExists = [];
-		seenCutscene = false;
-		deathCounter = 0;
 
 		// SCRIPTING & DATA INITIALIZATION
 		#if REGION
@@ -1032,7 +1030,7 @@ class PlayState extends MusicBeatState
 	}
 
 	// keping this for backwards compat  - Nex
-	@:deprecated("resetSongInfos is deprecated, it's now handled in new PlayState()")
+	@:deprecated("resetSongInfos is deprecated, it's now handled in the loading song/weeks functions")
 	public static function resetSongInfos() {}
 
 	@:dox(hide) private function generateSong(?songData:ChartData):Void
@@ -2007,6 +2005,8 @@ class PlayState extends MusicBeatState
 	 */
 	public static function __loadSong(_name:String, _difficulty:String) {
 		difficulty = _difficulty;
+		seenCutscene = false;
+		deathCounter = 0;
 
 		SONG = Chart.parse(_name, _difficulty);
 		fromMods = SONG.fromMods;

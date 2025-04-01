@@ -7,6 +7,7 @@ import flixel.math.FlxPoint;
 import flixel.sound.FlxSound;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
+import flixel.tweens.misc.VarTween;
 import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
 import flixel.util.FlxSort;
@@ -18,9 +19,9 @@ import funkin.backend.chart.EventsData;
 import funkin.backend.scripting.DummyScript;
 import funkin.backend.scripting.Script;
 import funkin.backend.scripting.ScriptPack;
+import funkin.backend.scripting.events.*;
 import funkin.backend.scripting.events.gameplay.*;
 import funkin.backend.scripting.events.note.*;
-import funkin.backend.scripting.events.*;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.RotatingSpriteGroup;
 import funkin.editors.SaveWarning;
@@ -138,8 +139,8 @@ class PlayState extends MusicBeatState
 	 */
 	public var downscroll(get, set):Bool;
 
-	@:dox(hide) private function set_downscroll(v:Bool) {return camHUD.downscroll = v;}
-	@:dox(hide) private function get_downscroll():Bool  {return camHUD.downscroll;}
+	private inline function set_downscroll(v:Bool) return camHUD.downscroll = v;
+	private inline function get_downscroll():Bool return camHUD.downscroll;
 
 	/**
 	 * Instrumental sound (Inst.ogg).
@@ -225,23 +226,6 @@ class PlayState extends MusicBeatState
 	 */
 	public var doIconBop:Bool = true;
 
-	/**
-	 * Whenever cam zooming is enabled, enables on a note hit if not cancelled.
-	 */
-	public var camZooming:Bool = false;
-	/**
-	 * Interval of cam zooming (beats).
-	 * For example: if set to 4, the camera will zoom every 4 beats.
-	 */
-	public var camZoomingInterval:Int = Flags.DEFAULT_CAM_ZOOM_INTERVAL;
-	/**
-	 * How strong the cam zooms should be (defaults to 1)
-	 */
-	public var camZoomingStrength:Float = Flags.DEFAULT_CAM_ZOOM_STRENGTH;
-	/**
-	 * Maximum amount of zoom for the camera.
-	 */
-	public var maxCamZoom:Float = Flags.MAX_CAMERA_ZOOM;
 	/**
 	 * Current song name (lowercase)
 	 */
@@ -382,6 +366,30 @@ class PlayState extends MusicBeatState
 	 * Speed at which the hud camera zoom lerps to.
 	 */
 	public var camHUDZoomLerp:Float = Flags.DEFAULT_HUD_ZOOM_LERP;
+
+	/**
+	 * Whenever cam zooming is enabled, enables on a note hit if not cancelled.
+	 */
+	public var camZooming:Bool = false;
+	/**
+	  * Interval of cam zooming (beats).
+	  * For example: if set to 4, the camera will zoom every 4 beats.
+	  */
+	public var camZoomingInterval:Int = Flags.DEFAULT_CAM_ZOOM_INTERVAL;
+	/**
+	  * How strong the cam zooms should be (defaults to 1)
+	  */
+	public var camZoomingStrength:Float = Flags.DEFAULT_CAM_ZOOM_STRENGTH;
+	/**
+	  * Default multiplier for `maxCamZoom`.
+	  */
+	public var maxCamZoomMult:Float = Flags.MAX_CAMERA_ZOOM_MULT;
+	/**
+	  * Maximum amount of zoom for the camera (based on `maxCamZoomMult` and the camera's zoom IF not set).
+	  */
+	public var maxCamZoom(get, default):Float = Math.NaN;
+
+	private inline function get_maxCamZoom() return Math.isNaN(maxCamZoom) ? maxCamZoomMult * defaultCamZoom : maxCamZoom;
 
 	/**
 	 * Zoom for the pixel assets.
@@ -849,6 +857,7 @@ class PlayState extends MusicBeatState
 
 	/**
 	 * Function used to update Discord Presence.
+	 *
 	 * This function is dynamic, which means you can do `updateDiscordPresence = function() {}` in scripts.
 	 */
 	public dynamic function updateDiscordPresence()
@@ -1029,9 +1038,15 @@ class PlayState extends MusicBeatState
 		Note.__customNoteTypeExists = [];
 	}
 
-	// keping this for backwards compat  - Nex
-	@:deprecated("resetSongInfos is deprecated, it's now handled in the loading song/weeks functions")
+	// Backwards compat
+	@:dox(hide) @:deprecated("resetSongInfos is deprecated, it's now handled in the loading song/weeks functions")
 	public static function resetSongInfos() {}
+
+	@:dox(hide) @:deprecated("scrollSpeedTween is deprecated, use eventsTween['scrollSpeed'] instead")
+	public var scrollSpeedTween(get, set):FlxTween;
+	private inline function get_scrollSpeedTween() return eventsTween.get("scrollSpeed");
+	private inline function set_scrollSpeedTween(val:FlxTween) {eventsTween.set("scrollSpeed", val); return val;}
+	// End of backwards compat
 
 	@:dox(hide) private function generateSong(?songData:ChartData):Void
 	{
@@ -1342,28 +1357,8 @@ class PlayState extends MusicBeatState
 		while(events.length > 0 && events.last().time <= Conductor.songPosition)
 			executeEvent(events.pop());
 
-		if (generatedMusic && strumLines.members[curCameraTarget] != null)
-		{
-			var pos = FlxPoint.get();
-			var r = 0;
-			for(c in strumLines.members[curCameraTarget].characters) {
-				if (c == null || !c.visible) continue;
-				var cpos = c.getCameraPosition();
-				pos.x += cpos.x;
-				pos.y += cpos.y;
-				r++;
-				//cpos.put();
-			}
-			if (r > 0) {
-				pos.x /= r;
-				pos.y /= r;
-
-				var event = gameAndCharsEvent("onCameraMove", EventManager.get(CamMoveEvent).recycle(pos, strumLines.members[curCameraTarget], r));
-				if (!event.cancelled)
-					camFollow.setPosition(pos.x, pos.y);
-			}
-			pos.put();
-		}
+		if (generatedMusic)
+			moveCamera();
 
 		if (camZooming)
 		{
@@ -1400,7 +1395,48 @@ class PlayState extends MusicBeatState
 		scripts.event("postDraw", e);
 	}
 
-	public var scrollSpeedTween:FlxTween = null;
+	public function moveCamera() if (strumLines.members[curCameraTarget] != null) {
+		var pos = FlxPoint.weak();
+		var amount = calculateCamPos(strumLines.members[curCameraTarget].characters, pos);
+
+		var tween = eventsTween.get("cameraMovement");
+		if (tween != null && !tween.finished && tween is VarTween) {
+			var tween:VarTween = cast tween;
+			@:privateAccess pos.set(tween._object.x, tween._object.y);
+		}
+
+		if (amount > 0) {
+			var event = gameAndCharsEvent("onCameraMove", EventManager.get(CamMoveEvent).recycle(pos, strumLines.members[curCameraTarget], amount));
+			if (!event.cancelled)
+				camFollow.setPosition(pos.x, pos.y);
+		}
+		pos.put();
+	}
+
+	/**
+	 * Function used to calculate the camera position based on the characters.
+	 *
+	 * This function is dynamic, which means you can do `calculateCamPos = function(chars:Array<Character>, pos:FlxPoint) {}` in scripts.
+	 */
+	public dynamic function calculateCamPos(chars:Array<Character>, pos:FlxPoint):Int {
+		var r:Int = 0;
+		for (c in chars) {
+			if (c == null || !c.visible) continue;
+			var cpos = c.getCameraPosition();
+			pos.x += cpos.x;
+			pos.y += cpos.y;
+			r++;
+		}
+
+		if (r > 0) {
+			pos.x /= r;
+			pos.y /= r;
+		}
+
+		return r;
+	}
+
+	public var eventsTween:Map<String, FlxTween> = [];
 
 	public function executeEvent(event:ChartEvent) @:privateAccess {
 		if (event == null || event.params == null) return;
@@ -1414,10 +1450,41 @@ class PlayState extends MusicBeatState
 			case "HScript Call":
 				scripts.call(event.params[0], event.params[1].split(','));
 			case "Camera Movement":
+				var tween = eventsTween.get("cameraMovement");
+				if (tween != null) tween.cancel();
+
 				curCameraTarget = event.params[0];
+				if (strumLines.members[curCameraTarget] != null) {
+					if (event.params[1] == false) {
+						moveCamera();
+						FlxG.camera.snapToTarget();
+					} else if (event.params[3] != "CLASSIC" && strumLines.members[curCameraTarget] != null) {
+						var pos = FlxPoint.weak(), finalPos = FlxPoint.weak();  // pos will be handled in update() through the tween map  - Nex
+						if (calculateCamPos(strumLines.members[curCameraTarget].characters, finalPos) > 0)
+							eventsTween.set("cameraMovement", FlxTween.tween(pos, {x: finalPos.x, y: finalPos.y}, (Conductor.stepCrochet / 1000) * event.params[2], {ease: CoolUtil.flxeaseFromString(event.params[3], event.params[4])}));
+					}
+				}
 			case "Add Camera Zoom":
 				var camera:FlxCamera = event.params[1] == "camHUD" ? camHUD : camGame;
 				camera.zoom += event.params[0];
+			case "Camera Zoom":
+				var cam = event.params[2] == "camHUD" ? camHUD : camGame;
+				var name = (event.params[2] == "camHUD" ? "camHUD" : "camGame") + ".zoom";  // avoiding having different values from these 2  - Nex
+				var tween = eventsTween.get(name);
+				if (tween != null) tween.cancel();
+
+				var finalZoom:Float = event.params[1];
+				if (event.params[6] == true) finalZoom *= cam.zoom;
+
+				if (event.params[0] == false) {
+					cam.zoom = finalZoom;
+					if (cam == camHUD) defaultHudZoom = finalZoom;
+					else defaultCamZoom = finalZoom;
+				} else
+					eventsTween.set(name, FlxTween.tween(cam, {zoom: finalZoom}, (Conductor.stepCrochet / 1000) * event.params[3], {ease: CoolUtil.flxeaseFromString(event.params[4], event.params[5]), onUpdate: function(_) {
+						if (cam == camHUD) defaultHudZoom = cam.zoom;
+						else defaultCamZoom = cam.zoom;
+					}}));
 			case "Camera Modulo Change":
 				camZoomingInterval = event.params[0];
 				camZoomingStrength = event.params[1];
@@ -1430,12 +1497,16 @@ class PlayState extends MusicBeatState
 					camera.flash(event.params[1], (Conductor.stepCrochet / 1000) * event.params[2], null, true);
 			case "BPM Change": // automatically handled by conductor
 			case "Scroll Speed Change":
-				if (scrollSpeedTween != null) scrollSpeedTween.cancel();
+				var tween = eventsTween.get("scrollSpeedTween");
+				if (tween != null) tween.cancel();
+
+				var finalScroll:Float = event.params[1];
+				if (event.params[5] == true) finalScroll *= scrollSpeed;
 
 				if (event.params[0] == false)
-					scrollSpeed = event.params[1];
+					scrollSpeed = finalScroll;
 				else
-					scrollSpeedTween = FlxTween.tween(this, {scrollSpeed: event.params[1]}, (Conductor.stepCrochet / 1000) * event.params[2], {ease: CoolUtil.flxeaseFromString(event.params[3], event.params[4])});
+					eventsTween.set("scrollSpeedTween", FlxTween.tween(this, {scrollSpeed: finalScroll}, (Conductor.stepCrochet / 1000) * event.params[2], {ease: CoolUtil.flxeaseFromString(event.params[3], event.params[4])}));
 			case "Alt Animation Toggle":
 				var strLine = strumLines.members[event.params[2]];
 				if (strLine != null) {

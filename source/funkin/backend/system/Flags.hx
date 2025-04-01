@@ -97,7 +97,7 @@ class Flags {
 	public static var DEFAULT_CAM_ZOOM_STRENGTH:Int = 1;
 	public static var DEFAULT_CAM_ZOOM:Float = 1.05; // what zoom level it defaults to
 	public static var DEFAULT_HUD_ZOOM:Float = 1.0;
-	public static var MAX_CAMERA_ZOOM:Float = 1.35;
+	public static var MAX_CAMERA_ZOOM_MULT:Float = 1.35;
 
 	public static var DEFAULT_PAUSE_ITEMS:Array<String> = ['Resume', 'Restart Song', 'Change Controls', 'Change Options', 'Exit to menu', "Exit to charter"];
 	public static var DEFAULT_CUTSCENE_PAUSE_ITEMS:Array<String> = ['Resume Cutscene', 'Skip Cutscene', 'Restart Cutscene', 'Exit to menu'];

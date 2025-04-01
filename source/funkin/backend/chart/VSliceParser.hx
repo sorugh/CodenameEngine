@@ -45,8 +45,8 @@ class VSliceParser {
 		for (note in data)
 		{
 			var daNoteType:Null<Int> = null;
-			if (note.k != null)  // TODO: check if kind is alt maybe  - Nex
-				daNoteType = Chart.addNoteType(result, note.k);
+			if (note.k != null)
+				daNoteType = Chart.addNoteType(result, note.k == "alt" ? "Alt Anim Note" : note.k);  // they hardcoded "alt" for converting old charts BUT THEN WHY THE HELL WOULD YOU CALL "MOM" THE NOTE KIND IN WEEK5 GRAHHH  - Nex
 
 			var daNoteData:Int = Std.int(note.d % 8);
 			var isMustHit:Bool = Math.floor(daNoteData / 4) == 0;
@@ -76,13 +76,42 @@ class VSliceParser {
 
 		for (event in events)
 		{
+			var values = event.v;
 			switch (event.e)
 			{
 				case "FocusCamera":
 					result.events.push({
 						time: event.t,
 						name: "Camera Movement",
-						params: [event.v.char]
+						params: [values.char == -1 ? 2 : values.char, values.ease != "INSTANT", values.duration == null ? 4 : values.duration, values.ease == null || values.ease == "INSTANT" ? "CLASSIC" : values.ease, ""]
+					});
+				case "PlayAnimation":
+					result.events.push({
+						time: event.t,
+						name: "Play Animation",
+						params: [switch(values.target) {
+							case 'boyfriend' | 'bf' | 'player': 1;
+							case 'dad' | 'opponent': 0;
+							default /*case 'girlfriend' | 'gf'*/: 2;  // usually the default should be the stage prop but we dont have that sooo  - Nex
+						}, values.anim, values.force == null ? false : values.force]
+					});
+				case "ScrollSpeed":
+					result.events.push({
+						time: event.t,
+						name: "Scroll Speed Change",  // we dont support the strumline value and also i will put the whole ease name into a single parameter since it works anyways  - Nex
+						params: [values.ease != "INSTANT", values.scroll == null ? 1 : values.scroll, values.duration == null ? 4 : values.duration, values.ease == null || values.ease == "INSTANT" ? "linear" : values.ease, "", values.absolute != true]
+					});
+				case "SetCameraBop":
+					result.events.push({
+						time: event.t,
+						name: "Camera Modulo Change",
+						params: [values.rate == null ? 4 : values.rate, values.intensity == null ? 1 : values.intensity]
+					});
+				case "ZoomCamera":
+					result.events.push({
+						time: event.t,
+						name: "Camera Zoom",  // we dont support the direct mode since welp, its kind of useless here  - Nex
+						params: [values.ease != "INSTANT", values.zoom == null ? 1 : values.zoom, "camGame", values.duration == null ? 4 : values.duration, values.ease == null || values.ease == "INSTANT" ? "linear" : values.ease, "", false]
 					});
 			}
 		}

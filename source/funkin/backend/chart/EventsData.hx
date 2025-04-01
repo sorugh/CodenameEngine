@@ -10,16 +10,47 @@ import openfl.Assets;
 using StringTools;
 
 class EventsData {
-	public static var defaultEventsList:Array<String> = ["HScript Call", "Camera Movement", "Add Camera Zoom", "Camera Modulo Change", "Camera Flash", "BPM Change", "Scroll Speed Change", "Alt Animation Toggle", "Play Animation"];
+	public static var defaultEventsList:Array<String> = ["HScript Call", "Camera Movement", "Add Camera Zoom", "Camera Zoom", "Camera Modulo Change", "Camera Flash", "BPM Change", "Scroll Speed Change", "Alt Animation Toggle", "Play Animation"];
 	public static var defaultEventsParams:Map<String, Array<EventParamInfo>> = [
 		"HScript Call" => [
 			{name: "Function Name", type: TString, defValue: "myFunc"},
 			{name: "Function Parameters (String split with commas)", type: TString, defValue: ""}
 		],
-		"Camera Movement" => [{name: "Camera Target", type: TStrumLine, defValue: 0}],
+		"Camera Movement" => [
+			{name: "Camera Target", type: TStrumLine, defValue: 0},
+			{name: "Tween Movement?", type: TBool, defValue: true},
+			{name: "Tween Time (Steps, IF NOT CLASSIC)", type: TFloat(0.25, 9999, 0.25, 2), defValue: 4},
+			{
+				name: "Tween Ease (ex: circ, quad, cube)",
+				type: TDropDown(['CLASSIC', 'linear', 'back', 'bounce', 'circ', 'cube', 'elastic', 'expo', 'quad', 'quart', 'quint', 'sine', 'smoothStep', 'smootherStep']),
+				defValue: "CLASSIC"
+			},
+			{
+				name: "Tween Type (excluded if CLASSIC or linear, ex: InOut)",
+				type: TDropDown(['In', 'Out', 'InOut']),
+				defValue: "In"
+			}
+		],
 		"Add Camera Zoom" => [
 			{name: "Amount", type: TFloat(-10, 10, 0.01, 2), defValue: 0.05},
 			{name: "Camera", type: TDropDown(['camGame', 'camHUD']), defValue: "camGame"}
+		],
+		"Camera Zoom" => [
+			{name: "Tween Zoom?", type: TBool, defValue: true},
+			{name: "New Zoom", type: TFloat(-10, 10, 0.01, 2), defValue: 1},
+			{name: "Camera", type: TDropDown(['camGame', 'camHUD']), defValue: "camGame"},
+			{name: "Tween Time (Steps)", type: TFloat(0.25, 9999, 0.25, 2), defValue: 4},
+			{
+				name: "Tween Ease (ex: circ, quad, cube)",
+				type: TDropDown(['linear', 'back', 'bounce', 'circ', 'cube', 'elastic', 'expo', 'quad', 'quart', 'quint', 'sine', 'smoothStep', 'smootherStep']),
+				defValue: "linear"
+			},
+			{
+				name: "Tween Type (excluded if linear, ex: InOut)",
+				type: TDropDown(['In', 'Out', 'InOut']),
+				defValue: "In"
+			},
+			{name: "Multiplicative?", type: TBool, defValue: false}
 		],
 		"Camera Modulo Change" => [
 			{name: "Modulo Interval (Beats)", type: TInt(1, 9999999, 1), defValue: 4},
@@ -42,10 +73,11 @@ class EventsData {
 				defValue: "linear"
 			},
 			{
-				name: "Tween Type (ex: InOut)",
+				name: "Tween Type (excluded if linear, ex: InOut)",
 				type: TDropDown(['In', 'Out', 'InOut']),
 				defValue: "In"
-			}
+			},
+			{name: "Multiplicative?", type: TBool, defValue: false}
 		],
 		"Alt Animation Toggle" => [{name: "Enable On Sing Poses", type: TBool, defValue: true}, {name: "Enable On Idle", type: TBool, defValue: true}, {name: "Strumline", type: TStrumLine, defValue: 0}],
 		"Play Animation" => [{name: "Character", type: TStrumLine, defValue: 0}, {name: "Animation", type: TString, defValue: "animation"}, {name: "Is forced?", type: TBool, defValue: true}],

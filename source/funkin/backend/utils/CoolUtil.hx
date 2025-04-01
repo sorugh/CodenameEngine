@@ -819,8 +819,8 @@ class CoolUtil
 	 * @param mainEase Main ease
 	 * @param suffix Suffix (Ignored if `mainEase` is `linear`)
 	 */
-	@:noUsing public static inline function flxeaseFromString(mainEase:String, suffix:String)
-		return Reflect.field(FlxEase, mainEase + (mainEase == "linear" ? "" : suffix));
+	@:noUsing public static inline function flxeaseFromString(mainEase:String, ?suffix:String)
+		return Reflect.field(FlxEase, mainEase + (mainEase == "linear" || suffix == null ? "" : suffix));
 
 	/**
 	 * Sorts an array alphabetically.

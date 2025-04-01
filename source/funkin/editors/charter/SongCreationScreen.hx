@@ -3,7 +3,7 @@ package funkin.editors.charter;
 import flixel.group.FlxGroup;
 import flixel.text.FlxText.FlxTextFormat;
 import flixel.text.FlxText.FlxTextFormatMarkerPair;
-import funkin.backend.chart.BaseGameParser;
+import funkin.backend.chart.VSliceParser;
 import funkin.backend.chart.ChartData;
 import funkin.backend.utils.ZipUtil;
 import haxe.Json;
@@ -415,10 +415,10 @@ class SongCreationScreen extends UISubstateWindow {
 			displayName: vslicemeta.songName,
 			icon: Flags.DEFAULT_HEALTH_ICON,
 			color: "#FFFFFF",
-			parsedColor: 0xFFFFFF,
+			//parsedColor: 0xFFFFFF,
 			opponentModeAllowed: true,
 			coopAllowed: true,
-			difficulties: difficulties,
+			difficulties: difficulties
 		};
 
 		if (onSave != null) onSave({
@@ -445,7 +445,7 @@ class SongCreationScreen extends UISubstateWindow {
 					codenameChart: true,
 					fromMods: Paths.assetsTree.existsSpecific(chartPath, "TEXT", MODS)
 				};
-				BaseGameParser.parseChart(vsliceChartData, vslicemeta, vslicechart.events, base);
+				VSliceParser.parseChart(vsliceChartData, vslicemeta, vslicechart.events, base);
 				CoolUtil.safeSaveFile('$songFolder/charts/$diff.json', Json.stringify(base, Flags.JSON_PRETTY_PRINT));
 			}
 			#end

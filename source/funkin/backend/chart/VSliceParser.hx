@@ -3,7 +3,7 @@ package funkin.backend.chart;
 import funkin.backend.chart.ChartData.ChartMetaData;
 
 // These new structures are kinda a mess to port, i love and hate them at the same time; why the hell are every difficulty in the same file???  - Nex
-class BaseGameParser {
+class VSliceParser {
 	public static function parseChart(data:Dynamic, metaData:Dynamic, events:Dynamic, result:ChartData) {
 		// base fnf chart parsing
 		var data:Array<SwagNote> = data;
@@ -38,16 +38,16 @@ class BaseGameParser {
 			});
 		}
 
-		var firstTimeChange = metadata.timeChanges[0];
-		result.meta.bpm = firstTimeChange.bpm;
+		var timeChanges = metadata.timeChanges;
+		result.meta.bpm = timeChanges[0].bpm;
 		result.meta.needsVoices = true;
 
 		for (note in data)
 		{
 			var daNoteType:Null<Int> = null;
-			if (note.k != null)
+			if (note.k != null)  // TODO: check if kind is alt maybe  - Nex
 				daNoteType = Chart.addNoteType(result, note.k);
-			
+
 			var daNoteData:Int = Std.int(note.d % 8);
 			var isMustHit:Bool = Math.floor(daNoteData / 4) == 0;
 
@@ -57,6 +57,21 @@ class BaseGameParser {
 				type: daNoteType,
 				sLen: note.l
 			});
+		}
+
+		var curBPM = result.meta.bpm;
+		for (i in 1...timeChanges.length)  // starting from 1 on purpose  - Nex
+		{
+			var curChange = timeChanges[i];
+			if (curBPM != curChange.bpm)
+			{
+				curBPM = curChange.bpm;
+				result.events.push({
+					time: curChange.t,
+					name: "BPM Change",
+					params: [curBPM]
+				});
+			}
 		}
 
 		for (event in events)

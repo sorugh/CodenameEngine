@@ -18,17 +18,19 @@ class EventsData {
 		],
 		"Camera Movement" => [
 			{name: "Camera Target", type: TStrumLine, defValue: 0},
-			{name: "Tween Movement?", type: TBool, defValue: true},
-			{name: "Tween Time (Steps, IF NOT CLASSIC)", type: TFloat(0.25, 9999, 0.25, 2), defValue: 4},
+			{name: "Tween Movement?", type: TBool, defValue: true, saveIfDefault: false},
+			{name: "Tween Time (Steps, IF NOT CLASSIC)", type: TFloat(0.25, 9999, 0.25, 2), defValue: 4, saveIfDefault: false},
 			{
 				name: "Tween Ease (ex: circ, quad, cube)",
 				type: TDropDown(['CLASSIC', 'linear', 'back', 'bounce', 'circ', 'cube', 'elastic', 'expo', 'quad', 'quart', 'quint', 'sine', 'smoothStep', 'smootherStep']),
-				defValue: "CLASSIC"
+				defValue: "CLASSIC",
+				saveIfDefault: false
 			},
 			{
 				name: "Tween Type (excluded if CLASSIC or linear, ex: InOut)",
 				type: TDropDown(['In', 'Out', 'InOut']),
-				defValue: "In"
+				defValue: "In",
+				saveIfDefault: false
 			}
 		],
 		"Add Camera Zoom" => [
@@ -168,6 +170,7 @@ typedef EventParamInfo = {
 	var name:String;
 	var type:EventParamType;
 	var defValue:Dynamic;
+	var ?saveIfDefault:Bool;
 }
 
 enum EventParamType {

@@ -1399,12 +1399,6 @@ class PlayState extends MusicBeatState
 		var pos = FlxPoint.weak();
 		var amount = calculateCamPos(strumLines.members[curCameraTarget].characters, pos);
 
-		var tween = eventsTween.get("cameraMovement");
-		if (tween != null && !tween.finished && tween is VarTween) {
-			var tween:VarTween = cast tween;
-			@:privateAccess pos.set(tween._object.x, tween._object.y);
-		}
-
 		if (amount > 0) {
 			var event = gameAndCharsEvent("onCameraMove", EventManager.get(CamMoveEvent).recycle(pos, strumLines.members[curCameraTarget], amount));
 			if (!event.cancelled)
@@ -1458,10 +1452,11 @@ class PlayState extends MusicBeatState
 					if (event.params[1] == false) {
 						moveCamera();
 						FlxG.camera.snapToTarget();
-					} else if (event.params[3] != "CLASSIC" && strumLines.members[curCameraTarget] != null) {
-						var pos = FlxPoint.weak(), finalPos = FlxPoint.weak();  // pos will be handled in update() through the tween map  - Nex
-						if (calculateCamPos(strumLines.members[curCameraTarget].characters, finalPos) > 0)
-							eventsTween.set("cameraMovement", FlxTween.tween(pos, {x: finalPos.x, y: finalPos.y}, (Conductor.stepCrochet / 1000) * event.params[2], {ease: CoolUtil.flxeaseFromString(event.params[3], event.params[4])}));
+					} else if (event.params[3] != null && event.params[3] != "CLASSIC") {
+						moveCamera();  // i feel like i shouldnt nullify the camera target or else is gonna be annoying when scripts cancel the tween with setting back the target onComplete  - Nex
+						var followPos:FlxPoint = camFollow.getPosition() - FlxPoint.weak(FlxG.camera.width * 0.5, FlxG.camera.height * 0.5);
+						eventsTween.set("cameraMovement", FlxTween.tween(FlxG.camera.scroll, {x: followPos.x, y: followPos.y}, (Conductor.stepCrochet / 1000) * event.params[2], {ease: CoolUtil.flxeaseFromString(event.params[3], event.params[4])}));
+						followPos.put();
 					}
 				}
 			case "Add Camera Zoom":

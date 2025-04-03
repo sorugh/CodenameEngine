@@ -233,9 +233,9 @@ class Main extends Sprite
 			Sys.setCwd(haxe.io.Path.directory(Sys.programPath()));
 		}
 		#elseif android
-		Sys.setCwd(Path.addTrailingSlash(VERSION.SDK_INT > 30 ? Context.getObbDir() : Context.getExternalFilesDir()));
+		Sys.setCwd(haxe.io.Path.addTrailingSlash(VERSION.SDK_INT > 30 ? Context.getObbDir() : Context.getExternalFilesDir()));
 		#elseif (ios || switch)
-		Sys.setCwd(Path.addTrailingSlash(openfl.filesystem.File.applicationStorageDirectory.nativePath));
+		Sys.setCwd(haxe.io.Path.addTrailingSlash(openfl.filesystem.File.applicationStorageDirectory.nativePath));
 		#end
 	}
 

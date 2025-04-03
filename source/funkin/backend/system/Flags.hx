@@ -157,7 +157,7 @@ class Flags {
 	// -- End of Codename's Default Flags --
 
 	/**
-	 * Flags that Codename couldn't recognize as it's own defaults (they can only be `string`!).
+	 * Flags that Codename couldn't recognize as it's own defaults (they can only be `string`! due to them being unparsed).
 	 */
 	@:bypass public static var customFlags:Map<String, String> = [];
 
@@ -187,10 +187,9 @@ class Flags {
 		}
 	}
 
-	public static function loadFromDatas(files:Array<String>) {
+	public static function loadFromDatas(datas:Array<String>) {
 		var flags:Map<String, String> = [];
-		for(file in files) {
-			var data:String = Assets.getText(file);
+		for(data in datas) {
 			if(data != null)
 				loadFromData(flags, data);
 		}

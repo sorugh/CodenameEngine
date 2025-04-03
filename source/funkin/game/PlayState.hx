@@ -1452,11 +1452,11 @@ class PlayState extends MusicBeatState
 					if (event.params[1] == false) {
 						moveCamera();
 						FlxG.camera.snapToTarget();
-					} else if (event.params[3] != null && event.params[3] != "CLASSIC") {
+					} else if (event.params[3] != null && event.params[3] != "CLASSIC") {  // making more nullchecks in this event because of the default save value being false  - Nex
 						moveCamera();  // i feel like i shouldnt nullify the camera target or else is gonna be annoying when scripts cancel the tween with setting back the target onComplete  - Nex
-						var followPos:FlxPoint = camFollow.getPosition() - FlxPoint.weak(FlxG.camera.width * 0.5, FlxG.camera.height * 0.5);
-						eventsTween.set("cameraMovement", FlxTween.tween(FlxG.camera.scroll, {x: followPos.x, y: followPos.y}, (Conductor.stepCrochet / 1000) * event.params[2], {ease: CoolUtil.flxeaseFromString(event.params[3], event.params[4])}));
-						followPos.put();
+						eventsTween.set("cameraMovement", FlxTween.tween(FlxG.camera.scroll, {x: camFollow.x - FlxG.camera.width * 0.5, y: camFollow.y - FlxG.camera.height * 0.5},
+							(Conductor.stepCrochet / 1000) * (event.params[2] == null ? 4 : event.params[2]), {ease: CoolUtil.flxeaseFromString(event.params[3], event.params[4])})
+						);
 					}
 				}
 			case "Add Camera Zoom":

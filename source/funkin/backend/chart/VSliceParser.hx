@@ -80,10 +80,11 @@ class VSliceParser {
 			switch (event.e)
 			{
 				case "FocusCamera":
+					var cneEase = values.ease == null || values.ease == "INSTANT" ? ["CLASSIC", null] : parseEase(values.ease);
 					result.events.push({
 						time: event.t,
 						name: "Camera Movement",
-						params: [values.char == -1 ? 2 : values.char, values.ease != "INSTANT", values.duration == null ? 4 : values.duration, values.ease == null || values.ease == "INSTANT" ? "CLASSIC" : values.ease, ""]
+						params: [values.char == -1 ? 2 : values.char, values.ease != "INSTANT", values.duration == null ? 4 : values.duration, cneEase[0], cneEase[1]]
 					});
 				case "PlayAnimation":
 					result.events.push({
@@ -96,10 +97,11 @@ class VSliceParser {
 						}, values.anim, values.force == null ? false : values.force]
 					});
 				case "ScrollSpeed":
+					var cneEase = values.ease == null || values.ease == "INSTANT" ? ["linear", null] : parseEase(values.ease);
 					result.events.push({
 						time: event.t,
 						name: "Scroll Speed Change",  // we dont support the strumline value and also i will put the whole ease name into a single parameter since it works anyways  - Nex
-						params: [values.ease != "INSTANT", values.scroll == null ? 1 : values.scroll, values.duration == null ? 4 : values.duration, values.ease == null || values.ease == "INSTANT" ? "linear" : values.ease, "", values.absolute != true]
+						params: [values.ease != "INSTANT", values.scroll == null ? 1 : values.scroll, values.duration == null ? 4 : values.duration, cneEase[0], cneEase[1], values.absolute != true]
 					});
 				case "SetCameraBop":
 					result.events.push({
@@ -108,10 +110,11 @@ class VSliceParser {
 						params: [values.rate == null ? 4 : values.rate, values.intensity == null ? 1 : values.intensity]
 					});
 				case "ZoomCamera":
+					var cneEase = values.ease == null || values.ease == "INSTANT" ? ["linear", null] : parseEase(values.ease);
 					result.events.push({
 						time: event.t,
 						name: "Camera Zoom",  // we dont support the direct mode since welp, its kind of useless here  - Nex
-						params: [values.ease != "INSTANT", values.zoom == null ? 1 : values.zoom, "camGame", values.duration == null ? 4 : values.duration, values.ease == null || values.ease == "INSTANT" ? "linear" : values.ease, "", false]
+						params: [values.ease != "INSTANT", values.zoom == null ? 1 : values.zoom, "camGame", values.duration == null ? 4 : values.duration, cneEase[0], cneEase[1], false]
 					});
 			}
 		}
@@ -260,12 +263,16 @@ class VSliceParser {
 		};
 
 		return result;
-		return null;
 	}
 
 	public static function encodeChart(chart:ChartData):NewSwagSong {
 		// TO DO
 		return null;
+	}
+
+	public static function parseEase(vsliceEase:String):Array<String> {
+		for (key in ['InOut', 'In', 'Out']) if (vsliceEase.endsWith(key)) return [vsliceEase.substr(0, vsliceEase.length - key.length), key];
+		return [vsliceEase];
 	}
 }
 

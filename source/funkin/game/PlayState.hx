@@ -1516,7 +1516,7 @@ class PlayState extends MusicBeatState
 			case "Play Animation":
 				if (strumLines.members[event.params[0]] != null && strumLines.members[event.params[0]].characters != null)
 					for (char in strumLines.members[event.params[0]].characters)
-						if (char != null) char.playAnim(event.params[1], event.params[2], null);
+						if (char != null) char.playAnim(event.params[1], event.params[2], event.params[3] == "NONE" ? null : event.params[3]);
 			case "Unknown": // nothing
 		}
 	}

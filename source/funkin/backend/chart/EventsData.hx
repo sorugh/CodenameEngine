@@ -20,7 +20,7 @@ class EventsData {
 			{name: "Camera Target", type: TStrumLine, defValue: 0},
 			{name: "Tween Movement?", type: TBool, defValue: true, saveIfDefault: false},
 			{name: "Tween Time (Steps, IF NOT CLASSIC)", type: TFloat(0.25, 9999, 0.25, 2), defValue: 4, saveIfDefault: false},
-			{
+			{  // since its the most used event, we'll set saveIfDefault false to avoid filling up with unnecessary parameters the files  - Nex
 				name: "Tween Ease (ex: circ, quad, cube)",
 				type: TDropDown(['CLASSIC', 'linear', 'back', 'bounce', 'circ', 'cube', 'elastic', 'expo', 'quad', 'quart', 'quint', 'sine', 'smoothStep', 'smootherStep']),
 				defValue: "CLASSIC",
@@ -82,7 +82,16 @@ class EventsData {
 			{name: "Multiplicative?", type: TBool, defValue: false}
 		],
 		"Alt Animation Toggle" => [{name: "Enable On Sing Poses", type: TBool, defValue: true}, {name: "Enable On Idle", type: TBool, defValue: true}, {name: "Strumline", type: TStrumLine, defValue: 0}],
-		"Play Animation" => [{name: "Character", type: TStrumLine, defValue: 0}, {name: "Animation", type: TString, defValue: "animation"}, {name: "Is forced?", type: TBool, defValue: true}],
+		"Play Animation" => [
+			{name: "Character", type: TStrumLine, defValue: 0},
+			{name: "Animation", type: TString, defValue: "animation"},
+			{name: "Is forced?", type: TBool, defValue: true},
+			{
+				name: "Animation Context",
+				type: TDropDown(["NONE", "SING", "DANCE", "MISS", "LOCK"]),
+				defValue: "NONE"
+			}
+		],
 	];
 
 	public static var eventsList:Array<String> = defaultEventsList.copy();

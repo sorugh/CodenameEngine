@@ -80,11 +80,23 @@ class VSliceParser {
 			switch (event.e)
 			{
 				case "FocusCamera":
-					var cneEase = values.ease == null || values.ease == "INSTANT" ? ["CLASSIC", null] : parseEase(values.ease);
+					var arr:Array<Dynamic> = [switch(values.char) {
+						case 0: 1;
+						case 1: 0;
+						default: 2;
+					}];
+					if (values.ease != "CLASSIC" && values.ease != null) {
+						if (values.ease == "INSTANT") arr = arr.concat([false]);
+						else {
+							var cneEase = parseEase(values.ease);
+							arr = arr.concat([true, values.duration == null ? 4 : values.duration, cneEase[0], cneEase[1]]);
+						}
+					}
+					trace(arr);
 					result.events.push({
 						time: event.t,
 						name: "Camera Movement",
-						params: [values.char == -1 ? 2 : values.char, values.ease != "INSTANT", values.duration == null ? 4 : values.duration, cneEase[0], cneEase[1]]
+						params: arr
 					});
 				case "PlayAnimation":
 					result.events.push({

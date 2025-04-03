@@ -65,12 +65,12 @@ class Flags {
 	public static var SUPPORTED_CHART_RUNTIME_FORMATS:Array<String> = ["Legacy", "Psych Engine"];
 	public static var SUPPORTED_CHART_FORMATS:Array<String> = ["BaseGame"];
 
-	public static var BASEGAME_SONG_METADATA_VERSION:String = "2.2.2";
-	public static var BASEGAME_SONG_CHART_DATA_VERSION:String = "2.0.0";
-	public static var BASEGAME_DEFAULT_NOTE_STYLE:String = 'funkin';
-	public static var BASEGAME_DEFAULT_ALBUM_ID:String = 'volume1';
-	public static var BASEGAME_DEFAULT_PREVIEW_START:Float = 0;
-	public static var BASEGAME_DEFAULT_PREVIEW_END:Float = 15000;
+	public static var VSLICE_SONG_METADATA_VERSION:String = "2.2.2";
+	public static var VSLICE_SONG_CHART_DATA_VERSION:String = "2.0.0";
+	public static var VSLICE_DEFAULT_NOTE_STYLE:String = 'funkin';
+	public static var VSLICE_DEFAULT_ALBUM_ID:String = 'volume1';
+	public static var VSLICE_DEFAULT_PREVIEW_START:Float = 0;
+	public static var VSLICE_DEFAULT_PREVIEW_END:Float = 15000;
 
 	/**
 	 * Default background colors for songs without bg color

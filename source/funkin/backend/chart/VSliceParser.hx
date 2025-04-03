@@ -248,17 +248,17 @@ class VSliceParser {
 			artist: meta.artist,
 			timeChanges: defTimeCh,
 			looped: false,
-			generatedBy: 'Basegame Chart Importer (Codename Engine)',
-			version: Flags.BASEGAME_SONG_METADATA_VERSION,
+			generatedBy: 'V-Slice Chart Importer (Codename Engine)',
+			version: Flags.VSLICE_SONG_METADATA_VERSION,
 			playData: {
 				stage: defStage,
 				characters: defChars,
 				songVariations: addVars.songVariations != null ? [for (i in 0...addVars.songVariations.length) {meta.difficulties.remove(addVars.songVariations[i]); addVars.songVariations[i];}] : [],
 				difficulties: meta.difficulties,
-				noteStyle: addVars.noteStyle != null ? addVars.noteStyle : Flags.BASEGAME_DEFAULT_NOTE_STYLE,
-				album: addVars.album != null ? addVars.album : Flags.BASEGAME_DEFAULT_ALBUM_ID,
-				previewStart: addVars.previewStart != null ? addVars.previewStart : Flags.BASEGAME_DEFAULT_PREVIEW_START,
-    			previewEnd: addVars.previewEnd != null ? addVars.previewEnd : Flags.BASEGAME_DEFAULT_PREVIEW_END
+				noteStyle: addVars.noteStyle != null ? addVars.noteStyle : Flags.VSLICE_DEFAULT_NOTE_STYLE,
+				album: addVars.album != null ? addVars.album : Flags.VSLICE_DEFAULT_ALBUM_ID,
+				previewStart: addVars.previewStart != null ? addVars.previewStart : Flags.VSLICE_DEFAULT_PREVIEW_START,
+    			previewEnd: addVars.previewEnd != null ? addVars.previewEnd : Flags.VSLICE_DEFAULT_PREVIEW_END
 			},
 		};
 

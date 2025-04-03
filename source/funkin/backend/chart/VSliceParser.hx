@@ -14,18 +14,18 @@ class VSliceParser {
 
 		var p2isGF:Bool = false;
 		result.strumLines.push({
-			characters: [metadata.playData.characters.player],
-			type: 1,
-			position: "boyfriend",
-			notes: [],
-			vocalsSuffix: "-Player"
-		});
-		result.strumLines.push({
 			characters: [metadata.playData.characters.opponent],
 			type: 0,
 			position: (p2isGF = metadata.playData.characters.opponent.startsWith("gf")) ? "girlfriend" : "dad",
 			notes: [],
 			vocalsSuffix: "-Opponent"
+		});
+		result.strumLines.push({
+			characters: [metadata.playData.characters.player],
+			type: 1,
+			position: "boyfriend",
+			notes: [],
+			vocalsSuffix: "-Player"
 		});
 		var gfName = metadata.playData.characters.girlfriend;
 		if (!p2isGF && gfName != "none") {
@@ -51,7 +51,7 @@ class VSliceParser {
 			var daNoteData:Int = Std.int(note.d % 8);
 			var isMustHit:Bool = Math.floor(daNoteData / 4) == 0;
 
-			result.strumLines[isMustHit ? 0 : 1].notes.push({
+			result.strumLines[isMustHit ? 1 : 0].notes.push({
 				time: note.t,
 				id: daNoteData % 4,
 				type: daNoteType,
@@ -92,7 +92,6 @@ class VSliceParser {
 							arr = arr.concat([true, values.duration == null ? 4 : values.duration, cneEase[0], cneEase[1]]);
 						}
 					}
-					trace(arr);
 					result.events.push({
 						time: event.t,
 						name: "Camera Movement",

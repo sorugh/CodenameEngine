@@ -168,7 +168,7 @@ class SongCreationScreen extends UISubstateWindow {
 		var menuTitle:UIText;
 		selectFormatGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Import From:", 28));
 
-		engineDropdown = new UIDropDown(menuTitle.x, menuTitle.y + menuTitle.height + 36, 480, 32, ["Psych/Legacy FNF (Can also work on runtime)", "V-Slice", "V-Slice Project (.fnfc)"]);
+		engineDropdown = new UIDropDown(menuTitle.x, menuTitle.y + menuTitle.height + 36, 480, 32, ["Psych/Legacy FNF", "V-Slice", "V-Slice Project (.fnfc)"]);
 		selectFormatGroup.add(engineDropdown);
 		addLabelOn(engineDropdown, "Chart Format");
 
@@ -356,8 +356,7 @@ class SongCreationScreen extends UISubstateWindow {
 						var fileContent = field.data;
 						files.set(fileName, fileContent);
 					}
-					saveVslice(files);
-
+					saveFromVSlice(files);
 				case "V-Slice":
 					var songId = importIdTextBox.label.text;
 					var files:Map<String, Any> = [];
@@ -365,7 +364,7 @@ class SongCreationScreen extends UISubstateWindow {
 					files.set('${songId}-chart.json', importChartFile.file);
 					files.set('Inst.${Flags.SOUND_EXT}', importInstExplorer.file);
 					files.set('Voices.${Flags.SOUND_EXT}', importVoicesExplorer.file);
-					saveVslice(files, songId);
+					saveFromVSlice(files, songId);
 			}
 		} else {
 			for (stepper in [bpmStepper, beatsPerMeasureStepper, stepsPerBeatStepper])
@@ -393,61 +392,25 @@ class SongCreationScreen extends UISubstateWindow {
 		}
 	}
 
-	function saveVslice(files:Map<String, Any>, ?name:String) {
+	function saveFromVSlice(files:Map<String, Any>, ?name:String) {
 		var songId = name == null && files.exists("manifest.json") ? Json.parse(files.get("manifest.json")).songId : name;
-		var vslicemeta = Json.parse(files.get('${songId}-metadata.json'));
-		var firstTimeChange = vslicemeta.timeChanges[0];
-		var vslicechart = Json.parse(files.get('${songId}-chart.json'));
-		var difficulties = Reflect.fields(vslicechart.notes);
-
+		var vslicemeta:SwagMetadata = Json.parse(files.get('${songId}-metadata.json'));
+		var vslicechart:NewSwagSong = Json.parse(files.get('${songId}-chart.json'));
 		var playData = vslicemeta.playData;
 
-		var instFile = files.get('Inst.${Flags.SOUND_EXT}');
-		var voicesFiles = files.get('Voices.${Flags.SOUND_EXT}'); //it may exist
-		var playerVoices = files.get('Voices-${playData.characters.playerVocals != null ? playData.characters.playerVocals[0] : playData.characters.player}.${Flags.SOUND_EXT}');
-		var oppVoices = files.get('Voices-${playData.characters.opponentVocals != null ? playData.characters.opponentVocals[0] : playData.characters.opponent}.${Flags.SOUND_EXT}');
-
-		var meta:ChartMetaData = {
-			name: songId,
-			bpm: CoolUtil.getDefault(firstTimeChange.bpm, 100),
-			beatsPerMeasure: CoolUtil.getDefault(firstTimeChange.n, Flags.DEFAULT_BEATS_PER_MEASURE),
-			stepsPerBeat: CoolUtil.getDefault(firstTimeChange.d, 4),
-			displayName: vslicemeta.songName,
-			icon: Flags.DEFAULT_HEALTH_ICON,
-			color: "#FFFFFF",
-			//parsedColor: 0xFFFFFF,
-			opponentModeAllowed: true,
-			coopAllowed: true,
-			difficulties: difficulties
-		};
+		var meta:ChartMetaData = {name: songId};
+		var diffCharts:Array<ChartDataWithInfo> = [];
+		VSliceParser.parse(vslicemeta, vslicechart, meta, diffCharts, songId);
 
 		if (onSave != null) onSave({
 			meta: meta,
-			instBytes: instFile,
-			voicesBytes: voicesFiles,
-			playerVocals: playerVoices,
-			oppVocals: oppVoices,
-		}, (songFolder:String, creation: SongCreationData) -> {
+			instBytes: files.get('Inst.${Flags.SOUND_EXT}'),
+			voicesBytes: files.get('Voices.${Flags.SOUND_EXT}'), //it may exist
+			playerVocals: files.get('Voices-${playData.characters.playerVocals != null ? playData.characters.playerVocals[0] : playData.characters.player}.${Flags.SOUND_EXT}'),
+			oppVocals: files.get('Voices-${playData.characters.opponentVocals != null ? playData.characters.opponentVocals[0] : playData.characters.opponent}.${Flags.SOUND_EXT}'),
+		}, (songFolder:String, creation:SongCreationData) -> {
 			#if sys
-			for (diff in difficulties)
-			{
-				var vsliceChartData = Reflect.field(vslicechart.notes, diff);
-				var chartPath = Paths.chart(songId, diff);
-				var base:ChartData = {
-					strumLines: [],
-					noteTypes: [],
-					events: [],
-					meta: {
-						name: null
-					},
-					scrollSpeed: Reflect.field(vslicechart.scrollSpeed, diff),
-					stage: Flags.DEFAULT_STAGE,
-					codenameChart: true,
-					fromMods: Paths.assetsTree.existsSpecific(chartPath, "TEXT", MODS)
-				};
-				VSliceParser.parseChart(vsliceChartData, vslicemeta, vslicechart.events, base);
-				CoolUtil.safeSaveFile('$songFolder/charts/$diff.json', Json.stringify(base, Flags.JSON_PRETTY_PRINT));
-			}
+			for (diff in diffCharts) CoolUtil.safeSaveFile('$songFolder/charts/${diff.diffName}.json', Json.stringify(diff.chart, Flags.JSON_PRETTY_PRINT));
 			#end
 		});
 	}

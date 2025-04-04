@@ -27,7 +27,6 @@ typedef ChartMetaData = {
 	public var ?opponentModeAllowed:Bool;
 	public var ?customValues:Dynamic;
 	public var ?needsVoices:Bool;
-	public var ?artist:String;
 
 	// NOT TO BE EXPORTED
 	public var ?parsedColor:FlxColor;

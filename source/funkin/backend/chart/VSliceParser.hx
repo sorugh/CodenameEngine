@@ -2,10 +2,37 @@ package funkin.backend.chart;
 
 import funkin.backend.chart.ChartData.ChartMetaData;
 
+typedef ChartDataWithInfo = {
+	var diffName:String;
+	var chart:ChartData;
+}
+
 // These new structures are kinda a mess to port, i love and hate them at the same time; why the hell are every difficulty in the same file???  - Nex
 class VSliceParser {
+	public static function parse(metaData:Dynamic, chartData:Dynamic, resultMeta:ChartMetaData, resultCharts:Array<ChartDataWithInfo>, ?songID:String) {
+		var metaData:SwagMetadata = metaData;
+		var chartData:NewSwagSong = chartData;
+
+		parseMeta(metaData, resultMeta, songID);
+
+		for (diff in Reflect.fields(chartData.notes))
+		{
+			var base:ChartData = {
+				strumLines: [],
+				noteTypes: [],
+				events: [],
+				meta: {name: null},
+				scrollSpeed: Reflect.field(chartData.scrollSpeed, diff),
+				stage: Flags.DEFAULT_STAGE,
+				codenameChart: true
+			};
+			parseChart(Reflect.field(chartData.notes, diff), metaData, chartData.events, base);
+			resultCharts.push({diffName: diff, chart: base});
+		}
+	}
+
 	public static function parseChart(data:Dynamic, metaData:Dynamic, events:Dynamic, result:ChartData) {
-		// base fnf chart parsing
+		// vslice chart parsing
 		var data:Array<SwagNote> = data;
 		var metadata:SwagMetadata = metaData;
 		var events:Array<SwagEvent> = events;
@@ -129,92 +156,30 @@ class VSliceParser {
 					});
 			}
 		}
-
-		/*var camFocusedBF:Bool = false;
-		var altAnims:Bool = false;
-		var beatsPerMeasure:Float = data.beatsPerMeasure.getDefault(Flags.DEFAULT_BEATS_PER_MEASURE);
-		var curBPM:Float = firstTimeChange.bpm;
-		var curTime:Float = 0;
-		var curCrochet:Float = ((60 / curBPM) * 1000);
-
-		if (data.notes != null) for(section in data.notes) {
-			if (section == null) {
-				curTime += curCrochet * beatsPerMeasure;
-				continue; // Yoshi Engine charts crash fix
-			}
-
-			if (camFocusedBF != (camFocusedBF = section.mustHitSection)) {
-				result.events.push({
-					time: curTime,
-					name: "Camera Movement",
-					params: [camFocusedBF ? 1 : 0]
-				});
-			}
-
-			if (section.altAnim == null) section.altAnim = false;
-			if (altAnims != (altAnims = section.altAnim)) {
-				result.events.push({
-					time: curTime,
-					name: "Alt Animation Toggle",
-					params: [altAnims, false, 0]
-				});
-			}
-
-			if (section.sectionNotes != null) for(note in section.sectionNotes) {
-				if (note[1] < 0) continue;
-
-				var daStrumTime:Float = note[0];
-				var daNoteData:Int = Std.int(note[1] % 8);
-				var daNoteType:Int = Std.int(note[1] / 8);
-				var gottaHitNote:Bool = daNoteData >= 4 ? !section.mustHitSection : section.mustHitSection;
-
-				if (note.length > 2) {
-					if (note[3] is Int && data.noteTypes != null)
-						daNoteType = Chart.addNoteType(result, data.noteTypes[Std.int(note[3])-1]);
-					else if (note[3] is String)
-						daNoteType = Chart.addNoteType(result, note[3]);
-				} else {
-					if(data.noteTypes != null)
-						daNoteType = Chart.addNoteType(result, data.noteTypes[daNoteType-1]);
-				}
-
-				result.strumLines[gottaHitNote ? 1 : 0].notes.push({
-					time: daStrumTime,
-					id: daNoteData % 4,
-					type: daNoteType,
-					sLen: note[2]
-				});
-			}
-
-			if (section.changeBPM && section.bpm != curBPM) {
-				curCrochet = ((60 / (curBPM = section.bpm)) * 1000);
-
-				result.events.push({
-					time: curTime,
-					name: "BPM Change",
-					params: [section.bpm]
-				});
-			}
-
-			curTime += curCrochet * beatsPerMeasure;
-		}*/
 	}
 
-	public static function parseMeta(data:Dynamic, result:ChartMetaData) {
+	public static function parseMeta(data:Dynamic, result:ChartMetaData, ?songID:String) {
 		var data:SwagMetadata = data;
-		result.name = data.songName;
-		result.artist = data.artist;
-
-		result.customValues = {};
-		result.customValues.timeChanges = data.timeChanges;
+		var songName = data.songName;
+		var songID:String = songID == null ? songName.toLowerCase().replace(" ", "-") : songID;
 		var firstTimeChange:SwagTimeChange = data.timeChanges[0];
-		result.bpm = firstTimeChange.bpm;
-		result.beatsPerMeasure = firstTimeChange.b != null ? firstTimeChange.b : Flags.DEFAULT_BEATS_PER_MEASURE;
 
-		result.difficulties = data.playData.difficulties.concat(data.playData.songVariations);
-		Reflect.deleteField(data.playData, "difficulties");
+		result.name = songID;
+		result.bpm = firstTimeChange.bpm.getDefault(Flags.DEFAULT_BPM);
+		result.beatsPerMeasure = firstTimeChange.n.getDefault(Flags.DEFAULT_BEATS_PER_MEASURE);
+		result.stepsPerBeat = firstTimeChange.d.getDefault(Flags.DEFAULT_STEPS_PER_BEAT);
+		result.displayName = songName;
+		result.icon = Flags.DEFAULT_HEALTH_ICON;
+		result.color = "#FFFFFF";
+		//result.parsedColor = 0xFFFFFF;
+		result.opponentModeAllowed = true;
+		result.coopAllowed = true;
+		result.difficulties = data.playData.difficulties.concat(data.playData.songVariations.getDefault([]));
 
-		for (field in Reflect.fields(data.playData))
+		if (result.customValues == null) result.customValues = {};
+		result.customValues.artist = data.artist;
+		if (data.charter != null) result.customValues.charter = data.charter;
+		for (field in Reflect.fields(data.playData)) if (field != "difficulties" && field != "songVariations" && field != "characters" && field != "stage")
 			Reflect.setProperty(result.customValues, field, Reflect.getProperty(data.playData, field));
 	}
 
@@ -256,7 +221,7 @@ class VSliceParser {
 		var result:SwagMetadata = {
 			songName: meta.name,
 			timeFormat: MILLISECONDS,
-			artist: meta.artist,
+			artist: "",
 			timeChanges: defTimeCh,
 			looped: false,
 			generatedBy: 'V-Slice Chart Importer (Codename Engine)',
@@ -290,17 +255,17 @@ class VSliceParser {
 // METADATA STRUCTURES
 typedef SwagMetadata =
 {
-	var timeFormat:SwagTimeFormat;
-	var artist:String;
-	var songName:String;
-	var playData:SwagPlayData;
-	var timeChanges:Array<SwagTimeChange>;
-	var generatedBy:String;
-	var looped:Bool;
 	var version:String;
-
+	var songName:String;
+	var artist:String;
+	var ?charter:String;
 	var ?divisions:Int;
+	var ?looped:Bool;
 	var ?offsets:SwagSongOffsets;
+	var playData:SwagPlayData;
+	var generatedBy:String;
+	var ?timeFormat:SwagTimeFormat;
+	var timeChanges:Array<SwagTimeChange>;
 }
 
 enum abstract SwagTimeFormat(String) from String to String
@@ -312,35 +277,12 @@ enum abstract SwagTimeFormat(String) from String to String
 
 typedef SwagTimeChange =
 {
-	var ?d:Int;  // Time Signature Den
-	var ?n:Int;  // Time Signature Num
 	var t:Int;  // Time Stamp
 	var ?b:Int;  // Beat Time
-	var ?bt:Array<Int>;  // Beat Tuplets
 	var bpm:Float;
-}
-
-typedef SwagPlayData =
-{
-	var album:String;
-	var previewStart:Float;
-	var previewEnd:Float;
-	var stage:String;
-	var characters:SwagCharactersList;
-	var songVariations:Array<String>;
-	var difficulties:Array<String>;
-	var noteStyle:String;
-}
-
-typedef SwagCharactersList =
-{
-	var player:String;
-	var girlfriend:String;
-	var opponent:String;
-	var instrumental:String;
-	var altInstrumentals:Array<String>;
-	var opponentVocals:Array<String>;
-	var playerVocals:Array<String>;
+	var ?n:Int;  // Time Signature Num
+	var ?d:Int;  // Time Signature Den
+	var ?bt:Array<Int>;  // Beat Tuplets
 }
 
 typedef SwagSongOffsets =
@@ -348,6 +290,31 @@ typedef SwagSongOffsets =
 	var ?instrumental:Float;
 	var ?altInstrumentals:Dynamic;
 	var ?vocals:Dynamic;
+	var ?altVocals:Dynamic;
+}
+
+typedef SwagPlayData =
+{
+	var ?songVariations:Array<String>;
+	var difficulties:Array<String>;
+	var characters:SwagCharactersList;
+	var stage:String;
+	var noteStyle:String;
+	var ?ratings:Dynamic;
+	var ?album:String;
+	var ?previewStart:Int;
+	var ?previewEnd:Int;
+}
+
+typedef SwagCharactersList =
+{
+	var ?player:String;
+	var ?girlfriend:String;
+	var ?opponent:String;
+	var ?instrumental:String;
+	var ?altInstrumentals:Array<String>;
+	var ?opponentVocals:Array<String>;
+	var ?playerVocals:Array<String>;
 }
 
 // CHART STRUCTURE
@@ -364,13 +331,20 @@ typedef SwagEvent =
 {
 	var t:Float;  // Time
 	var e:String;  // Event Kind
-	var v:Dynamic;  // Value (Map<String, Dynamic>)
+	var ?v:Dynamic;  // Value (Map<String, Dynamic>)
 }
 
 typedef SwagNote =
 {
 	var t:Float;  // Time
 	var d:Int;  // Data
-	var l:Float;  // Length
-	var k:String;  // Kind
+	var ?l:Float;  // Length
+	var ?k:String;  // Kind
+	var ?p:Array<SwagNoteParamsData>; // Params
+}
+
+typedef SwagNoteParamsData =
+{
+	var n:String;  // Name
+	var v:Dynamic;  // Value
 }

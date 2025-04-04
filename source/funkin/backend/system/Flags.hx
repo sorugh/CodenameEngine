@@ -59,7 +59,7 @@ class Flags {
 	public static var WEEKS_LIST_MOD_MODE:Allow<"prepend", "override", "append"> = "override";
 
 	public static var DEFAULT_BPM:Float = 100.0;
-	public static var DEFAULT_BEATS_PER_MEASURE:Float = 4;
+	public static var DEFAULT_BEATS_PER_MEASURE:Int = 4;
 	public static var DEFAULT_STEPS_PER_BEAT:Int = 4;
 
 	public static var SUPPORTED_CHART_RUNTIME_FORMATS:Array<String> = ["Legacy", "Psych Engine"];
@@ -69,8 +69,8 @@ class Flags {
 	public static var VSLICE_SONG_CHART_DATA_VERSION:String = "2.0.0";
 	public static var VSLICE_DEFAULT_NOTE_STYLE:String = 'funkin';
 	public static var VSLICE_DEFAULT_ALBUM_ID:String = 'volume1';
-	public static var VSLICE_DEFAULT_PREVIEW_START:Float = 0;
-	public static var VSLICE_DEFAULT_PREVIEW_END:Float = 15000;
+	public static var VSLICE_DEFAULT_PREVIEW_START:Int = 0;
+	public static var VSLICE_DEFAULT_PREVIEW_END:Int = 15000;
 
 	/**
 	 * Default background colors for songs without bg color

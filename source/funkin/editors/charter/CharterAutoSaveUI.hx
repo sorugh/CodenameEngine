@@ -105,7 +105,7 @@ class CharterAutoSaveUI extends UISliceSprite {
 			bar.follow(this, 10, bHeight-20);
 			bar.alpha = alpha;
 		}
-		progressBar.clipRect = progressBar.clipRect.set(0, 0, progressBar.width*progress,progressBar.height);
+		progressBar.rawClipRect = progressBar.rawClipRect.set(0, 0, progressBar.frameWidth*progress,progressBar.frameHeight);
 	}
 
 	public function appearAnimation() {

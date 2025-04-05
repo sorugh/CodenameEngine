@@ -3,8 +3,10 @@ package funkin.editors.charter;
 import flixel.group.FlxGroup;
 import flixel.text.FlxText.FlxTextFormat;
 import flixel.text.FlxText.FlxTextFormatMarkerPair;
-import funkin.backend.chart.VSliceParser;
 import funkin.backend.chart.ChartData;
+import funkin.backend.chart.FNFLegacyParser.SwagSong;
+import funkin.backend.chart.PsychParser;
+import funkin.backend.chart.VSliceParser;
 import funkin.backend.utils.ZipUtil;
 import haxe.Json;
 import haxe.io.Bytes;
@@ -168,7 +170,7 @@ class SongCreationScreen extends UISubstateWindow {
 		var menuTitle:UIText;
 		selectFormatGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Import From:", 28));
 
-		engineDropdown = new UIDropDown(menuTitle.x, menuTitle.y + menuTitle.height + 36, 480, 32, ["Psych/Legacy FNF", "V-Slice", "V-Slice Project (.fnfc)"]);
+		engineDropdown = new UIDropDown(menuTitle.x, menuTitle.y + menuTitle.height + 36, 480, 32, ["Psych/Legacy FNF", "V-Slice", "V-Slice Project (.fnfc)"], 0, ["Supports runtime"]);
 		selectFormatGroup.add(engineDropdown);
 		addLabelOn(engineDropdown, "Chart Format");
 
@@ -204,12 +206,12 @@ class SongCreationScreen extends UISubstateWindow {
 		var menuTitle:UIText;
 		importDataGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Add Data", 28));
 
-		importDataGroup.add(importIdTextBox = new UITextBox(menuTitle.x, menuTitle.y + menuTitle.height + 36, "satin-panties"));
+		importDataGroup.add(importIdTextBox = new UITextBox(menuTitle.x, menuTitle.y + menuTitle.height + 36));
 		addLabelOn(importIdTextBox, "Song file name").applyMarkup(
 			"Song file name $* Required$",
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
-		importChartFile = new UIFileExplorer(importIdTextBox.x, importIdTextBox.y + importIdTextBox.height + 56, null, null, "fnfc");
+		importChartFile = new UIFileExplorer(importIdTextBox.x, importIdTextBox.y + importIdTextBox.height + 56, null, null, "fnfc", function (_) importIdTextBox.label.text = new haxe.io.Path(importChartFile.filePath).file);
 		importDataGroup.add(importChartFile);
 		addLabelOn(importChartFile, "Data/Chart File").applyMarkup(
 			"Data/Chart File $* Required$",
@@ -347,7 +349,7 @@ class SongCreationScreen extends UISubstateWindow {
 	function saveSongInfo() {
 		if (isImporting)
 		{
-			switch(engineDropdown.options[engineDropdown.index])
+			try switch(engineDropdown.options[engineDropdown.index])
 			{
 				case "V-Slice Project (.fnfc)":
 					var files:Map<String, Any> = [];
@@ -365,6 +367,39 @@ class SongCreationScreen extends UISubstateWindow {
 					files.set('Inst.${Flags.SOUND_EXT}', importInstExplorer.file);
 					files.set('Voices.${Flags.SOUND_EXT}', importVoicesExplorer.file);
 					saveFromVSlice(files, songId);
+				default /*"Psych/Legacy FNF"*/:
+					var songId = importIdTextBox.label.text;
+					var oldChart:SwagSong = Json.parse(cast importChartFile.file);
+					var base:ChartData = {
+						strumLines: [],
+						noteTypes: [],
+						events: [],
+						meta: {name: null},
+						scrollSpeed: Flags.DEFAULT_SCROLL_SPEED,
+						stage: Flags.DEFAULT_STAGE,
+						codenameChart: true
+					};
+					PsychParser.parse(oldChart, base);
+					if (onSave != null) onSave({
+						meta: {
+							name: songId,
+							difficulties: [songId],
+							bpm: oldChart.bpm,
+							beatsPerMeasure: oldChart.beatsPerMeasure,
+							stepsPerBeat: oldChart.stepsPerBeat,
+							displayName: oldChart.song
+						},
+						instBytes: importInstExplorer.file,
+						voicesBytes: importVoicesExplorer.file,
+					}, (songFolder:String, creation:SongCreationData) -> {
+						#if sys
+						CoolUtil.safeSaveFile('$songFolder/charts/${songId}.json', Json.stringify(base, Flags.JSON_PRETTY_PRINT));
+						#end
+					});
+			} catch (e) {
+				openSubState(new UIWarningSubstate("Importing Song/Charts: Error!", Std.string(e), [
+					{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
+				]));
 			}
 		} else {
 			for (stepper in [bpmStepper, beatsPerMeasureStepper, stepsPerBeatStepper])

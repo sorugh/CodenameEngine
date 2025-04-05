@@ -10,6 +10,7 @@ class UIFileExplorer extends UISliceSprite {
 	public var deleteButton:UIButton;
 	public var deleteIcon:FlxSprite;
 
+	public var filePath:String = null;
 	public var file:Bytes = null;
 	public var onFile:Bytes->Void;
 
@@ -26,7 +27,8 @@ class UIFileExplorer extends UISliceSprite {
 		uploadButton = new UIButton(x + 8, y+ 8, "", function () {
 			if (!selectable) return;
 			var fileDialog = new FileDialog();
-			fileDialog.onOpen.add(function(res) {
+			fileDialog.onOpenFile.add(function(res, path) {
+				filePath = path;
 				file = cast res;
 				deleteButton.visible = deleteButton.selectable = deleteIcon.visible = !(uploadButton.visible = uploadButton.selectable = false);
 

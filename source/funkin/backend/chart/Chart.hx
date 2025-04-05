@@ -195,7 +195,7 @@ class Chart {
 
 				base = data;
 			case PSYCH_NEW: PsychParser.parse(data, base);
-			case VSLICE: // TODO
+			case VSLICE: Logs.trace("Couldn't parse V-Slice chart because it's not supported on runtime, it MUST be imported and converted in the new song editor window.", ERROR, RED);
 			case LEGACY: FNFLegacyParser.parse(data, base);
 		}
 		#end

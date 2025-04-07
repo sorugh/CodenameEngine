@@ -70,15 +70,15 @@ class PlayState extends MusicBeatState
 	 */
 	public static var fromMods:Bool = false;
 	/**
-	 * Whenever Charting Mode has been enabled for this song.
+	 * Whenever Charting Mode is enabled for this song.
 	 */
 	public static var chartingMode:Bool = false;
 	/**
-	 * Whenever the song has been started with opponent mode on.
+	 * Whenever the song is started with opponent mode on.
 	 */
 	public static var opponentMode:Bool = Flags.DEFAULT_OPPONENT_MODE;
 	/**
-	 * Whenever the song has been started with co-op mode on.
+	 * Whenever the song is started with co-op mode on.
 	 */
 	public static var coopMode:Bool = Flags.DEFAULT_COOP_MODE;
 

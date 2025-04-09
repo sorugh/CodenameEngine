@@ -7,6 +7,7 @@ import flixel.graphics.FlxGraphic;
 import openfl.geom.Rectangle;
 import flixel.graphics.frames.FlxFrame;
 import funkin.game.Character;
+import flixel.animation.FlxPrerotatedAnimation;
 
 using funkin.backend.utils.BitmapUtil;
 
@@ -78,7 +79,7 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 			var frameRect:Rectangle = new Rectangle(frame.offset.x, frame.offset.y, frame.sourceSize.x, frame.sourceSize.y);
 			var animBounds:Rectangle = displayWindowGraphic != null ? displayWindowGraphic.bitmap.bounds(frameRect) : frameRect;
 
-			displayAnimsFramesList.set(name, {frame: anim.frames.getDefault([0])[0], scale: 104/animBounds.height, animBounds: animBounds});
+			displayAnimsFramesList.set(name, {frame: anim.frames.getDefault([0])[0], scale: 104/Math.max(animBounds.width, animBounds.height), animBounds: animBounds});
 		} else {
 			character.storeAtlasState();
 

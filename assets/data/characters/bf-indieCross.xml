@@ -1,0 +1,15 @@
+<!DOCTYPE codename-engine-character>
+<character x="-10" y="345" sprite="bf-indieCross" flipX="true" isPlayer="true" icon="bf" color="#30B0D1" holdTime="-1">
+	<anim name="idle" anim="IDLE 0" x="0" y="0" fps="36" loop="false" indices="16,17,0..15"/>
+	<anim name="singDOWN" anim="DOWN 0" x="-21" y="-54" fps="36" loop="false"/>
+	<anim name="singRIGHT" anim="RIGHT 0" x="-32" y="-7" fps="36" loop="false"/>
+	<anim name="singLEFT" anim="LEFT 0" x="3" y="-8" fps="36" loop="false"/>
+	<anim name="singUP" anim="UP 0" x="-45" y="34" fps="36" loop="false"/>
+	<anim name="dodge " anim="dodge " x="40" y="-15" fps="36" loop="false"/>
+	<anim name="attack " anim="attack " x="954" y="-20" fps="36" loop="false"/>
+	<anim name="dodge2 " anim="dodge2 " x="-10" y="-16" fps="36" loop="false"/>
+	<anim name="UP MISS" anim="UP MISS" x="-52" y="23" fps="24" loop="false"/>
+	<anim name="DOWN MISS" anim="DOWN MISS" x="-34" y="-25" fps="24" loop="false"/>
+	<anim name="LEFT MISS" anim="LEFT MISS" x="-11" y="17" fps="24" loop="false"/>
+	<anim name="RIGHT MISS" anim="RIGHT MISS" x="-51" y="19" fps="24" loop="false"/>
+</character>

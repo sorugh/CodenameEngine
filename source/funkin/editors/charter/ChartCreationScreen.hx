@@ -144,8 +144,7 @@ class ChartCreationScreen extends UISubstateWindow {
 
 		var strumLines:Array<ChartStrumLine> = [];
 		for (strline in strumLineList.buttons.members) {
-			for (stepper in [strline.hudXStepper, strline.hudYStepper, strline.hudScaleStepper])
-				@:privateAccess stepper.__onChange(stepper.label.text);
+			UIUtil.confirmUISelections(strline);
 
 			strumLines.push({
 				characters: [for (char in strline.charactersList.buttons.members) char.textBox.label.text],

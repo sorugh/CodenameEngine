@@ -190,8 +190,7 @@ class CharterStrumlineScreen extends UISubstateWindow {
 	}
 
 	function saveStrumline() {
-		for (stepper in [hudXStepper, hudYStepper, hudScaleStepper, keyCountStepper, hudSpacingStepper])
-			@:privateAccess stepper.__onChange(stepper.label.text);
+		UIUtil.confirmUISelections(this);
 
 		var newStrumLine:ChartStrumLine = {
 			characters: [

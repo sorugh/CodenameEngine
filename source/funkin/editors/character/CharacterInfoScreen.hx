@@ -102,7 +102,7 @@ class CharacterInfoScreen extends UISubstateWindow {
 	}
 
 	public function saveCharacterInfo() {
-		@:privateAccess durationStepper.__onChange(durationStepper.label.text);
+		UIUtil.confirmUISelections(this);
 
 		if (onSave != null) onSave({
 			icon: iconColorPicker.iconTextBox.label.text,

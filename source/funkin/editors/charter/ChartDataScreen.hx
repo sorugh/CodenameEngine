@@ -75,9 +75,8 @@ class ChartDataScreen extends UISubstateWindow {
 		add(previewStrumLine);
 	}
 
-	public function saveInfo()
-	{
-		@:privateAccess scrollSpeedStepper.__onChange(scrollSpeedStepper.label.text);
+	public function saveInfo() {
+		UIUtil.confirmUISelections(this);
 
 		var oldData:{stage:String, speed:Float} = {stage: PlayState.SONG.stage, speed: PlayState.SONG.scrollSpeed};
 

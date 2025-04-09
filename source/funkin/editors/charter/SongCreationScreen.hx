@@ -228,8 +228,7 @@ class SongCreationScreen extends UISubstateWindow {
 	}
 
 	function saveSongInfo() {
-		for (stepper in [bpmStepper, beatsPerMeasureStepper, stepsPerBeatStepper])
-			@:privateAccess stepper.__onChange(stepper.label.text);
+		UIUtil.confirmUISelections(this);
 
 		var meta:ChartMetaData = {
 			name: songNameTextBox.label.text,

@@ -1,5 +1,6 @@
 package funkin.editors.ui;
 
+import flixel.util.typeLimit.OneOfTwo;
 import flixel.input.FlxInput.FlxInputState;
 import flixel.input.keyboard.FlxKey;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
@@ -124,5 +125,37 @@ class UIUtil {
 
 	public static inline function prettify(str:String) {
 		return [for(s in str.split(" ")) [for(k=>l in s.split("")) k == 0 ? l.toUpperCase() : l.toLowerCase()].join("")].join(" ");
+	}
+
+	/**
+	 * For when the user closes out before confriming all ui selections
+	 * @param ui the thingy you wanna check
+	 */
+	public static function confirmUISelections(ui:OneOfTwo<UISprite, UIState>) {
+		var members:Array<FlxBasic> = [];
+		if (ui is UISprite)
+			members = cast(ui, UISprite).members;
+		else if (ui is UIState)
+			members = cast(ui, UIState).members;
+
+		for (member in members) {
+			if (member is UINumericStepper) @:privateAccess {
+				var stepper:UINumericStepper = cast member;
+				if (stepper.onChange != stepper.__onChange && stepper.__wasFocused) {
+					stepper.onChange(stepper.label.text);
+					stepper.__wasFocused = false;
+				} else stepper.__onChange(stepper.label.text);
+
+			} else if (member is UITextBox) @:privateAccess {
+				var textbox:UITextBox = cast member;
+				if (textbox.__wasFocused) {
+					textbox.onChange(textbox.label.text);
+					textbox.__wasFocused = false;
+				}
+			}
+
+			if (member is UISprite || ui is UIState)
+				confirmUISelections(cast member);
+		}
 	}
 }

@@ -143,8 +143,7 @@ class CharterMetaDataScreen extends UISubstateWindow {
 	}
 
 	public function saveMeta() {
-		for (stepper in [bpmStepper, beatsPerMeasureStepper, stepsPerBeatStepper])
-			@:privateAccess stepper.__onChange(stepper.label.text);
+		UIUtil.confirmUISelections(this);
 
 		var customVals = {};
 		for (vals in customPropertiesButtonList.buttons.members) {

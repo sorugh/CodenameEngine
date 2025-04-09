@@ -147,7 +147,10 @@ class CharacterAnimButton extends UIButton {
 		deleteIcon.antialiasing = false;
 		members.push(deleteIcon);
 
-		editButton = new UIButton(0, 0, null, () -> {this.closed = !this.closed;}, 28,24);
+		editButton = new UIButton(0, 0, null, () -> {
+			if (!this.closed) UIUtil.confirmUISelections(this);
+			this.closed = !this.closed;
+		}, 28,24);
 		editButton.frames = Paths.getFrames("editors/ui/grayscale-button");
 		editButton.color = 0xFFAFAA12;
 		members.push(editButton);

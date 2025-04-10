@@ -710,7 +710,7 @@ class PlayState extends MusicBeatState
 				case 2: "girlfriend";
 			}) : strumLine.position;
 			if (strumLine.characters != null) for(k=>charName in strumLine.characters) {
-				var char = new Character(0, 0, charName, stage.isCharFlipped(charPosName, strumLine.type == 1));
+				var char = new Character(0, 0, charName, stage.isCharFlipped(stage.characterPoses[charName] != null ? charName : charPosName, strumLine.type == 1));
 				stage.applyCharStuff(char, charPosName, k);
 				chars.push(char);
 			}
@@ -1312,9 +1312,6 @@ class PlayState extends MusicBeatState
 
 		updateRatingStuff();
 
-		if (controls.PAUSE && startedCountdown && canPause)
-			pauseGame();
-
 		if (canAccessDebugMenus) {
 			if (chartingMode && FlxG.keys.justPressed.SEVEN) {
 				FlxG.switchState(new funkin.editors.charter.Charter(SONG.meta.name, difficulty, false));
@@ -1356,6 +1353,9 @@ class PlayState extends MusicBeatState
 
 		while(events.length > 0 && events.last().time <= Conductor.songPosition)
 			executeEvent(events.pop());
+
+		if (controls.PAUSE && startedCountdown && canPause)
+			pauseGame();
 
 		if (generatedMusic)
 			moveCamera();
@@ -1442,7 +1442,27 @@ class PlayState extends MusicBeatState
 
 		switch(event.name) {
 			case "HScript Call":
-				scripts.call(event.params[0], event.params[1].split(','));
+				var scriptPacks:Array<ScriptPack> = [scripts, stateScripts];
+				for (strLine in strumLines.members) for (char in strLine.characters) scriptPacks.push(char.scripts);
+				var args:Array<String> = event.params[1].split(',');
+
+				for (pack in scriptPacks) {
+					pack.call(event.params[0], args);
+					//public functions
+					if (pack.publicVariables.exists(event.params[0])) {
+						var func = pack.publicVariables.get(event.params[0]);
+						if (func != null && Reflect.isFunction(func))
+							Reflect.callMethod(null, func, args);
+					}
+				}
+
+				//static functions
+				if (Script.staticVariables.exists(event.params[0])) {
+					var func = Script.staticVariables.get(event.params[0]);
+					if (func != null && Reflect.isFunction(func))
+						Reflect.callMethod(null, func, args);
+				}
+
 			case "Camera Movement":
 				var tween = eventsTween.get("cameraMovement");
 				if (tween != null) tween.cancel();

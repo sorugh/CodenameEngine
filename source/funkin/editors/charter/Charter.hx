@@ -118,7 +118,7 @@ class Charter extends UIState {
 
 		WindowUtils.suffix = " (Chart Editor)";
 		SaveWarning.selectionClass = CharterSelection;
-		SaveWarning.saveFunc = () -> _file_save_all(null);
+		SaveWarning.saveFunc = () -> saveEverything();
 
 		topMenu = [
 			{
@@ -137,49 +137,49 @@ class Charter extends UIState {
 					{
 						label: "Save chart",
 						keybind: [CONTROL, SHIFT, S],
-						onSelect: (_) -> _file_save(),
+						onSelect: _file_save,
 					},
 					{
 						label: "Save chart as...",
-						onSelect: (_) -> _file_saveas(),
+						onSelect: _file_saveas,
 					},
 					null,
 					{
 						label: "Save global events",
 						keybind: [CONTROL, B, S],
-						onSelect: (_) -> _file_events_save(),
+						onSelect: _file_events_save,
 					},
 					{
 						label: "Save global events as...",
-						onSelect: (_) -> _file_events_saveas(),
+						onSelect: _file_events_saveas,
 					},
 					{
 						label: "Save chart without local events",
 						keybind: [CONTROL, ALT, S],
-						onSelect: (_) -> _file_save_no_events(),
+						onSelect: _file_save_no_events,
 					},
 					{
 						label: "Save chart without local events as...",
-						onSelect: (_) -> _file_saveas_no_events(),
+						onSelect: _file_saveas_no_events,
 					},
 					null,
 					{
 						label: "Save meta",
 						keybind: [CONTROL, M, S],
-						onSelect: (_) -> _file_meta_save(),
+						onSelect: _file_meta_save,
 					},
 					{
 						label: "Save meta as...",
-						onSelect: (_) -> _file_meta_saveas(),
+						onSelect: _file_meta_saveas,
 					},
 					null,
 					{
 						label: "Export for FNF Legacy as...",
-						onSelect: (_) -> _file_saveas_fnflegacy(),
+						onSelect: _file_saveas_fnflegacy,
 					},
 					{
 						label: "Export for Psych Engine as...",
-						onSelect: (_) -> _file_saveas_psych(),
+						onSelect: _file_saveas_psych,
 					},
 					null,
 					{
@@ -708,7 +708,7 @@ class Charter extends UIState {
 					name: 'Voices${strumLine.strumLine.vocalsSuffix}.ogg',
 					sound: strumLine.vocals
 				});
-			
+
 		return wavesToGenerate;
 	}
 
@@ -1460,51 +1460,46 @@ class Charter extends UIState {
 		return sideScroll = FlxMath.bound(val, -(40*strumLines.totalKeyCount) / 2, (40*strumLines.totalKeyCount) / 2);
 	}
 
-	// TOP MENU OPTIONS
+	// SAVE FUNCS
 	#if REGION
-	function _file_exit(_) {
-		if (undos.unsaved) SaveWarning.triggerWarning();
-		else {undos = null; FlxG.switchState(new CharterSelection()); PlayState.resetSongInfos(); Charter.instance.__clearStatics();}
+	public static function saveEverything(shouldBuild:Bool = true) {
+		if (shouldBuild && instance != null) instance.buildChart();
+		saveChart(false);
+		saveEvents(false);
+		saveMeta(false);
 	}
 
-	function _file_save_all(_) {
-		buildChart();
-		_file_save(false);
-		_file_events_save(false);
-		_file_meta_save(false);
-	}
-
-	function _file_save(shouldBuild:Bool = true) {
+	public static function saveChart(shouldBuild:Bool = true, withEvents:Bool = true) {
 		#if sys
-		saveTo('${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}', false, shouldBuild);
-		undos.save();
+		saveTo('${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}', !withEvents, shouldBuild);
+		if (undos != null) undos.save();
 		#else
-		_file_saveas(shouldBuild);
+		saveChartAs(shouldBuild, withEvents);
 		#end
 	}
 
-	function _file_saveas(shouldBuild:Bool = true) {
-		saveAs(Chart.filterChartForSaving(PlayState.SONG, false, true, false), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null, {
+	public static function saveChartAs(shouldBuild:Bool = true, withEvents:Bool = true) {
+		saveAs(Chart.filterChartForSaving(PlayState.SONG, false, withEvents, false), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null, {
 			defaultSaveFile: '${__diff.toLowerCase()}.json'
 		}, null, shouldBuild);
-		undos.save();
+		if (undos != null) undos.save();
 	}
 
-	function _file_events_save(shouldBuild:Bool = true) {
+	public static function saveEvents(shouldBuild:Bool = true) {
 		#if sys
-		if (shouldBuild) buildChart();
+		if (shouldBuild && instance != null) instance.buildChart();
 		var data = {events: Chart.filterChartForSaving(PlayState.SONG, false, false, true).events};
 
 		var path = '${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}/events.json';
-		if (FileSystem.exists(path) && (data.events == null || data.events.length == 0)) FileSystem.deleteFile(path);  // Instead of replacing with a useless empty file, deletes the file directly  - Nex
-		else CoolUtil.safeSaveFile(path, Json.stringify(data, null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null));
+		if (data.events != null && data.events.length > 0) CoolUtil.safeSaveFile(path, Json.stringify(data, null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null));
+		else if (FileSystem.exists(path)) FileSystem.deleteFile(path);  // Instead of replacing with a useless empty file, deletes the file directly  - Nex
 		#else
-		_file_events_saveas(shouldBuild);
+		saveEventsAs(shouldBuild);
 		#end
 	}
 
-	function _file_events_saveas(shouldBuild:Bool = true) {
-		if (shouldBuild) buildChart();
+	public static function saveEventsAs(shouldBuild:Bool = true) {
+		if (shouldBuild && instance != null) instance.buildChart();
 		var data = {events: Chart.filterChartForSaving(PlayState.SONG, false, false, true).events};
 
 		saveAs(data, null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null, {
@@ -1512,63 +1507,71 @@ class Charter extends UIState {
 		}, null, false);
 	}
 
-	function _file_save_no_events(shouldBuild:Bool = true) {
+	public static function saveMeta(shouldBuild:Bool = true) {
 		#if sys
-		saveTo('${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}', true, shouldBuild);
-		undos.save();
-		#else
-		_file_saveas(shouldBuild);
-		#end
-	}
-
-	function _file_saveas_no_events(shouldBuild:Bool = true) {
-		saveAs(Chart.filterChartForSaving(PlayState.SONG, false, false, false), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null, {
-			defaultSaveFile: '${__diff.toLowerCase()}.json'
-		}, null, shouldBuild);
-		undos.save();
-	}
-
-	function _file_meta_save(shouldBuild:Bool = true) {
-		#if sys
-		if (shouldBuild) buildChart();
+		if (shouldBuild && instance != null) instance.buildChart();
 		CoolUtil.safeSaveFile(
 			'${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}/meta.json',
 			Json.stringify(PlayState.SONG.meta == null ? {} : Chart.filterChartForSaving(PlayState.SONG, true, false, false).meta, null, Flags.JSON_PRETTY_PRINT)
 		);
 		#else
-		_file_meta_saveas(shouldBuild);
+		saveMetaAs(shouldBuild);
 		#end
 	}
 
-	function _file_meta_saveas(shouldBuild:Bool = true) {
+	public static function saveMetaAs(shouldBuild:Bool = true) {
 		saveAs(PlayState.SONG.meta == null ? {} : Chart.filterChartForSaving(PlayState.SONG, true, false, false).meta, null, Flags.JSON_PRETTY_PRINT, { // always pretty print meta
 			defaultSaveFile: 'meta.json'
 		}, null, shouldBuild);
 	}
 
-	function _file_saveas_fnflegacy(shouldBuild:Bool = true) {
+	public static function saveLegacyChartAs(shouldBuild:Bool = true) {
 		saveAs(FNFLegacyParser.encode(PlayState.SONG), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null, {
 			defaultSaveFile: '${__song.toLowerCase().replace(" ", "-")}${__diff.toLowerCase() == Flags.DEFAULT_DIFFICULTY ? "" : '-${__diff.toLowerCase()}'}.json',
 		}, null, shouldBuild);
 	}
 
-	function _file_saveas_psych(shouldBuild:Bool = true) {
+	public static function savePsychChartAs(shouldBuild:Bool = true) {
 		saveAs(PsychParser.encode(PlayState.SONG), null, Options.editorPrettyPrint ? Flags.JSON_PRETTY_PRINT : null, {
 			defaultSaveFile: '${__song.toLowerCase().replace(" ", "-")}${__diff.toLowerCase() == Flags.DEFAULT_DIFFICULTY ? "" : '-${__diff.toLowerCase()}'}.json',
 		}, null, shouldBuild);
 	}
 
-	function saveAs(data:Dynamic, ?replacer:(key:Dynamic, value:Dynamic) -> Dynamic, ?space:String, ?options:SaveSubstate.SaveSubstateData, ?saveOptions:Map<String, Bool>, shouldBuild:Bool = true) {
-		if (shouldBuild) buildChart();
-		openSubState(new SaveSubstate(Json.stringify(data, replacer, space), options, saveOptions));
+	public static function saveAs(data:Dynamic, ?replacer:(key:Dynamic, value:Dynamic) -> Dynamic, ?space:String, ?options:SaveSubstate.SaveSubstateData, ?saveOptions:Map<String, Bool>, shouldBuild:Bool = true) {
+		if (shouldBuild && instance != null) instance.buildChart();
+		var cur = FlxG.state;
+		while(true) {
+			if (instance != null || cur.subState == null) return cur.openSubState(new SaveSubstate(Json.stringify(data, replacer, space), options, saveOptions));
+			else cur = cur.subState;
+		}
 	}
 
 	#if sys
-	function saveTo(path:String, separateEvents:Bool = false, shouldBuild:Bool = true) {
-		if (shouldBuild) buildChart();
+	public static function saveTo(path:String, separateEvents:Bool = false, shouldBuild:Bool = true) {
+		if (shouldBuild && instance != null) instance.buildChart();
 		Chart.save(path, PlayState.SONG, __diff.toLowerCase(), {saveMetaInChart: false, saveLocalEvents: !separateEvents, prettyPrint: Options.editorPrettyPrint});
 	}
 	#end
+	#end
+
+	// TOP MENU OPTIONS
+	#if REGION
+	function _file_exit(_) {
+		if (undos.unsaved) SaveWarning.triggerWarning();
+		else {undos = null; FlxG.switchState(new CharterSelection()); PlayState.resetSongInfos(); Charter.instance.__clearStatics();}
+	}
+
+	function _file_save_all(_) saveEverything();
+	function _file_save(_) saveChart();
+	function _file_saveas(_) saveChartAs();
+	function _file_events_save(_) saveEvents();
+	function _file_events_saveas(_) saveEventsAs();
+	function _file_save_no_events(_) saveChart(true, false);
+	function _file_saveas_no_events(_) saveChartAs(true, false);
+	function _file_meta_save(_) saveMeta();
+	function _file_meta_saveas(_) saveMetaAs();
+	function _file_saveas_fnflegacy(_) saveLegacyChartAs();
+	function _file_saveas_psych(_) savePsychChartAs();
 
 	function _edit_copy(_) {
 		if(selection.length == 0) return;

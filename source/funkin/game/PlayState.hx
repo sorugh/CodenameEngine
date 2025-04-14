@@ -826,10 +826,7 @@ class PlayState extends MusicBeatState
 			SaveWarning.showWarning = Charter.undos.unsaved;
 			SaveWarning.selectionClass = CharterSelection;
 			SaveWarning.warningFunc = saveWarn;
-			SaveWarning.saveFunc = () ->  {
-				@:privateAccess Chart.save('${Paths.getAssetsRoot()}/songs/${Charter.__song.toLowerCase()}',
-					SONG, Charter.__diff.toLowerCase(), {saveMetaInChart: false, prettyPrint: Options.editorPrettyPrint});
-			}
+			SaveWarning.saveFunc = () ->  Charter.saveEverything(false);
 		}
 	}
 

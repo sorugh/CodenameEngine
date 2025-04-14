@@ -826,7 +826,7 @@ class PlayState extends MusicBeatState
 			SaveWarning.showWarning = Charter.undos.unsaved;
 			SaveWarning.selectionClass = CharterSelection;
 			SaveWarning.warningFunc = saveWarn;
-			SaveWarning.saveFunc = () ->  Charter.saveEverything(false);
+			SaveWarning.saveFunc = () -> Charter.saveEverything(false);
 		}
 	}
 

@@ -1541,8 +1541,8 @@ class Charter extends UIState {
 		if (shouldBuild && instance != null) instance.buildChart();
 		var cur = FlxG.state;
 		while(true) {
-			if (cur.subState != null) cur = cur.subState;
-			else return cur.openSubState(new SaveSubstate(Json.stringify(data, replacer, space), options, saveOptions));
+			if (instance != null || cur.subState == null) return cur.openSubState(new SaveSubstate(Json.stringify(data, replacer, space), options, saveOptions));
+			else cur = cur.subState;
 		}
 	}
 

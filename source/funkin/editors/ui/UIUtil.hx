@@ -4,6 +4,7 @@ import flixel.util.typeLimit.OneOfTwo;
 import flixel.input.FlxInput.FlxInputState;
 import flixel.input.keyboard.FlxKey;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
+import flixel.group.FlxGroup;
 
 @:access(flixel.FlxSprite)
 class UIUtil {
@@ -131,12 +132,12 @@ class UIUtil {
 	 * For when the user closes out before confriming all ui selections
 	 * @param ui the thingy you wanna check
 	 */
-	public static function confirmUISelections(ui:OneOfTwo<UISprite, UIState>) {
+	public static function confirmUISelections(ui:Dynamic) {
 		var members:Array<FlxBasic> = [];
-		if (ui is UISprite)
-			members = cast(ui, UISprite).members;
-		else if (ui is UIState)
-			members = cast(ui, UIState).members;
+
+		if (Reflect.fields(ui).contains("members")) // hasField doesnt work >:(
+			members = Reflect.field(ui, "members");
+		else return;
 
 		for (member in members) {
 			if (member is UINumericStepper) @:privateAccess {

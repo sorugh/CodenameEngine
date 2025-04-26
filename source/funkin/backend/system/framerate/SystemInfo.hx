@@ -95,7 +95,7 @@ class SystemInfo extends FramerateCategory {
 				#end
 
 				if(openfl.display3D.Context3D.__glMemoryTotalAvailable != -1) {
-					var vRAMBytes:UInt64 = cast flixel.FlxG.stage.context3D.gl.getParameter(openfl.display3D.Context3D.__glMemoryTotalAvailable);
+					var vRAMBytes:Int = cast flixel.FlxG.stage.context3D.gl.getParameter(openfl.display3D.Context3D.__glMemoryTotalAvailable);
 					if (vRAMBytes == 1000 || vRAMBytes == 1 || vRAMBytes <= 0)
 						Logs.trace('Unable to grab GPU VRAM', ERROR, RED);
 					else {

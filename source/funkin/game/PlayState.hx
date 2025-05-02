@@ -646,10 +646,11 @@ class PlayState extends MusicBeatState
 				// case "":
 					// ADD YOUR HARDCODED SCRIPTS HERE!
 				default:
-					var scriptsFolders:Array<String> = ['songs/${SONG.meta.name.toLowerCase()}/scripts', 'data/charts/', 'songs/'];
+					var normal = 'songs/${SONG.meta.name.toLowerCase()}/scripts';
+					var scriptsFolders:Array<String> = [normal, normal + '/$difficulty/', 'data/charts/', 'songs/'];
 
-					for(folder in scriptsFolders) {
-						for(file in Paths.getFolderContent(folder, true, fromMods ? MODS : BOTH)) {
+					for (folder in scriptsFolders) {
+						for (file in Paths.getFolderContent(folder, true, fromMods ? MODS : BOTH)) {
 							if (folder == 'data/charts/')
 								Logs.warn('data/charts/ is deprecated and will be removed in the future. Please move script $file to songs/', DARKYELLOW, "PlayState");
 
@@ -848,7 +849,8 @@ class PlayState extends MusicBeatState
 
 		// Make icons appear in the correct spot during cutscenes
 		healthBar.update(0);
-		updateIconPositions();
+		if (updateIconPositions != null)
+			updateIconPositions();
 
 		__updateNote_event = EventManager.get(NoteUpdateEvent);
 
@@ -1266,18 +1268,19 @@ class PlayState extends MusicBeatState
 		]));
 	}
 
-	function updateIconPositions() {
+	dynamic function updateIconPositions() {
 		var iconOffset = Flags.ICON_OFFSET;
+		var healthBarPercent = healthBar.percent;
 
-		var center:Float = healthBar.x + healthBar.width * FlxMath.remapToRange(healthBar.percent, 0, 100, 1, 0);
+		var center:Float = healthBar.x + healthBar.width * FlxMath.remapToRange(healthBarPercent, 0, 100, 1, 0);
 
 		iconP1.x = center - iconOffset;
 		iconP2.x = center - (iconP2.width - iconOffset);
 
 		health = FlxMath.bound(health, 0, maxHealth);
 
-		iconP1.health = healthBar.percent / 100;
-		iconP2.health = 1 - (healthBar.percent / 100);
+		iconP1.health = healthBarPercent / 100;
+		iconP2.health = 1 - (healthBarPercent / 100);
 	}
 
 	function updateRatingStuff() {
@@ -1323,15 +1326,13 @@ class PlayState extends MusicBeatState
 			}*/
 		}
 
-		if (doIconBop) {
-			var iconLerp = Flags.ICON_LERP;
-			iconP1.scale.set(lerp(iconP1.scale.x, 1, iconLerp), lerp(iconP1.scale.y, 1, iconLerp));
-			iconP2.scale.set(lerp(iconP2.scale.x, 1, iconLerp), lerp(iconP2.scale.y, 1, iconLerp));
+		if (doIconBop)
+			for (icon in [iconP1, iconP2])
+				if (icon.updateBump != null)
+					icon.updateBump();
 
-			iconP1.updateHitbox();
-			iconP2.updateHitbox();
-		}
-		updateIconPositions();
+		if (updateIconPositions != null)
+			updateIconPositions();
 
 		if (startingSong)
 		{
@@ -1794,9 +1795,9 @@ class PlayState extends MusicBeatState
 
 		var event:NoteHitEvent;
 		if (strumLine != null && !strumLine.cpu)
-			event = EventManager.get(NoteHitEvent).recycle(false, !note.isSustainNote, !note.isSustainNote, null, defaultDisplayRating, defaultDisplayCombo, note, strumLine.characters, true, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, score, note.isSustainNote ? null : accuracy, 0.023, daRating, Options.splashesEnabled && !note.isSustainNote && daRating == "sick");
+			event = EventManager.get(NoteHitEvent).recycle(false, !note.isSustainNote, !note.isSustainNote, null, defaultDisplayRating, defaultDisplayCombo, note, strumLine.characters, true, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, score, note.isSustainNote ? null : accuracy, 0.023, daRating, Options.splashesEnabled && !note.isSustainNote && daRating == "sick", 0.5, true, 0.7, true, true, iconP1);
 		else
-			event = EventManager.get(NoteHitEvent).recycle(false, false, false, null, defaultDisplayRating, defaultDisplayCombo, note, strumLine.characters, false, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, 0, null, 0, daRating, false);
+			event = EventManager.get(NoteHitEvent).recycle(false, false, false, null, defaultDisplayRating, defaultDisplayCombo, note, strumLine.characters, false, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, 0, null, 0, daRating, false, 0.5, true, 0.7, true, true, iconP2);
 		event.deleteNote = !note.isSustainNote; // work around, to allow sustain notes to be deleted
 		event = scripts.event(strumLine != null && !strumLine.cpu ? "onPlayerHit" : "onDadHit", event);
 		strumLine.onHit.dispatch(event);
@@ -1959,14 +1960,9 @@ class PlayState extends MusicBeatState
 		}
 
 		if (doIconBop)
-		{
-			var iconScale = Flags.BOP_ICON_SCALE;
-			iconP1.scale.set(iconScale, iconScale);
-			iconP2.scale.set(iconScale, iconScale);
-
-			iconP1.updateHitbox();
-			iconP2.updateHitbox();
-		}
+			for (icon in [iconP1, iconP2])
+				if (icon.bump != null)
+					icon.bump();
 
 		scripts.call("beatHit", [curBeat]);
 	}

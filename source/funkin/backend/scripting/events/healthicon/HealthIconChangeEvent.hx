@@ -1,10 +1,12 @@
 package funkin.backend.scripting.events.healthicon;
 
+import flixel.util.typeLimit.OneOfTwo;
+
 final class HealthIconChangeEvent extends CancellableEvent {
 	/**
-	 * Amount
+	 * Animation State
 	 */
-	public var amount:Int;
+	public var anim:OneOfTwo<String, Int>;
 
 	/**
 	 * The health icon

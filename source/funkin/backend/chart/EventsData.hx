@@ -36,18 +36,21 @@ class EventsData {
 		"Camera Position" => [
 			{name: "X", type: TFloat(null, null, 10, 3), defValue: 0},
 			{name: "Y", type: TFloat(null, null, 10, 3), defValue: 0},
-			{name: "Tween Movement?", type: TBool, defValue: true},
-			{name: "Tween Time (Steps, IF NOT CLASSIC)", type: TFloat(0.25, 9999, 0.25, 2), defValue: 4},
+			{name: "Tween Movement?", type: TBool, defValue: true, saveIfDefault: false},
+			{name: "Tween Time (Steps, IF NOT CLASSIC)", type: TFloat(0.25, 9999, 0.25, 2), defValue: 4, saveIfDefault: false},
 			{
 				name: "Tween Ease (ex: circ, quad, cube)",
 				type: TDropDown(['CLASSIC', 'linear', 'back', 'bounce', 'circ', 'cube', 'elastic', 'expo', 'quad', 'quart', 'quint', 'sine', 'smoothStep', 'smootherStep']),
-				defValue: "CLASSIC"
+				defValue: "CLASSIC",
+				saveIfDefault: false
 			},
 			{
 				name: "Tween Type (excluded if CLASSIC or linear, ex: InOut)",
 				type: TDropDown(['In', 'Out', 'InOut']),
-				defValue: "In"
-			}
+				defValue: "In",
+				saveIfDefault: false
+			},
+			{name: "Is Offset?", type: TBool, defValue: false, saveIfDefault: false}
 		],
 		"Add Camera Zoom" => [
 			{name: "Amount", type: TFloat(-10, 10, 0.01, 2), defValue: 0.05},

@@ -1463,7 +1463,6 @@ class PlayState extends MusicBeatState
 					if (func != null && Reflect.isFunction(func))
 						Reflect.callMethod(null, func, args);
 				}
-
 			case "Camera Movement":
 				var tween = eventsTween.get("cameraMovement");
 				if (tween != null) tween.cancel();
@@ -1474,9 +1473,14 @@ class PlayState extends MusicBeatState
 						moveCamera();
 						FlxG.camera.snapToTarget();
 					} else if (event.params[3] != null && event.params[3] != "CLASSIC") {  // making more nullchecks in this event because of the default save value being false  - Nex
-						moveCamera();  // i feel like i shouldnt nullify the camera target or else is gonna be annoying when scripts cancel the tween with setting back the target onComplete  - Nex
+						moveCamera();
+						var oldFollow = FlxG.camera.followEnabled;
+						FlxG.camera.followEnabled = false;
 						eventsTween.set("cameraMovement", FlxTween.tween(FlxG.camera.scroll, {x: camFollow.x - FlxG.camera.width * 0.5, y: camFollow.y - FlxG.camera.height * 0.5},
-							(Conductor.stepCrochet / 1000) * (event.params[2] == null ? 4 : event.params[2]), {ease: CoolUtil.flxeaseFromString(event.params[3], event.params[4])})
+							(Conductor.stepCrochet / 1000) * (event.params[2] == null ? 4 : event.params[2]), {
+								ease: CoolUtil.flxeaseFromString(event.params[3], event.params[4]),
+								onComplete: (_) -> FlxG.camera.followEnabled = oldFollow
+							})
 						);
 					}
 				}
@@ -1485,13 +1489,19 @@ class PlayState extends MusicBeatState
 				if (tween != null) tween.cancel();
 
 				curCameraTarget = -1;
-				camFollow.setPosition(event.params[0], event.params[1]);
+				var isOffset = event.params[6] == "true";
+				camFollow.setPosition(isOffset ? camFollow.x + event.params[0] : event.params[0], isOffset ? camFollow.y + event.params[1] : event.params[1]);
 
 				if (event.params[2] == false) {
 					FlxG.camera.snapToTarget();
 				} else if (event.params[4] != "CLASSIC") {
+					var oldFollow = FlxG.camera.followEnabled;
+					FlxG.camera.followEnabled = false;
 					eventsTween.set("cameraMovement", FlxTween.tween(FlxG.camera.scroll, {x: camFollow.x - FlxG.camera.width * 0.5, y: camFollow.y - FlxG.camera.height * 0.5},
-						(Conductor.stepCrochet / 1000) * event.params[3], {ease: CoolUtil.flxeaseFromString(event.params[4], event.params[5])})
+						(Conductor.stepCrochet / 1000) * event.params[3], {
+							ease: CoolUtil.flxeaseFromString(event.params[4], event.params[5]),
+							onComplete: (_) -> FlxG.camera.followEnabled = oldFollow
+						})
 					);
 				}
 			case "Add Camera Zoom":

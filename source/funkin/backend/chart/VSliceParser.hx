@@ -108,8 +108,10 @@ class VSliceParser {
 			{
 				case "FocusCamera":
 					var arr:Array<Dynamic> = [switch(values.char) {
+						// more cases here in the future if they add em? (i hope not)  - Nex
 						case 0: 1;
 						case 1: 0;
+						case -1: -1;
 						default: 2;
 					}];
 					if (values.ease != "CLASSIC" && values.ease != null) {
@@ -119,7 +121,12 @@ class VSliceParser {
 							arr = arr.concat([true, values.duration == null ? 4 : values.duration, cneEase[0], cneEase[1]]);
 						}
 					}
-					result.events.push({
+					if (values.x != null || values.y != null) result.events.push({
+						time: event.t,
+						name: "Camera Position",
+						params: [values.x, values.y, arr[1], arr[2], arr[3], arr[4], true]
+					});
+					if (arr[0] != -1) result.events.push({
 						time: event.t,
 						name: "Camera Movement",
 						params: arr

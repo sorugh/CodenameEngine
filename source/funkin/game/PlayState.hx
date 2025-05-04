@@ -1480,6 +1480,20 @@ class PlayState extends MusicBeatState
 						);
 					}
 				}
+			case "Camera Position":
+				var tween = eventsTween.get("cameraMovement");
+				if (tween != null) tween.cancel();
+
+				curCameraTarget = -1;
+				camFollow.setPosition(event.params[0], event.params[1]);
+
+				if (event.params[2] == false) {
+					FlxG.camera.snapToTarget();
+				} else if (event.params[4] != "CLASSIC") {
+					eventsTween.set("cameraMovement", FlxTween.tween(FlxG.camera.scroll, {x: camFollow.x - FlxG.camera.width * 0.5, y: camFollow.y - FlxG.camera.height * 0.5},
+						(Conductor.stepCrochet / 1000) * event.params[3], {ease: CoolUtil.flxeaseFromString(event.params[4], event.params[5])})
+					);
+				}
 			case "Add Camera Zoom":
 				var camera:FlxCamera = event.params[1] == "camHUD" ? camHUD : camGame;
 				camera.zoom += event.params[0];
@@ -1488,10 +1502,8 @@ class PlayState extends MusicBeatState
 				var name = (event.params[2] == "camHUD" ? "camHUD" : "camGame") + ".zoom";  // avoiding having different values from these 2  - Nex
 				var tween = eventsTween.get(name);
 				if (tween != null) tween.cancel();
-				var ease = CoolUtil.flxeaseFromString(event.params[4], event.params[5]);
-				var direct = event.params[6] == 'direct';
 
-				var finalZoom:Float = event.params[1] * (direct ? FlxCamera.defaultZoom : stage.defaultZoom);
+				var finalZoom:Float = event.params[1] * (event.params[6] == 'direct' ? FlxCamera.defaultZoom : stage.defaultZoom);
 				if (event.params[7] == true) finalZoom *= cam.zoom;
 
 				if (event.params[0] == false) {
@@ -1499,7 +1511,7 @@ class PlayState extends MusicBeatState
 					if (cam == camHUD) defaultHudZoom = finalZoom;
 					else defaultCamZoom = finalZoom;
 				} else
-					eventsTween.set(name, FlxTween.tween(cam, {zoom: finalZoom}, (Conductor.stepCrochet / 1000) * event.params[3], {ease: ease, onUpdate: function(_) {
+					eventsTween.set(name, FlxTween.tween(cam, {zoom: finalZoom}, (Conductor.stepCrochet / 1000) * event.params[3], {ease: CoolUtil.flxeaseFromString(event.params[4], event.params[5]), onUpdate: function(_) {
 						if (cam == camHUD) defaultHudZoom = cam.zoom;
 						else defaultCamZoom = cam.zoom;
 					}}));

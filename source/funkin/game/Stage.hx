@@ -70,7 +70,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 			if((parsed = Std.parseFloat(stageXML.getAtt("startCamPosX"))).isNotNull()) startCam.x = parsed;
 			if((parsed = Std.parseFloat(stageXML.getAtt("startCamPosY"))).isNotNull()) startCam.y = parsed;
 			if((parsed = Std.parseFloat(stageXML.getAtt("zoom"))).isNotNull()) defaultZoom = parsed;
-			
+
 			stageName = stageXML.getAtt("name").getDefault(stage);
 
 			if (PlayState.instance == state) {
@@ -306,6 +306,11 @@ class Stage extends FlxBasic implements IBeatReceiver {
 
 	public function measureHit(curMeasure:Int) {}
 
+	public override function destroy() {
+		startCam.put();
+		super.destroy();
+	}
+
 	/**
 	 * Gets a list of stages that are available to be used.
 	 * @param mods Whenever only the mods folder should be checked
@@ -341,7 +346,6 @@ class StageCharPos extends FlxObject {
 
 	public override function destroy() {
 		scale.put();
-		startCam.put();
 		super.destroy();
 	}
 

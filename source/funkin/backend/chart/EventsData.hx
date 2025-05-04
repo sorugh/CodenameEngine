@@ -10,7 +10,7 @@ import openfl.Assets;
 using StringTools;
 
 class EventsData {
-	public static var defaultEventsList:Array<String> = ["HScript Call", "Camera Movement", "Add Camera Zoom", "Camera Zoom", "Camera Modulo Change", "Camera Flash", "BPM Change", "Scroll Speed Change", "Alt Animation Toggle", "Play Animation"];
+	public static var defaultEventsList:Array<String> = ["HScript Call", "Camera Movement", "Camera Position", "Add Camera Zoom", "Camera Zoom", "Camera Modulo Change", "Camera Flash", "BPM Change", "Scroll Speed Change", "Alt Animation Toggle", "Play Animation"];
 	public static var defaultEventsParams:Map<String, Array<EventParamInfo>> = [
 		"HScript Call" => [
 			{name: "Function Name", type: TString, defValue: "myFunc"},
@@ -20,7 +20,7 @@ class EventsData {
 			{name: "Camera Target", type: TStrumLine, defValue: 0},
 			{name: "Tween Movement?", type: TBool, defValue: true, saveIfDefault: false},
 			{name: "Tween Time (Steps, IF NOT CLASSIC)", type: TFloat(0.25, 9999, 0.25, 2), defValue: 4, saveIfDefault: false},
-			{  // since its the most used event, we'll set saveIfDefault false to avoid filling up with unnecessary parameters the files  - Nex
+			{  // since its the most used event even by default, we'll set saveIfDefault false to avoid filling up with unnecessary parameters the files  - Nex
 				name: "Tween Ease (ex: circ, quad, cube)",
 				type: TDropDown(['CLASSIC', 'linear', 'back', 'bounce', 'circ', 'cube', 'elastic', 'expo', 'quad', 'quart', 'quint', 'sine', 'smoothStep', 'smootherStep']),
 				defValue: "CLASSIC",
@@ -31,6 +31,22 @@ class EventsData {
 				type: TDropDown(['In', 'Out', 'InOut']),
 				defValue: "In",
 				saveIfDefault: false
+			}
+		],
+		"Camera Position" => [
+			{name: "X", type: TFloat(null, null, 10, 3), defValue: 0},
+			{name: "Y", type: TFloat(null, null, 10, 3), defValue: 0},
+			{name: "Tween Movement?", type: TBool, defValue: true},
+			{name: "Tween Time (Steps, IF NOT CLASSIC)", type: TFloat(0.25, 9999, 0.25, 2), defValue: 4},
+			{
+				name: "Tween Ease (ex: circ, quad, cube)",
+				type: TDropDown(['CLASSIC', 'linear', 'back', 'bounce', 'circ', 'cube', 'elastic', 'expo', 'quad', 'quart', 'quint', 'sine', 'smoothStep', 'smootherStep']),
+				defValue: "CLASSIC"
+			},
+			{
+				name: "Tween Type (excluded if CLASSIC or linear, ex: InOut)",
+				type: TDropDown(['In', 'Out', 'InOut']),
+				defValue: "In"
 			}
 		],
 		"Add Camera Zoom" => [
@@ -52,7 +68,7 @@ class EventsData {
 				type: TDropDown(['In', 'Out', 'InOut']),
 				defValue: "In"
 			},
-			{name: "Mode", type: TDropDown(['stage', 'direct']), defValue: "stage"},
+			{name: "Mode", type: TDropDown(['direct', 'stage']), defValue: "direct"},
 			{name: "Multiplicative?", type: TBool, defValue: true}
 		],
 		"Camera Modulo Change" => [

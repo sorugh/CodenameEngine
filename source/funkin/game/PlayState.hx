@@ -1488,8 +1488,10 @@ class PlayState extends MusicBeatState
 				var name = (event.params[2] == "camHUD" ? "camHUD" : "camGame") + ".zoom";  // avoiding having different values from these 2  - Nex
 				var tween = eventsTween.get(name);
 				if (tween != null) tween.cancel();
+				var ease = CoolUtil.flxeaseFromString(event.params[4], event.params[5]);
+				var direct = event.params[7] == 'direct';
 
-				var finalZoom:Float = event.params[1];
+				var finalZoom:Float = event.params[1] * (direct ? FlxCamera.defaultZoom : stage.defaultZoom);
 				if (event.params[6] == true) finalZoom *= cam.zoom;
 
 				if (event.params[0] == false) {
@@ -1497,7 +1499,7 @@ class PlayState extends MusicBeatState
 					if (cam == camHUD) defaultHudZoom = finalZoom;
 					else defaultCamZoom = finalZoom;
 				} else
-					eventsTween.set(name, FlxTween.tween(cam, {zoom: finalZoom}, (Conductor.stepCrochet / 1000) * event.params[3], {ease: CoolUtil.flxeaseFromString(event.params[4], event.params[5]), onUpdate: function(_) {
+					eventsTween.set(name, FlxTween.tween(cam, {zoom: finalZoom}, (Conductor.stepCrochet / 1000) * event.params[3], {ease: ease, onUpdate: function(_) {
 						if (cam == camHUD) defaultHudZoom = cam.zoom;
 						else defaultCamZoom = cam.zoom;
 					}}));

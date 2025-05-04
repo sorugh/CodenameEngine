@@ -52,7 +52,8 @@ class EventsData {
 				type: TDropDown(['In', 'Out', 'InOut']),
 				defValue: "In"
 			},
-			{name: "Multiplicative?", type: TBool, defValue: false}
+			{name: "Multiplicative?", type: TBool, defValue: true},
+			{name: "Mode", type: TDropDown(['stage', 'direct']), defValue: "stage"}
 		],
 		"Camera Modulo Change" => [
 			{name: "Modulo Interval (Beats)", type: TInt(1, 9999999, 1), defValue: 4},

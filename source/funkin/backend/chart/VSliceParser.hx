@@ -124,15 +124,18 @@ class VSliceParser {
 							arr = arr.concat([true, values.duration == null ? 4 : values.duration, cneEase[0], cneEase[1]]);
 						}
 					}
+					if (isPosOnly || ((values.x != null && values.x != 0) || (values.y != null && values.y != 0))) {
+						var useNull = arr.length <= 2;
+						result.events.push({
+							time: event.t,
+							name: "Camera Position",
+							params: [values.x, values.y, useNull ? null : arr[1], useNull ? null : arr[2], useNull ? null : arr[3], useNull ? null : arr[4], true]
+						});
+					}
 					if (!isPosOnly) result.events.push({
 						time: event.t,
 						name: "Camera Movement",
 						params: arr
-					});
-					if (isPosOnly || ((values.x != null && values.x > 0) || (values.y != null && values.y > 0))) result.events.push({
-						time: event.t,
-						name: "Camera Position",
-						params: [values.x, values.y, arr[1], arr[2], arr[3], arr[4], true]
 					});
 				case "PlayAnimation":
 					result.events.push({

@@ -1465,15 +1465,17 @@ class PlayState extends MusicBeatState
 				}
 			case "Camera Movement":
 				var tween = eventsTween.get("cameraMovement");
-				if (tween != null) tween.cancel();
+				if (tween != null) {
+					if (tween.onComplete != null) tween.onComplete(tween);
+					tween.cancel();
+				}
 
 				curCameraTarget = event.params[0];
+				moveCamera();
+
 				if (strumLines.members[curCameraTarget] != null) {
-					if (event.params[1] == false) {
-						moveCamera();
-						FlxG.camera.snapToTarget();
-					} else if (event.params[3] != null && event.params[3] != "CLASSIC") {  // making more nullchecks in this event because of the default save value being false  - Nex
-						moveCamera();
+					if (event.params[1] == false) FlxG.camera.snapToTarget();
+					else if (event.params[3] != null && event.params[3] != "CLASSIC") {  // making more nullchecks in this event because of the default save value being false  - Nex
 						var oldFollow = FlxG.camera.followEnabled;
 						FlxG.camera.followEnabled = false;
 						eventsTween.set("cameraMovement", FlxTween.tween(FlxG.camera.scroll, {x: camFollow.x - FlxG.camera.width * 0.5, y: camFollow.y - FlxG.camera.height * 0.5},
@@ -1486,19 +1488,21 @@ class PlayState extends MusicBeatState
 				}
 			case "Camera Position":
 				var tween = eventsTween.get("cameraMovement");
-				if (tween != null) tween.cancel();
+				if (tween != null) {
+					if (tween.onComplete != null) tween.onComplete(tween);
+					tween.cancel();
+				}
 
 				curCameraTarget = -1;
-				var isOffset = event.params[6] == "true";
-				camFollow.setPosition(isOffset ? camFollow.x + event.params[0] : event.params[0], isOffset ? camFollow.y + event.params[1] : event.params[1]);
+				var isOffset = event.params[6] == true;
+				camFollow.setPosition(isOffset ? (camFollow.x + event.params[0]) : event.params[0], isOffset ? (camFollow.y + event.params[1]) : event.params[1]);
 
-				if (event.params[2] == false) {
-					FlxG.camera.snapToTarget();
-				} else if (event.params[4] != "CLASSIC") {
+				if (event.params[2] == false) FlxG.camera.snapToTarget();
+				else if (event.params[4] != null && event.params[4] != "CLASSIC") {
 					var oldFollow = FlxG.camera.followEnabled;
 					FlxG.camera.followEnabled = false;
 					eventsTween.set("cameraMovement", FlxTween.tween(FlxG.camera.scroll, {x: camFollow.x - FlxG.camera.width * 0.5, y: camFollow.y - FlxG.camera.height * 0.5},
-						(Conductor.stepCrochet / 1000) * event.params[3], {
+						(Conductor.stepCrochet / 1000) * (event.params[3] == null ? 4 : event.params[3]), {
 							ease: CoolUtil.flxeaseFromString(event.params[4], event.params[5]),
 							onComplete: (_) -> FlxG.camera.followEnabled = oldFollow
 						})

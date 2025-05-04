@@ -1489,10 +1489,10 @@ class PlayState extends MusicBeatState
 				var tween = eventsTween.get(name);
 				if (tween != null) tween.cancel();
 				var ease = CoolUtil.flxeaseFromString(event.params[4], event.params[5]);
-				var direct = event.params[7] == 'direct';
+				var direct = event.params[6] == 'direct';
 
 				var finalZoom:Float = event.params[1] * (direct ? FlxCamera.defaultZoom : stage.defaultZoom);
-				if (event.params[6] == true) finalZoom *= cam.zoom;
+				if (event.params[7] == true) finalZoom *= cam.zoom;
 
 				if (event.params[0] == false) {
 					cam.zoom = finalZoom;

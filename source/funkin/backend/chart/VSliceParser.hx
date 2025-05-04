@@ -152,7 +152,7 @@ class VSliceParser {
 					result.events.push({
 						time: event.t,
 						name: "Camera Zoom",  // we dont support the direct mode since welp, its kind of useless here  - Nex
-						params: [values.ease != "INSTANT", values.zoom == null ? 1 : values.zoom, "camGame", values.duration == null ? 4 : values.duration, cneEase[0], cneEase[1], false, values.mode]
+						params: [values.ease != "INSTANT", values.zoom == null ? 1 : values.zoom, "camGame", values.duration == null ? 4 : values.duration, cneEase[0], cneEase[1], values.mode, false]
 					});
 			}
 		}

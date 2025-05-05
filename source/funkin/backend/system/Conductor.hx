@@ -203,7 +203,7 @@ final class Conductor
 		var events:Array<ChartEvent> = [];
 		for (e in song.events) if (e.params != null && (e.name == "BPM Change" || e.name == "Time Signature Change" || e.name == "Continuous BPM Change")) events.push(e);
 		events.sort(function(a, b) {
-			if (a.time == b.time) {
+			if (MathUtil.equal(a.time, b.time)) {
 				if (a.name == "Continuous BPM Change") return 1;
 				if (b.name == "Continuous BPM Change") return -1;
 			}
@@ -217,7 +217,7 @@ final class Conductor
 
 	private static function mapEvent(e:ChartEvent, curChange:BPMChangeEvent) {
 		var name = e.name, params = e.params, time = e.time;
-		if (curChange.continuous && time < curChange.endSongTime) { //ensure that you cannot place any conductor events during a continuous change
+		if (curChange.continuous && MathUtil.lessThan(time, curChange.endSongTime)) { //ensure that you cannot place any conductor events during a continuous change
 			invalidEvents.push(e);
 			Logs.trace('Invalid Conductor event "${e.name}" at ${e.time} (Intersecting continuous change!)', WARNING);
 			return curChange;
@@ -268,7 +268,7 @@ final class Conductor
 
 		for(event in Charter.instance.eventsGroup.members) {
 			event.events.sort(function(a, b) {
-				if (a.time == b.time) {
+				if (MathUtil.equal(a.time, b.time)) {
 					if (a.name == "Continuous BPM Change") return 1;
 					if (b.name == "Continuous BPM Change") return -1;
 				}

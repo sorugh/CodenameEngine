@@ -233,9 +233,10 @@ class PlayState extends MusicBeatState
 	 */
 	public var camZoomingStrength:Float = 1;
 	/**
-	 * Number of Beats since the last Time Signature Change
+	 * Number of Beats to offset camZooming by.
+	 * Will automatically be set when a Time Signature Change Occurs.
 	 */
-	public var beatsSinceChange:Float = 0;
+	public var camZoomingOffset:Float = 0;
 	/**
 	 * The curBeat position of the last Time Signature Change that occured
 	 */
@@ -1828,9 +1829,9 @@ class PlayState extends MusicBeatState
 	{
 		super.beatHit(curBeat);
 		
-		beatsSinceChange = curBeat - lastTimeSigBeat;
+		camZoomingOffset = curBeat - lastTimeSigBeat;
 
-		if (Options.camZoomOnBeat && camZooming && FlxG.camera.zoom < maxCamZoom && beatsSinceChange % camZoomingInterval == 0) {
+		if (Options.camZoomOnBeat && camZooming && FlxG.camera.zoom < maxCamZoom && camZoomingOffset % camZoomingInterval == 0) {
 			FlxG.camera.zoom += 0.015 * camZoomingStrength;
 			camHUD.zoom += 0.03 * camZoomingStrength;
 		}

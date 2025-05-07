@@ -128,7 +128,7 @@ class HScript extends Script {
 			interp.execute(expr);
 			call("new", []);
 		}
-		
+
 		#if GLOBAL_SCRIPT
 		funkin.backend.scripting.GlobalScript.call("onScriptSetup", [this, "hscript"]);
 		#end

@@ -1371,15 +1371,8 @@ class PlayState extends MusicBeatState
 		if (controls.PAUSE && startedCountdown && canPause)
 			pauseGame();
 
-		if (generatedMusic && strumLines.members[curCameraTarget] != null) {
-			var data:CamPosData = getStrumlineCamPos(curCameraTarget);
-			if (data.amount > 0) {
-				var event = scripts.event("onCameraMove", EventManager.get(CamMoveEvent).recycle(data.pos, strumLines.members[curCameraTarget], data.amount));
-				if (!event.cancelled)
-					camFollow.setPosition(event.position.x, event.position.y);
-			}
-			data.put();
-		}
+		if (generatedMusic)
+			moveCamera();
 
 		if (camZooming) {
 			FlxG.camera.zoom = lerp(FlxG.camera.zoom, defaultCamZoom, camGameZoomLerp);
@@ -1415,6 +1408,16 @@ class PlayState extends MusicBeatState
 		scripts.event("postDraw", e);
 	}
 
+	public function moveCamera() if (strumLines.members[curCameraTarget] != null) {
+		var data:CamPosData = getStrumlineCamPos(curCameraTarget);
+		if (data.amount > 0) {
+			var event = scripts.event("onCameraMove", EventManager.get(CamMoveEvent).recycle(data.pos, strumLines.members[curCameraTarget], data.amount));
+			if (!event.cancelled)
+				camFollow.setPosition(event.position.x, event.position.y);
+		}
+		data.put();
+	}
+
 	/**
 	 * Returns the camera position of the specified strumline.
 	 * @param strumLine The strumline to get the camera position of.
@@ -1431,7 +1434,7 @@ class PlayState extends MusicBeatState
 	 * @param pos The position to put the camera position in. If `null`, a new FlxPoint will be created.
 	 * @param ignoreInvisible Whenever invisible characters should be ignored.
 	**/
-	public function getCharactersCamPos(chars:Array<Character>, ?pos:FlxPoint = null, ?ignoreInvisible:Bool = true):CamPosData {
+	public dynamic function getCharactersCamPos(chars:Array<Character>, ?pos:FlxPoint = null, ?ignoreInvisible:Bool = true):CamPosData {
 		if (pos == null) pos = FlxPoint.get();
 		var amount = 0;
 		for(c in chars) {

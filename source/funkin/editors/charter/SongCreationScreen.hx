@@ -7,7 +7,7 @@ import funkin.backend.chart.ChartData;
 import funkin.backend.chart.FNFLegacyParser.SwagSong;
 import funkin.backend.chart.PsychParser;
 import funkin.backend.chart.VSliceParser;
-import funkin.backend.utils.ZipUtil;
+import funkin.backend.utils.ZipUtil.ZipReader;
 import funkin.game.HealthIcon;
 import haxe.Json;
 import haxe.io.Bytes;

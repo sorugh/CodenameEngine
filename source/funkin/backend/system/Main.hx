@@ -84,7 +84,7 @@ class Main extends Sprite
 		#elseif mac
 			"../../../../../../../"
 		#else
-			""
+			"../../../../"
 		#end;
 	public static var startedFromSource:Bool = #if TEST_BUILD true #else false #end;
 

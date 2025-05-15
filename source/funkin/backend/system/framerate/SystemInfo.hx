@@ -82,7 +82,7 @@ class SystemInfo extends FramerateCategory {
 			Logs.trace('Unable to grab CPU Name: $e', ERROR, RED);
 		}
 
-		@:privateAccess {
+		@:privateAccess if(FlxG.renderTile) { // Blit doesn't enable the gpu. Idk if we should fix this
 			if (flixel.FlxG.stage.context3D != null && flixel.FlxG.stage.context3D.gl != null) {
 				gpuName = Std.string(flixel.FlxG.stage.context3D.gl.getParameter(flixel.FlxG.stage.context3D.gl.RENDERER)).split("/")[0].trim();
 				#if !flash

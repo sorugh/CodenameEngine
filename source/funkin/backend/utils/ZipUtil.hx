@@ -1,5 +1,8 @@
 package funkin.backend.utils;
 
+import haxe.zip.Entry;
+import haxe.zip.Reader;
+
 #if sys
 #if (!macro && sys)
 import openfl.display.BitmapData;
@@ -9,8 +12,6 @@ import haxe.Exception;
 import haxe.Json;
 import haxe.crypto.Crc32;
 import haxe.zip.Compress;
-import haxe.zip.Entry;
-import haxe.zip.Reader;
 import haxe.zip.Tools;
 import haxe.zip.Uncompress;
 import haxe.zip.Writer;
@@ -227,20 +228,6 @@ class ZipProgress {
 	public function new() {}
 }
 
-class ZipReader extends Reader {
-	public var files:List<Entry>;
-
-	public override function read() {
-		if (files != null) return files;
-		try {
-			var files = super.read();
-			return this.files = files;
-		} catch(e) {
-		}
-		return new List<Entry>();
-	}
-}
-
 class ZipWriter extends Writer {
 	public function flush() {
 		o.flush();
@@ -266,3 +253,17 @@ class StrNameLabel {
 	}
 }
 #end
+
+class ZipReader extends Reader {
+	public var files:List<Entry>;
+
+	public override function read() {
+		if (files != null) return files;
+		try {
+			var files = super.read();
+			return this.files = files;
+		} catch(e) {
+		}
+		return new List<Entry>();
+	}
+}

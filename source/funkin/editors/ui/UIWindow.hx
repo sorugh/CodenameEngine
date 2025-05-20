@@ -5,10 +5,10 @@ class UIWindow extends UISliceSprite {
 	public var collapsable:Bool = false;
 	public var content:FlxTypedGroup<FlxBasic>;
 
-	public override function new(x:Float, y:Float, w:Int, h:Int, title:String) {
+	public override function new(x:Float, y:Float, w:Int, h:Int, ?title:String) {
 		super(x, y, w, h,  "editors/ui/normal-popup");
 
-		if(title != null) {
+		if(title != null && title.length != 0) {
 			members.push(titleSpr = new UIText(x + 25, y, bWidth - 50, title, 15, -1));
 			titleSpr.y = y + ((30 - titleSpr.height) / 2);
 		}

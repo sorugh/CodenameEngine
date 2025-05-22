@@ -66,7 +66,7 @@ class CharacterSelection extends EditorTreeMenu
 	}
 
 	public function createCharacter(name:String, imageSaveData:ImageSaveData, xml:Xml) {
-		var characterAlreadyExists:Bool = Character.getList().contains(name);
+		var characterAlreadyExists:Bool = Character.getList(true).contains(name);
 		if (characterAlreadyExists) {
 			openSubState(new UIWarningSubstate("Creating Character: Error!", "The character you are trying to create already exists, if you would like to override it delete the character first!", [
 				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}

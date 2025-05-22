@@ -8,16 +8,19 @@ import funkin.options.type.IconOption;
 import funkin.options.type.NewOption;
 import funkin.options.type.TextOption;
 import funkin.options.type.OptionType;
+import funkin.backend.assets.ModsFolder;
 
 class CharacterSelection extends EditorTreeMenu
 {
+	public var modsList:Array<String> = [];
+
 	public override function create()
 	{
 		bgType = "charter";
 		super.create();
 
 		var isMods:Bool = true;
-		var modsList:Array<String> = Character.getList(true, true);
+		modsList = Character.getList(true, true);
 
 		if(modsList.length == 0) {
 			modsList = Character.getList(false, true);
@@ -66,7 +69,7 @@ class CharacterSelection extends EditorTreeMenu
 	}
 
 	public function createCharacter(name:String, imageSaveData:ImageSaveData, xml:Xml) {
-		var characterAlreadyExists:Bool = Character.getList(true).contains(name);
+		var characterAlreadyExists:Bool = modsList.contains(name);
 		if (characterAlreadyExists) {
 			openSubState(new UIWarningSubstate("Creating Character: Error!", "The character you are trying to create already exists, if you would like to override it delete the character first!", [
 				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}

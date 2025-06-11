@@ -317,27 +317,7 @@ class Charter extends UIState {
 			},
 			{
 				label: "Song",
-				childs: [
-					{
-						label: "Go back to the start",
-						keybind: [HOME],
-						onSelect: _song_start
-					},
-					{
-						label: "Go to the end",
-						keybind: [END],
-						onSelect: _song_end
-					},
-					null,
-					{
-						label: "Mute instrumental",
-						onSelect: _song_muteinst
-					},
-					{
-						label: "Mute voices",
-						onSelect: _song_mutevoices
-					}
-				]
+				childs: buildSongUI()
 			},
 			{
 				label: "Note >",
@@ -1260,8 +1240,11 @@ class Charter extends UIState {
 		{
 			var bars:Array<FlxSprite> = bs[0];
 			var text:UIText = bs[1];
-			for (spr in bars)
-				spr.x = strumLines.members[spr.ID].x;
+			if (bars == null || bars.length == 0) continue;
+			for (i => spr in bars) {
+				if (spr == null || strumLines.members[i] == null) continue;
+				spr.x = strumLines.members[i].x;
+			}
 			if (text != null)
 				text.x = strumLines.members[0].x + 4;
 		}
@@ -1412,6 +1395,7 @@ class Charter extends UIState {
 		playBackSlider.x = width - 160 - 26 - 20;
 
 		updateDisplaySprites();
+		updateBookmarks();
 		charterBG.screenCenter();
 	}
 
@@ -1789,24 +1773,31 @@ class Charter extends UIState {
 	}
 
 	function _bookmarks_add(_) {
-		FlxG.state.openSubState(new CharterBookmarkCreation(curStepFloat, function(success:Bool, name:String, color:FlxColor, daStep:Float)
+		var addBookmarkAt = function(name:String, color:FlxColor, daStep:Float)
 		{
-			if (success)
-			{
-				var currentBookmarks:Array<ChartBookmark> = getBookmarkList();
-				var newBookmarks:Array<ChartBookmark> = getBookmarkList();
-				newBookmarks.push({time: daStep, name: name, color: color.toWebString()});
+			var currentBookmarks:Array<ChartBookmark> = getBookmarkList();
+			var newBookmarks:Array<ChartBookmark> = getBookmarkList();
+			newBookmarks.push({time: daStep, name: name, color: color.toWebString()});
 				
-				PlayState.SONG.bookmarks = newBookmarks;
-				updateBookmarks();	
-				undos.addToUndo(CEditBookmarks(currentBookmarks, newBookmarks));
-			}
-		}));
+			PlayState.SONG.bookmarks = newBookmarks;
+			updateBookmarks();	
+			undos.addToUndo(CEditBookmarks(currentBookmarks, newBookmarks));
+		}
+
+		if (FlxG.keys.pressed.SHIFT)
+			addBookmarkAt("New Bookmark", 0xFF911DD9, curStepFloat);
+		else {
+			FlxG.state.openSubState(new CharterBookmarkCreation(curStepFloat, (success, n, c, s) ->  {
+				if (success)
+					addBookmarkAt(n, c, s);
+			}));
+		}
 	}
 	function _bookmarks_edit_list(_)
 		FlxG.state.openSubState(new CharterBookmarkList()); //idk why its FlxG.state but it looks so off lmfao
 
 	public var __bookmarkObjects:Array<Dynamic> = [];
+	public var __scrollbarBookmarks:Array<Dynamic> = [];
 	public function updateBookmarks()
 	{
 		for (bs in __bookmarkObjects)
@@ -1826,7 +1817,13 @@ class Charter extends UIState {
 				text.kill();
 			}
 		}
-		__bookmarkObjects.clear();
+		for (bar in __scrollbarBookmarks) {
+			if (bar == null) continue;
+			uiGroup.remove(bar);
+			bar.kill();
+		}
+ 		__bookmarkObjects.clear();
+		__scrollbarBookmarks.clear();
 		for (b in getBookmarkList())
 		{
 			var bookmarkcolor:FlxColor = b.color != null ? FlxColor.fromString(b.color) : 0xff9d00ff;
@@ -1835,12 +1832,10 @@ class Charter extends UIState {
 			var sprites = [];
 			for (str in strumLines.members)
 			{
-				var bookmarkspr = new FlxSprite(str.x, (b.time * 40)).makeSolid(1, 1, bookmarkcolor);
-				bookmarkspr.scale.set(4 * 40, str.keyCount);
+				var bookmarkspr = new FlxSprite(str.x, (b.time * 40)).makeSolid(str.keyCount * 40, 4, bookmarkcolor);
 				bookmarkspr.updateHitbox();
 				bookmarkspr.camera = charterCamera;
 				add(bookmarkspr);
-				bookmarkspr.ID = strumLines.members.indexOf(str);
 				sprites.push(bookmarkspr);
 			}
 
@@ -1853,6 +1848,23 @@ class Charter extends UIState {
 				bookmarkText.borderColor = 0x88FFFFFF;
 
 			__bookmarkObjects.push([sprites, bookmarkText]);
+
+			var yPos = scrollBar.y + CoolUtil.bound(
+				FlxMath.remapToRange(
+					b.time,
+					0,
+					scrollBar.length + scrollBar.size,
+					0,
+					scrollBar.height
+				),
+				0,
+				scrollBar.height
+			);
+			
+			var bookmarkspr = new FlxSprite(scrollBar.x - 10, yPos).makeSolid(40, 4, bookmarkcolor);
+			uiGroup.add(bookmarkspr);
+			sprites.push(bookmarkspr);
+			__scrollbarBookmarks.push(bookmarkspr);
 		}
 
 		buildSongUI();

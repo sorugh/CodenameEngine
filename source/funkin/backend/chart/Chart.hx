@@ -70,7 +70,7 @@ class Chart {
 	}
 
 	public static function loadEventsJson(songName:String) {
-		var path = Paths.file('songs/${songName.toLowerCase()}/events.json');
+		var path = Paths.file('songs/${songName}/events.json');
 		var data:Array<ChartEvent> = null;
 		if (Assets.exists(path)) {
 			try {
@@ -84,10 +84,9 @@ class Chart {
 
 	public static function loadChartMeta(songName:String, ?difficulty:String, fromMods:Bool = true) {
 		if (difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
-
-		var songNameLower = songName.toLowerCase();
-		var metaPath = Paths.file('songs/${songNameLower}/meta.json');
-		var metaDiffPath = Paths.file('songs/${songNameLower}/meta-${difficulty.toLowerCase()}.json');
+		
+		var metaPath = Paths.file('songs/${songName}/meta.json');
+		var metaDiffPath = Paths.file('songs/${songName}/meta-${difficulty}.json');
 
 		var data:ChartMetaData = null;
 		var fromMods:Bool = fromMods;
@@ -120,21 +119,17 @@ class Chart {
 		data.setFieldDefault("parsedColor", data.color.getColorFromDynamic().getDefault(Flags.DEFAULT_COLOR));
 
 		if (data.difficulties.length <= 0) {
-			data.difficulties = [for(f in Paths.getFolderContent('songs/${songNameLower}/charts/', false, fromMods ? MODS : SOURCE)) if (Path.extension(f = f.toUpperCase()) == "JSON") Path.withoutExtension(f)];
+			data.difficulties = [for(f in Paths.getFolderContent('songs/${songName}/charts/', false, fromMods ? MODS : SOURCE)) if (Path.extension(f.toUpperCase()) == "JSON") Path.withoutExtension(f)];
+			var tempDiffs = [];
 			if (data.difficulties.length == 3) {
-				var hasHard = false, hasNormal = false, hasEasy = false;
 				for(d in data.difficulties) {
-					switch(d) {
-						case "EASY":	hasEasy = true;
-						case "NORMAL":	hasNormal = true;
-						case "HARD":	hasHard = true;
+					switch(d.toLowerCase()) {
+						case "easy":	tempDiffs.insert(0, d);
+						case "normal":	tempDiffs.insert(1, d);
+						case "hard":	tempDiffs.insert(2, d);
 					}
 				}
-				if (hasHard && hasNormal && hasEasy) {
-					data.difficulties[0] = "EASY";
-					data.difficulties[1] = "NORMAL";
-					data.difficulties[2] = "HARD";
-				}
+				data.difficulties = tempDiffs;
 			}
 		}
 

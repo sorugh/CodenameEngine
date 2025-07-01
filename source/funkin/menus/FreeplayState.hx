@@ -323,7 +323,7 @@ class FreeplayState extends MusicBeatState
 	public function convertChart() {
 		trace('Converting ${songs[curSelected].name} (${songs[curSelected].difficulties[curDifficulty]}) to Codename format...');
 		var chart = Chart.parse(songs[curSelected].name, songs[curSelected].difficulties[curDifficulty]);
-		Chart.save('${Main.pathBack}assets/songs/${songs[curSelected].name}', chart, songs[curSelected].difficulties[curDifficulty].toLowerCase());
+		Chart.save('${Main.pathBack}assets/songs/${songs[curSelected].name}', chart, songs[curSelected].difficulties[curDifficulty]);
 	}
 
 	/**
@@ -346,9 +346,9 @@ class FreeplayState extends MusicBeatState
 		updateScore();
 
 		if (curSong.difficulties.length > 1)
-			diffText.text = '< ${curSong.difficulties[curDifficulty]} >';
+			diffText.text = '< ${curSong.difficulties[curDifficulty].toUpperCase()} >';
 		else
-			diffText.text = validDifficulties ? curSong.difficulties[curDifficulty] : "-";
+			diffText.text = validDifficulties ? curSong.difficulties[curDifficulty].toUpperCase() : "-";
 	}
 
 	function updateScore() {

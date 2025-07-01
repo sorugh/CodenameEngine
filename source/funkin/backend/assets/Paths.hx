@@ -71,16 +71,14 @@ class Paths
 	inline static public function voices(song:String, ?difficulty:String, ?prefix:String = "", ?ext:String) {
 		if (difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
 		if (ext == null) ext = Flags.SOUND_EXT;
-		song = song.toLowerCase();
-		var diff = getPath('songs/$song/song/Voices$prefix-${difficulty.toLowerCase()}.${ext}', null);
+		var diff = getPath('songs/$song/song/Voices$prefix-${difficulty}.${ext}', null);
 		return OpenFlAssets.exists(diff) ? diff : getPath('songs/$song/song/Voices$prefix.${ext}', null);
 	}
 
 	inline static public function inst(song:String, ?difficulty:String, ?prefix:String = "", ?ext:String) {
 		if (difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
 		if (ext == null) ext = Flags.SOUND_EXT;
-		song = song.toLowerCase();
-		var diff = getPath('songs/$song/song/Inst$prefix-${difficulty.toLowerCase()}.${ext}', null);
+		var diff = getPath('songs/$song/song/Inst$prefix-${difficulty}.${ext}', null);
 		return OpenFlAssets.exists(diff) ? diff : getPath('songs/$song/song/Inst$prefix.${ext}', null);
 	}
 
@@ -112,8 +110,7 @@ class Paths
 
 	static public function chart(song:String, ?difficulty:String):String
 	{
-		difficulty = (difficulty != null ? difficulty : Flags.DEFAULT_DIFFICULTY).toLowerCase();
-		song = song.toLowerCase();
+		difficulty = (difficulty != null ? difficulty : Flags.DEFAULT_DIFFICULTY);
 
 		return getPath('songs/$song/charts/$difficulty.json', null);
 	}

@@ -623,8 +623,8 @@ class PlayState extends MusicBeatState
 		detailsText = isStoryMode ? ("Story Mode: " + storyWeek.name) : "Freeplay";
 
 		// Checks if cutscene files exists
-		var cutscenePath = Paths.script('songs/${SONG.meta.name.toLowerCase()}/cutscene');
-		var endCutscenePath = Paths.script('songs/${SONG.meta.name.toLowerCase()}/cutscene-end');
+		var cutscenePath = Paths.script('songs/${SONG.meta.name}/cutscene');
+		var endCutscenePath = Paths.script('songs/${SONG.meta.name}/cutscene-end');
 		if (Assets.exists(cutscenePath)) cutscene = cutscenePath;
 		if (Assets.exists(endCutscenePath)) endCutscene = endCutscenePath;
 
@@ -651,7 +651,7 @@ class PlayState extends MusicBeatState
 				// case "":
 					// ADD YOUR HARDCODED SCRIPTS HERE!
 				default:
-					var normal = 'songs/${SONG.meta.name.toLowerCase()}/scripts';
+					var normal = 'songs/${SONG.meta.name}/scripts';
 					var scriptsFolders:Array<String> = [normal, normal + '/$difficulty/', 'data/charts/', 'songs/'];
 
 					for (folder in scriptsFolders) {
@@ -841,8 +841,8 @@ class PlayState extends MusicBeatState
 			SaveWarning.selectionClass = CharterSelection;
 			SaveWarning.warningFunc = saveWarn;
 			SaveWarning.saveFunc = () ->  {
-				@:privateAccess Chart.save('${Paths.getAssetsRoot()}/songs/${Charter.__song.toLowerCase()}',
-					SONG, Charter.__diff.toLowerCase(), {saveMetaInChart: false, prettyPrint: Options.editorPrettyPrint});
+				@:privateAccess Chart.save('${Paths.getAssetsRoot()}/songs/${Charter.__song}',
+					SONG, Charter.__diff, {saveMetaInChart: false, prettyPrint: Options.editorPrettyPrint});
 			}
 		}
 	}
@@ -886,7 +886,7 @@ class PlayState extends MusicBeatState
 			return;
 		}
 
-		var songName = SONG.meta.name.toLowerCase();
+		var songName = SONG.meta.name;
 
 		if (cutsceneScriptPath == null)
 			cutsceneScriptPath = Paths.script('songs/$songName/${prefix}cutscene');
@@ -1715,7 +1715,7 @@ class PlayState extends MusicBeatState
 
 				FlxG.sound.music.stop();
 
-				__loadSong(storyPlaylist[0].toLowerCase(), difficulty);
+				__loadSong(storyPlaylist[0], difficulty);
 
 				FlxG.switchState(new PlayState());
 			}

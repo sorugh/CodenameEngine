@@ -15,10 +15,8 @@ class Compiler {
 	}
 
 	private static function __build(args:Array<String>, arg:Array<String>) {
-		arg.insert(0, "lime");
-		arg.insert(0, "run");
-		for(a in args)
-			arg.push(a);
+		for (a in args) arg.push(a);
+		arg = ['run', 'lime'].concat(arg);
 		Sys.command("haxelib", arg);
 	}
 

@@ -114,12 +114,13 @@ class XMLUtil {
 	 * @param parentFolder The parent folder
 	 * @param defaultAnimType The default animation type
 	 */
-	public static function loadSpriteFromXML(spr:FunkinSprite, node:Access, parentFolder:String = "", defaultAnimType:XMLAnimType = BEAT):FunkinSprite {
+	public static function loadSpriteFromXML(spr:FunkinSprite, node:Access, parentFolder:String = "", defaultAnimType:XMLAnimType = BEAT, loadGraphic:Bool = true):FunkinSprite {
 		if (parentFolder == null) parentFolder = "";
 
 		spr.name = node.getAtt("name");
 		spr.antialiasing = true;
-		spr.loadSprite(Paths.image('$parentFolder${node.getAtt("sprite").getDefault(spr.name)}', null, true));
+		if (loadGraphic)
+			spr.loadSprite(Paths.image('$parentFolder${node.getAtt("sprite").getDefault(spr.name)}', null, true));
 
 		spr.spriteAnimType = defaultAnimType;
 		if (node.has.type) {
@@ -234,10 +235,10 @@ class XMLUtil {
 	 * @param cl The class to create (advanced)
 	 * @param args The arguments to pass to the class (advanced)
 	 */
-	public static inline function createSpriteFromXML(node:Access, parentFolder:String = "", defaultAnimType:XMLAnimType = BEAT, ?cl:Class<FunkinSprite>, ?args:Array<Dynamic>):FunkinSprite {
+	public static inline function createSpriteFromXML(node:Access, parentFolder:String = "", defaultAnimType:XMLAnimType = BEAT, ?cl:Class<FunkinSprite>, ?args:Array<Dynamic>, loadGraphic:Bool = true):FunkinSprite {
 		if(cl == null) cl = FunkinSprite;
 		if(args == null) args = [];
-		return loadSpriteFromXML(Type.createInstance(cl, args), node, parentFolder, defaultAnimType);
+		return loadSpriteFromXML(Type.createInstance(cl, args), node, parentFolder, defaultAnimType, loadGraphic);
 	}
 
 	/**

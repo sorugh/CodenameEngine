@@ -425,8 +425,12 @@ class CoolUtil
 		if (Assets.exists(infoPath)) {
 			var musicInfo = IniUtil.parseAsset(infoPath, [
 				"BPM" => null,
-				"TimeSignature" => Flags.DEFAULT_BEATS_PER_MEASURE + "/" + Flags.DEFAULT_STEPS_PER_BEAT
+				"TimeSignature" => Flags.DEFAULT_BEATS_PER_MEASURE + "/" + Flags.DEFAULT_STEPS_PER_BEAT,
+				"LoopTime" => '${Flags.DEFAULT_LOOP_TIME}'
 			]);
+
+			if (FlxG.sound.music != null)
+				FlxG.sound.music.loopTime = Std.parseFloat(musicInfo["LoopTime"]) * 1000;
 
 			var timeSignParsed:Array<Null<Float>> = musicInfo["TimeSignature"] == null ? [] : [for(s in musicInfo["TimeSignature"].split("/")) Std.parseFloat(s)];
 			var beatsPerMeasure:Float = Flags.DEFAULT_BEATS_PER_MEASURE;

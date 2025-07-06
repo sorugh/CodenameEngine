@@ -200,7 +200,7 @@ class DialogueCutscene extends ScriptedCutscene {
 		if (curMusic != null && !curMusic.persist) curMusic.destroy();
 
 		super.destroy();
-		cutscene = null;
+		if (cutscene == this) cutscene = null;
 		FlxG.cameras.remove(dialogueCamera);
 	}
 }

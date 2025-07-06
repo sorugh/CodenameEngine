@@ -79,7 +79,7 @@ class Main extends Sprite
 	public static var audioDisconnected:Bool = false;
 
 	public static var changeID:Int = 0;
-	public static var pathBack = #if windows
+	public static var pathBack = #if (windows || linux)
 			"../../../../"
 		#elseif mac
 			"../../../../../../../"
@@ -175,6 +175,8 @@ class Main extends Sprite
 	}
 
 	public static function refreshAssets() @:privateAccess {
+		FunkinCache.instance.clearSecondLayer();
+
 		var game = FlxG.game;
 		var daSndTray = Type.createInstance(game._customSoundTray = funkin.menus.ui.FunkinSoundTray, []);
 		var index:Int = game.numChildren - 1;

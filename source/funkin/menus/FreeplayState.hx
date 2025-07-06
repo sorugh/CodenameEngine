@@ -236,7 +236,7 @@ class FreeplayState extends MusicBeatState
 		scoreText.x = coopText.x = scoreBG.x + 4;
 		diffText.x = Std.int(scoreBG.x + ((scoreBG.width - diffText.width) / 2));
 
-		interpColor.fpsLerpTo(songs[curSelected].parsedColor, 0.0625);
+		interpColor.fpsLerpTo(songs[curSelected].color, 0.0625);
 		bg.color = interpColor.color;
 
 		#if PRELOAD_ALL
@@ -453,16 +453,10 @@ class FreeplaySonglist {
 
 	public function getSongsFromSource(source:funkin.backend.assets.AssetsLibraryList.AssetSource, useTxt:Bool = true) {
 		var path:String = Paths.txt('freeplaySonglist');
-		var songsFound:Array<String> = [];
-		if (useTxt && Paths.assetsTree.existsSpecific(path, "TEXT", source)) {
-			songsFound = CoolUtil.coolTextFile(Paths.txt('freeplaySonglist'));
-		} else {
-			songsFound = Paths.getFolderDirectories('songs', false, source);
-		}
+		var songsFound:Array<String> = useTxt && Paths.assetsTree.existsSpecific(path, "TEXT", source) ? CoolUtil.coolTextFile(path) : Paths.getFolderDirectories('songs', false, source);
 
 		if (songsFound.length > 0) {
-			for(s in songsFound)
-				songs.push(Chart.loadChartMeta(s, Flags.DEFAULT_DIFFICULTY, source == MODS));
+			for (s in songsFound) songs.push(Chart.loadChartMeta(s, Flags.DEFAULT_DIFFICULTY, source == MODS));
 			return false;
 		}
 		return true;

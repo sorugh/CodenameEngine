@@ -12,6 +12,8 @@ class GlobalScript {
 	public static var scripts:ScriptPack;
 
 	private static var initialized:Bool = false;
+	private static var reloading:Bool = false;
+	private static var _lastAllow_Reload:Bool = false;
 
 	public static function init() {
 		if(initialized) return;
@@ -46,16 +48,12 @@ class GlobalScript {
 		});
 		FlxG.signals.postUpdate.add(function() {
 			call("postUpdate", [FlxG.elapsed]);
-			if (FlxG.keys.justPressed.F5) {
-				if (scripts.scripts.length > 0) {
-					Logs.trace('Reloading global script...', WARNING, YELLOW);
-					scripts.reload();
-					Logs.trace('Global script successfully reloaded.', WARNING, GREEN);
-				} else {
-					Logs.trace('Loading global script...', WARNING, YELLOW);
-					onModSwitch(#if MOD_SUPPORT ModsFolder.currentModFolder #else null #end);
-				}
+
+			if (reloading) {
+				reloading = false;
+				MusicBeatState.ALLOW_DEBUG_RELOAD = _lastAllow_Reload;
 			}
+
 			if (FlxG.keys.justPressed.F2)
 				NativeAPI.allocConsole();
 		});
@@ -74,13 +72,29 @@ class GlobalScript {
 		FlxG.signals.preStateSwitch.add(function() {
 			call("preStateSwitch", []);
 		});
+
 		FlxG.signals.preUpdate.add(function() {
 			call("preUpdate", [FlxG.elapsed]);
 			call("update", [FlxG.elapsed]);
-		});
 
-		// Commented this out, because it might be the cause why global runs twice - Neo
-		//onModSwitch(#if MOD_SUPPORT ModsFolder.currentModFolder #else null #end);
+			if (FlxG.keys.pressed.SHIFT) {
+				var resetKey = FlxG.keys.justPressed.F5; // we default the key to F5, but really this shouldn't matter, as every state will be at minimum a MusicBeatState.
+				if ((FlxG.state is MusicBeatState)) resetKey = cast(FlxG.state, MusicBeatState).controls.DEBUG_RELOAD;
+
+				// If we want, we could just make reseting GlobalScript it's own keybind, but for now this works.
+				if (resetKey) {
+					reloading = true;
+					Logs.trace("Reloading Global Scripts...", INFO, YELLOW);
+
+					// yeah its a bit messy, sorry. This just prevents actually reloading the actual state.
+					_lastAllow_Reload = MusicBeatState.ALLOW_DEBUG_RELOAD;
+					MusicBeatState.ALLOW_DEBUG_RELOAD = false;
+
+					// Would be better to just re-initalize GlobalScript so there aren't any lose ends.
+					onModSwitch(#if MOD_SUPPORT ModsFolder.currentModFolder #else null #end);
+				}
+			}
+		});
 	}
 
 	public static function event<T:CancellableEvent>(name:String, event:T):T {
@@ -93,6 +107,7 @@ class GlobalScript {
 		if (scripts != null)
 			scripts.call(name, args);
 	}
+
 	public static function onModSwitch(newMod:String) {
 		call("destroy");
 		scripts = FlxDestroyUtil.destroy(scripts);

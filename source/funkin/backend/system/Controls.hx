@@ -24,6 +24,9 @@ enum Control
 	PAUSE;
 	//CHEAT;
 	SWITCHMOD;
+
+	// Debugs
+	DEBUG_RELOAD;
 }
 
 enum KeyboardScheme
@@ -149,6 +152,11 @@ class Controls extends FlxActionSet
 	@:justPressed("switchmod") public var SWITCHMOD(get, set): Bool;
 	@:pressed("switchmod") public var SWITCHMOD_HOLD(get, set): Bool;
 	@:justReleased("switchmod") public var SWITCHMOD_R(get, set): Bool;
+
+	@:gamepad([GUIDE])  // the center button (like the PS button on a playstation controller) on the gamepad
+	@:justPressed("debug-reload") public var DEBUG_RELOAD(get, set): Bool;
+	@:pressed("debug-reload") public var DEBUG_RELOAD_HOLD(get, set): Bool;
+	@:justReleased("debug-reload") public var DEBUG_RELOAD_R(get, set): Bool;
 
 	var byName:Map<String, FlxActionDigital> = [];
 

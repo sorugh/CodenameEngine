@@ -1,5 +1,6 @@
 package funkin.editors.charter;
 
+import funkin.backend.chart.Chart;
 import funkin.backend.chart.ChartData.ChartMetaData;
 import funkin.backend.chart.ChartData;
 import funkin.backend.system.framerate.Framerate;
@@ -40,7 +41,7 @@ class CharterSelection extends EditorTreeMenu {
 				}));
 				#end
 				optionsTree.add(new OptionsScreen(s.name, "Select a difficulty to continue.", list));
-			}, s.parsedColor.getDefault(0xFFFFFFFF))
+			}, s.color.getDefault(0xFFFFFFFF))
 		];
 
 		#if sys
@@ -114,7 +115,7 @@ class CharterSelection extends EditorTreeMenu {
 		sys.FileSystem.createDirectory('$songFolder/charts');
 
 		// Save Files
-		CoolUtil.safeSaveFile('$songFolder/meta.json', Json.stringify(creation.meta, Flags.JSON_PRETTY_PRINT));
+		CoolUtil.safeSaveFile('$songFolder/meta.json', Chart.makeMetaSaveable(creation.meta));
 		if (creation.instBytes != null) sys.io.File.saveBytes('$songFolder/song/Inst.${Flags.SOUND_EXT}', creation.instBytes);
 		if (creation.voicesBytes != null) sys.io.File.saveBytes('$songFolder/song/Voices.${Flags.SOUND_EXT}', creation.voicesBytes);
 
@@ -137,7 +138,7 @@ class CharterSelection extends EditorTreeMenu {
 				FlxG.state.openSubState(new ChartCreationScreen(saveChart));
 			}));
 			optionsTree.insert(1, new OptionsScreen(creation.meta.name, "Select a difficulty to continue.", list));
-		}, creation.meta.parsedColor.getDefault(0xFFFFFFFF));
+		}, creation.meta.color.getDefault(0xFFFFFFFF));
 
 		// Add to List
 		freeplayList.songs.insert(0, creation.meta);
@@ -171,7 +172,7 @@ class CharterSelection extends EditorTreeMenu {
 		var meta = Json.parse(sys.io.File.getContent('$songFolder/meta.json'));
 		if (meta.difficulties != null && !meta.difficulties.contains(name)) {
 			meta.difficulties.push(name);
-			CoolUtil.safeSaveFile('$songFolder/meta.json', Json.stringify(meta));
+			CoolUtil.safeSaveFile('$songFolder/meta.json', Chart.makeMetaSaveable(meta));
 		}
 	}
 	#end

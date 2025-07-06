@@ -30,7 +30,7 @@ import funkin.editors.charter.CharterSelection;
 import funkin.game.SplashHandler;
 import funkin.game.cutscenes.*;
 import funkin.menus.*;
-import funkin.menus.StoryMenuState.WeekData;
+import funkin.backend.week.WeekData;
 import funkin.savedata.FunkinSave;
 import haxe.io.Path;
 
@@ -1322,16 +1322,8 @@ class PlayState extends MusicBeatState
 		if (updateRatingStuff != null)
 			updateRatingStuff();
 
-		if (canAccessDebugMenus) {
-			if (chartingMode && FlxG.keys.justPressed.SEVEN) {
-				FlxG.switchState(new funkin.editors.charter.Charter(SONG.meta.name, difficulty, false));
-			}
-			/*if (FlxG.keys.justPressed.F5) {
-				Logs.warn('Reloading scripts...', "PlayState");
-				scripts.reload();
-				Logs.warn('Song scripts successfully reloaded.', GREEN, "PlayState");
-			}*/
-		}
+		if (canAccessDebugMenus && chartingMode && FlxG.keys.justPressed.SEVEN)
+			FlxG.switchState(new funkin.editors.charter.Charter(SONG.meta.name, difficulty, false));
 
 		if (doIconBop)
 			for (icon in iconArray)
@@ -1642,6 +1634,7 @@ class PlayState extends MusicBeatState
 	 */
 	public function endSong():Void
 	{
+		endingSong = true;
 		gameAndCharsCall("onSongEnd");
 		canPause = false;
 		inst.volume = 0;
@@ -2103,7 +2096,7 @@ class PlayState extends MusicBeatState
 	public static function loadWeek(weekData:WeekData, ?difficulty:String) {
 		if (difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
 		storyWeek = weekData;
-		storyPlaylist = [for(e in weekData.songs) e.name];
+		storyPlaylist = [for (e in weekData.songs) e.name];
 		isStoryMode = true;
 		campaignScore = 0;
 		campaignMisses = 0;

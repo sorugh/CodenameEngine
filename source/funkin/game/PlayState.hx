@@ -247,12 +247,12 @@ class PlayState extends MusicBeatState
 	/**
 	 * Current health. Goes from 0 to maxHealth (defaults to 2)
 	 */
-	public var health:Float = 1;
+	public var health(default, set):Float = 1;
 
 	/**
 	 * Maximum health the player can have. Defaults to 2.
 	 */
-	@:isVar public var maxHealth(get, set):Float = Flags.DEFAULT_MAX_HEALTH;
+	public var maxHealth(default, set):Float = Flags.DEFAULT_MAX_HEALTH;
 	/**
 	 * Current combo.
 	 */
@@ -556,13 +556,13 @@ class PlayState extends MusicBeatState
 			curRating = event.rating;
 	}
 
-	private inline function get_maxHealth()
-		return this.maxHealth;
-	private function set_maxHealth(v:Float) {
-		if (healthBar != null && healthBar.max == this.maxHealth) {
-			healthBar.setRange(healthBar.min, v);
-		}
-		return this.maxHealth = v;
+	private inline function set_health(v:Float)
+		return health = FlxMath.bound(v, 0, maxHealth);
+	private inline function set_maxHealth(v:Float) {
+		if (healthBar != null && healthBar.max == maxHealth) healthBar.setRange(healthBar.min, v);
+		maxHealth = v;
+		health = health;  // running the setter  - Nex
+		return maxHealth;
 	}
 
 	private inline function get_curStage()
@@ -1282,8 +1282,6 @@ class PlayState extends MusicBeatState
 
 		iconP1.x = center - iconOffset;
 		iconP2.x = center - (iconP2.width - iconOffset);
-
-		health = FlxMath.bound(health, 0, maxHealth);
 
 		iconP1.health = healthBarPercent / 100;
 		iconP2.health = 1 - (healthBarPercent / 100);

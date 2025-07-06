@@ -26,7 +26,9 @@ enum Control
 	SWITCHMOD;
 
 	// Debugs
-	DEBUG_RELOAD;
+	DEV_ACCESS;
+	DEV_CONSOLE;
+	DEV_RELOAD;
 }
 
 enum KeyboardScheme
@@ -153,10 +155,23 @@ class Controls extends FlxActionSet
 	@:pressed("switchmod") public var SWITCHMOD_HOLD(get, set): Bool;
 	@:justReleased("switchmod") public var SWITCHMOD_R(get, set): Bool;
 
-	@:gamepad([GUIDE])  // the center button (like the PS button on a playstation controller) on the gamepad
-	@:justPressed("debug-reload") public var DEBUG_RELOAD(get, set): Bool;
-	@:pressed("debug-reload") public var DEBUG_RELOAD_HOLD(get, set): Bool;
-	@:justReleased("debug-reload") public var DEBUG_RELOAD_R(get, set): Bool;
+	@:devModeOnly
+	@:gamepad([])
+	@:justPressed("dev-access") public var DEV_ACCESS(get, set): Bool;
+	@:pressed("dev-access") public var DEV_ACCESS_HOLD(get, set): Bool;
+	@:justReleased("dev-access") public var DEV_ACCESS_R(get, set): Bool;
+
+	@:devModeOnly
+	@:gamepad([])
+	@:justPressed("dev-console") public var DEV_CONSOLE(get, set): Bool;
+	@:pressed("dev-console") public var DEV_CONSOLE_HOLD(get, set): Bool;
+	@:justReleased("dev-console") public var DEV_CONSOLE_R(get, set): Bool;
+
+	@:devModeOnly
+	@:gamepad([])
+	@:justPressed("dev-reload") public var DEV_RELOAD(get, set): Bool;
+	@:pressed("dev-reload") public var DEV_RELOAD_HOLD(get, set): Bool;
+	@:justReleased("dev-reload") public var DEV_RELOAD_R(get, set): Bool;
 
 	var byName:Map<String, FlxActionDigital> = [];
 

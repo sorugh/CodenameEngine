@@ -33,6 +33,7 @@ class Options
 	public static var gameplayShaders:Bool = true;
 	public static var colorHealthBar:Bool = true;
 	public static var lowMemoryMode:Bool = false;
+	public static var devMode:Bool = false;
 	public static var betaUpdates:Bool = false;
 	public static var splashesEnabled:Bool = true;
 	public static var hitWindow:Float = 250;
@@ -99,7 +100,9 @@ class Options
 	public static var P1_VOLUME_MUTE:Array<FlxKey> = [];
 
 	// Debugs
-	public static var P1_DEBUG_RELOAD:Array<FlxKey> = [F5];
+	public static var P1_DEV_ACCESS:Array<FlxKey> = [SEVEN];
+	public static var P1_DEV_CONSOLE:Array<FlxKey> = [F2];
+	public static var P1_DEV_RELOAD:Array<FlxKey> = [F5];
 
 	/**
 	* PLAYER 2 CONTROLS (ALT)
@@ -128,7 +131,9 @@ class Options
 	public static var P2_VOLUME_MUTE:Array<FlxKey> = [NUMPADZERO];
 
 	// Debugs
-	public static var P2_DEBUG_RELOAD:Array<FlxKey> = [];
+	public static var P2_DEV_ACCESS:Array<FlxKey> = [];
+	public static var P2_DEV_CONSOLE:Array<FlxKey> = [];
+	public static var P2_DEV_RELOAD:Array<FlxKey> = [];
 
 	/**
 	* SOLO GETTERS
@@ -157,7 +162,9 @@ class Options
 	public static var SOLO_VOLUME_MUTE(get, null):Array<FlxKey>;
 
 	// Debugs
-	public static var SOLO_DEBUG_RELOAD(get, null):Array<FlxKey>;
+	public static var SOLO_DEV_ACCESS(get, null):Array<FlxKey>;
+	public static var SOLO_DEV_CONSOLE(get, null):Array<FlxKey>;
+	public static var SOLO_DEV_RELOAD(get, null):Array<FlxKey>;
 
 	public static function load() {
 		if (__save == null) __save = new FlxSave();

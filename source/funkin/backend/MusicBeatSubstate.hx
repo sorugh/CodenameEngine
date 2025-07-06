@@ -134,7 +134,7 @@ class MusicBeatSubstate extends FlxSubState implements IBeatReceiver
 			call("postUpdate", [elapsed]);
 		}
 
-		// if (subState == null && (MusicBeatState.ALLOW_DEBUG_RELOAD && controls.DEBUG_RELOAD)) {
+		// if (subState == null && (MusicBeatState.ALLOW_DEV_RELOAD && controls.DEV_RELOAD)) {
 		// 	Logs.trace("Reloading Current SubState...", INFO, YELLOW);
 		// 	var test = Type.createInstance(Type.getClass(this), [this.scriptsAllowed, this.scriptName]);
 		// 	parent.openSubState(test);

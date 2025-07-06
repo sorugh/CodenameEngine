@@ -172,7 +172,7 @@ class CoolUtil
 		addMissingFolders(Path.directory(path));
 
 		var result = NativeAPI.addFileAttributes(path, attrib, useAbsolute);
-		if(result != 0) Logs.trace('Failed to add attributes to $path with a code of: $result', WARNING);
+		if (result == 0) Logs.trace('Failed to add attributes to $path with a code of: $result', WARNING);
 		return result;
 		#else
 		return 0;

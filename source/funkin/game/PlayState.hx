@@ -1046,10 +1046,6 @@ class PlayState extends MusicBeatState
 		Note.__customNoteTypeExists = [];
 	}
 
-	// Backwards compat
-	@:dox(hide) @:deprecated("resetSongInfos is deprecated, it's now handled in the loading song/weeks functions")
-	public static function resetSongInfos() {}
-
 	@:dox(hide) @:deprecated("scrollSpeedTween is deprecated, use eventsTween['scrollSpeed'] instead")
 	public var scrollSpeedTween(get, set):FlxTween;
 	private inline function get_scrollSpeedTween() return eventsTween.get("scrollSpeed");

@@ -183,8 +183,7 @@ class VSliceParser {
 		result.stepsPerBeat = firstTimeChange.d.getDefault(Flags.DEFAULT_STEPS_PER_BEAT);
 		result.displayName = songName;
 		result.icon = Flags.DEFAULT_HEALTH_ICON;
-		result.color = "#FFFFFF";
-		//result.parsedColor = 0xFFFFFF;
+		result.color = 0xFFFFFF;
 		result.opponentModeAllowed = true;
 		result.coopAllowed = true;
 		result.difficulties = data.playData.difficulties.concat(data.playData.songVariations.getDefault([]));

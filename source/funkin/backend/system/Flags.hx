@@ -1,13 +1,12 @@
 package funkin.backend.system;
 
-import lime.utils.AssetLibrary as LimeAssetLibrary;
-import lime.utils.AssetType;
 import flixel.util.FlxColor;
-
-import lime.app.Application;
-import funkin.backend.system.macros.GitCommitMacro;
 import funkin.backend.assets.IModsAssetLibrary;
 import funkin.backend.assets.ScriptedAssetLibrary;
+import funkin.backend.system.macros.GitCommitMacro;
+import lime.app.Application;
+import lime.utils.AssetLibrary as LimeAssetLibrary;
+import lime.utils.AssetType;
 
 /**
  * A class that reads the `flags.ini` file, allowing to read settable Flags (customs too).
@@ -28,10 +27,6 @@ class Flags {
 	public static var REPO_OWNER:String = "CodenameCrew";
 	public static var REPO_URL:String = 'https://github.com/$REPO_OWNER/$REPO_NAME';
 
-	// make this empty once you guys are done with the project.
-	// good luck /gen <3 @crowplexus
-	public static var RELEASE_CYCLE:String = "Beta";
-
 	/**
 	 * Preferred sound extension for the game's audio files.
 	 * Currently is set to `mp3` for web targets, and `ogg` for other targets.
@@ -41,7 +36,7 @@ class Flags {
 	public static var IMAGE_EXT:String = "png"; // we also support jpg
 
 	public static var DEFAULT_DISCORD_LOGO_KEY:String = "icon";
-	public static var DEFAULT_DISCORD_CLIENT_ID:String = "1027994136193810442";
+	public static var DEFAULT_DISCORD_CLIENT_ID:String = "1383853614589673472";
 	public static var DEFAULT_DISCORD_LOGO_TEXT:String = "Codename Engine";
 
 	@:also(funkin.game.Character.FALLBACK_CHARACTER)
@@ -61,6 +56,7 @@ class Flags {
 	public static var DEFAULT_BPM:Float = 100.0;
 	public static var DEFAULT_BEATS_PER_MEASURE:Int = 4;
 	public static var DEFAULT_STEPS_PER_BEAT:Int = 4;
+	public static var DEFAULT_LOOP_TIME:Float = 0.0;
 
 	public static var SUPPORTED_CHART_RUNTIME_FORMATS:Array<String> = ["Legacy", "Psych Engine"];
 	public static var SUPPORTED_CHART_FORMATS:Array<String> = ["BaseGame"];
@@ -73,9 +69,10 @@ class Flags {
 	public static var VSLICE_DEFAULT_PREVIEW_END:Int = 15000;
 
 	/**
-	 * Default background colors for songs without bg color
+	 * Default background colors for songs or more without bg color
 	 */
 	public static var DEFAULT_COLOR:FlxColor = 0xFF9271FD;
+	public static var DEFAULT_WEEK_COLOR:FlxColor = 0xFFF9CF51;
 	public static var DEFAULT_COOP_ALLOWED:Bool = false;
 	public static var DEFAULT_OPPONENT_MODE_ALLOWED:Bool = false;
 

@@ -198,7 +198,6 @@ class StoryMenuState extends MusicBeatState {
 
 			if (char == null || (newChar = characters[char.name]) == null) modifyCharacterAt(i);
 			else if ((curChar = cast characterSprites.members[i]) == null || newChar.name != curChar.name) modifyCharacterAt(i, newChar);  // forcing the sprites to be FunkinSprite basically  - Nex
-			trace(newChar != null ? newChar.name : null, curChar != null ? curChar.name : null);
 		}
 
 		changeDifficulty(0, true);
@@ -260,7 +259,6 @@ class StoryMenuState extends MusicBeatState {
 				old.destroy();
 			}
 
-			trace(data);
 			if (data != null) {
 				curChar = XMLUtil.createSpriteFromXML(data.xml, "", BEAT);
 				curChar.offset.x += curChar.x; curChar.offset.y += curChar.y;

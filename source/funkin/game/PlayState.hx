@@ -1000,14 +1000,9 @@ class PlayState extends MusicBeatState
 		inst.onComplete = endSong;
 
 		var time = (chartingMode && Charter.startHere) ? Charter.startTime : 0;
-		inst.time = vocals.time = time;
-
-		for (strumLine in strumLines.members) {
-			strumLine.vocals.time = time;
-			strumLine.vocals.play();
-		}
-		vocals.play();
-		inst.play();
+		for (strumLine in strumLines.members) strumLine.vocals.play(true, time);
+		vocals.play(true, time);
+		inst.play(true, time);
 
 		updateDiscordPresence();
 
@@ -1176,17 +1171,10 @@ class PlayState extends MusicBeatState
 	@:dox(hide)
 	function resyncVocals():Void
 	{
-		vocals.pause();
-		for (strumLine in strumLines.members) strumLine.vocals.pause();
-
 		var time = Conductor.songPosition + Conductor.songOffset;
-		inst.time = vocals.time = time;
-		for (strumLine in strumLines.members) {
-			strumLine.vocals.time = time;
-			strumLine.vocals.play();
-		}
-		vocals.play();
-		inst.play();
+		for (strumLine in strumLines.members) strumLine.vocals.play(true, time);
+		vocals.play(true, time);
+		inst.play(true, time);
 
 		gameAndCharsCall("onVocalsResync");
 	}

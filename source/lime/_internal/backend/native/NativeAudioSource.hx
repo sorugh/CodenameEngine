@@ -1,8 +1,4 @@
 // ALL REWRITTEN FROM SCRATCH!!!! -raltyro
-// YES ALL OF IT!!!
-// FUCK
-// TODO: add a frequency for how much buffers should be regenerated
-
 package lime._internal.backend.native;
 
 import haxe.Timer;
@@ -170,9 +166,9 @@ class NativeAudioSource {
 	}
 
 	private function readToBufferData(data:ArrayBufferView):Int {
-		var total = 0, result = 0, wordSize:Int = parent.buffer.bitsPerSample == 8 ? 1 : 2;
-		var pos = streamTell() * parent.buffer.sampleRate * parent.buffer.channels * wordSize;
-		var n = dataLength - pos < STREAM_BUFFER_SIZE ? Math.floor(dataLength - pos) : STREAM_BUFFER_SIZE;
+		var total = 0, result = 0, wordSize = parent.buffer.bitsPerSample == 8 ? 1 : 2;
+		var size = dataLength - (streamTell() * parent.buffer.sampleRate * parent.buffer.channels * wordSize);
+		var n = size < STREAM_BUFFER_SIZE ? Math.floor(size) : STREAM_BUFFER_SIZE;
 
 		var vorbisFile = parent.buffer.__srcVorbisFile;
 		while (total < STREAM_BUFFER_SIZE) {
@@ -181,20 +177,15 @@ class NativeAudioSource {
 			if (result == Vorbis.HOLE) continue;
 			else if (result == Vorbis.EREAD) break;
 			else if (result == 0) {
-				if (!(streamEnded = loops <= toLoop)) {
-					if (pos < dataLength) continue;
-					toLoop++;
-
+				if (streamEnded = loops <= toLoop++) break;
+				else {
 					var samples = getSamples(loopTime != null ? loopTime : 0);
 					streamSeek(samples);
-					if (dataLength - (pos = getFloat(samples) * parent.buffer.channels * wordSize) < (n = STREAM_BUFFER_SIZE - total))
-						n = Math.floor(dataLength - pos);
+					if ((size = dataLength - (getFloat(samples) * parent.buffer.channels * wordSize)) < (n = STREAM_BUFFER_SIZE - total))
+						n = Math.floor(size);
 				}
-				else
-					break;
 			}
 			else {
-				pos += result;
 				total += result;
 				n -= result;
 			}
@@ -347,9 +338,9 @@ class NativeAudioSource {
 	public function setLength(value:Null<Float>):Null<Float> {
 		if (value == length || disposed) return length = value;
 
-		var buffer = parent.buffer;
-		if ((length = value) == null) dataLength = streamed ? samples * buffer.channels * (buffer.bitsPerSample == 8 ? 1 : 2) : getFloat(Int64.make(0, buffer.data.length));
-		else dataLength = Math.max(0, Math.min(value, getRealLength())) / 1000 * buffer.sampleRate * buffer.channels * (buffer.bitsPerSample == 8 ? 1 : 2);
+		var buffer = parent.buffer, wordSize = buffer.bitsPerSample == 8 ? 1 : 2;
+		if ((length = value) == null) dataLength = streamed ? samples * buffer.channels * wordSize : getFloat(Int64.make(0, buffer.data.length));
+		else dataLength = Math.ffloor(Math.max(0, Math.min(value, getRealLength())) / 1000 * buffer.sampleRate) * buffer.channels * wordSize;
 
 		if (playing) {
 			if (streamed) setCurrentTime(getCurrentTime());

@@ -169,7 +169,7 @@ import lime.media.AudioSource;
 		if (__source.buffer == null || !__checkUpdatePeaks(position)) return;
 
 		var index = AL.getSourcei(__source.__backend.handle, AL.SAMPLE_OFFSET), bufferDatas = __source.__backend.bufferDatas;
-		var bufferi = NativeAudioSource.STREAM_NUM_BUFFERS - __source.__backend.queuedBuffers, bytes = bufferDatas[bufferi].buffer;
+		var bufferi = NativeAudioSource.STREAM_MAX_BUFFERS - __source.__backend.queuedBuffers, bytes = bufferDatas[bufferi].buffer;
 
 		var channels = __source.buffer.channels, todo = scanSamples, sample;
 		var lfilled = false, rfilled = channels < 2;
@@ -204,7 +204,7 @@ import lime.media.AudioSource;
 		#if (lime_cffi && !macro)
 		if (!__isValid) return;
 
-		#if lime_vorbis if (__source.__backend.stream) return __updateVorbisPeaks(); #end
+		#if lime_vorbis if (__source.__backend.streamed) return __updateVorbisPeaks(); #end
 
 		var buffer = __source.buffer;
 		if (buffer == null || buffer.data == null || !__checkUpdatePeaks(position)) return;

@@ -18,6 +18,8 @@ import lime.math.Vector4;
 **/
 class AudioSource
 {
+	private static var activeSources:Array<AudioSource> = [];
+
 	/**
 		An event that is dispatched when the audio playback is complete.
 	**/
@@ -118,11 +120,13 @@ class AudioSource
 	inline public function dispose():Void
 	{
 		__backend.dispose();
+		activeSources.remove(this);
 	}
 
 	@:noCompletion inline private function init():Void
 	{
 		__backend.init();
+		activeSources.push(this);
 	}
 
 	/**

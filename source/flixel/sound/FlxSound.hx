@@ -2,6 +2,7 @@ package flixel.sound;
 
 import lime.media.AudioBuffer;
 import lime.media.AudioSource;
+import lime.media.AudioManager;
 import lime.media.openal.AL;
 #if lime_vorbis
 import lime.media.vorbis.VorbisFile;
@@ -695,11 +696,6 @@ class FlxSound extends FlxBasic {
 			pitch = _pitch;
 			#end
 
-			// TODO: fix the buffer loud beep for streaming sounds...
-			#if lime_openal
-			_source.__backend.setGain(0);
-			#end
-
 			_channel.soundTransform = _transform;
 			_channel.__lastPeakTime = 0;
 			_channel.__leftPeak = 0;
@@ -716,7 +712,7 @@ class FlxSound extends FlxBasic {
 			try {s = AL.getSourcei(_source.__backend.handle, AL.SOURCE_STATE) == AL.PLAYING;} catch(e) {}
 			if (s) updateTransform();
 			else {
-				if (++_tries > 10) return;
+				if (++_tries > 2) return;
 				makeChannel();
 				return startSound(StartTime);
 			}
@@ -889,7 +885,7 @@ class FlxSound extends FlxBasic {
 			return _time;
 	}
 	function get_time():Float {
-		if (_channel == null) return _time;
+		if (_channel == null || AudioManager.context == null) return _time;
 
 		final pos = _channel.position - _offset;
 		if (!playing || _realPitch <= 0) {

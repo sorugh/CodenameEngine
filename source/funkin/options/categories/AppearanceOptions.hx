@@ -44,6 +44,10 @@ class AppearanceOptions extends OptionsScreen {
 		}
 		#end
 		add(new Checkbox(
+			"Streamed Music",
+			"If checked, only musics will have streamed audio, ALSO freeing a LOT of memory with the downside of higher cpu usage if more audio are being streamed at once (EXPERIMENTAL). Turning this off will consume a lot of memory, especially on longer songs. If you aren't sure, leave this on.",
+			"streamedMusic"));
+		add(new Checkbox(
 			"Auto Pause",
 			"If checked, switching windows will pause the game.",
 			"autoPause"));

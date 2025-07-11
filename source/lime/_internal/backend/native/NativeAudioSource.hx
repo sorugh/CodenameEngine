@@ -16,6 +16,7 @@ import lime.media.vorbis.VorbisFile;
 import lime.math.Vector4;
 import lime.media.AudioBuffer;
 import lime.media.AudioSource;
+import lime.system.System;
 import lime.utils.ArrayBufferView;
 
 #if !lime_debug
@@ -41,7 +42,6 @@ class NativeAudioSource {
 	private var unusedBuffers:Array<ALBuffer>;
 	private var timer:Timer;
 	private var format:Int;
-	private var dataLength:Float;
 	private var samples:Float;
 
 	private var streamTimer:Timer;
@@ -51,6 +51,7 @@ class NativeAudioSource {
 	private var queuedBuffers:Int;
 	private var toLoop:Int;
 	private var streamEnded:Bool;
+	private var dataLength:Float;
 
 	private var position:Vector4 = new Vector4();
 	private var length:Null<Float>;
@@ -130,7 +131,10 @@ class NativeAudioSource {
 	public function stop() {
 		if (!disposed) {
 			if (AL.getSourcei(handle, AL.SOURCE_STATE) != AL.STOPPED) AL.sourceStop(handle);
-			if (streamed) AL.sourceUnqueueBuffers(handle, AL.getSourcei(handle, AL.BUFFERS_QUEUED));
+			if (streamed) {
+				AL.sourceUnqueueBuffers(handle, AL.getSourcei(handle, AL.BUFFERS_QUEUED));
+				unusedBuffers.resize(0);
+			}
 			requestBuffers = queuedBuffers = toLoop = 0;
 		}
 
@@ -166,19 +170,21 @@ class NativeAudioSource {
 	}
 
 	private function readToBufferData(data:ArrayBufferView):Int {
-		var total = 0, result = 0, wordSize = parent.buffer.bitsPerSample == 8 ? 1 : 2;
+		var total = 0, result = 0, wordSize = parent.buffer.bitsPerSample == 8 ? 1 : 2, wasEOF = false;
 		var size = dataLength - (streamTell() * parent.buffer.sampleRate * parent.buffer.channels * wordSize);
-		var n = size < STREAM_BUFFER_SIZE ? Math.floor(size) : STREAM_BUFFER_SIZE;
+		var n:Int = size < STREAM_BUFFER_SIZE ? Math.floor(size) : STREAM_BUFFER_SIZE;
 
 		var vorbisFile = parent.buffer.__srcVorbisFile;
 		while (total < STREAM_BUFFER_SIZE) {
-			result = n > 0 ? vorbisFile.read(data.buffer, total, n, false, wordSize, true) : 0;
+			result = n > 0 ? vorbisFile.read(data.buffer, total, n, System.endianness == lime.system.Endian.BIG_ENDIAN, wordSize, true) : 0;
 
 			if (result == Vorbis.HOLE) continue;
-			else if (result == Vorbis.EREAD) break;
+			else if (result <= Vorbis.EREAD) break;
 			else if (result == 0) {
-				if (streamEnded = loops <= toLoop++) break;
+				if (wasEOF || (streamEnded = loops <= toLoop++)) break;
 				else {
+					wasEOF = true;
+
 					var samples = getSamples(loopTime != null ? loopTime : 0);
 					streamSeek(samples);
 					if ((size = dataLength - (getFloat(samples) * parent.buffer.channels * wordSize)) < (n = STREAM_BUFFER_SIZE - total))
@@ -192,7 +198,10 @@ class NativeAudioSource {
 		}
 
 		if (total < STREAM_BUFFER_SIZE) data.buffer.fill(total, n, 0);
-		if (result < 0) return result;
+		if (result < 0) {
+			trace('NativeAudioSource Streaming Bug! reading result is $result');
+			return result;
+		}
 		return total;
 	}
 
@@ -222,19 +231,22 @@ class NativeAudioSource {
 		if (!playing || streamEnded || disposed) stopStreamTimer();
 
 		try {
-			var processed = AL.getSourcei(handle, AL.BUFFERS_PROCESSED), n = STREAM_BUFFER_FREQUENCY, buffer;
-
-			while (processed-- > 0 && !streamEnded) {
-				buffer = AL.sourceUnqueueBuffer(handle);
-				if (n-- > 0 && fillBuffer(buffer) > 0) AL.sourceQueueBuffer(handle, buffer);
+			var processed = AL.getSourcei(handle, AL.BUFFERS_PROCESSED), n = STREAM_BUFFER_FREQUENCY * Math.min(1, AL.getSourcef(handle, AL.PITCH)), buffer;
+			while (processed-- > 0) {
+				if (streamEnded || --n < 0) unusedBuffers.push(AL.sourceUnqueueBuffer(handle));
+				else if (fillBuffer(buffer = AL.sourceUnqueueBuffer(handle)) > 0) AL.sourceQueueBuffer(handle, buffer);
 				else unusedBuffers.push(buffer);
 			}
 
 			if (!streamEnded) {
 				if (queuedBuffers < STREAM_MAX_BUFFERS) {
 					if (fillBuffer(buffer = buffers[requestBuffers++]) > 0) AL.sourceQueueBuffer(handle, buffer);
+					else requestBuffers--;
 				}
-				else if (unusedBuffers.length != 0 && fillBuffer(buffer = unusedBuffers.pop()) > 0) AL.sourceQueueBuffer(handle, buffer);
+				else if (unusedBuffers.length != 0) {
+					if (fillBuffer(buffer = unusedBuffers.pop()) > 0) AL.sourceQueueBuffer(handle, buffer);
+					else unusedBuffers.push(buffer);
+				}
 			}
 
 			if (AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED) {

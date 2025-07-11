@@ -4,9 +4,6 @@ import lime.media.AudioBuffer;
 import lime.media.AudioSource;
 import lime.media.AudioManager;
 import lime.media.openal.AL;
-#if lime_vorbis
-import lime.media.vorbis.VorbisFile;
-#end
 
 import openfl.Assets;
 import openfl.events.IEventDispatcher;
@@ -56,7 +53,7 @@ class FlxSound extends FlxBasic {
 	public var playing(get, never):Bool;
 
 	/**
-	 * Set volume to a value between 0 and 1 to change how this sound is.
+	 * Set volume to a value between 0 and 1* to change how this sound is.
 	 */
 	public var volume(get, set):Float;
 
@@ -204,6 +201,7 @@ class FlxSound extends FlxBasic {
 
 	/**
 	 * Signal that is dispatched on sound complete.
+	 * Seperates the looping from onComplete.
 	 */
 	public final onFinish:FlxSignal;
 
@@ -224,14 +222,6 @@ class FlxSound extends FlxBasic {
 	 * @since raltyMod
 	 */
 	public var buffer(get, never):AudioBuffer;
-
-	#if lime_vorbis
-	/**
-	 * Stores the sound VorbisFile if exists.
-	 * @since raltyMod
-	 */
-	public var vorbis(get, never):VorbisFile;
-	#end
 
 	/**
 	 * The tween used to fade this sound's volume in and out (set via `fadeIn()` and `fadeOut()`)
@@ -680,11 +670,11 @@ class FlxSound extends FlxBasic {
 	 * the sound and populate the _channel variable.
 	 */
 	var _tries = 0;
-	function startSound(StartTime:Float) @:privateAccess {
+	function startSound(startTime:Float) @:privateAccess {
 		if (_sound == null) return;
 
 		_paused = false;
-		_time = StartTime;
+		_time = startTime;
 		_lastTime = FlxG.game.getTicks();
 		if (_channel == null || !_channel.__isValid || _source.__backend == null || _source.__backend.disposed #if lime_openal || _source.__backend.handle == null #end)
 			makeChannel();
@@ -714,7 +704,7 @@ class FlxSound extends FlxBasic {
 			else {
 				if (++_tries > 2) return;
 				makeChannel();
-				return startSound(StartTime);
+				return startSound(startTime);
 			}
 
 			_tries = 0;
@@ -777,14 +767,14 @@ class FlxSound extends FlxBasic {
 	inline function get_volume():Float
 		return _volume;
 
-	inline function set_volume(Volume:Float):Float {
-		_volume = FlxMath.bound(Volume, 0, 4);
+	inline function set_volume(v:Float):Float {
+		_volume = FlxMath.bound(v, 0, 10);
 		updateTransform();
 		return _volume;
 	}
 
-	inline function set_muted(Muted:Bool):Bool {
-		muted = Muted;
+	inline function set_muted(v:Bool):Bool {
+		muted = v;
 		updateTransform();
 		return muted;
 	}
@@ -793,15 +783,10 @@ class FlxSound extends FlxBasic {
 		return buffer != null;
 
 	inline function get_streamed():Bool
-		return #if lime_vorbis vorbis != null #else false #end;
+		@:privateAccess return #if lime_vorbis _sound != null && _sound.__buffer.__srcVorbisFile != null #else false #end;
 
 	inline function get_buffer():AudioBuffer
 		@:privateAccess return _sound != null ? _sound.__buffer : null;
-
-	#if lime_vorbis
-	inline function get_vorbis():VorbisFile
-		@:privateAccess return _sound != null ? _sound.__buffer.__srcVorbisFile : null;
-	#end
 
 	function update_amplitude():Void @:privateAccess {
 		if (_channel == null || _time == _amplitudeTime || !_amplitudeUpdate) return;

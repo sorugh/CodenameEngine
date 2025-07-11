@@ -7,9 +7,9 @@ import openfl.events.Event;
 import openfl.events.EventDispatcher;
 #if lime
 import lime.media.AudioSource;
+import lime.media.openal.AL;
 
 #if lime_cffi import lime._internal.backend.native.NativeAudioSource; #end
-#if lime_vorbis import lime.media.openal.AL; #end
 #end
 
 /**
@@ -155,7 +155,6 @@ import lime.media.AudioSource;
 	// took me 8 months to figure this out
 	@:noCompletion inline private static var scanSamples = 480;
 
-	#if (lime_cffi && !macro)
 	@:noCompletion private function __checkUpdatePeaks(time:Float):Bool
 	{
 		if (Math.abs(__lastPeakTime - time) < Math.max(1, pitch * 8)) return false;
@@ -163,8 +162,7 @@ import lime.media.AudioSource;
 		return true;
 	}
 
-	#if lime_vorbis
-	@:noCompletion private function __updateVorbisPeaks():Void
+	/*@:noCompletion private function __updateVorbisPeaks():Void
 	{
 		if (__source.buffer == null || !__checkUpdatePeaks(position)) return;
 
@@ -194,14 +192,11 @@ import lime.media.AudioSource;
 			todo--;
 		}
 	}
-	#end
-	#end
 
 	@:noCompletion private function __updatePeaks():Void
 	{
 		__leftPeak = __rightPeak = 0;
 
-		#if (lime_cffi && !macro)
 		if (!__isValid) return;
 
 		#if lime_vorbis if (__source.__backend.streamed) return __updateVorbisPeaks(); #end
@@ -230,7 +225,12 @@ import lime.media.AudioSource;
 			}
 			index++;
 		}
-		#end
+	}*/
+
+	@:noCompletion private function __updatePeaks():Void
+	{
+		__leftPeak = __rightPeak = 0;
+		if (!__isValid) return;
 	}
 
 	@:noCompletion private function __initAudioSource(source:#if lime AudioSource #else Dynamic #end):Void

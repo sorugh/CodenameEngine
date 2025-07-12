@@ -3,7 +3,6 @@ package flixel.sound;
 import lime.media.AudioBuffer;
 import lime.media.AudioSource;
 import lime.media.AudioManager;
-import lime.media.openal.AL;
 
 import openfl.Assets;
 import openfl.events.IEventDispatcher;
@@ -283,7 +282,7 @@ class FlxSound extends FlxBasic {
 		_cameras = null;
 		_lastTime = null;
 		_paused = false;
-		_length = _time = 0;
+		_offset = _length = _time = 0;
 		_volume = _volumeAdjust = 1;
 		_amplitudeLeft = _amplitudeRight = 0;
 		_amplitudeUpdate = true;
@@ -669,20 +668,18 @@ class FlxSound extends FlxBasic {
 	 * An internal helper function used to attempt to start playing
 	 * the sound and populate the _channel variable.
 	 */
-	var _tries = 0;
 	function startSound(startTime:Float) @:privateAccess {
 		if (_sound == null) return;
 
 		_paused = false;
 		_time = startTime;
 		_lastTime = FlxG.game.getTicks();
-		if (_channel == null || !_channel.__isValid || _source.__backend == null || _source.__backend.disposed #if lime_openal || _source.__backend.handle == null #end)
+		if (_channel == null || !_channel.__isValid || _source.__backend == null #if lime_openal || _source.__backend.disposed || _source.__backend.handle == null #end)
 			makeChannel();
 
 		if (_channel != null) {
 			#if FLX_PITCH
 			_timeScaleAdjust = timeScaleBased ? FlxG.timeScale : 1.0;
-			_realPitch = -1.0;
 			pitch = _pitch;
 			#end
 
@@ -691,24 +688,11 @@ class FlxSound extends FlxBasic {
 			_channel.__leftPeak = 0;
 			_channel.__rightPeak = 0;
 			_channel.addEventListener(Event.SOUND_COMPLETE, stopped);
-			_source.__backend.playing = true;
+
+			#if lime_openal _source.__backend.playing = true; #end
 			_source.offset = 0;
-			_source.currentTime = _time;
-
-			#if lime_openal
-			if (_source.__backend.handle == null) return destroy();
-
-			var s = false;
-			try {s = AL.getSourcei(_source.__backend.handle, AL.SOURCE_STATE) == AL.PLAYING;} catch(e) {}
-			if (s) updateTransform();
-			else {
-				if (++_tries > 2) return;
-				makeChannel();
-				return startSound(startTime);
-			}
-
-			_tries = 0;
-			#end
+			_source.currentTime = startTime - _offset;
+			#if !lime_openal _source.play(); #end
 
 			looped = looped;
 			loopTime = loopTime;
@@ -730,7 +714,7 @@ class FlxSound extends FlxBasic {
 
 		if (looped) {
 			cleanup(false);
-			play(false, loopTime - _offset, endTime - _offset);
+			play(false, loopTime, endTime);
 		}
 		else cleanup(autoDestroy);
 	}
@@ -824,18 +808,9 @@ class FlxSound extends FlxBasic {
 		return _pitch;
 
 	function set_pitch(v:Float):Float {
-		var adjusted:Float = FlxMath.bound(v * _timeScaleAdjust, 0);
-		if (_channel != null && _realPitch != adjusted) {
-			if ((_channel.pitch = adjusted) > 0 && _realPitch <= 0) {
-				_realPitch = adjusted;
-				time = _time;
-			}
-			else {
-				get_time();
-				_realPitch = adjusted;
-			}
-		}
-		return _pitch = FlxMath.bound(v, 0);
+		_realPitch = (_pitch = v) * _timeScaleAdjust;
+		if (_channel != null) _channel.pitch = _realPitch;
+		return _pitch;
 	}
 	#end
 
@@ -854,7 +829,7 @@ class FlxSound extends FlxBasic {
 
 	function set_endTime(v:Null<Float>):Null<Float> {
 		if (playing) {
-			if (v != null && v > 0 && v < length) _channel.endTime = v;
+			if (v != null && v > 0 && v < _length) _channel.endTime = v;
 			else _channel.endTime = null;
 		}
 		return endTime = v;
@@ -872,7 +847,7 @@ class FlxSound extends FlxBasic {
 	function get_time():Float {
 		if (_channel == null || AudioManager.context == null) return _time;
 
-		final pos = _channel.position - _offset;
+		final pos = _channel.position + _offset;
 		if (!playing || _realPitch <= 0) {
 			_lastTime = null;
 			return _time = pos;
@@ -893,7 +868,7 @@ class FlxSound extends FlxBasic {
 	}
 
 	function set_time(time:Float):Float @:privateAccess {
-		time = FlxMath.bound(time, 0, length - 1);
+		time = FlxMath.bound(time, _offset, length - 1);
 		if (_channel != null && _realPitch > 0) {
 			if (!_channel.__isValid) {
 				cleanup(false, true);
@@ -901,7 +876,7 @@ class FlxSound extends FlxBasic {
 			}
 			else if (playing) {
 				_source.offset = 0;
-				_source.currentTime = time + _offset;
+				_source.currentTime = time - _offset;
 			}
 		}
 
@@ -909,11 +884,10 @@ class FlxSound extends FlxBasic {
 		return _time = time;
 	}
 
-	function get_offset():Float return _offset;
-	function set_offset(offset:Float):Float {
-		if (offset == _offset) return offset;
-		_offset = offset;
-		time = time;
+	inline function get_offset():Float return _offset;
+	inline function set_offset(offset:Float):Float {
+		if (_offset == (_offset = offset)) return offset;
+		//time = time - _offset;
 		return offset;
 	}
 

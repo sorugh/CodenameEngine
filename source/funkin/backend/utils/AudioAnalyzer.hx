@@ -43,42 +43,34 @@ class AudioAnalyzer {
 	}
 
 	inline function __analyze(startPos:Float, endPos:Float, ?outSeperate:Array<Float>):Float {
-		var pos = Math.floor(startPos * __toBits), end = Math.floor(endPos * __toBits), buf = #if js buffer.data #else buffer.data.buffer #end;
-		var max = 0, b = 0, c = 0, useSeperate = outSeperate != null;
+		var pos = Math.floor(startPos * __toBits), end = Math.floor(endPos * __toBits), buf = buffer.data #if !js .buffer #end;
+		var max = 0, b = 0, w = 0, c = 0, useSeperate = outSeperate != null;
 		if (useSeperate) {
 			while (c < outSeperate.length) outSeperate[c++] *= __bitSize;
 			while (c++ < buffer.channels) outSeperate.push(0);
 			c = Math.floor((pos % (__wordSize * buffer.channels)) / __wordSize);
 		}
-		if (__wordSize == 1) { // 8-bit audio data is unsigned (0 is 128, 128 is 256, -128 is 0)
-			while (pos < end) {
-				if (max < (b = #if js buf[pos] #else buf.get(pos) #end - __bitSize)) max = b;
-				if (useSeperate) {
-					if (outSeperate[c] < b) outSeperate[c] = b;
-					if (++c > buffer.channels) c = 0;
-				}
-				pos++;
-			}
-		}
-		else {
-			pos -= pos % __wordSize;
-			end -= end % __wordSize;
 
-			var w = 0;
-			while (pos < end) {
+		pos -= pos % __wordSize;
+		end -= end % __wordSize;
+
+		while (pos < end) {
+			// 8-bit audio data is unsigned (0 is 128, 128 is 256, -128 is 0)
+			if (__wordSize == 1) b = #if js buf[pos] #else buf.get(pos) #end - __bitSize;
+			else {
 				while (w < buffer.bitsPerSample) {
 					b |= #if js buf[pos] #else buf.get(pos) #end << w;
 					w += 8;
 					pos++;
 				}
 				if (b > __bitSize) b -= __bitUnsignedSize;
-				if (max < b) max = b;
-				if (useSeperate) {
-					if (outSeperate[c] < b) outSeperate[c] = b;
-					if (++c > buffer.channels) c = 0;
-				}
-				w = b = 0;
 			}
+			if (max < b) max = b;
+			if (useSeperate) {
+				if (outSeperate[c] < b) outSeperate[c] = b;
+				if (++c > buffer.channels) c = 0;
+			}
+			w = b = 0;
 		}
 
 		return max / __bitSize;
@@ -113,7 +105,7 @@ class AudioAnalyzer {
 		if (useSeperate) {
 			while (c < outSeperate.length) outSeperate[c++] *= __bitSize;
 			while (c++ < buffer.channels) outSeperate.push(0);
-			c = Math.floor((pos % (__wordSize * buffer.channels)) / __wordSize);
+			c = 0;
 		}
 		while (n > 0) {
 			n -= (result = __vorbis.read(__buffer, 0, n < bufferSize ? n : bufferSize, isBigEndian, __wordSize, true));
@@ -122,12 +114,15 @@ class AudioAnalyzer {
 			else if (result <= 0) break;
 
 			while (pos < result) {
-				while (w < buffer.bitsPerSample) {
-					b |= #if js __buffer[pos] #else __buffer.get(pos) #end << w;
-					w += 8;
-					pos++;
+				if (__wordSize == 1) b = __buffer.get(pos) - __bitSize;
+				else {
+					while (w < buffer.bitsPerSample) {
+						b |= __buffer.get(pos) << w;
+						w += 8;
+						pos++;
+					}
+					if (b > __bitSize) b -= __bitUnsignedSize;
 				}
-				if (b > __bitSize) b -= __bitUnsignedSize;
 				if (max < b) max = b;
 				if (useSeperate) {
 					if (outSeperate[c] < b) outSeperate[c] = b;

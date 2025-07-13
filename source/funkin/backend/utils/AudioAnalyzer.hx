@@ -34,20 +34,29 @@ class AudioAnalyzer {
 		#end
 	}
 
-	public function analyze(startPos:Float, endPos:Float):Float {
-		if (buffer.data != null) return __analyze(startPos, endPos);
+	public function analyze(startPos:Float, endPos:Float, ?outSeperate:Array<Float>):Float {
+		if (buffer.data != null) return __analyze(startPos, endPos, outSeperate);
 		#if lime_vorbis
-		else if (__prepareVorbis()) return __analyzeVorbis(startPos, endPos);
+		else if (__prepareVorbis()) return __analyzeVorbis(startPos, endPos, outSeperate);
 		#end
 		return 0;
 	}
 
-	inline function __analyze(startPos:Float, endPos:Float):Float {
+	inline function __analyze(startPos:Float, endPos:Float, ?outSeperate:Array<Float>):Float {
 		var pos = Math.floor(startPos * __toBits), end = Math.floor(endPos * __toBits), buf = #if js buffer.data #else buffer.data.buffer #end;
-		var max = 0, b = 0;
+		var max = 0, b = 0, c = 0, useSeperate = outSeperate != null;
+		if (useSeperate) {
+			while (c < outSeperate.length) outSeperate[c++] *= __bitSize;
+			while (c++ < buffer.channels) outSeperate.push(0);
+			c = 0;
+		}
 		if (__wordSize == 1) { // 8-bit audio data is unsigned (0 is 128, 128 is 256, -128 is 0)
 			while (pos < end) {
 				if (max < (b = #if js buf[pos] #else buf.get(pos) #end - __bitSize)) max = b;
+				if (useSeperate) {
+					if (outSeperate[c] < b) outSeperate[c] = b;
+					if (++c > buffer.channels) c = 0;
+				}
 				pos++;
 			}
 		}
@@ -64,6 +73,10 @@ class AudioAnalyzer {
 				}
 				if (b > __bitSize) b -= __bitUnsignedSize;
 				if (max < b) max = b;
+				if (useSeperate) {
+					if (outSeperate[c] < b) outSeperate[c] = b;
+					if (++c > buffer.channels) c = 0;
+				}
 				w = b = 0;
 			}
 		}
@@ -84,7 +97,7 @@ class AudioAnalyzer {
 	}
 
 	var prevPos:Int = 0;
-	inline function __analyzeVorbis(startPos:Float, endPos:Float):Float {
+	inline function __analyzeVorbis(startPos:Float, endPos:Float, ?outSeperate:Array<Float>):Float {
 		var n = Math.floor((endPos - startPos) * __toBits);
 		if (n < __wordSize) return 0;
 
@@ -96,7 +109,12 @@ class AudioAnalyzer {
 		}
 
 		var isBigEndian = lime.system.System.endianness == lime.system.Endian.BIG_ENDIAN, bufferSize = __buffer.length;
-		var max = 0, b = 0, pos = 0, w = 0, result;
+		var max = 0, b = 0, c = 0, useSeperate = outSeperate != null, pos = 0, w = 0, result;
+		if (useSeperate) {
+			while (c < outSeperate.length) outSeperate[c++] *= __bitSize;
+			while (c++ < buffer.channels) outSeperate.push(0);
+			c = 0;
+		}
 		while (n > 0) {
 			n -= (result = __vorbis.read(__buffer, 0, n < bufferSize ? n : bufferSize, isBigEndian, __wordSize, true));
 
@@ -111,6 +129,10 @@ class AudioAnalyzer {
 				}
 				if (b > __bitSize) b -= __bitUnsignedSize;
 				if (max < b) max = b;
+				if (useSeperate) {
+					if (outSeperate[c] < b) outSeperate[c] = b;
+					if (++c > buffer.channels) c = 0;
+				}
 				w = b = 0;
 			}
 			pos = 0;

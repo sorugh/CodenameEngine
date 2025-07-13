@@ -1570,10 +1570,10 @@ class Charter extends UIState {
 			vocals.pause();
 			for (strumLine in strumLines.members) strumLine.vocals.pause();
 		} else {
-			FlxG.sound.music.play(Conductor.songPosition + Conductor.songOffset);
-			vocals.play(FlxG.sound.music.getActualTime());
+			FlxG.sound.music.play(true, Conductor.songPosition + Conductor.songOffset);
+			vocals.play(true, FlxG.sound.music.getActualTime());
 			for (strumLine in strumLines.members) {
-				strumLine.vocals.play(FlxG.sound.music.getActualTime());
+				strumLine.vocals.play(true, FlxG.sound.music.getActualTime());
 			}
 		}
 	}

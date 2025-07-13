@@ -82,7 +82,7 @@ import lime.media.openal.AL;
 	@:noCompletion private var __sound:Sound;
 	@:noCompletion private var __isValid:Bool;
 	@:noCompletion private var __soundTransform:SoundTransform;
-	@:noCompletion private var __lastPeakTime:Float;
+	@:noCompletion private var __lastPeakSamples:Float;
 	@:noCompletion private var __leftPeak:Float;
 	@:noCompletion private var __rightPeak:Float;
 	#if lime
@@ -151,86 +151,66 @@ import lime.media.openal.AL;
 		this.soundTransform = soundTransform;
 	}
 
-	// hi i made these - raltyro
-	// took me 8 months to figure this out
-	@:noCompletion inline private static var scanSamples = 480;
-
-	@:noCompletion private function __checkUpdatePeaks(time:Float):Bool
+	@:noCompletion private function __updatePeaks():Bool
 	{
-		if (Math.abs(__lastPeakTime - time) < Math.max(1, pitch * 8)) return false;
-		__lastPeakTime = time;
-		return true;
-	}
+		var backend = __source.__backend;
+		var samples = AL.getSourcef(backend.handle, AL.SAMPLE_OFFSET);
+		if (__lastPeakSamples == samples) return false;
 
-	/*@:noCompletion private function __updateVorbisPeaks():Void
-	{
-		if (__source.buffer == null || !__checkUpdatePeaks(position)) return;
-
-		var index = AL.getSourcei(__source.__backend.handle, AL.SAMPLE_OFFSET), bufferDatas = __source.__backend.bufferDatas;
-		var bufferi = NativeAudioSource.STREAM_MAX_BUFFERS - __source.__backend.queuedBuffers, bytes = bufferDatas[bufferi].buffer;
-
-		var channels = __source.buffer.channels, todo = scanSamples, sample;
-		var lfilled = false, rfilled = channels < 2;
-
-		while(todo > 0 && (!lfilled || !rfilled)) {
-			if (index >= NativeAudioSource.STREAM_BUFFER_SIZE) {
-				if ((bytes = bufferDatas[++bufferi].buffer) == null) break;
-				index = 0;
-			}
-
-			if (!lfilled) {
-				if ((sample = bytes.getUInt16(index * channels * 2) / 65535) > .5) sample = -(sample - 1);
-				if (sample > __leftPeak) lfilled = (__leftPeak = sample) >= 1;
-			}
-
-			if (!rfilled) {
-				if ((sample = bytes.getUInt16(index * channels * 2 + 2) / 65535) > .5) sample = -(sample - 1);
-				if (sample > __rightPeak) rfilled = (__rightPeak = sample) >= 1;
-			}
-
-			index++;
-			todo--;
-		}
-	}
-
-	@:noCompletion private function __updatePeaks():Void
-	{
+		__lastPeakSamples = samples;
 		__leftPeak = __rightPeak = 0;
-
-		if (!__isValid) return;
-
-		#if lime_vorbis if (__source.__backend.streamed) return __updateVorbisPeaks(); #end
+		#if (lime_cffi && !macro)
+		if (!__isValid) return false;
 
 		var buffer = __source.buffer;
-		if (buffer == null || buffer.data == null || !__checkUpdatePeaks(position)) return;
+		var wordSize = buffer.bitsPerSample >> 3, bitUnsignedSize = 1 << buffer.bitsPerSample, bitSize = 1 << (buffer.bitsPerSample - 1);
+		var pos = Math.floor(samples * buffer.channels * wordSize);
+		var n = Math.floor(Math.min(buffer.sampleRate / 80, 600)), b = 0, w = 0, c = 0, i = 0, size = 0, buf;
 
-		var index = Int64.make(0, AL.getSourcei(__source.__backend.handle, AL.SAMPLE_OFFSET));
-		var bytes = buffer.data.buffer, length = __source.__backend.samples;
-		if (index >= length) return;
-
-		var temp = index + scanSamples;
-		if (temp < length) length = temp;
-
-		var channels = buffer.channels, sample;
-		var lfilled = false, rfilled = channels < 2;
-
-		while(index < length && (!lfilled || !rfilled)) {
-			if (!lfilled) {
-				if ((sample = bytes.getUInt16(Int64.toInt(index * (channels * 2))) / 65535) > .5) sample = -(sample - 1);
-				if (sample > __leftPeak) lfilled = (__leftPeak = sample) >= 1;
-			}
-			if (!rfilled) {
-				if ((sample = bytes.getUInt16(Int64.toInt(index * (channels * 2) + 2)) / 65535) > .5) sample = -(sample - 1);
-				if (sample > __rightPeak) rfilled = (__rightPeak = sample) >= 1;
-			}
-			index++;
+		if (backend.streamed) {
+			buf = backend.bufferDatas[i = NativeAudioSource.STREAM_MAX_BUFFERS - backend.queuedBuffers] #if !js .buffer #end;
+			pos %= (size = NativeAudioSource.STREAM_BUFFER_SIZE * wordSize);
 		}
-	}*/
+		else {
+			buf = buffer.data #if !js .buffer #end;
+			size = #if js buf.byteLength #else buf.length #end;
+		}
 
-	@:noCompletion private function __updatePeaks():Void
-	{
-		__leftPeak = __rightPeak = 0;
-		if (!__isValid) return;
+		pos -= pos % wordSize;
+
+		while (n > 0) {
+			if (wordSize == 1) b = #if js buf[pos] #else buf.get(pos) #end - bitSize;
+			else {
+				while (w < buffer.bitsPerSample) {
+					b |= #if js buf[pos] #else buf.get(pos) #end << w;
+					w += 8;
+					pos++;
+				}
+				if (b > bitSize) b -= bitUnsignedSize;
+			}
+			((c % 2 == 0) ? (if (__leftPeak < b) __leftPeak = b) : (if (__rightPeak < b) __rightPeak = b));
+
+			if (pos >= size) {
+				if (!backend.streamed || ++i >= backend.bufferDatas.length) break;
+				buf = backend.bufferDatas[i] #if !js .buffer #end;
+				pos = 0;
+			}
+
+			if (++c > buffer.channels) {
+				c = 0;
+				n--;
+			}
+			w = b = 0;
+		}
+
+		if (buffer.channels == 1) __rightPeak = __leftPeak / bitSize;
+		else {
+			__leftPeak = __leftPeak / bitSize;
+			__rightPeak = __rightPeak / bitSize;
+		}
+		#end
+
+		return true;
 	}
 
 	@:noCompletion private function __initAudioSource(source:#if lime AudioSource #else Dynamic #end):Void

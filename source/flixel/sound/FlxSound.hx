@@ -248,7 +248,6 @@ class FlxSound extends FlxBasic {
 	var _amplitudeLeft:Float;
 	var _amplitudeRight:Float;
 	var _amplitudeUpdate:Bool;
-	var _amplitudeTime:Float;
 	var _alreadyPaused:Null<Bool>;
 
 	public function new() {
@@ -468,7 +467,7 @@ class FlxSound extends FlxBasic {
 	function init(?looped:Null<Bool>, ?autoDestroy:Null<Bool>, ?onComplete:Null<Void->Void>):FlxSound {
 		if (looped != null) this.looped = looped;
 		if (autoDestroy != null) this.autoDestroy = autoDestroy;
-		if (onComplete != null) this.onComplete = onComplete; // DEPRECATED
+		if (onComplete != null) this.onComplete = onComplete;
 
 		if (_sound != null) makeChannel();
 		else _length = 0;
@@ -483,6 +482,7 @@ class FlxSound extends FlxBasic {
 	 * @since raltyMod
 	 */
 	function makeChannel() @:privateAccess {
+		if (_sound.__buffer == null) return;
 		if (_source != null) _source.dispose();
 
 		if (_channel == null) (_source = (_channel = new SoundChannel(null)).__source = new AudioSource(_sound.__buffer)).gain = 0;
@@ -684,20 +684,19 @@ class FlxSound extends FlxBasic {
 			#end
 
 			_channel.soundTransform = _transform;
-			_channel.__lastPeakTime = 0;
+			_channel.__lastPeakSamples = 0;
 			_channel.__leftPeak = 0;
 			_channel.__rightPeak = 0;
 			_channel.addEventListener(Event.SOUND_COMPLETE, stopped);
 
 			#if lime_openal _source.__backend.playing = true; #end
 			_source.offset = 0;
-			_source.currentTime = startTime - _offset;
+			_source.currentTime = startTime + _offset;
 			#if !lime_openal _source.play(); #end
 
 			looped = looped;
 			loopTime = loopTime;
 			endTime = endTime;
-			_amplitudeTime = -1;
 
 			active = true;
 		}
@@ -773,13 +772,11 @@ class FlxSound extends FlxBasic {
 		@:privateAccess return _sound != null ? _sound.__buffer : null;
 
 	function update_amplitude():Void @:privateAccess {
-		if (_channel == null || _time == _amplitudeTime || !_amplitudeUpdate) return;
-		_channel.__updatePeaks();
+		if (_channel == null || !_channel.__updatePeaks() || !_amplitudeUpdate) return;
 
 		_amplitudeUpdate = false;
 		_amplitudeLeft = _channel.__leftPeak;
 		_amplitudeRight = _channel.__rightPeak;
-		_amplitudeTime = _time;
 	}
 
 	inline function get_amplitudeLeft():Float {
@@ -794,7 +791,7 @@ class FlxSound extends FlxBasic {
 
 	inline function get_amplitude():Float {
 		update_amplitude();
-		return if (stereo) (_amplitudeLeft + _amplitudeRight) * 0.5; else _amplitudeLeft;
+		return Math.max(_amplitudeLeft, _amplitudeRight);//if (stereo) (_amplitudeLeft + _amplitudeRight) * 0.5; else _amplitudeLeft;
 	}
 
 	inline function get_channels():Int
@@ -845,9 +842,9 @@ class FlxSound extends FlxBasic {
 			return _time;
 	}
 	function get_time():Float {
-		if (_channel == null || AudioManager.context == null) return _time;
+		if (_channel == null || /*AudioManager.context == null*/funkin.backend.system.Main.audioDisconnected /*CNE IMPLEMENTATION*/) return _time;
 
-		final pos = _channel.position + _offset;
+		final pos = _channel.position - _offset;
 		if (!playing || _realPitch <= 0) {
 			_lastTime = null;
 			return _time = pos;
@@ -876,7 +873,7 @@ class FlxSound extends FlxBasic {
 			}
 			else if (playing) {
 				_source.offset = 0;
-				_source.currentTime = time - _offset;
+				_source.currentTime = time + _offset;
 			}
 		}
 
@@ -887,7 +884,7 @@ class FlxSound extends FlxBasic {
 	inline function get_offset():Float return _offset;
 	inline function set_offset(offset:Float):Float {
 		if (_offset == (_offset = offset)) return offset;
-		//time = time - _offset;
+		//time = time + _offset;
 		return offset;
 	}
 

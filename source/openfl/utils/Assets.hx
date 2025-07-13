@@ -248,8 +248,7 @@ class Assets
 			var path = getPath(id);
 			// TODO: What if it is a WAV or non-Vorbis file?
 			var vorbisFile = VorbisFile.fromFile(path);
-			var buffer = AudioBuffer.fromVorbisFile(vorbisFile);
-			return Sound.fromAudioBuffer(buffer);
+			if (vorbisFile != null) return Sound.fromAudioBuffer(AudioBuffer.fromVorbisFile(vorbisFile));
 		}
 		#end
 		return getSound(id, useCache);

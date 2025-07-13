@@ -16,8 +16,13 @@ import haxe.Timer;
 class AudioSwitchFix {
 	public static function onAudioDisconnected() @:privateAccess {
 		var soundList:Array<FlxSound> = [FlxG.sound.music];
-		for (sound in FlxG.sound.list) if (sound.playing) soundList.push(sound);
-		for (source in AudioSource.activeSources) source.dispose();
+		for (sound in FlxG.sound.list) if (sound.playing) {
+			sound.pause();
+			soundList.push(sound);
+		}
+
+		var i = AudioSource.activeSources.length;
+		while (i-- > 0) AudioSource.activeSources[i].dispose();
 
 		AudioManager.shutdown();
 
@@ -36,7 +41,7 @@ class AudioSwitchFix {
 		// #end
 
 		for (sound in soundList) {
-			sound._paused = true;
+			sound.makeChannel();
 			sound.resume();
 		}
 

@@ -16,7 +16,6 @@ import lime.media.vorbis.VorbisFile;
 import lime.math.Vector4;
 import lime.media.AudioBuffer;
 import lime.media.AudioSource;
-import lime.system.System;
 import lime.utils.ArrayBufferView;
 
 #if !lime_debug
@@ -26,7 +25,7 @@ import lime.utils.ArrayBufferView;
 @:access(lime.media.AudioBuffer)
 @:access(lime.utils.ArrayBufferView)
 class NativeAudioSource {
-	private static var STREAM_BUFFER_SIZE:Int = 0x4000;
+	private static var STREAM_BUFFER_SIZE:Int = 0x4000; // what if it was odd channels (excluding mono).
 	private static var STREAM_MAX_BUFFERS:Int = 32;
 	private static var STREAM_TIMER_FREQUENCY:Int = 100;
 	private static var STREAM_BUFFER_FREQUENCY:Int = 6;
@@ -47,6 +46,7 @@ class NativeAudioSource {
 	private var streamTimer:Timer;
 	private var bufferDatas:Array<ArrayBufferView>;
 	private var bufferTimes:Array<Float>;
+	private var bufferSizes:Array<Int>;
 	private var requestBuffers:Int;
 	private var queuedBuffers:Int;
 	private var toLoop:Int;
@@ -74,30 +74,48 @@ class NativeAudioSource {
 		buffers = null;
 		bufferDatas = null;
 		bufferTimes = null;
+		bufferSizes = null;
 		unusedBuffers = null;
 	}
 
 	public function init() {
 		if (handle != null) return;
 
-		var buffer = parent.buffer;
-		if (buffer.channels == 1) format = buffer.bitsPerSample == 8 ? AL.FORMAT_MONO8 : AL.FORMAT_MONO16;
-		else format = buffer.bitsPerSample == 8 ? AL.FORMAT_STEREO8 : AL.FORMAT_STEREO16;
-
 		if (disposed = (handle = AL.createSource()) == null) return;
 		AL.sourcef(handle, AL.MAX_GAIN, 10);
 
-		if (streamed = buffer.__srcVorbisFile != null) {
-			dataLength = (samples = getFloat(buffer.__srcVorbisFile.pcmTotal())) * buffer.channels * (buffer.bitsPerSample == 8 ? 1 : 2);
+		var buffer = parent.buffer;
+		var channels = buffer.channels, bitsPerSample = buffer.bitsPerSample;
 
-			var constructor = buffer.bitsPerSample == 8 ? Int8 : Int16;
+		// Default is just AL.FORMAT_MONO8 if it doesn't match any to avoid yo ears getting blasted
+		var isCreativeXFi = AL.getString(AL.RENDERER) == "X-Fi";
+		if (channels > 2 && (isCreativeXFi || AL.isExtensionPresent("AL_EXT_MCFORMATS"))) { // https://github.com/openalext/openalext/blob/master/AL_EXT_MCFORMATS.txt
+			if (channels == 3) format = bitsPerSample == 32 ? 0x1209 : (bitsPerSample == 16 ? 0x1208 : 0x1207);
+			else if (channels == 4) format = bitsPerSample == 32 ? 0x1206 : (bitsPerSample == 16 ? 0x1205 : 0x1204);
+			else if (channels == 6) format = bitsPerSample == 32 ? 0x120C : (bitsPerSample == 16 ? 0x120B : 0x120A);
+			else if (channels == 7) format = bitsPerSample == 32 ? 0x120F : (bitsPerSample == 16 ? 0x120E : 0x120D);
+			else if (channels == 8) format = bitsPerSample == 32 ? 0x1212 : (bitsPerSample == 16 ? 0x1211 : 0x1210);
+		}
+		// The 32 bit for STEREO and MONO are undocumented? https://github.com/kcat/openal-soft/issues/934, though it only works in X-Fi OpenAL??
+		else if (bitsPerSample == 32 && isCreativeXFi) format = channels == 2 ? 0x1203 : 0x1202;
+		else if (channels == 2) format = bitsPerSample == 16 ? AL.FORMAT_STEREO16 : AL.FORMAT_STEREO8;
+		else format = bitsPerSample == 16 ? AL.FORMAT_MONO16 : AL.FORMAT_MONO8;
+
+		#if lime_vorbis
+		if (buffer.__srcVorbisFile != null) {
+			streamed = true;
+			dataLength = (samples = getFloat(buffer.__srcVorbisFile.pcmTotal())) * buffer.channels * (buffer.bitsPerSample >> 3);
+
+			var constructor = buffer.bitsPerSample == 32 ? Int32 : buffer.bitsPerSample == 16 ? Int16 : Int8;
 			buffers = AL.genBuffers(STREAM_MAX_BUFFERS);
 			bufferDatas = [for (i in 0...STREAM_MAX_BUFFERS) new ArrayBufferView(STREAM_BUFFER_SIZE, constructor)];
 			bufferTimes = [for (i in 0...STREAM_MAX_BUFFERS) 0];
+			bufferSizes = [for (i in 0...STREAM_MAX_BUFFERS) 0];
 			unusedBuffers = [];
 		}
-		else {
-			samples = (dataLength = getFloat(Int64.make(0, buffer.data.length))) / buffer.channels / (buffer.bitsPerSample == 8 ? 1 : 2);
+		else #end {
+			streamed = false;
+			samples = (dataLength = getFloat(Int64.make(0, buffer.data.length))) / buffer.channels / (buffer.bitsPerSample >> 3);
 
 			if (buffer.__srcBuffer == null && (buffer.__srcBuffer = AL.createBuffer()) != null)
 				AL.bufferData(buffer.__srcBuffer, format, buffer.data, buffer.data.length, buffer.sampleRate);
@@ -129,12 +147,8 @@ class NativeAudioSource {
 
 	public function stop() {
 		if (!disposed) {
-			if (AL.getSourcei(handle, AL.SOURCE_STATE) != AL.STOPPED) AL.sourceStop(handle);
-			if (streamed) {
-				AL.sourceUnqueueBuffers(handle, AL.getSourcei(handle, AL.BUFFERS_QUEUED));
-				unusedBuffers.resize(0);
-			}
-			requestBuffers = queuedBuffers = toLoop = 0;
+			AL.sourceStop(handle);
+			toLoop = 0;
 		}
 
 		playing = false;
@@ -152,31 +166,29 @@ class NativeAudioSource {
 	// just incase if we support more than 1 in the future?? which i doubt
 	private function streamTell():Float {
 		#if lime_vorbis
-		/*if (parent.buffer.__srcVorbisFile != null) */return parent.buffer.__srcVorbisFile.timeTell();
-		#end
+		return parent.buffer.__srcVorbisFile.timeTell();
+		#else
 		return 0;
+		#end
 	}
 
 	private function streamSeek(samples:Int64) {
 		#if lime_vorbis
-		//if (parent.buffer.__srcVorbisFile != null) {
-			// There's apparently a bug in libvorbis <= 1.3.4, hhttps://github.com/xiph/vorbis/blob/master/CHANGES#L39
-			// But it seems to also happen in this lime libvorbis version which is 1.3.7...? -ralty
-			if (samples < 4) parent.buffer.__srcVorbisFile.rawSeek(0); else parent.buffer.__srcVorbisFile.pcmSeek(samples);
-		//	break;
-		//}
+		// There's apparently a bug in libvorbis <= 1.3.4, hhttps://github.com/xiph/vorbis/blob/master/CHANGES#L39
+		// But it seems to also happen in this lime libvorbis version which is 1.3.7...? -ralty
+		if (samples < 4) parent.buffer.__srcVorbisFile.rawSeek(0); else parent.buffer.__srcVorbisFile.pcmSeek(samples);
 		#end
 	}
 
 	private function readToBufferData(data:ArrayBufferView):Int {
-		var total = 0, result = 0, wasEOF = false;
-		var bigEndian = System.endianness == lime.system.Endian.BIG_ENDIAN, wordSize = parent.buffer.bitsPerSample == 8 ? 1 : 2;
+		#if lime_vorbis
+		var isBigEndian = lime.system.System.endianness == lime.system.Endian.BIG_ENDIAN, wordSize = parent.buffer.bitsPerSample >> 3;
 		var size = dataLength - (streamTell() * parent.buffer.sampleRate * parent.buffer.channels * wordSize);
 		var n:Int = size < STREAM_BUFFER_SIZE ? Math.floor(size) : STREAM_BUFFER_SIZE;
 
-		var vorbisFile = parent.buffer.__srcVorbisFile;
+		var total = 0, result = 0, wasEOF = false;
 		while (total < STREAM_BUFFER_SIZE) {
-			result = n > 0 ? vorbisFile.read(data.buffer, total, n, bigEndian, wordSize, true) : 0;
+			result = n > 0 ? parent.buffer.__srcVorbisFile.read(data.buffer, total, n, isBigEndian, wordSize, true) : 0;
 
 			if (result == Vorbis.HOLE) continue;
 			else if (result <= Vorbis.EREAD) break;
@@ -205,36 +217,37 @@ class NativeAudioSource {
 			return result;
 		}
 		return total;
-	}
-
-	private function cycleBuffer() {
-		var i = STREAM_MAX_BUFFERS - (queuedBuffers = requestBuffers), n = STREAM_MAX_BUFFERS - 1;
-		var data = bufferDatas[i], time = bufferTimes[i];
-		while (i < n) {
-			bufferDatas[i] = bufferDatas[i + 1];
-			bufferTimes[i] = bufferTimes[++i];
-		}
-		bufferDatas[n] = data;
-		bufferTimes[n] = time;
+		#else
+		return 0;
+		#end
 	}
 
 	private function fillBuffer(buffer:ALBuffer):Int {
-		var i = STREAM_MAX_BUFFERS - requestBuffers, time = streamTell();
-		var decoded = readToBufferData(bufferDatas[i]);
+		var i = STREAM_MAX_BUFFERS - requestBuffers;
+		var data = bufferDatas[i], time = streamTell();
+		var decoded = readToBufferData(data);
 
 		if (decoded > 0) {
-			AL.bufferData(buffer, format, bufferDatas[i], decoded, parent.buffer.sampleRate);
-			bufferTimes[i] = time;
-			cycleBuffer();
+			AL.bufferData(buffer, format, data, decoded, parent.buffer.sampleRate);
+
+			var n = STREAM_MAX_BUFFERS - 1;
+			while (i < n) {
+				bufferDatas[i] = bufferDatas[i + 1];
+				bufferTimes[i] = bufferTimes[i + 1];
+				bufferSizes[i] = bufferSizes[++i];
+			}
+			queuedBuffers = requestBuffers;
+			bufferDatas[n] = data;
+			bufferTimes[n] = time;
+			bufferSizes[n] = decoded;
 		}
 
 		return decoded;
 	}
 
 	private function streamRun() {
-		#if lime_vorbis
 		if (parent == null || parent.buffer == null || handle == null) return dispose();
-		if (!playing || disposed) stopStreamTimer();
+		if (!playing || disposed) return stopStreamTimer();
 
 		try {
 			var processed = AL.getSourcei(handle, AL.BUFFERS_PROCESSED), n = STREAM_BUFFER_FREQUENCY, buffer;
@@ -264,25 +277,28 @@ class NativeAudioSource {
 					else requestBuffers--;
 				}
 			}
-
-			if (AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED) {
-				AL.sourcePlay(handle);
-				resetTimer((getLength() - getCurrentTime()) / getPitch());
-			}
 		}
 		catch(e) trace('NativeAudioSource Bug! in streamRun $e');
-		#end
+
+		if (AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED) AL.sourcePlay(handle);
+		if (streamEnded && timer == null) resetTimer((getLength() - getCurrentTime()) / getPitch());
 	}
 
 	// Timers
-	inline function stopStreamTimer() if (streamTimer != null) streamTimer.stop();
+	inline function stopStreamTimer() {
+		if (streamTimer != null) streamTimer.stop();
+		streamTimer = null;
+	}
 
 	private function resetStreamTimer() {
 		stopStreamTimer();
 		if (streamed) (streamTimer = new Timer(STREAM_TIMER_FREQUENCY)).run = streamRun;
 	}
 
-	inline function stopTimer() if (timer != null) timer.stop();
+	inline function stopTimer() {
+		if (timer != null) timer.stop();
+		timer = null;
+	}
 
 	private function resetTimer(timeRemaining:Float) {
 		stopTimer();
@@ -290,6 +306,8 @@ class NativeAudioSource {
 	}
 
 	private function timer_onRun() {
+		stopTimer();
+
 		var timeRemaining = (getLength() - getCurrentTime()) / getPitch();
 		if (timeRemaining > 30 && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING) {
 			resetTimer(timeRemaining);
@@ -317,66 +335,69 @@ class NativeAudioSource {
 	// Get & Set Methods
 	public function getCurrentTime():Float {
 		if (completed) return getLength();
-		else if (!disposed) {
-			var time = ((streamed ? bufferTimes[STREAM_MAX_BUFFERS - queuedBuffers] : 0) + AL.getSourcef(handle, AL.SEC_OFFSET)) * 1000 - parent.offset;
-			if (loops > 0 && time > getLength()) {
-				var start = (loopTime != null ? Math.max(0, loopTime) : 0) + parent.offset;
-				return ((time - start) % (getLength() - start)) + start;
-			}
-			else if (time > 0) return time;
+		else if (disposed) return 0;
+
+		var time = AL.getSourcef(handle, AL.SAMPLE_OFFSET) / parent.buffer.sampleRate;
+		if (streamed) time += bufferTimes[STREAM_MAX_BUFFERS - queuedBuffers];
+		time *= 1000;
+
+		var length = if (length == null) getRealLength(); else length;
+		if (loops > 0 && time > length) {
+			var start = loopTime != null ? Math.max(0, loopTime) : 0;
+			return ((time - start) % (length - start)) + start - parent.offset;
 		}
-		return 0;
+
+		return time - parent.offset;
 	}
 
 	public function setCurrentTime(value:Float):Float {
 		if (disposed) return value;
 
-		if (streamed) {
-			AL.sourceStop(handle);
-			AL.sourceUnqueueBuffers(handle, AL.getSourcei(handle, AL.BUFFERS_QUEUED));
-
-			unusedBuffers.resize(0);
-			streamSeek(getSamples(value + parent.offset));
-		}
-		else
-			AL.sourcei(handle, AL.SAMPLE_OFFSET, getSamples(value + parent.offset));
+		if (streamed) AL.sourceStop(handle);
+		else AL.sourcei(handle, AL.SAMPLE_OFFSET, getSamples(value + parent.offset));
 
 		if (playing) {
-			var timeRemaining = (getLength() - value) / AL.getSourcef(handle, AL.PITCH);
-			if (timeRemaining > 0) {
+			var timeRemaining = (getLength() - value) / getPitch();
+			if (completed = timeRemaining <= 0) complete();
+			else {
 				if (streamed) {
+					AL.sourceUnqueueBuffers(handle, AL.getSourcei(handle, AL.BUFFERS_QUEUED));
+
+					unusedBuffers.resize(0);
+					streamSeek(getSamples(value + parent.offset));
+
 					for (i in 0...(requestBuffers = queuedBuffers = STREAM_BUFFER_FREQUENCY))
 						if (fillBuffer(buffers[i]) > 0) AL.sourceQueueBuffer(handle, buffers[i]);
 
 					resetStreamTimer();
 				}
-				resetTimer(timeRemaining);
+				else
+					resetTimer(timeRemaining);
+
 				AL.sourcePlay(handle);
 			}
-			else {
-				stopStreamTimer();
-				complete();
-			}
 		}
+
+		if (!playing && streamed) bufferTimes[STREAM_MAX_BUFFERS - (requestBuffers = queuedBuffers = 1)] = value / 1000;
 
 		return value;
 	}
 
 	inline private function getRealLength():Float return samples / parent.buffer.sampleRate * 1000;
-	public function getLength():Null<Float> {
-		return if (length == null) getRealLength() - parent.offset;
-		else length - parent.offset;
-	}
+	public function getLength():Null<Float>
+		return if (disposed) 0; else if (length == null) getRealLength() - parent.offset; else length - parent.offset;
 
 	public function setLength(value:Null<Float>):Null<Float> {
 		if (value == length || disposed) return length = value;
 
-		var buffer = parent.buffer, wordSize = buffer.bitsPerSample == 8 ? 1 : 2;
+		var buffer = parent.buffer, wordSize = buffer.bitsPerSample >> 3;
 		if ((length = value) == null) dataLength = streamed ? samples * buffer.channels * wordSize : getFloat(Int64.make(0, buffer.data.length));
 		else dataLength = Math.ffloor(Math.max(0, Math.min(value, getRealLength())) / 1000 * buffer.sampleRate) * buffer.channels * wordSize;
 
 		if (playing) {
-			if (streamed) setCurrentTime(getCurrentTime());
+			if (streamed) {
+				if (streamEnded || toLoop > 0) setCurrentTime(getCurrentTime());
+			}
 			else {
 				var timeRemaining = ((getLength() - parent.offset) - getCurrentTime()) / getPitch();
 				if (timeRemaining > 0) resetTimer(timeRemaining);
@@ -392,12 +413,9 @@ class NativeAudioSource {
 
 	public function setPitch(value:Float):Float {
 		if (disposed || value == AL.getSourcef(handle, AL.PITCH)) return value;
-		if (playing) {
-			if (value <= 0) stopTimer();
-			else {
-				var timeRemaining = (getLength() - getCurrentTime()) / value;
-				if (timeRemaining > 0) resetTimer(timeRemaining);
-			}
+		if (playing && (streamEnded || !streamed)) {
+			var timeRemaining = (getLength() - getCurrentTime()) / value;
+			if (timeRemaining > 0) resetTimer(timeRemaining);
 		}
 		AL.sourcef(handle, AL.PITCH, value);
 		return value;
@@ -454,6 +472,6 @@ class NativeAudioSource {
 		return position;
 	}
 
-	inline private function getFloat(x:Int64):Float return x.high * 4294967296. + (x.low >>> 0);
+	inline private function getFloat(x:Int64):Float return x.high * 4294967296. + (x.low >> 0);
 	inline private function getSamples(ms:Float):Int64 return Int64.fromFloat(Math.max(0, Math.min(ms / 1000 * parent.buffer.sampleRate, samples)));
 }

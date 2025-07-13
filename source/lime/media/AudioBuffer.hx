@@ -105,10 +105,7 @@ class AudioBuffer
 		__srcBuffer = null;
 		#end
 		#if lime_vorbis
-		if (__srcVorbisFile != null) {
-			__srcVorbisFile.clear();
-			@:privateAccess __srcVorbisFile.handle = null;
-		}
+		if (__srcVorbisFile != null) __srcVorbisFile.clear();
 		__srcVorbisFile = null;
 		#end
 	}
@@ -131,7 +128,7 @@ class AudioBuffer
 		}
 
 		var audioBuffer = new AudioBuffer();
-		audioBuffer.src = new Howl({src: [base64String], html5: true, preload: false});
+		audioBuffer.src = new Howl({src: [base64String], preload: false});
 		return audioBuffer;
 		#elseif (lime_cffi && !macro)
 		#if !cs
@@ -177,7 +174,7 @@ class AudioBuffer
 
 		#if (js && html5 && lime_howlerjs)
 		var audioBuffer = new AudioBuffer();
-		audioBuffer.src = new Howl({src: ["data:" + __getCodec(bytes) + ";base64," + Base64.encode(bytes)], html5: true, preload: false});
+		audioBuffer.src = new Howl({src: ["data:" + __getCodec(bytes) + ";base64," + Base64.encode(bytes)], preload: false});
 
 		return audioBuffer;
 		#elseif (lime_cffi && !macro)

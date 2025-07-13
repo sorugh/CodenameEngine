@@ -823,7 +823,6 @@ class CoolUtil
 		if (frontEnd.music != null) @:privateAccess frontEnd.destroySound(frontEnd.music);
 		frontEnd.list.remove(music);
 		frontEnd.defaultMusicGroup.add(frontEnd.music = music);
-		music.persist = true;
 	}
 
 	/**

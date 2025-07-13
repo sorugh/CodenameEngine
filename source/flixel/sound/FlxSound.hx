@@ -684,7 +684,7 @@ class FlxSound extends FlxBasic {
 			#end
 
 			_channel.soundTransform = _transform;
-			_channel.__lastPeakSamples = 0;
+			_channel.__lastPeakTime = -10;
 			_channel.__leftPeak = 0;
 			_channel.__rightPeak = 0;
 			_channel.addEventListener(Event.SOUND_COMPLETE, stopped);
@@ -772,7 +772,7 @@ class FlxSound extends FlxBasic {
 		@:privateAccess return _sound != null ? _sound.__buffer : null;
 
 	function update_amplitude():Void @:privateAccess {
-		if (_channel == null || !_channel.__updatePeaks() || !_amplitudeUpdate) return;
+		if (_channel == null || !_channel.__updatePeaks(get_time()) || !_amplitudeUpdate) return;
 
 		_amplitudeUpdate = false;
 		_amplitudeLeft = _channel.__leftPeak;

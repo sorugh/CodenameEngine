@@ -48,7 +48,7 @@ class AudioAnalyzer {
 		if (useSeperate) {
 			while (c < outSeperate.length) outSeperate[c++] *= __bitSize;
 			while (c++ < buffer.channels) outSeperate.push(0);
-			c = 0;
+			c = Math.floor((pos % (__wordSize * buffer.channels)) / __wordSize);
 		}
 		if (__wordSize == 1) { // 8-bit audio data is unsigned (0 is 128, 128 is 256, -128 is 0)
 			while (pos < end) {
@@ -113,7 +113,7 @@ class AudioAnalyzer {
 		if (useSeperate) {
 			while (c < outSeperate.length) outSeperate[c++] *= __bitSize;
 			while (c++ < buffer.channels) outSeperate.push(0);
-			c = 0;
+			c = Math.floor((pos % (__wordSize * buffer.channels)) / __wordSize);
 		}
 		while (n > 0) {
 			n -= (result = __vorbis.read(__buffer, 0, n < bufferSize ? n : bufferSize, isBigEndian, __wordSize, true));

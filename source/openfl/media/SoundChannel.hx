@@ -82,7 +82,7 @@ import lime.media.openal.AL;
 	@:noCompletion private var __sound:Sound;
 	@:noCompletion private var __isValid:Bool;
 	@:noCompletion private var __soundTransform:SoundTransform;
-	@:noCompletion private var __lastPeakSamples:Float;
+	@:noCompletion private var __lastPeakTime:Float;
 	@:noCompletion private var __leftPeak:Float;
 	@:noCompletion private var __rightPeak:Float;
 	#if lime
@@ -151,32 +151,32 @@ import lime.media.openal.AL;
 		this.soundTransform = soundTransform;
 	}
 
-	@:noCompletion private function __updatePeaks():Bool
+	@:noCompletion private function __updatePeaks(time:Float):Bool
 	{
-		var backend = __source.__backend;
-		var samples = AL.getSourcef(backend.handle, AL.SAMPLE_OFFSET);
-		if (__lastPeakSamples == samples) return false;
+		if (Math.abs(time - __lastPeakTime) < 8) return false;
 
-		__lastPeakSamples = samples;
+		__lastPeakTime = time;
 		__leftPeak = __rightPeak = 0;
 		#if (lime_cffi && !macro)
 		if (!__isValid) return false;
 
-		var buffer = __source.buffer;
+		var backend = __source.__backend, buffer = __source.buffer;
 		var wordSize = buffer.bitsPerSample >> 3, bitUnsignedSize = 1 << buffer.bitsPerSample, bitSize = 1 << (buffer.bitsPerSample - 1);
-		var pos = Math.floor(samples * buffer.channels * wordSize), size = 0, i = 0, buf;
-		pos -= pos % wordSize;
+		var pos = Math.floor(time * buffer.sampleRate / 1000 * buffer.channels * wordSize), size = 0, i = 0, buf;
 
 		if (backend.streamed) {
 			buf = backend.bufferDatas[i = NativeAudioSource.STREAM_MAX_BUFFERS - backend.queuedBuffers] #if !js .buffer #end;
 			size = backend.bufferSize;
+			pos -= Math.floor(backend.bufferTimes[i] * buffer.sampleRate * buffer.channels * wordSize);
 		}
 		else {
 			buf = buffer.data #if !js .buffer #end;
 			size = #if js buf.byteLength #else buf.length #end;
 		}
 
-		var n = Math.floor(Math.min(buffer.sampleRate / 80, 512)), b = 0, w = 0, c = 0;
+		var n = Math.floor(Math.min(buffer.sampleRate / 80, 512)), c = Math.floor((pos % (wordSize * buffer.channels)) / wordSize), b = 0, w = 0;
+		pos -= pos % wordSize;
+
 		while (n > 0) {
 			if (wordSize == 1) b = #if js buf[pos] #else buf.get(pos) #end - bitSize;
 			else {
@@ -378,13 +378,13 @@ import lime.media.openal.AL;
 
 	@:noCompletion private function get_leftPeak():Float
 	{
-		__updatePeaks();
+		__updatePeaks(get_position());
 		return __leftPeak * (soundTransform == null ? 1 : soundTransform.volume);
 	}
 
 	@:noCompletion private function get_rightPeak():Float
 	{
-		__updatePeaks();
+		__updatePeaks(get_position());
 		return __rightPeak * (soundTransform == null ? 1 : soundTransform.volume);
 	}
 

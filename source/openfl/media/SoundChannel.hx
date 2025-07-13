@@ -164,20 +164,19 @@ import lime.media.openal.AL;
 
 		var buffer = __source.buffer;
 		var wordSize = buffer.bitsPerSample >> 3, bitUnsignedSize = 1 << buffer.bitsPerSample, bitSize = 1 << (buffer.bitsPerSample - 1);
-		var pos = Math.floor(samples * buffer.channels * wordSize);
-		var n = Math.floor(Math.min(buffer.sampleRate / 80, 600)), b = 0, w = 0, c = 0, i = 0, size = 0, buf;
+		var pos = Math.floor(samples * buffer.channels * wordSize), size = 0, i = 0, buf;
+		pos -= pos % wordSize;
 
 		if (backend.streamed) {
 			buf = backend.bufferDatas[i = NativeAudioSource.STREAM_MAX_BUFFERS - backend.queuedBuffers] #if !js .buffer #end;
-			pos %= (size = NativeAudioSource.STREAM_BUFFER_SIZE * wordSize);
+			size = backend.bufferSize;
 		}
 		else {
 			buf = buffer.data #if !js .buffer #end;
 			size = #if js buf.byteLength #else buf.length #end;
 		}
 
-		pos -= pos % wordSize;
-
+		var n = Math.floor(Math.min(buffer.sampleRate / 80, 512)), b = 0, w = 0, c = 0;
 		while (n > 0) {
 			if (wordSize == 1) b = #if js buf[pos] #else buf.get(pos) #end - bitSize;
 			else {

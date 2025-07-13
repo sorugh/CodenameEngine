@@ -25,7 +25,7 @@ import lime.utils.ArrayBufferView;
 @:access(lime.media.AudioBuffer)
 @:access(lime.utils.ArrayBufferView)
 class NativeAudioSource {
-	private static var STREAM_BUFFER_SIZE:Int = 0x4000; // what if it was odd channels (excluding mono).
+	private static var STREAM_BUFFER_SIZE:Int = 0x1000;
 	private static var STREAM_MAX_BUFFERS:Int = 32;
 	private static var STREAM_TIMER_FREQUENCY:Int = 100;
 	private static var STREAM_BUFFER_FREQUENCY:Int = 6;
@@ -47,6 +47,7 @@ class NativeAudioSource {
 	private var bufferDatas:Array<ArrayBufferView>;
 	private var bufferTimes:Array<Float>;
 	private var bufferSizes:Array<Int>;
+	private var bufferSize:Int;
 	private var requestBuffers:Int;
 	private var queuedBuffers:Int;
 	private var toLoop:Int;
@@ -107,11 +108,13 @@ class NativeAudioSource {
 			dataLength = (samples = getFloat(buffer.__srcVorbisFile.pcmTotal())) * buffer.channels * (buffer.bitsPerSample >> 3);
 
 			var constructor = buffer.bitsPerSample == 32 ? Int32 : buffer.bitsPerSample == 16 ? Int16 : Int8;
+			bufferSize = STREAM_BUFFER_SIZE * buffer.channels * (constructor == Int8 ? buffer.bitsPerSample >> 3 : 1);
 			buffers = AL.genBuffers(STREAM_MAX_BUFFERS);
-			bufferDatas = [for (i in 0...STREAM_MAX_BUFFERS) new ArrayBufferView(STREAM_BUFFER_SIZE, constructor)];
+			bufferDatas = [for (i in 0...STREAM_MAX_BUFFERS) new ArrayBufferView(bufferSize, constructor)];
 			bufferTimes = [for (i in 0...STREAM_MAX_BUFFERS) 0];
 			bufferSizes = [for (i in 0...STREAM_MAX_BUFFERS) 0];
 			unusedBuffers = [];
+			bufferSize *= constructor == Int8 ? 1 : buffer.bitsPerSample >> 3;
 		}
 		else #end {
 			streamed = false;
@@ -184,10 +187,10 @@ class NativeAudioSource {
 		#if lime_vorbis
 		var isBigEndian = lime.system.System.endianness == lime.system.Endian.BIG_ENDIAN, wordSize = parent.buffer.bitsPerSample >> 3;
 		var size = dataLength - (streamTell() * parent.buffer.sampleRate * parent.buffer.channels * wordSize);
-		var n:Int = size < STREAM_BUFFER_SIZE ? Math.floor(size) : STREAM_BUFFER_SIZE;
+		var n:Int = size < bufferSize ? Math.floor(size) : bufferSize;
 
 		var total = 0, result = 0, wasEOF = false;
-		while (total < STREAM_BUFFER_SIZE) {
+		while (total < bufferSize) {
 			result = n > 0 ? parent.buffer.__srcVorbisFile.read(data.buffer, total, n, isBigEndian, wordSize, true) : 0;
 
 			if (result == Vorbis.HOLE) continue;
@@ -200,7 +203,7 @@ class NativeAudioSource {
 
 					var samples = getSamples(loopTime != null ? loopTime + parent.offset : parent.offset);
 					streamSeek(samples);
-					if ((size = dataLength - (getFloat(samples) * parent.buffer.channels * wordSize)) < (n = STREAM_BUFFER_SIZE - total))
+					if ((size = dataLength - (getFloat(samples) * parent.buffer.channels * wordSize)) < (n = bufferSize - total))
 						n = Math.floor(size);
 				}
 			}
@@ -211,7 +214,7 @@ class NativeAudioSource {
 			}
 		}
 
-		if (total < STREAM_BUFFER_SIZE) data.buffer.fill(total, n, 0);
+		if (total < bufferSize) data.buffer.fill(total, n, 0);
 		if (result < 0) {
 			trace('NativeAudioSource Streaming Bug! reading result is $result');
 			return result;

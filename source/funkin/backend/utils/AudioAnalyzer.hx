@@ -2,11 +2,11 @@ package funkin.backend.utils;
 
 import flixel.sound.FlxSound;
 import lime.media.AudioBuffer;
-import lime.utils.ArrayBufferView;
 
 #if lime_vorbis
 import lime.media.vorbis.Vorbis;
 import lime.media.vorbis.VorbisFile;
+import lime.utils.ArrayBuffer;
 #end
 
 // ORIGINAL CODES FROM YOSH & LUNAR https://github.com/CodenameCrew/YoshiCrafterEngine/blob/main/source/WaveformSprite.hx
@@ -72,12 +72,12 @@ class AudioAnalyzer {
 	}
 
 	#if lime_vorbis // As far i know, only native supports vorbis
-	var __buffer:ArrayBufferView;
+	var __buffer:ArrayBuffer;
 	function __prepareVorbis():Bool @:privateAccess {
 		if (buffer.__srcVorbisFile == null) return __vorbis != null;
 		if (__vorbis != null) return true;
 		if ((__vorbis = buffer.__srcVorbisFile.clone()) != null) { // IM HOPING IT HAVE A GC CLOSURE.
-			__buffer = new ArrayBufferView(0x1000, buffer.bitsPerSample == 32 ? Int32 : buffer.bitsPerSample == 16 ? Int16 : Int8);
+			__buffer = new ArrayBuffer(0x400 * buffer.channels * (buffer.bitsPerSample >> 3));
 			return true;
 		}
 		return false;
@@ -95,17 +95,17 @@ class AudioAnalyzer {
 			prevPos = Math.floor(endPos);
 		}
 
-		var isBigEndian = lime.system.System.endianness == lime.system.Endian.BIG_ENDIAN, bufferSize = __buffer.length, buf = __buffer.buffer;
+		var isBigEndian = lime.system.System.endianness == lime.system.Endian.BIG_ENDIAN, bufferSize = __buffer.length;
 		var max = 0, b = 0, pos = 0, w = 0, result;
 		while (n > 0) {
-			n -= (result = __vorbis.read(buf, 0, n < bufferSize ? n : bufferSize, isBigEndian, __wordSize, true));
+			n -= (result = __vorbis.read(__buffer, 0, n < bufferSize ? n : bufferSize, isBigEndian, __wordSize, true));
 
 			if (result == Vorbis.HOLE) continue;
 			else if (result <= 0) break;
 
 			while (pos < result) {
 				while (w < buffer.bitsPerSample) {
-					b |= #if js buf[pos] #else buf.get(pos) #end << w;
+					b |= #if js __buffer[pos] #else __buffer.get(pos) #end << w;
 					w += 8;
 					pos++;
 				}

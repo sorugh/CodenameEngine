@@ -296,11 +296,6 @@ class FlxSound extends FlxBasic {
 		active = false;
 		_lastTime = null;
 
-		if (_source != null) {
-			_source.onComplete.remove(stopped);
-			_source.onLoop.remove(source_looped);
-		}
-
 		if (destroySound) {
 			onFinish.removeAll();
 
@@ -310,7 +305,11 @@ class FlxSound extends FlxBasic {
 				_channel.stop();
 				_channel = null;
 			}
-			if (_source != null) _source.dispose();
+			if (_source != null) {
+				_source.onComplete.remove(stopped);
+				_source.onLoop.remove(source_looped);
+				_source.dispose();
+			}
 			_source = null;
 			_sound = null;
 

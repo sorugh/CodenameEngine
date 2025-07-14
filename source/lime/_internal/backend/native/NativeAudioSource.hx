@@ -25,7 +25,7 @@ import lime.utils.ArrayBufferView;
 @:access(lime.media.AudioBuffer)
 @:access(lime.utils.ArrayBufferView)
 class NativeAudioSource {
-	private static var STREAM_BUFFER_SIZE:Int = 0x1000;
+	private static var STREAM_BUFFER_SAMPLES:Int = 0x1000;
 	private static var STREAM_MAX_BUFFERS:Int = 32;
 	private static var STREAM_TIMER_FREQUENCY:Int = 100;
 	private static var STREAM_BUFFER_FREQUENCY:Int = 6;
@@ -102,13 +102,22 @@ class NativeAudioSource {
 		else if (channels == 2) format = bitsPerSample == 16 ? AL.FORMAT_STEREO16 : AL.FORMAT_STEREO8;
 		else format = bitsPerSample == 16 ? AL.FORMAT_MONO16 : AL.FORMAT_MONO8;
 
+		if (buffer.data != null) {
+			streamed = false;
+			samples = (dataLength = (buffer.data.length >> 0)) / buffer.channels / (buffer.bitsPerSample >> 3);
+
+			if (buffer.__srcBuffer == null && (buffer.__srcBuffer = AL.createBuffer()) != null)
+				AL.bufferData(buffer.__srcBuffer, format, buffer.data, buffer.data.length, buffer.sampleRate);
+
+			AL.sourcei(handle, AL.BUFFER, buffer.__srcBuffer);
+		}
 		#if lime_vorbis
-		if (buffer.__srcVorbisFile != null) {
+		else if (buffer.__srcVorbisFile != null) {
 			streamed = true;
 			dataLength = (samples = getFloat(buffer.__srcVorbisFile.pcmTotal())) * buffer.channels * (buffer.bitsPerSample >> 3);
 
 			var constructor = buffer.bitsPerSample == 32 ? Int32 : buffer.bitsPerSample == 16 ? Int16 : Int8;
-			bufferSize = STREAM_BUFFER_SIZE * buffer.channels * (constructor == Int8 ? buffer.bitsPerSample >> 3 : 1);
+			bufferSize = STREAM_BUFFER_SAMPLES * buffer.channels * (constructor == Int8 ? buffer.bitsPerSample >> 3 : 1);
 			buffers = AL.genBuffers(STREAM_MAX_BUFFERS);
 			bufferDatas = [for (i in 0...STREAM_MAX_BUFFERS) new ArrayBufferView(bufferSize, constructor)];
 			bufferTimes = [for (i in 0...STREAM_MAX_BUFFERS) 0];
@@ -116,15 +125,7 @@ class NativeAudioSource {
 			unusedBuffers = [];
 			bufferSize *= constructor == Int8 ? 1 : buffer.bitsPerSample >> 3;
 		}
-		else #end {
-			streamed = false;
-			samples = (dataLength = getFloat(Int64.make(0, buffer.data.length))) / buffer.channels / (buffer.bitsPerSample >> 3);
-
-			if (buffer.__srcBuffer == null && (buffer.__srcBuffer = AL.createBuffer()) != null)
-				AL.bufferData(buffer.__srcBuffer, format, buffer.data, buffer.data.length, buffer.sampleRate);
-
-			AL.sourcei(handle, AL.BUFFER, buffer.__srcBuffer);
-		}
+		#end
 
 		if (dataLength == 0) {
 			trace('NativeAudioSource Bug! dataLength is 0');
@@ -188,6 +189,7 @@ class NativeAudioSource {
 		var isBigEndian = lime.system.System.endianness == lime.system.Endian.BIG_ENDIAN, wordSize = parent.buffer.bitsPerSample >> 3;
 		var size = dataLength - (streamTell() * parent.buffer.sampleRate * parent.buffer.channels * wordSize);
 		var n:Int = size < bufferSize ? Math.floor(size) : bufferSize;
+		n -= n % (parent.buffer.channels * wordSize);
 
 		var total = 0, result = 0, wasEOF = false;
 		while (total < bufferSize) {
@@ -203,8 +205,8 @@ class NativeAudioSource {
 
 					var samples = getSamples(loopTime != null ? loopTime + parent.offset : parent.offset);
 					streamSeek(samples);
-					if ((size = dataLength - (getFloat(samples) * parent.buffer.channels * wordSize)) < (n = bufferSize - total))
-						n = Math.floor(size);
+					if ((size = dataLength - (getFloat(samples) * parent.buffer.channels * wordSize)) < (n = bufferSize - total)) n = Math.floor(size);
+					n -= n % (parent.buffer.channels * wordSize);
 				}
 			}
 			else {
@@ -216,7 +218,7 @@ class NativeAudioSource {
 
 		if (total < bufferSize) data.buffer.fill(total, n, 0);
 		if (result < 0) {
-			trace('NativeAudioSource Streaming Bug! reading result is $result');
+			trace('NativeAudioSource Streaming Bug! reading result is $result, streamEnded: $streamEnded, total: $total, n: $n');
 			return result;
 		}
 		return total;
@@ -283,8 +285,10 @@ class NativeAudioSource {
 		}
 		catch(e) trace('NativeAudioSource Bug! in streamRun $e');
 
-		if (AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED) AL.sourcePlay(handle);
-		if (streamEnded && timer == null) resetTimer((getLength() - getCurrentTime()) / getPitch());
+		if (AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED) {
+			AL.sourcePlay(handle);
+			resetTimer((getLength() - getCurrentTime()) / getPitch());
+		}
 	}
 
 	// Timers
@@ -309,10 +313,8 @@ class NativeAudioSource {
 	}
 
 	private function timer_onRun() {
-		stopTimer();
-
 		var timeRemaining = (getLength() - getCurrentTime()) / getPitch();
-		if (timeRemaining > 30 && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING) {
+		if (timeRemaining > 100 && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING && (!streamed || !streamEnded)) {
 			resetTimer(timeRemaining);
 			return;
 		}
@@ -322,14 +324,16 @@ class NativeAudioSource {
 			return;
 		}
 
+		var start = loopTime != null ? loopTime : 0;
 		if (toLoop <= 0) {
-			var start = loopTime != null ? loopTime : 0;
 			setLoops(--loops);
 			if (start > 0 || AL.getSourcei(handle, AL.SOURCE_STATE) != AL.PLAYING) setCurrentTime(start);
+			else resetTimer((getLength() - start) / getPitch());
 		}
 		else {
 			if ((loops -= toLoop) < 0) loops = 0;
 			toLoop = 0;
+			resetTimer((getLength() - start) / getPitch());
 		}
 
 		parent.onLoop.dispatch();
@@ -337,11 +341,18 @@ class NativeAudioSource {
 
 	// Get & Set Methods
 	public function getCurrentTime():Float {
-		if (completed) return getLength();
-		else if (disposed) return 0;
+		if (disposed) return 0;
+		else if (completed) return getLength();
 
 		var time = AL.getSourcef(handle, AL.SAMPLE_OFFSET) / parent.buffer.sampleRate;
-		if (streamed) time += bufferTimes[STREAM_MAX_BUFFERS - queuedBuffers];
+		if (streamed) {
+			if (playing && streamEnded && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED) {
+				complete();
+				return getLength();
+			}
+			else
+				time += bufferTimes[STREAM_MAX_BUFFERS - queuedBuffers];
+		}
 		time *= 1000;
 
 		var length = if (length == null) getRealLength(); else length;
@@ -361,22 +372,25 @@ class NativeAudioSource {
 
 		if (playing) {
 			var timeRemaining = (getLength() - value) / getPitch();
-			if (completed = timeRemaining <= 0) complete();
+			if (timeRemaining < 8) complete();
 			else {
+				completed = streamEnded = false;
 				if (streamed) {
 					AL.sourceUnqueueBuffers(handle, AL.getSourcei(handle, AL.BUFFERS_QUEUED));
 
 					unusedBuffers.resize(0);
 					streamSeek(getSamples(value + parent.offset));
 
-					for (i in 0...(requestBuffers = queuedBuffers = STREAM_BUFFER_FREQUENCY))
-						if (fillBuffer(buffers[i]) > 0) AL.sourceQueueBuffer(handle, buffers[i]);
+					requestBuffers = queuedBuffers = STREAM_BUFFER_FREQUENCY;
+					for (i in 0...queuedBuffers) {
+						if (!streamEnded && fillBuffer(buffers[i]) > 0) AL.sourceQueueBuffer(handle, buffers[i]);
+						else queuedBuffers = --requestBuffers;
+					}
 
-					resetStreamTimer();
+					if (!streamEnded) resetStreamTimer();
 				}
-				else
-					resetTimer(timeRemaining);
 
+				resetTimer(timeRemaining);
 				AL.sourcePlay(handle);
 			}
 		}
@@ -398,9 +412,7 @@ class NativeAudioSource {
 		else dataLength = Math.ffloor(Math.max(0, Math.min(value, getRealLength())) / 1000 * buffer.sampleRate) * buffer.channels * wordSize;
 
 		if (playing) {
-			if (streamed) {
-				if (streamEnded || toLoop > 0) setCurrentTime(getCurrentTime());
-			}
+			if (streamed && (streamEnded || toLoop > 0)) setCurrentTime(getCurrentTime());
 			else {
 				var timeRemaining = ((getLength() - parent.offset) - getCurrentTime()) / getPitch();
 				if (timeRemaining > 0) resetTimer(timeRemaining);
@@ -416,7 +428,7 @@ class NativeAudioSource {
 
 	public function setPitch(value:Float):Float {
 		if (disposed || value == AL.getSourcef(handle, AL.PITCH)) return value;
-		if (playing && (streamEnded || !streamed)) {
+		if (playing) {
 			var timeRemaining = (getLength() - getCurrentTime()) / value;
 			if (timeRemaining > 0) resetTimer(timeRemaining);
 		}

@@ -296,8 +296,9 @@ class FlxSound extends FlxBasic {
 		active = false;
 		_lastTime = null;
 
-		if (_channel != null) {
-			_channel.removeEventListener(Event.SOUND_COMPLETE, stopped);
+		if (_source != null) {
+			_source.onComplete.remove(stopped);
+			_source.onLoop.remove(source_looped);
 		}
 
 		if (destroySound) {
@@ -496,8 +497,8 @@ class FlxSound extends FlxBasic {
 		_transform.pan = 0;
 		_length = _source.length;
 
-		_source.onComplete.add(_channel.source_onComplete);
-		_source.onLoop.add(_channel.source_onLoop);
+		_source.onComplete.add(stopped);
+		_source.onLoop.add(source_looped);
 		_channel.__soundTransform = _transform;
 		_channel.__isValid = true;
 	}
@@ -674,7 +675,7 @@ class FlxSound extends FlxBasic {
 		_paused = false;
 		_time = startTime;
 		_lastTime = FlxG.game.getTicks();
-		if (_channel == null || !_channel.__isValid || _source.__backend == null #if lime_openal || _source.__backend.disposed || _source.__backend.handle == null #end)
+		if (_channel == null || !_channel.__isValid || _source.__backend == null #if lime_cffi || _source.__backend.disposed || _source.__backend.handle == null #end)
 			makeChannel();
 
 		if (_channel != null) {
@@ -687,12 +688,11 @@ class FlxSound extends FlxBasic {
 			_channel.__lastPeakTime = -10;
 			_channel.__leftPeak = 0;
 			_channel.__rightPeak = 0;
-			_channel.addEventListener(Event.SOUND_COMPLETE, stopped);
 
-			#if lime_openal _source.__backend.playing = true; #end
+			#if lime_cffi _source.__backend.playing = true; #end
 			_source.offset = 0;
 			_source.currentTime = startTime + _offset;
-			#if !lime_openal _source.play(); #end
+			#if !lime_cffi _source.play(); #end
 
 			looped = looped;
 			loopTime = loopTime;
@@ -706,7 +706,7 @@ class FlxSound extends FlxBasic {
 		}
 	}
 
-	function stopped(?_) {
+	function stopped() {
 		onFinish.dispatch();
 
 		if (onComplete != null) onComplete();
@@ -716,6 +716,17 @@ class FlxSound extends FlxBasic {
 			play(false, loopTime, endTime);
 		}
 		else cleanup(autoDestroy);
+	}
+
+	function source_looped() {
+		if (onComplete != null) onComplete();
+
+		if (!looped) {
+			cleanup(autoDestroy);
+			_lastTime = FlxG.game.getTicks();
+			_time = loopTime;
+		}
+		else _channel.loops = 999;
 	}
 
 	/**

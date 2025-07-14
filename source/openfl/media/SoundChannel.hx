@@ -8,8 +8,6 @@ import openfl.events.EventDispatcher;
 #if lime
 import lime.media.AudioSource;
 import lime.media.openal.AL;
-
-#if lime_cffi import lime._internal.backend.native.NativeAudioSource; #end
 #end
 
 /**
@@ -157,28 +155,32 @@ import lime.media.openal.AL;
 
 		__lastPeakTime = time;
 		__leftPeak = __rightPeak = 0;
-		#if (lime_cffi && !macro)
+
+		#if !macro
 		if (!__isValid) return false;
 
-		var backend = __source.__backend, buffer = __source.buffer;
+		var buffer = __source.buffer;
 		var wordSize = buffer.bitsPerSample >> 3, bitUnsignedSize = 1 << buffer.bitsPerSample, bitSize = 1 << (buffer.bitsPerSample - 1);
-		var pos = Math.floor(time * buffer.sampleRate / 1000 * buffer.channels * wordSize), size = 0, i = 0, buf;
+		var pos = Math.floor(time * buffer.sampleRate / 1000 * buffer.channels * wordSize), size = 0, buf;
 
+		#if lime_cffi
+		var backend = __source.__backend, i = 0;
 		if (backend.streamed) {
-			buf = backend.bufferDatas[i = NativeAudioSource.STREAM_MAX_BUFFERS - backend.queuedBuffers] #if !js .buffer #end;
-			size = backend.bufferSize;
+			size = backend.bufferSizes[i = backend.bufferSizes.length - backend.queuedBuffers];
+			buf = backend.bufferDatas[i].buffer;
 			pos -= Math.floor(backend.bufferTimes[i] * buffer.sampleRate * buffer.channels * wordSize);
 		}
-		else {
+		else
+		#end {
 			buf = buffer.data #if !js .buffer #end;
 			size = #if js buf.byteLength #else buf.length #end;
 		}
 
-		var n = Math.floor(Math.min(buffer.sampleRate / 80, 512)), c = Math.floor((pos % (wordSize * buffer.channels)) / wordSize), b = 0, w = 0;
+		var s = Math.floor(Math.min(buffer.sampleRate / 80, 512)), c = Math.floor((pos % (wordSize * buffer.channels)) / wordSize), b = 0, w = 0;
 		pos -= pos % wordSize;
 
-		while (n > 0) {
-			if (wordSize == 1) b = #if js buf[pos] #else buf.get(pos) #end - bitSize;
+		while (s > 0) {
+			if (wordSize == 1) b = #if js buf[pos++] #else buf.get(pos++) #end - bitSize;
 			else {
 				while (w < buffer.bitsPerSample) {
 					b |= #if js buf[pos] #else buf.get(pos) #end << w;
@@ -189,15 +191,17 @@ import lime.media.openal.AL;
 			}
 			((c % 2 == 0) ? (if (__leftPeak < b) __leftPeak = b) : (if (__rightPeak < b) __rightPeak = b));
 
-			if (pos >= size) {
+			if (pos >= size) #if lime_cffi {
 				if (!backend.streamed || ++i >= backend.bufferDatas.length) break;
-				buf = backend.bufferDatas[i] #if !js .buffer #end;
+				size = backend.bufferSizes[i];
+				buf = backend.bufferDatas[i].buffer;
 				pos = 0;
 			}
+			#else break; #end
 
 			if (++c > buffer.channels) {
 				c = 0;
-				n--;
+				s--;
 			}
 			w = b = 0;
 		}

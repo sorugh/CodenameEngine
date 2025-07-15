@@ -106,7 +106,7 @@ class NativeAudioSource {
 			streamed = false;
 			samples = (dataLength = (buffer.data.length >> 0)) / buffer.channels / (buffer.bitsPerSample >> 3);
 
-			if (buffer.__srcBuffer == null && (buffer.__srcBuffer = AL.createBuffer()) != null)
+			if ((buffer.__srcBuffer == null || (AL.getBufferi(buffer.__srcBuffer, AL.SIZE) >> 0) != dataLength) && (buffer.__srcBuffer = AL.createBuffer()) != null)
 				AL.bufferData(buffer.__srcBuffer, format, buffer.data, buffer.data.length, buffer.sampleRate);
 
 			AL.sourcei(handle, AL.BUFFER, buffer.__srcBuffer);

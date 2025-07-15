@@ -15,19 +15,24 @@ import haxe.Timer;
 @:dox(hide)
 class AudioSwitchFix {
 	public static function onAudioDisconnected() @:privateAccess {
-		var soundList:Array<FlxSound> = [FlxG.sound.music];
-		for (sound in FlxG.sound.list) if (sound.playing) {
-			sound.pause();
-			soundList.push(sound);
+		var sources:Array<{source:AudioSource, playing:Bool, time:Float, gain:Float, pitch:Float, position:lime.math.Vector4}> = [];
+		for (source in AudioSource.activeSources) {
+			var wasPlaying = source.playing;
+			sources.push({
+				source: source,
+				playing: wasPlaying,
+				time: source.currentTime,
+				gain: source.gain,
+				pitch: source.pitch,
+				position: source.position
+			});
+
+			source.__backend.dispose();
+			if (wasPlaying) source.__backend.playing = true;
 		}
 
-		var i = AudioSource.activeSources.length;
-		while (i-- > 0) AudioSource.activeSources[i].dispose();
-
 		AudioManager.shutdown();
-
 		AudioManager.init();
-		Main.changeID++;
 		// #if !lime_doc_gen
 		// if (AudioManager.context.type == OPENAL)
 		// {
@@ -39,12 +44,18 @@ class AudioSwitchFix {
 		// 	alc.processContext(ctx);
 		// }
 		// #end
+		
+		for (d in sources) {
+			d.source.__backend.init();
+			d.source.currentTime = d.time;
+			d.source.gain = d.gain;
+			d.source.pitch = d.pitch;
+			d.source.position = d.position;
 
-		for (sound in soundList) {
-			sound.makeChannel();
-			sound.resume();
+			if (d.playing) d.source.play();
 		}
 
+		Main.changeID++;
 		Main.audioDisconnected = false;
 	}
 

@@ -145,7 +145,6 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 	{
 		if (lastAnimContext != LOCK && beatAnims.length > 0 && (curBeat + beatOffset) % beatInterval == 0)
 		{
-			if(skipNegativeBeats && curBeat < 0) return;
 			// TODO: find a solution without countedBeat
 			var anim = beatAnims[FlxMath.wrap(countedBeat++, 0, beatAnims.length - 1)];
 			if (anim.name != null && anim.name != "null" && anim.name != "none")

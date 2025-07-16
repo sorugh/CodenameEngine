@@ -613,6 +613,8 @@ class Charter extends UIState {
 		gridBackdrops.bottomLimitY = __endStep * 40;
 		eventsBackdrop.bottomSeparator.y = gridBackdrops.bottomLimitY-2;
 
+		CharterGridSeperatorBase.lastConductorSprY = Math.NEGATIVE_INFINITY;
+
 		updateWaveforms();
 	}
 
@@ -846,6 +848,7 @@ class Charter extends UIState {
 							s.cursor = BUTTON;
 						}
 					}
+					checkSelectionForBPMUpdates();
 					if (!(verticalChange == 0 && horizontalChange == 0)) {
 						notesGroup.sortNotes(); eventsGroup.sortEvents();
 						undos.addToUndo(CSelectionDrag(undoDrags));
@@ -1037,11 +1040,7 @@ class Charter extends UIState {
 		notesGroup.sortNotes();
 		notesGroup.autoSort = true;
 
-		for (s in selection)
-			if (s is CharterEvent) {
-				Charter.instance.updateBPMEvents();
-				break;
-			}
+		checkSelectionForBPMUpdates();
 
 		if (addToUndo)
 			undos.addToUndo(CCreateSelection(selection));
@@ -1065,11 +1064,7 @@ class Charter extends UIState {
 		notesGroup.sortNotes();
 		notesGroup.autoSort = true;
 
-		for (s in selection)
-			if (s is CharterEvent) {
-				Charter.instance.updateBPMEvents();
-				break;
-			}
+		checkSelectionForBPMUpdates();
 
 		if (addToUndo)
 			undos.addToUndo(CDeleteSelection(selection));
@@ -1256,12 +1251,13 @@ class Charter extends UIState {
 			for (strumLine in strumLines.members) strumLine.vocals.pause();
 		}
 
-		songPosInfo.text = '${CoolUtil.timeToStr(Conductor.songPosition)} / ${CoolUtil.timeToStr(songLength)}'
-		+ '\nStep: ${curStep}'
-		+ '\nBeat: ${curBeat}'
-		+ '\nMeasure: ${curMeasure}'
-		+ '\nBPM: ${Conductor.bpm}'
-		+ '\nTime Signature: ${Conductor.beatsPerMeasure}/${Conductor.stepsPerBeat}';
+		var curChange = Conductor.curChange;
+		songPosInfo.text = '${CoolUtil.timeToStr(songPos)} / ${CoolUtil.timeToStr(songLength)}'
+		+ '\nStep: $curStep'
+		+ '\nBeat: $curBeat'
+		+ '\nMeasure: $curMeasure'
+		+ '\nBPM: ${(curChange != null && curChange.continuous && curChange.endSongTime > songPos) ? FlxMath.roundDecimal(Conductor.bpm, 3) : Conductor.bpm}'
+		+ '\nTime Signature: ${Conductor.beatsPerMeasure}/${Conductor.denominator}';
 
 		if (charterCamera.zoom != (charterCamera.zoom = lerp(charterCamera.zoom, __camZoom, __firstFrame ? 1 : 0.125)))
 			updateDisplaySprites();
@@ -1441,6 +1437,8 @@ class Charter extends UIState {
 		selection = sObjects;
 		_edit_copy(_); // to fix stupid bugs
 
+		checkSelectionForBPMUpdates();
+
 		undos.addToUndo(CCreateSelection(sObjects.copy()));
 	}
 
@@ -1486,6 +1484,7 @@ class Charter extends UIState {
 					if (s.selectable.draggable) s.selectable.handleDrag(s.change * -1);
 
 				selection = [for (s in selectionDrags) s.selectable];
+				Charter.instance.updateBPMEvents();
 			case CEditSustains(changes):
 				for(n in changes)
 					n.note.updatePos(n.note.step, n.note.id, n.before, n.note.type);
@@ -1531,6 +1530,7 @@ class Charter extends UIState {
 				for (s in selectionDrags)
 					if (s.selectable.draggable) s.selectable.handleDrag(s.change);
 				//this.selection = selection;
+				Charter.instance.updateBPMEvents();
 			case CEditSustains(changes):
 				for(n in changes)
 					n.note.updatePos(n.note.step, n.note.id, n.after, n.note.type);
@@ -1643,11 +1643,9 @@ class Charter extends UIState {
 	}
 	function _view_showeventSecSeparator(t) {
 		t.icon = (Options.charterShowSections = !Options.charterShowSections) ? 1 : 0;
-		eventsBackdrop.eventSecSeparator.visible = gridBackdrops.sectionsVisible = Options.charterShowSections;
 	}
 	function _view_showeventBeatSeparator(t) {
 		t.icon = (Options.charterShowBeats = !Options.charterShowBeats) ? 1 : 0;
-		eventsBackdrop.eventBeatSeparator.visible = gridBackdrops.beatsVisible = Options.charterShowBeats;
 	}
 	function _view_switchWaveformDetail(t) {
 		t.icon = (Options.charterLowDetailWaveforms = !Options.charterLowDetailWaveforms) ? 1 : 0;
@@ -1847,12 +1845,28 @@ class Charter extends UIState {
 	}
 
 	public function updateBPMEvents() {
+		eventsGroup.sortEvents();
+		Conductor.mapCharterBPMChanges(PlayState.SONG);
 		buildEvents();
 
-		Conductor.mapBPMChanges(PlayState.SONG);
-		Conductor.changeBPM(PlayState.SONG.meta.bpm, cast PlayState.SONG.meta.beatsPerMeasure.getDefault(4), cast PlayState.SONG.meta.stepsPerBeat.getDefault(4));
-
+		for(e in eventsGroup.members) {
+			for(event in e.events) {
+				if (event.name == "BPM Change" || event.name == "Time Signature Change" || event.name == "Continuous BPM Change") {
+					e.refreshEventIcons();
+					break;
+				}
+			}
+		}
+		
 		refreshBPMSensitive();
+	}
+
+	public inline function checkSelectionForBPMUpdates() {
+		for (s in selection)
+			if (s is CharterEvent) {
+				Charter.instance.updateBPMEvents();
+				break;
+			}
 	}
 
 	public inline function hitsoundsEnabled(id:Int)

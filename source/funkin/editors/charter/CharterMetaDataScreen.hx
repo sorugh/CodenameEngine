@@ -62,8 +62,8 @@ class CharterMetaDataScreen extends UISubstateWindow {
 
 		add(new UIText(beatsPerMeasureStepper.x + 30, beatsPerMeasureStepper.y + 3, 0, "/", 22));
 
-		stepsPerBeatStepper = new UINumericStepper(beatsPerMeasureStepper.x + 30 + 24, beatsPerMeasureStepper.y, metadata.stepsPerBeat, 1, 0, 1, null, 54);
-		add(stepsPerBeatStepper);
+		denominatorStepper = new UINumericStepper(beatsPerMeasureStepper.x + 30 + 24, beatsPerMeasureStepper.y, Math.floor(16 / metadata.stepsPerBeat), 1, 0, 1, null, 54);
+		add(denominatorStepper);
 
 		add(title = new UIText(songNameTextBox.x, songNameTextBox.y + 10 + 46, 0, "Menus Data (Freeplay/Story)", 28));
 
@@ -136,7 +136,7 @@ class CharterMetaDataScreen extends UISubstateWindow {
 	}
 
 	public function saveMeta() {
-		for (stepper in [bpmStepper, beatsPerMeasureStepper, stepsPerBeatStepper])
+		for (stepper in [bpmStepper, beatsPerMeasureStepper, denominatorStepper])
 			@:privateAccess stepper.__onChange(stepper.label.text);
 
 		var customVals = {};

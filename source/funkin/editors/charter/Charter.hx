@@ -9,6 +9,7 @@ import funkin.backend.chart.ChartData;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.framerate.Framerate;
 import funkin.editors.charter.CharterBackdropGroup.CharterBackdropDummy;
+import funkin.editors.charter.CharterBackdropGroup.CharterGridSeperatorBase;
 import funkin.editors.charter.CharterBackdropGroup.EventBackdrop;
 import funkin.editors.charter.CharterStrumline;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;

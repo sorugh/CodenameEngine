@@ -90,7 +90,9 @@ class Flags {
 	public static var DEFAULT_GAMEOVER_LOSS_SFX:String = "gameOverSFX";
 	public static var DEFAULT_GAMEOVER_RETRY_SFX:String = "gameOverEnd";
 
-	public static var DEFAULT_CAM_ZOOM_INTERVAL:Int = 4;
+	public static var DEFAULT_CAM_ZOOM_INTERVAL:Int = 1;
+	public static var DEFAULT_CAM_ZOOM_OFFSET:Float = 0;
+	//public static var DEFAULT_CAM_ZOOM_EVERY:BeatType = MEASURE;
 	public static var DEFAULT_CAM_ZOOM_STRENGTH:Int = 1;
 	public static var DEFAULT_CAM_ZOOM:Float = 1.05; // what zoom level it defaults to
 	public static var DEFAULT_HUD_ZOOM:Float = 1.0;

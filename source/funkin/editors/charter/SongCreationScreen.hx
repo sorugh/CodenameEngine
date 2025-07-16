@@ -27,7 +27,7 @@ class SongCreationScreen extends UISubstateWindow {
 	public var songNameTextBox:UITextBox;
 	public var bpmStepper:UINumericStepper;
 	public var beatsPerMeasureStepper:UINumericStepper;
-	public var stepsPerBeatStepper :UINumericStepper;
+	public var denominatorStepper:UINumericStepper;
 	public var instExplorer:UIFileExplorer;
 	public var voicesExplorer:UIFileExplorer;
 	public var importFrom:UIButton;
@@ -395,14 +395,14 @@ class SongCreationScreen extends UISubstateWindow {
 				]));
 			}
 		} else {
-			for (stepper in [bpmStepper, beatsPerMeasureStepper, stepsPerBeatStepper])
+			for (stepper in [bpmStepper, beatsPerMeasureStepper, denominatorStepper])
 				@:privateAccess stepper.__onChange(stepper.label.text);
 
 			var meta:ChartMetaData = {
 				name: songNameTextBox.label.text,
 				bpm: bpmStepper.value,
 				beatsPerMeasure: Std.int(beatsPerMeasureStepper.value),
-				stepsPerBeat: Std.int(stepsPerBeatStepper.value),
+				stepsPerBeat: Std.int(16 / denominatorStepper.value),
 				displayName: displayNameTextBox.label.text,
 				icon: iconTextBox.label.text,
 				color: colorWheel.curColor,

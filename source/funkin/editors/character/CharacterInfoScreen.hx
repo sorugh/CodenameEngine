@@ -8,8 +8,6 @@ import openfl.geom.Point;
 import openfl.geom.Rectangle;
 import openfl.display.BitmapData;
 import funkin.game.Character;
-import funkin.game.HealthIcon;
-import haxe.xml.Access;
 
 using funkin.backend.utils.BitmapUtil;
 
@@ -24,12 +22,6 @@ class CharacterInfoScreen extends UISubstateWindow {
 	public var character:Character;
 
 	public var iconColorPicker:UIIconColorPicker;
-	public var spriteTextBox:UITextBox;
-	public var iconTextBox:UITextBox;
-	public var iconSprite:HealthIcon;
-	public var gameOverCharTextBox:UITextBox;
-	public var antialiasingCheckbox:UICheckbox;
-	public var flipXCheckbox:UICheckbox;
 	public var iconColorWheel:UIColorwheel;
 
 	public var useDurationCheckbox:UICheckbox;
@@ -109,58 +101,17 @@ class CharacterInfoScreen extends UISubstateWindow {
 		closeButton.color = 0xFFFF0000;
 	}
 
-	function updateIcon(icon:String) {
-		if (iconSprite == null) add(iconSprite = new HealthIcon());
-
-		iconSprite.setIcon(icon);
-		var size = Std.int(150 * 0.5);
-		iconSprite.setUnstretchedGraphicSize(size, size, true);
-		iconSprite.updateHitbox();
-		iconSprite.setPosition(iconTextBox.x + iconTextBox.bWidth + 8, iconTextBox.y + (iconTextBox.bHeight / 2) - (iconSprite.height / 2));
-		iconSprite.scrollFactor.set(1, 1);
-	}
-
-	function saveCharacterInfo() {
+	public function saveCharacterInfo() {
 		UIUtil.confirmUISelections(this);
 
-		//for (stepper in [positionXStepper, positionYStepper, cameraXStepper, cameraYStepper, singTimeStepper, scaleStepper])
-		//	@:privateAccess stepper.__onChange(stepper.label.text);
-
-		var xml = Xml.createElement("character");
-		xml.set("isPlayer", isPlayerCheckbox.checked ? "true" : "false");
-		xml.set("x", Std.string(positionXStepper.value));
-		xml.set("y", Std.string(positionYStepper.value));
-		xml.set("gameOverChar", gameOverCharTextBox.label.text);
-		xml.set("camx", Std.string(cameraXStepper.value));
-		xml.set("camy", Std.string(cameraYStepper.value));
-		xml.set("holdTime", Std.string(singTimeStepper.value));
-		xml.set("flipX", Std.string(flipXCheckbox.checked));
-		xml.set("icon", iconTextBox.label.text);
-		xml.set("scale", Std.string(scaleStepper.value));
-		xml.set("antialiasing", antialiasingCheckbox.checked ? "true" : "false");
-		xml.set("sprite", spriteTextBox.label.text);
-		if (iconColorWheel.colorChanged)
-			xml.set("color", iconColorWheel.curColor.toWebString());
-		for (val in customPropertiesButtonList.buttons.members)
-			xml.set(val.propertyText.label.text, val.valueText.label.text);
-
-		for (anim in character.animDatas)
-		{
-			var animXml:Xml = Xml.createElement('anim');
-			animXml.set("name", anim.name);
-			animXml.set("anim", anim.anim);
-			animXml.set("loop", Std.string(anim.loop));
-			animXml.set("fps", Std.string(anim.fps));
-			var offset:FlxPoint = character.getAnimOffset(anim.name);
-			animXml.set("x", Std.string(offset.x));
-			animXml.set("y", Std.string(offset.y));
-			offset.put();
-
-			if (anim.indices.length > 0)
-				animXml.set("indices", CoolUtil.formatNumberRange(anim.indices));
-			xml.addChild(animXml);
-		}
-
-		if (onSave != null) onSave(xml);
+		if (onSave != null) onSave({
+			icon: iconColorPicker.iconTextBox.label.text,
+			iconColor: iconColorWheel.curColor,
+			holdTime: useDurationCheckbox.checked ? durationStepper.value : -1,
+			customProperties: [
+				for (val in customPropertiesButtonList.buttons.members)
+					val.propertyText.label.text => val.valueText.label.text
+			]
+		});
 	}
 }

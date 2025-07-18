@@ -352,4 +352,5 @@ typedef KeybindSettingData = {
 typedef ControlsCategory = {
 	var name:String;
 	var settings:Array<KeybindSettingData>;
+	var ?devModeOnly:Bool;
 }

@@ -14,19 +14,19 @@ import lime.utils.AssetType;
 @:build(funkin.backend.system.macros.FlagMacro.build())
 class Flags {
 	// -- Codename's Mod Config --
-	public static var MOD_NAME:String;
-	public static var MOD_DESCRIPTION:String;
-	public static var MOD_API_VERSION:Int;
-	public static var MOD_DOWNLOADED_LINK:String;
+	public static var MOD_NAME:String = "";
+	public static var MOD_DESCRIPTION:String = "";
+	public static var MOD_API_VERSION:Int = 1;
+	public static var MOD_DOWNLOADED_LINK:String  = "";
 	public static var MOD_DEPENDENCIES:Array<String> = [];
 
-	public static var MOD_ICON64:String;
-	public static var MOD_ICON32:String;
-	public static var MOD_ICON16:String;
-	public static var MOD_ICON:String;
+	public static var MOD_ICON64:String = "";
+	public static var MOD_ICON32:String = "";
+	public static var MOD_ICON16:String = "";
+	public static var MOD_ICON:String = "";
 
-	public static var MOD_DISCORD_CLIENT_ID:String;
-	public static var MOD_DISCORD_LOGO_KEY:String;
+	public static var MOD_DISCORD_CLIENT_ID:String = "";
+	public static var MOD_DISCORD_LOGO_KEY:String = "";
 	// -- Codename's Default Flags --
 	public static var COMMIT_NUMBER:Int = GitCommitMacro.commitNumber;
 	public static var COMMIT_HASH:String = GitCommitMacro.commitHash;

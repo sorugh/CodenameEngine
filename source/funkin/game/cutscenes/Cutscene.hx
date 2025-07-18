@@ -8,11 +8,11 @@ import funkin.menus.PauseSubState;
  */
 class Cutscene extends MusicBeatSubstate {
 	var __callback:Void->Void;
-	var __pausable:Bool;
 	var game:PlayState = PlayState.instance;
 
 	public var paused:Bool = false;
 	public var pauseItems:Array<String>;
+	public var pausable:Bool;
 	public var skippable(default, set):Bool;
 
 	public function set_skippable(val:Bool):Bool {
@@ -26,9 +26,9 @@ class Cutscene extends MusicBeatSubstate {
 		canOpenCustomTransition = true;
 
 		__callback = callback;
-		__pausable = allowPause;
 
 		pauseItems = Flags.DEFAULT_CUTSCENE_PAUSE_ITEMS;
+		pausable = allowPause;
 		skippable = canSkip;
 	}
 
@@ -38,7 +38,7 @@ class Cutscene extends MusicBeatSubstate {
 	}
 
 	public function pauseCheck():Bool
-		return controls.PAUSE && __pausable;
+		return controls.PAUSE && pausable;
 
 	var _before:Array<Bool> = [false, true];
 	public function pauseCutscene() {

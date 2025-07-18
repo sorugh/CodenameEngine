@@ -145,7 +145,7 @@ final class CoolUtil
 		if(result.isNothing) Logs.trace('The file where it has been tried to get the attributes from, might be corrupted or inexistent (code: ${result.getValue()})', WARNING);
 		return result;
 		#else
-		return 0;
+		return new FileAttributeWrapper(0);
 		#end
 	}
 
@@ -183,7 +183,7 @@ final class CoolUtil
 		addMissingFolders(Path.directory(path));
 
 		var result = NativeAPI.addFileAttributes(path, attrib, useAbsolute);
-		if(result == 0) Logs.trace('Failed to add attributes to $path with a code of: $result', WARNING);
+		if (result == 0) Logs.trace('Failed to add attributes to $path with a code of: $result', WARNING);
 		return result;
 		#else
 		return 0;
@@ -453,8 +453,12 @@ final class CoolUtil
 		if (Assets.exists(infoPath)) {
 			var musicInfo = IniUtil.parseAsset(infoPath, [
 				"BPM" => null,
-				"TimeSignature" => Flags.DEFAULT_BEATS_PER_MEASURE + "/" + Flags.DEFAULT_STEPS_PER_BEAT
+				"TimeSignature" => Flags.DEFAULT_BEATS_PER_MEASURE + "/" + Flags.DEFAULT_STEPS_PER_BEAT,
+				"LoopTime" => '${Flags.DEFAULT_LOOP_TIME}'
 			]);
+
+			if (FlxG.sound.music != null)
+				FlxG.sound.music.loopTime = Std.parseFloat(musicInfo["LoopTime"]) * 1000;
 
 			var timeSignParsed:Array<Null<Float>> = musicInfo["TimeSignature"] == null ? [] : [for(s in musicInfo["TimeSignature"].split("/")) Std.parseFloat(s)];
 			var beatsPerMeasure:Float = Flags.DEFAULT_BEATS_PER_MEASURE;
@@ -712,11 +716,11 @@ final class CoolUtil
 	 * @param spr Sprite to load the graphic for
 	 * @param path Path to the graphic
 	 */
-	public static function loadAnimatedGraphic(spr:FlxSprite, path:String) {
+	public static function loadAnimatedGraphic(spr:FlxSprite, path:String, fps:Float = 24.0) {
 		spr.frames = Paths.getFrames(path, true);
 
 		if (spr.frames != null && spr.frames.frames != null) {
-			spr.animation.add("idle", [for(i in 0...spr.frames.frames.length) i], 24, true);
+			spr.animation.add("idle", [for(i in 0...spr.frames.frames.length) i], fps, true);
 			spr.animation.play("idle");
 		}
 
@@ -915,8 +919,8 @@ final class CoolUtil
 	 * @param mainEase Main ease
 	 * @param suffix Suffix (Ignored if `mainEase` is `linear`)
 	 */
-	@:noUsing public static inline function flxeaseFromString(mainEase:String, suffix:String)
-		return Reflect.field(FlxEase, mainEase + (mainEase == "linear" ? "" : suffix));
+	@:noUsing public static inline function flxeaseFromString(mainEase:String, ?suffix:String)
+		return Reflect.field(FlxEase, mainEase + (mainEase == "linear" || suffix == null ? "" : suffix));
 
 	/*
 	 * Returns the filename of a path, without the extension.
@@ -1322,6 +1326,124 @@ final class CoolUtil
 
 	public static inline function isMapEmpty<K, V>(map: Map<K, V>): Bool {
 		return !map.keys().hasNext();
+	}
+
+	public inline static function parsePropertyString(fieldPath:String):Array<OneOfTwo<String, Int>> {
+		return FlxTween.parseFieldString(fieldPath);
+	}
+
+	public static function stringifyFieldsPath(fields:Array<OneOfTwo<String, Int>>):String {
+		var str = new StringBuf();
+		var first = true;
+		for (field in fields) {
+			if (Type.typeof(field) == TInt) {
+				str.add('[${field}]');
+			} else {
+				if (!first)
+					str.add('.');
+				str.add(field);
+			}
+			first = false;
+		}
+		return str.toString();
+	}
+
+	public static function parseProperty(target:Dynamic, fields:OneOfTwo<String, Array<OneOfTwo<String, Int>>>):Dynamic {
+		var fields:Array<OneOfTwo<String, Int>> = {
+			if((fields is String)) CoolUtil.parsePropertyString(fields);
+			else fields;
+		}
+
+		var field = CoolUtil.last(fields);
+		for (i in 0...fields.length - 1) {
+			var component = fields[i];
+			if (Type.typeof(component) == TInt) {
+				if ((target is Array)) {
+					var index:Int = cast component;
+					var arr:Array<Dynamic> = cast target;
+					target = arr[index];
+				}
+			} else { // TClass(String)
+				target = Reflect.getProperty(target, component);
+			}
+			if (!Reflect.isObject(target) && !(target is Array))
+				throw 'The object does not have the property "$component" in "${stringifyFieldsPath(fields)}"';
+		}
+		return new PropertyInfo(target, field);
+	}
+
+	public static function cloneProperty(toTarget:Dynamic, fields:OneOfTwo<String, Array<OneOfTwo<String, Int>>>, fromTarget:Dynamic):Dynamic {
+		var fields:Array<OneOfTwo<String, Int>> = {
+			if((fields is String)) CoolUtil.parsePropertyString(fields);
+			else fields;
+		}
+
+		var toProperty = CoolUtil.parseProperty(toTarget, fields);
+		var fromProperty = CoolUtil.parseProperty(fromTarget, fields);
+
+		return toProperty.setValue(fromProperty.getValue());
+	}
+}
+
+class PropertyInfo {
+	public var object:Dynamic;
+	public var field:OneOfTwo<String, Int>;
+	public var typeOfField:Type.ValueType;
+	#if hscript_improved
+	public var isCustom:Bool = false;
+	public var custom:hscript.IHScriptCustomBehaviour;
+	#end
+
+	public function new(object:Dynamic, field:OneOfTwo<String, Int>) {
+		this.object = object;
+		this.field = field;
+		#if hscript_improved
+		if (object is hscript.IHScriptCustomBehaviour)
+		{
+			isCustom = true;
+			custom = cast object;
+		}
+		#end
+
+		typeOfField = Type.typeof(field);
+	}
+
+	public function getValue():Dynamic
+	{
+		if (typeOfField == TInt)
+		{
+			var index:Int = cast field;
+			var arr:Array<Dynamic> = cast object;
+			return arr[index];
+		}
+		else
+		{
+			#if hscript_improved
+			if (isCustom)
+				return custom.hget(field);
+			else
+			#end
+			return Reflect.getProperty(object, field);
+		}
+	}
+
+	public function setValue(value:Dynamic):Void
+	{
+		if (typeOfField == TInt)
+		{
+			var index:Int = cast field;
+			var arr:Array<Dynamic> = cast object;
+			arr[index] = value;
+		}
+		else
+		{
+			#if hscript_improved
+			if (isCustom)
+				custom.hset(field, value);
+			else
+			#end
+			Reflect.setProperty(object, field, value);
+		}
 	}
 }
 

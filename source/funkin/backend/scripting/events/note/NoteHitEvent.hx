@@ -1,6 +1,7 @@
 package funkin.backend.scripting.events.note;
 
 import funkin.game.Character;
+import funkin.game.HealthIcon;
 import funkin.game.Note;
 
 final class NoteHitEvent extends CancellableEvent {
@@ -113,6 +114,10 @@ final class NoteHitEvent extends CancellableEvent {
 	 * Whenever the animation should be forced to play (if it's null it will be forced based on the sprite's data xml, if it has one).
 	 */
 	public var forceAnim:Null<Bool> = true;
+	/**
+	 * The attached healthIcon used distinction for icons amongst others
+	 */
+	public var healthIcon:HealthIcon;
 
 	/**
 	 * Prevents the default sing animation from being played.

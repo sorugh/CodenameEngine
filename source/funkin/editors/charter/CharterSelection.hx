@@ -1,5 +1,6 @@
 package funkin.editors.charter;
 
+import funkin.backend.chart.Chart;
 import funkin.backend.chart.ChartData.ChartMetaData;
 import funkin.backend.chart.ChartData;
 import funkin.backend.system.framerate.Framerate;
@@ -34,16 +35,20 @@ class CharterSelection extends EditorTreeMenu {
 							FlxG.switchState(new Charter(s.name, d));
 						})
 				];
-				list.push(new NewOption("New Difficulty", "Press ACCEPT to create a new difficulty.", function() {
+				#if sys
+				list.push(new NewOption("New Difficulty", "New Difficulty", function() {
 					FlxG.state.openSubState(new ChartCreationScreen(saveChart));
 				}));
+				#end
 				optionsTree.add(new OptionsScreen(s.name, "Select a difficulty to continue.", list));
-			}, s.parsedColor.getDefault(0xFFFFFFFF))
+			}, s.color.getDefault(0xFFFFFFFF))
 		];
 
-		list.insert(0, new NewOption("New Song", "Press ACCEPT to create a new song.", function() {
+		#if sys
+		list.insert(0, new NewOption("New Song", "New Song", function() {
 			FlxG.state.openSubState(new SongCreationScreen(saveSong));
 		}));
+		#end
 
 		main = new OptionsScreen("Chart Editor", "Select a song to modify the charts from.", list);
 
@@ -88,11 +93,12 @@ class CharterSelection extends EditorTreeMenu {
 		}
 	}
 
-	public function saveSong(creation:SongCreationData) {
+	#if sys
+	public function saveSong(creation:SongCreationData, ?callback:String -> SongCreationData -> Void) {
 		var songAlreadyExists:Bool = [for (s in freeplayList.songs) s.name.toLowerCase()].contains(creation.meta.name.toLowerCase());
 
 		if (songAlreadyExists) {
-			openSubState(new UIWarningSubstate("Creating Song: Error!", "The song you are trying to create already exists, if you would like to override it delete the song first!", [
+			openSubState(new UIWarningSubstate("Creating Song: Error!", "The song you are trying to create Already exists, if you would like to override it delete the song first!", [
 				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
 			]));
 			return;
@@ -109,10 +115,16 @@ class CharterSelection extends EditorTreeMenu {
 		sys.FileSystem.createDirectory('$songFolder/charts');
 
 		// Save Files
-		CoolUtil.safeSaveFile('$songFolder/meta.json', Json.stringify(creation.meta, Flags.JSON_PRETTY_PRINT));
+		CoolUtil.safeSaveFile('$songFolder/meta.json', Chart.makeMetaSaveable(creation.meta));
 		if (creation.instBytes != null) sys.io.File.saveBytes('$songFolder/song/Inst.${Flags.SOUND_EXT}', creation.instBytes);
 		if (creation.voicesBytes != null) sys.io.File.saveBytes('$songFolder/song/Voices.${Flags.SOUND_EXT}', creation.voicesBytes);
+
+		if (creation.playerVocals != null) sys.io.File.saveBytes('$songFolder/song/Voices-Player.${Flags.SOUND_EXT}', creation.playerVocals);
+		if (creation.oppVocals != null) sys.io.File.saveBytes('$songFolder/song/Voices-Opponent.${Flags.SOUND_EXT}', creation.oppVocals);
 		#end
+
+		if (callback != null)
+			callback(songFolder, creation);
 
 		var option = new EditorIconOption(creation.meta.name, "Press ACCEPT to choose a difficulty to edit.", creation.meta.icon, function() {
 			curSong = creation.meta;
@@ -122,11 +134,11 @@ class CharterSelection extends EditorTreeMenu {
 						FlxG.switchState(new Charter(creation.meta.name, d));
 					})
 			];
-			list.push(new NewOption("New Difficulty", "Press ACCEPT to create a new difficulty.", function() {
+			list.push(new NewOption("New Difficulty", "New Difficulty", function() {
 				FlxG.state.openSubState(new ChartCreationScreen(saveChart));
 			}));
 			optionsTree.insert(1, new OptionsScreen(creation.meta.name, "Select a difficulty to continue.", list));
-		}, creation.meta.parsedColor.getDefault(0xFFFFFFFF));
+		}, creation.meta.color.getDefault(0xFFFFFFFF));
 
 		// Add to List
 		freeplayList.songs.insert(0, creation.meta);
@@ -160,7 +172,8 @@ class CharterSelection extends EditorTreeMenu {
 		var meta = Json.parse(sys.io.File.getContent('$songFolder/meta.json'));
 		if (meta.difficulties != null && !meta.difficulties.contains(name)) {
 			meta.difficulties.push(name);
-			CoolUtil.safeSaveFile('$songFolder/meta.json', Json.stringify(meta));
+			CoolUtil.safeSaveFile('$songFolder/meta.json', Chart.makeMetaSaveable(meta));
 		}
 	}
+	#end
 }

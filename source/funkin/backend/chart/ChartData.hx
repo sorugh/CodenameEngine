@@ -22,16 +22,12 @@ typedef ChartMetaData = {
 	public var ?beatsPerMeasure:Float;
 	public var ?stepsPerBeat:Int;
 	public var ?icon:String;
-	public var ?color:Dynamic;
+	public var ?color:FlxColor;
 	public var ?difficulties:Array<String>;
 	public var ?coopAllowed:Bool;
 	public var ?opponentModeAllowed:Bool;
 	public var ?customValues:Dynamic;
 	public var ?needsVoices:Bool;
-	public var ?artist:String;
-
-	// NOT TO BE EXPORTED
-	public var ?parsedColor:FlxColor;
 }
 
 typedef ChartStrumLine = {

@@ -86,6 +86,11 @@ class ModsFolder {
 	public static function getModsList():Array<String> {
 		var mods:Array<String> = [];
 		#if MOD_SUPPORT
+		if (!FileSystem.exists(modsPath)) {
+			// Mods directory does not exist yet, create it
+			FileSystem.createDirectory(modsPath);
+		}
+		
 		final modsList:Array<String> = FileSystem.readDirectory(modsPath);
 
 		if (modsList == null || modsList.length <= 0)

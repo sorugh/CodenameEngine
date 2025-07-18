@@ -63,7 +63,7 @@ class AssetsLibraryList extends AssetLibrary {
 			if (l is IModsAssetLibrary) {
 				var lib = cast(l, IModsAssetLibrary);
 				for(e in lib.getFiles(folder))
-					content.push(e);
+					content.pushOnce(e);
 			}
 			#end
 		}

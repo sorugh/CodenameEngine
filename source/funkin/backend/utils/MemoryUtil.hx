@@ -127,7 +127,7 @@ final class MemoryUtil {
 	public static function getMemType():String {
 		#if windows
 		var memoryMap:Map<Int, String> = [
-			0 => "Unknown",
+			0 => null,
 			1 => "Other",
 			2 => "DRAM",
 			3 => "Synchronous DRAM",
@@ -166,9 +166,9 @@ final class MemoryUtil {
 		];
 		var memoryOutput:Int = -1;
 
-		var process = new HiddenProcess("wmic", ["memorychip", "get", "SMBIOSMemoryType"]);
+		var process = new HiddenProcess("powershell", ["-Command", "Get-CimInstance Win32_PhysicalMemory | Select-Object -ExpandProperty SMBIOSMemoryType" ]);
 		if (process.exitCode() == 0) memoryOutput = Std.int(Std.parseFloat(process.stdout.readAll().toString().trim().split("\n")[1]));
-		if (memoryOutput != -1) return memoryMap[memoryOutput];
+		if (memoryOutput != -1) return memoryMap[memoryOutput] == null ? 'Unknown ($memoryOutput)' : memoryMap[memoryOutput];
 		#elseif mac
 		var process = new HiddenProcess("system_profiler", ["SPMemoryDataType"]);
 		var reg = ~/Type: (.+)/;

@@ -21,21 +21,21 @@ class AudioAnalyzer {
 	}
 
 	public function analyze(startPos:Float, endPos:Float):Float {
-		var bitsPerSample = buffer.bitsPerSample;
-		var multi = __timeMulti / 4000 / bitsPerSample;
-		var bytesStartPos:Int = Math.floor(startPos * multi) * bitsPerSample;
-		var bytesEndPos:Int = Math.floor(endPos * multi) * bitsPerSample;
+		var bytesStartPos:Int = Math.floor(startPos * __timeMulti / 4000 / buffer.bitsPerSample) * buffer.bitsPerSample;
+		var bytesEndPos:Int = Math.floor(endPos * __timeMulti / 4000 / buffer.bitsPerSample) * buffer.bitsPerSample;
 
-		bytesStartPos -= bytesStartPos % bitsPerSample;
-		bytesEndPos -= bytesEndPos % bitsPerSample;
-
-		var dataBuffer = buffer.data.buffer;
+		bytesStartPos -= bytesStartPos % buffer.bitsPerSample;
+		bytesEndPos -= bytesEndPos % buffer.bitsPerSample;
 
 		var maxByte:Int = 0;
-		for(i in 0...Math.floor((bytesEndPos - bytesStartPos) / bitsPerSample)) {
-			var bytePos = bytesStartPos + (i * bitsPerSample);
-			// What if bitsPerSample is 8? or 32? or 64? -Ne_Eo
-			var byte:Int = dataBuffer.get(bytePos) | (dataBuffer.get(bytePos + 1) << 8);
+		for(i in 0...Math.floor((bytesEndPos - bytesStartPos) / buffer.bitsPerSample)) {
+			#if js
+			var byte:Int = buffer.data[bytesStartPos + (i * buffer.bitsPerSample)]
+			| (buffer.data[bytesStartPos + (i * buffer.bitsPerSample) + 1] << 8);
+			#else
+			var byte:Int = buffer.data.buffer.get(bytesStartPos + (i * buffer.bitsPerSample))
+			| (buffer.data.buffer.get(bytesStartPos + (i * buffer.bitsPerSample) + 1) << 8);
+			#end
 			if (byte > 256 * 128) byte -= 256 * 256;
 			if (maxByte < byte) maxByte = byte;
 		}

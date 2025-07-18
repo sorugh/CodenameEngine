@@ -68,12 +68,49 @@ class KeybindsOptions extends MusicBeatSubstate {
 			]
 		},
 		{
+			name: 'Volume',
+			settings: [
+				{
+					name: 'Up',
+					control: 'VOLUME_UP'
+				},
+				{
+					name: 'Down',
+					control: 'VOLUME_DOWN'
+				},
+				{
+					name: 'Mute',
+					control: 'VOLUME_MUTE'
+				},
+			]
+		},
+		{
 			name: 'Engine',
 			settings: [
 				{
 					name: 'Switch Mod',
 					control: 'SWITCHMOD'
 				},
+			]
+		},
+		{
+			name: 'Developer',
+			devModeOnly: true,
+			settings: [
+				{
+					name: 'Developer Menus',
+					control: 'DEV_ACCESS'
+				},
+				#if GLOBAL_SCRIPT  // since theyre integrated into global script  - Nex
+				{
+					name: 'Open Console',
+					control: 'DEV_CONSOLE'
+				},
+				{
+					name: 'Reload State',
+					control: 'DEV_RELOAD'
+				},
+				#end
 			]
 		}
 	];
@@ -132,7 +169,9 @@ class KeybindsOptions extends MusicBeatSubstate {
 		for (i in customCategories) categories.push(i);
 
 		var k:Int = 0;
-		for(category in categories) {
+		for (category in categories) {
+			if (category.devModeOnly && !Options.devMode) continue;
+
 			k++;
 			var title = new Alphabet(0, k * 75, category.name, true);
 			title.screenCenter(X);
@@ -168,6 +207,10 @@ class KeybindsOptions extends MusicBeatSubstate {
 		}
 		add(alphabets);
 		add(camFollow);
+
+		FlxG.sound.volumeUpKeys = [];
+		FlxG.sound.volumeDownKeys = [];
+		FlxG.sound.muteKeys = [];
 	}
 
 	public override function destroy() {
@@ -181,10 +224,8 @@ class KeybindsOptions extends MusicBeatSubstate {
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
 
-
-		if (isSubState) {
-			bg.alpha = lerp(bg.alpha, 0.1, 0.125);
-		} else {
+		if (isSubState) bg.alpha = lerp(bg.alpha, 0.1, 0.125);
+		else {
 			if (curSelected < 4) {
 				if (coloredBG.alpha == 0)
 					coloredBG.color = noteColors[curSelected];
@@ -200,11 +241,11 @@ class KeybindsOptions extends MusicBeatSubstate {
 			changeSelection((controls.UP_P ? -1 : 0) + (controls.DOWN_P ? 1 : 0));
 
 			if (controls.BACK) {
-				MusicBeatState.skipTransIn = true;
-				if (isSubState)
-					close();
-				else
+				if (isSubState) close();
+				else {
+					MusicBeatState.skipTransIn = true;
 					FlxG.switchState(new OptionsMenu());
+				}
 				ControlsUtil.resetCustomControls();
 				Options.applyKeybinds();
 				ControlsUtil.loadCustomControls();
@@ -251,7 +292,7 @@ class KeybindsOptions extends MusicBeatSubstate {
 			var minH = FlxG.height / 2;
 			var maxH = alphabets.members[alphabets.length-1].y + alphabets.members[alphabets.length-1].height - (FlxG.height / 2);
 			if (minH < maxH)
-				camFollow.setPosition(FlxG.width / 2, CoolUtil.bound(alphabet.y + (alphabet.height / 2) - (35), minH, maxH));
+				camFollow.setPosition(FlxG.width / 2, CoolUtil.bound(alphabet.y + (alphabet.height / 2) - 35, minH, maxH));
 			else
 				camFollow.setPosition(FlxG.width / 2, FlxG.height / 2);
 		}

@@ -15,16 +15,19 @@ class UIFileExplorer extends UISliceSprite {
 	public var onFile:(String, Bytes)->Void;
 
 	public var uiElement:FlxSprite;
+	
+	public var fileType:String = "txt";
 
 	public function new(x:Float, y:Float, ?w:Int, ?h:Int, fileType:String = "txt", ?onFile:(String, Bytes)->Void) {
 		super(x, y, (w != null ? w : 320), (h != null ? h : 58), 'editors/ui/inputbox');
+		this.fileType = fileType;
 
 		if (onFile != null) this.onFile = onFile;
 
 		uploadButton = new UIButton(x + 8, y+ 8, null, function () {
 			var fileDialog = new FileDialog();
 			fileDialog.onSelect.add(loadFile);
-			fileDialog.browse(OPEN, fileType);
+			fileDialog.browse(OPEN, this.fileType);
 		}, bWidth - 16, bHeight - 16);
 		members.push(uploadButton);
 
@@ -66,6 +69,7 @@ class UIFileExplorer extends UISliceSprite {
 	}
 
 	public function removeFile() {
+		if (!selectable) return;
 		if (uiElement != null) {
 			members.remove(uiElement);
 			uiElement.destroy();

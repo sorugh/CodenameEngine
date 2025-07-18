@@ -49,7 +49,21 @@ class GithubUserIcon extends FlxSprite
 		super.update(elapsed);
 	}
 
+	#if target.threaded
 	final mutex = new sys.thread.Mutex();
+	#end
+
+	inline function acquireMutex() {
+		#if target.threaded
+		mutex.acquire();
+		#end
+	}
+	inline function releaseMutex() {
+		#if target.threaded
+		mutex.release();
+		#end
+	}
+
 	override function drawComplex(camera:FlxCamera):Void {  // Making the image download only if the player actually sees it on the screen  - Nex
 		if(waitUntilLoad <= 0) {
 			waitUntilLoad = null;
@@ -82,19 +96,19 @@ class GithubUserIcon extends FlxSprite
 					}
 
 					if(bmap != null) try {
-						mutex.acquire();  // Avoiding critical section  - Nex
+						acquireMutex();  // Avoiding critical section  - Nex
 						var leGraphic:FlxGraphic = FlxG.bitmap.add(bmap, false, key);
 						leGraphic.persist = true;
 						updateDaFunni(leGraphic);
 						bmap = null;
-						mutex.release();
+						releaseMutex();
 					} catch(e) {
 						Logs.traceColored([Logs.logText('Failed to update the pfp for ${user.login}: ${e.message}', RED)], ERROR);
 					}
 				} else {
-					mutex.acquire();
+					acquireMutex();
 					updateDaFunni(bmap);
-					mutex.release();
+					releaseMutex();
 				}
 			});
 		}

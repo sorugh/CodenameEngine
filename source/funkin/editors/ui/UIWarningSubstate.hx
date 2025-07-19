@@ -79,7 +79,7 @@ class UIWarningSubstate extends MusicBeatSubstate {
 		sprIcon.updateHitbox();
 
 		messageSpr = new UIText(0,0, spr.bWidth - 100 - (26 * 2), message);
-		spr.bHeight = Std.int(232 + Math.abs(Math.min(sprIcon.height-messageSpr.height, 0)));
+		spr.bHeight = Std.int(bHeight + Math.abs(Math.min(sprIcon.height-messageSpr.height, 0)));
 
 		spr.x = (FlxG.width - spr.bWidth) / 2;
 		spr.y = (FlxG.height - spr.bHeight) / 2;

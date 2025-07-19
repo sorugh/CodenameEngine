@@ -489,11 +489,11 @@ class EventBackdrop extends FlxBackdrop {
 		eventBeatSeparator.xPos = global ? x : x+width;
 		eventBeatSeparator.draw();
 
-		topSeparator.x = global ? x + 20 : (x+width) - 20;
+		topSeparator.x = global ? x : (x+width) - 20;
 		topSeparator.cameras = this.cameras;
 		if (!Options.charterShowSections) topSeparator.draw();
 
-		bottomSeparator.x = global ? x + 20 : (x+width) - 20;
+		bottomSeparator.x = global ? x : (x+width) - 20;
 		bottomSeparator.cameras = this.cameras;
 		bottomSeparator.draw();
 	}
@@ -505,13 +505,13 @@ class CharterEventGridSeperator extends CharterGridSeperatorBase {
 	override private function drawBeats(offset:Float = 0.0) {
 		scale.set(10, 2);
 		updateHitbox();
-		x = global ? xPos+10 : xPos-10;
+		x = global ? xPos : xPos-10;
 		super.drawBeats(-2);
 	}
 	override private function drawMeasures(offset:Float = 0.0) {
 		scale.set(20, 4);
 		updateHitbox();
-		x = global ? xPos+20 : xPos-20;
+		x = global ? xPos : xPos-20;
 		super.drawMeasures(-3);
 	}
 	override private function drawTimeSignatureChangeGaps() {}

@@ -414,7 +414,6 @@ final class CoolUtil
 		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
 		{
 			playMusic(Paths.music('freakyMenu'), true, fadeIn ? 0 : 1, true, 102);
-			FlxG.sound.music.persist = true;
 			if (fadeIn)
 				FlxG.sound.music.fadeIn(4, 0, 0.7);
 		}
@@ -444,18 +443,22 @@ final class CoolUtil
 	 */
 	@:noUsing public static function playMusic(path:String, Persist:Bool = false, Volume:Float = 1, Looped:Bool = true, DefaultBPM:Float = 102, ?Group:FlxSoundGroup) {
 		Conductor.reset();
-		FlxG.sound.playMusic(path, Volume, Looped, Group);
-		if (FlxG.sound.music != null) {
-			FlxG.sound.music.persist = Persist;
-		}
+		if (FlxG.sound.music == null) FlxG.sound.music = new FlxSound();
+		else if (FlxG.sound.music.active) FlxG.sound.music.stop();
+		FlxG.sound.music.loadEmbedded(path, Looped);
+		FlxG.sound.music.volume = Volume;
+		FlxG.sound.music.persist = Persist;
+		FlxG.sound.defaultMusicGroup.add(FlxG.sound.music);
 
 		var iniPath = '${Path.withoutExtension(path)}.ini';
 		var musicData = Assets.exists(iniPath) ? IniUtil.parseAsset(iniPath)["Global"] : null;
 		if (musicData != null) {
 			if (musicData["LoopTime"] != null) FlxG.sound.music.loopTime = Std.parseFloat(musicData["LoopTime"]) * 1000;
+			if (musicData["EndTime"] != null) FlxG.sound.music.endTime = Std.parseFloat(musicData["EndTime"]) * 1000;
+			if (musicData["Offset"] != null) FlxG.sound.music.endTime = Std.parseFloat(musicData["Offset"]) * 1000;
+
 			var timeSignParsed:Array<Null<Float>> = musicData["TimeSignature"] == null ? [] : [for(s in musicData["TimeSignature"].split("/")) Std.parseFloat(s)];
 			var beatsPerMeasure:Float = Flags.DEFAULT_BEATS_PER_MEASURE, stepsPerBeat:Float = Flags.DEFAULT_STEPS_PER_BEAT;
-
 			if (timeSignParsed.length == 2) {
 				beatsPerMeasure = Math.isNaN(timeSignParsed[0]) ? Flags.DEFAULT_BEATS_PER_MEASURE : timeSignParsed[0];
 				stepsPerBeat = Math.isNaN(timeSignParsed[1]) ? Flags.DEFAULT_STEPS_PER_BEAT : (16 / timeSignParsed[1]); // from denominator
@@ -466,6 +469,8 @@ final class CoolUtil
 		}
 		else
 			Conductor.changeBPM(DefaultBPM);
+
+		FlxG.sound.music.play();
 	}
 
 	/**
@@ -900,10 +905,11 @@ final class CoolUtil
 	 * @param music Music
 	 */
 	public static inline function setMusic(frontEnd:SoundFrontEnd, music:FlxSound) {
-		if (frontEnd.music != null)
-			@:privateAccess frontEnd.destroySound(frontEnd.music);
+		if (frontEnd.music == music) return;
+
+		if (frontEnd.music != null) @:privateAccess frontEnd.destroySound(frontEnd.music);
 		frontEnd.list.remove(music);
-		frontEnd.music = music;
+		frontEnd.defaultMusicGroup.add(frontEnd.music = music);
 	}
 
 	/**

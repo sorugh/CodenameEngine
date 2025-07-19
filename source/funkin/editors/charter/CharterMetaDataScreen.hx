@@ -3,6 +3,7 @@ package funkin.editors.charter;
 import flixel.math.FlxPoint;
 import funkin.backend.chart.ChartData.ChartMetaData;
 import funkin.editors.extra.PropertyButton;
+import funkin.game.HealthIcon;
 
 using StringTools;
 
@@ -19,7 +20,7 @@ class CharterMetaDataScreen extends UISubstateWindow {
 
 	public var displayNameTextBox:UITextBox;
 	public var iconTextBox:UITextBox;
-	public var iconSprite:FlxSprite;
+	public var iconSprite:HealthIcon;
 	public var opponentModeCheckbox:UICheckbox;
 	public var coopAllowedCheckbox:UICheckbox;
 	public var colorWheel:UIColorwheel;
@@ -84,7 +85,7 @@ class CharterMetaDataScreen extends UISubstateWindow {
 		coopAllowedCheckbox = new UICheckbox(opponentModeCheckbox.x + 150 + 26, opponentModeCheckbox.y, "Co-op Mode", metadata.coopAllowed);
 		add(coopAllowedCheckbox);
 
-		colorWheel = new UIColorwheel(iconTextBox.x, coopAllowedCheckbox.y, metadata.parsedColor);
+		colorWheel = new UIColorwheel(iconTextBox.x, coopAllowedCheckbox.y, metadata.color);
 		add(colorWheel);
 		addLabelOn(colorWheel, "Color");
 
@@ -124,22 +125,14 @@ class CharterMetaDataScreen extends UISubstateWindow {
 	}
 
 	function updateIcon(icon:String) {
-		if (iconSprite == null) add(iconSprite = new FlxSprite());
+		if (iconSprite == null) add(iconSprite = new HealthIcon());
 
-		if (iconSprite.animation.exists(icon)) return;
-		@:privateAccess iconSprite.animation.clearAnimations();
-
-		var path:String = Paths.image('icons/$icon');
-		if (!Assets.exists(path)) path = Paths.image('icons/' + Flags.DEFAULT_HEALTH_ICON);
-
-		iconSprite.loadGraphic(path, true, 150, 150);
-		iconSprite.animation.add(icon, [0], 0, false);
-		iconSprite.antialiasing = true;
-		iconSprite.animation.play(icon);
-
-		iconSprite.scale.set(0.5, 0.5);
+		iconSprite.setIcon(icon);
+		var size = Std.int(150 * 0.5);
+		iconSprite.setUnstretchedGraphicSize(size, size, true);
 		iconSprite.updateHitbox();
-		iconSprite.setPosition(iconTextBox.x + 150 + 8, (iconTextBox.y + 16) - (iconSprite.height/2));
+		iconSprite.setPosition(iconTextBox.x + iconTextBox.bWidth + 8, iconTextBox.y + (iconTextBox.bHeight / 2) - (iconSprite.height / 2));
+		iconSprite.scrollFactor.set(1, 1);
 	}
 
 	public function saveMeta() {
@@ -157,8 +150,7 @@ class CharterMetaDataScreen extends UISubstateWindow {
 			stepsPerBeat: Std.int(stepsPerBeatStepper.value),
 			displayName: displayNameTextBox.label.text,
 			icon: iconTextBox.label.text,
-			color: colorWheel.curColorString,
-			parsedColor: colorWheel.curColor,
+			color: colorWheel.curColor,
 			opponentModeAllowed: opponentModeCheckbox.checked,
 			coopAllowed: coopAllowedCheckbox.checked,
 			difficulties: [for (diff in difficultiesTextBox.label.text.split(",")) diff.trim()],

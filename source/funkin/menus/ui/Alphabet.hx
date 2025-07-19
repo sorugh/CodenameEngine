@@ -52,7 +52,9 @@ class Alphabet extends FlxSpriteGroup
 	public function refreshAlphabetXML(path:String) {
 		AlphaCharacter.__alphaPath = Paths.getAssetsRoot() + path;
 		try {
-			var xml = new Access(Xml.parse(Assets.getText(path)).firstElement());
+			var file = Assets.getText(path);
+			if(file == null) return;
+			var xml = new Access(Xml.parse(file).firstElement());
 			AlphaCharacter.boldAnims = [];
 			AlphaCharacter.letterAnims = [];
 			AlphaCharacter.boldAlphabetPath = AlphaCharacter.letterAlphabetPath = 'ui/alphabet';

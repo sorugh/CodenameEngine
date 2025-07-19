@@ -202,11 +202,11 @@ class CharterEventScreen extends UISubstateWindow {
 	public function saveCurTab() {
 		if (curEvent < 0) return;
 
-		events[curEvent].params = [
-			for(p in paramsFields) {
+		var dataParams = EventsData.getEventParams(events[curEvent].name);
+		var params:Array<Dynamic> = [
+			for (i => p in paramsFields) {
 				if (p is UIDropDown) {
-					var dataParams = EventsData.getEventParams(events[curEvent].name);
-					if (dataParams[paramsFields.indexOf(p)].type == TStrumLine) cast(p, UIDropDown).index;
+					if (dataParams[i].type == TStrumLine) cast(p, UIDropDown).index;
 					else cast(p, UIDropDown).label.text;
 				}
 				else if (p is UINumericStepper) {
@@ -227,6 +227,14 @@ class CharterEventScreen extends UISubstateWindow {
 					null;
 			}
 		];
+
+		while(dataParams.length > 0 && {
+			var index = params.length - 1;
+			var dataParam = dataParams[index];
+			dataParam.saveIfDefault == false && params[index] == dataParam.defValue;
+		}) params.pop();
+
+		events[curEvent].params = params;
 	}
 }
 

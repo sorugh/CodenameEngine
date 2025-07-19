@@ -1423,8 +1423,11 @@ class Charter extends UIState {
 		for(id=>str in strumLines.members)
 			if (str != null) str.y = strumlineInfoBG.y;
 
+		strumlineAddButton.x = 0;
 		strumlineAddButton.y = strumlineInfoBG.y;
 		strumlineLockButton.y = strumlineInfoBG.y;
+
+		strumlineLockButton.text.visible = strumlineLockButton.button.selectable = strumlineLockButton.button.visible = strumLines.members.length > 0;
 	}
 
 	public override function onResize(width:Int, height:Int) {
@@ -1558,7 +1561,7 @@ class Charter extends UIState {
 	#if REGION
 	function _file_exit(_) {
 		if (undos.unsaved) SaveWarning.triggerWarning();
-		else {undos = null; FlxG.switchState(new CharterSelection()); PlayState.resetSongInfos(); Charter.instance.__clearStatics();}
+		else {undos = null; FlxG.switchState(new CharterSelection()); Charter.instance.__clearStatics();}
 	}
 
 	function _file_save_all(_) saveEverything();
@@ -2145,7 +2148,7 @@ class Charter extends UIState {
 	}
 
 	@:noCompletion public function __clearStatics() {
-		selection = null; undos = null; clipboard = null; playtestInfo = null; 
+		selection = null; undos = null; clipboard = null; playtestInfo = null;
 		waveformHandler.destroy(); Charter.waveformHandler = null; autoSaveTimer = 0;
 	}
 

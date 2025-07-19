@@ -88,8 +88,7 @@ class CharterStrumline extends UISprite {
 		button = new CharterStrumlineOptions(this);
 		members.push(button);
 
-		vocals = strumLine.vocalsSuffix.length > 0 ? FlxG.sound.load(Paths.voices(PlayState.SONG.meta.name, PlayState.difficulty, strumLine.vocalsSuffix)) : new FlxSound();
-		vocals.group = FlxG.sound.defaultMusicGroup;
+		updateInfo();
 
 		selectedWaveform = -1;
 	}

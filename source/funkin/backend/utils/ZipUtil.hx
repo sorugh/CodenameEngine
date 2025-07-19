@@ -1,5 +1,8 @@
 package funkin.backend.utils;
 
+import haxe.zip.Entry;
+import haxe.zip.Reader;
+
 #if sys
 #if (!macro && sys)
 import openfl.display.BitmapData;
@@ -9,8 +12,6 @@ import haxe.Exception;
 import haxe.Json;
 import haxe.crypto.Crc32;
 import haxe.zip.Compress;
-import haxe.zip.Entry;
-import haxe.zip.Reader;
 import haxe.zip.Tools;
 import haxe.zip.Uncompress;
 import haxe.zip.Writer;
@@ -135,12 +136,12 @@ final class ZipUtil {
 		if (prog == null) prog = new ZipProgress();
 
 		try {
-			var curPath:Array<String> = ['$path'];
+			var curPath:Array<String> = [path];
 			var destPath:Array<String> = [];
 			if (prefix != "") {
 				prefix = prefix.replace("\\", "/");
-				while(prefix.charAt(0) == "/") prefix = prefix.substr(1);
-				while(prefix.charAt(prefix.length-1) == "/") prefix = prefix.substr(0, prefix.length-1);
+				while(prefix.charCodeAt(0) == "/".code) prefix = prefix.substr(1);
+				while(prefix.charCodeAt(prefix.length-1) == "/".code) prefix = prefix.substr(0, prefix.length-1);
 				destPath.push(prefix);
 			}
 
@@ -160,7 +161,7 @@ final class ZipUtil {
 					} else {
 						// is file, put it in the list
 						var zipPath = '$zipPath/$e';
-						while(zipPath.charAt(0) == "/") zipPath = zipPath.substr(1);
+						while(zipPath.charCodeAt(0) == "/".code) zipPath = zipPath.substr(1);
 						files.push(new StrNameLabel('$path/$e', zipPath));
 					}
 				}
@@ -227,20 +228,6 @@ class ZipProgress {
 	public function new() {}
 }
 
-class ZipReader extends Reader {
-	public var files:List<Entry>;
-
-	public override function read() {
-		if (files != null) return files;
-		try {
-			var files = super.read();
-			return this.files = files;
-		} catch(e) {
-		}
-		return new List<Entry>();
-	}
-}
-
 class ZipWriter extends Writer {
 	public function flush() {
 		o.flush();
@@ -266,3 +253,17 @@ class StrNameLabel {
 	}
 }
 #end
+
+class ZipReader extends Reader {
+	public var files:List<Entry>;
+
+	public override function read() {
+		if (files != null) return files;
+		try {
+			var files = super.read();
+			return this.files = files;
+		} catch(e) {
+		}
+		return new List<Entry>();
+	}
+}

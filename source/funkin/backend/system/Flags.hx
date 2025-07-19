@@ -1,19 +1,32 @@
 package funkin.backend.system;
 
-import lime.utils.AssetLibrary as LimeAssetLibrary;
-import lime.utils.AssetType;
 import flixel.util.FlxColor;
-
-import lime.app.Application;
-import funkin.backend.system.macros.GitCommitMacro;
 import funkin.backend.assets.IModsAssetLibrary;
 import funkin.backend.assets.ScriptedAssetLibrary;
+import funkin.backend.system.macros.GitCommitMacro;
+import lime.app.Application;
+import lime.utils.AssetLibrary as LimeAssetLibrary;
+import lime.utils.AssetType;
 
 /**
  * A class that reads the `flags.ini` file, allowing to read settable Flags (customs too).
  */
 @:build(funkin.backend.system.macros.FlagMacro.build())
 class Flags {
+	// -- Codename's Mod Config --
+	public static var MOD_NAME:String = "";
+	public static var MOD_DESCRIPTION:String = "";
+	public static var MOD_API_VERSION:Int = 1;
+	public static var MOD_DOWNLOADED_LINK:String  = "";
+	public static var MOD_DEPENDENCIES:Array<String> = [];
+
+	public static var MOD_ICON64:String = "";
+	public static var MOD_ICON32:String = "";
+	public static var MOD_ICON16:String = "";
+	public static var MOD_ICON:String = "";
+
+	public static var MOD_DISCORD_CLIENT_ID:String = "";
+	public static var MOD_DISCORD_LOGO_KEY:String = "";
 	// -- Codename's Default Flags --
 	public static var COMMIT_NUMBER:Int = GitCommitMacro.commitNumber;
 	public static var COMMIT_HASH:String = GitCommitMacro.commitHash;
@@ -28,10 +41,6 @@ class Flags {
 	public static var REPO_OWNER:String = "CodenameCrew";
 	public static var REPO_URL:String = 'https://github.com/$REPO_OWNER/$REPO_NAME';
 
-	// make this empty once you guys are done with the project.
-	// good luck /gen <3 @crowplexus
-	public static var RELEASE_CYCLE:String = "Beta";
-
 	/**
 	 * Preferred sound extension for the game's audio files.
 	 * Currently is set to `mp3` for web targets, and `ogg` for other targets.
@@ -41,7 +50,7 @@ class Flags {
 	public static var IMAGE_EXT:String = "png"; // we also support jpg
 
 	public static var DEFAULT_DISCORD_LOGO_KEY:String = "icon";
-	public static var DEFAULT_DISCORD_CLIENT_ID:String = "1027994136193810442";
+	public static var DEFAULT_DISCORD_CLIENT_ID:String = "1383853614589673472";
 	public static var DEFAULT_DISCORD_LOGO_TEXT:String = "Codename Engine";
 
 	@:also(funkin.game.Character.FALLBACK_CHARACTER)
@@ -59,23 +68,25 @@ class Flags {
 	public static var WEEKS_LIST_MOD_MODE:Allow<"prepend", "override", "append"> = "override";
 
 	public static var DEFAULT_BPM:Float = 100.0;
-	public static var DEFAULT_BEATS_PER_MEASURE:Float = 4;
+	public static var DEFAULT_BEATS_PER_MEASURE:Int = 4;
 	public static var DEFAULT_STEPS_PER_BEAT:Int = 4;
+	public static var DEFAULT_LOOP_TIME:Float = 0.0;
 
 	public static var SUPPORTED_CHART_RUNTIME_FORMATS:Array<String> = ["Legacy", "Psych Engine"];
 	public static var SUPPORTED_CHART_FORMATS:Array<String> = ["BaseGame"];
 
-	public static var BASEGAME_SONG_METADATA_VERSION:String = "2.2.2";
-	public static var BASEGAME_SONG_CHART_DATA_VERSION:String = "2.0.0";
-	public static var BASEGAME_DEFAULT_NOTE_STYLE:String = 'funkin';
-	public static var BASEGAME_DEFAULT_ALBUM_ID:String = 'volume1';
-	public static var BASEGAME_DEFAULT_PREVIEW_START:Float = 0;
-	public static var BASEGAME_DEFAULT_PREVIEW_END:Float = 15000;
+	public static var VSLICE_SONG_METADATA_VERSION:String = "2.2.2";
+	public static var VSLICE_SONG_CHART_DATA_VERSION:String = "2.0.0";
+	public static var VSLICE_DEFAULT_NOTE_STYLE:String = 'funkin';
+	public static var VSLICE_DEFAULT_ALBUM_ID:String = 'volume1';
+	public static var VSLICE_DEFAULT_PREVIEW_START:Int = 0;
+	public static var VSLICE_DEFAULT_PREVIEW_END:Int = 15000;
 
 	/**
-	 * Default background colors for songs without bg color
+	 * Default background colors for songs or more without bg color
 	 */
 	public static var DEFAULT_COLOR:FlxColor = 0xFF9271FD;
+	public static var DEFAULT_WEEK_COLOR:FlxColor = 0xFFF9CF51;
 	public static var DEFAULT_COOP_ALLOWED:Bool = false;
 	public static var DEFAULT_OPPONENT_MODE_ALLOWED:Bool = false;
 
@@ -97,7 +108,7 @@ class Flags {
 	public static var DEFAULT_CAM_ZOOM_STRENGTH:Int = 1;
 	public static var DEFAULT_CAM_ZOOM:Float = 1.05; // what zoom level it defaults to
 	public static var DEFAULT_HUD_ZOOM:Float = 1.0;
-	public static var MAX_CAMERA_ZOOM:Float = 1.35;
+	public static var MAX_CAMERA_ZOOM_MULT:Float = 1.35;
 
 	public static var DEFAULT_PAUSE_ITEMS:Array<String> = ['Resume', 'Restart Song', 'Change Controls', 'Change Options', 'Exit to menu', "Exit to charter"];
 	public static var DEFAULT_CUTSCENE_PAUSE_ITEMS:Array<String> = ['Resume Cutscene', 'Skip Cutscene', 'Restart Cutscene', 'Exit to menu'];
@@ -157,7 +168,7 @@ class Flags {
 	// -- End of Codename's Default Flags --
 
 	/**
-	 * Flags that Codename couldn't recognize as it's own defaults (they can only be `string`!).
+	 * Flags that Codename couldn't recognize as it's own defaults (they can only be `string`! due to them being unparsed).
 	 */
 	@:bypass public static var customFlags:Map<String, String> = [];
 
@@ -187,10 +198,9 @@ class Flags {
 		}
 	}
 
-	public static function loadFromDatas(files:Array<String>) {
+	public static function loadFromDatas(datas:Array<String>) {
 		var flags:Map<String, String> = [];
-		for(file in files) {
-			var data:String = Assets.getText(file);
+		for(data in datas) {
 			if(data != null)
 				loadFromData(flags, data);
 		}

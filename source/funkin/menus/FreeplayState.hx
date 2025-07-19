@@ -139,6 +139,8 @@ class FreeplayState extends MusicBeatState
 
 			var icon:HealthIcon = new HealthIcon(songs[i].icon);
 			icon.sprTracker = songText;
+			icon.setUnstretchedGraphicSize(150, 150, true);
+			icon.updateHitbox();
 
 			// using a FlxGroup is too much fuss!
 			iconArray.push(icon);
@@ -234,7 +236,7 @@ class FreeplayState extends MusicBeatState
 		scoreText.x = coopText.x = scoreBG.x + 4;
 		diffText.x = Std.int(scoreBG.x + ((scoreBG.width - diffText.width) / 2));
 
-		interpColor.fpsLerpTo(songs[curSelected].parsedColor, 0.0625);
+		interpColor.fpsLerpTo(songs[curSelected].color, 0.0625);
 		bg.color = interpColor.color;
 
 		#if PRELOAD_ALL
@@ -320,10 +322,9 @@ class FreeplayState extends MusicBeatState
 	}
 
 	public function convertChart() {
-		var curSong = songs[curSelected];
-		trace('Converting ${curSong.name} (${curSong.difficulties[curDifficulty]}) to Codename format...');
-		var chart = Chart.parse(curSong.name, curSong.difficulties[curDifficulty]);
-		Chart.save('${Main.pathBack}assets/songs/${curSong.name}', chart, curSong.difficulties[curDifficulty].toLowerCase());
+		trace('Converting ${songs[curSelected].name} (${songs[curSelected].difficulties[curDifficulty]}) to Codename format...');
+		var chart = Chart.parse(songs[curSelected].name, songs[curSelected].difficulties[curDifficulty]);
+		Chart.save('${Main.pathBack}assets/songs/${songs[curSelected].name}', chart, songs[curSelected].difficulties[curDifficulty]);
 	}
 
 	/**
@@ -346,9 +347,9 @@ class FreeplayState extends MusicBeatState
 		updateScore();
 
 		if (curSong.difficulties.length > 1)
-			diffText.text = '< ${curSong.difficulties[curDifficulty]} >';
+			diffText.text = '< ${curSong.difficulties[curDifficulty].toUpperCase()} >';
 		else
-			diffText.text = validDifficulties ? curSong.difficulties[curDifficulty] : "-";
+			diffText.text = validDifficulties ? curSong.difficulties[curDifficulty].toUpperCase() : "-";
 	}
 
 	function updateScore() {
@@ -453,16 +454,10 @@ class FreeplaySonglist {
 
 	public function getSongsFromSource(source:funkin.backend.assets.AssetsLibraryList.AssetSource, useTxt:Bool = true) {
 		var path:String = Paths.txt('freeplaySonglist');
-		var songsFound:Array<String> = [];
-		if (useTxt && Paths.assetsTree.existsSpecific(path, "TEXT", source)) {
-			songsFound = CoolUtil.coolTextFile(Paths.txt('freeplaySonglist'));
-		} else {
-			songsFound = Paths.getFolderDirectories('songs', false, source);
-		}
+		var songsFound:Array<String> = useTxt && Paths.assetsTree.existsSpecific(path, "TEXT", source) ? CoolUtil.coolTextFile(path) : Paths.getFolderDirectories('songs', false, source);
 
 		if (songsFound.length > 0) {
-			for(s in songsFound)
-				songs.push(Chart.loadChartMeta(s, Flags.DEFAULT_DIFFICULTY, source == MODS));
+			for (s in songsFound) songs.push(Chart.loadChartMeta(s, Flags.DEFAULT_DIFFICULTY, source == MODS));
 			return false;
 		}
 		return true;

@@ -14,7 +14,7 @@
 			<line>haxelib dev hxcpp dev-libs/hxcpp</line>
 		</cmd>
 
-		<!-- Build hxcpp -->
+		<!-- Build hxcppp -->
 		<cmd inLib="hxcpp" dir="tools/hxcpp" cmd="haxe compile.hxml" />
 	</if>
 

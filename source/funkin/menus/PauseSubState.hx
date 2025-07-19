@@ -165,7 +165,6 @@ class PauseSubState extends MusicBeatSubstate
 				if (PlayState.chartingMode && Charter.undos.unsaved)
 					game.saveWarn(false);
 				else {
-					PlayState.resetSongInfos();
 					if (Charter.instance != null) Charter.instance.__clearStatics();
 
 					// prevents certain notes to disappear early when exiting  - Nex

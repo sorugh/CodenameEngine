@@ -5,8 +5,10 @@ import sys.FileSystem;
 #end
 import flixel.FlxState;
 import funkin.backend.assets.ModsFolder;
+import funkin.backend.assets.ModsFolderLibrary;
 import funkin.backend.chart.EventsData;
 import funkin.backend.system.framerate.Framerate;
+import funkin.editors.ModConfigWarning;
 import funkin.menus.TitleState;
 import haxe.io.Path;
 
@@ -112,10 +114,23 @@ class MainState extends FlxState {
 		if (Framerate.isLoaded)
 			Framerate.instance.reload();
 
-		FlxG.switchState(new TitleState());
-
 		#if sys
 		CoolUtil.safeAddAttributes('./.temp/', NativeAPI.FileAttribute.HIDDEN);
 		#end
+
+		if (Options.devMode) {
+			var lib:ModsFolderLibrary;
+			for (e in Paths.assetsTree.libraries) {
+				@:privateAccess if (!(e is openfl.utils.AssetLibrary) || !((lib = cast cast(e, openfl.utils.AssetLibrary).__proxy) is ModsFolderLibrary)) continue;
+				if (lib.modName == ModsFolder.currentModFolder) {
+					if (lib.exists(Paths.ini("config/modpack"), lime.utils.AssetType.TEXT)) break;
+
+					FlxG.switchState(new ModConfigWarning(lib));
+					return;
+				}
+			}
+		}
+
+		FlxG.switchState(new TitleState());
 	}
 }

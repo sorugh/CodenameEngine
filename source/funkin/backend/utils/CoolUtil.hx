@@ -471,7 +471,7 @@ final class CoolUtil
 			}
 
 			var bpm:Null<Float> = Std.parseFloat(musicInfo["BPM"]).getDefault(DefaultBPM);
-			Conductor.changeBPM(bpm, beatsPerMeasure, stepsPerBeat);
+			Conductor.changeBPM(bpm, beatsPerMeasure, floorInt(stepsPerBeat));
 		} else
 			Conductor.changeBPM(DefaultBPM);
 	}

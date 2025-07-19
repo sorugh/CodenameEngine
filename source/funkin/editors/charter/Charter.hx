@@ -11,6 +11,7 @@ import funkin.backend.chart.ChartData;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.framerate.Framerate;
 import funkin.editors.charter.CharterBackdropGroup.EventBackdrop;
+import funkin.editors.charter.CharterBackdropGroup.CharterGridSeperatorBase;
 import funkin.editors.charter.CharterEvent;
 import funkin.editors.charter.CharterStrumline;
 import funkin.editors.extra.CameraHoverDummy;
@@ -685,6 +686,8 @@ class Charter extends UIState {
 		gridBackdrops.bottomLimitY = __endStep * 40;
 		leftEventsBackdrop.bottomSeparator.y = rightEventsBackdrop.bottomSeparator.y = gridBackdrops.bottomLimitY-2;
 
+		CharterGridSeperatorBase.lastConductorSprY = Math.NEGATIVE_INFINITY;
+
 		updateWaveforms();
 	}
 
@@ -924,7 +927,7 @@ class Charter extends UIState {
 							s.cursor = CLICK;
 						}
 					}
-
+					checkSelectionForBPMUpdates();
 					if (!(verticalChange == 0 && horizontalChange == 0)) {
 						notesGroup.sortNotes();
 
@@ -1128,11 +1131,7 @@ class Charter extends UIState {
 		notesGroup.sortNotes();
 		notesGroup.autoSort = true;
 
-		for (s in selection)
-			if (s is CharterEvent) {
-				Charter.instance.updateBPMEvents();
-				break;
-			}
+		checkSelectionForBPMUpdates();
 
 		if (addToUndo)
 			undos.addToUndo(CCreateSelection(selection));
@@ -1156,11 +1155,7 @@ class Charter extends UIState {
 		notesGroup.sortNotes();
 		notesGroup.autoSort = true;
 
-		for (s in selection)
-			if (s is CharterEvent) {
-				Charter.instance.updateBPMEvents();
-				break;
-			}
+		checkSelectionForBPMUpdates();
 
 		if (addToUndo)
 			undos.addToUndo(CDeleteSelection(selection));
@@ -1380,12 +1375,13 @@ class Charter extends UIState {
 			for (strumLine in strumLines.members) strumLine.vocals.pause();
 		}
 
-		songPosInfo.text = '${CoolUtil.timeToStr(Conductor.songPosition)} / ${CoolUtil.timeToStr(songLength)}'
-		+ '\nStep: ${curStep}'
-		+ '\nBeat: ${curBeat}'
-		+ '\nMeasure: ${curMeasure}'
-		+ '\nBPM: ${Conductor.bpm}'
-		+ '\nTime Signature: ${Conductor.beatsPerMeasure}/${Conductor.stepsPerBeat}';
+		var curChange = Conductor.curChange;
+		songPosInfo.text = '${CoolUtil.timeToStr(songPos)} / ${CoolUtil.timeToStr(songLength)}'
+		+ '\nStep: $curStep'
+		+ '\nBeat: $curBeat'
+		+ '\nMeasure: $curMeasure'
+		+ '\nBPM: ${(curChange != null && curChange.continuous && curChange.endSongTime > songPos) ? FlxMath.roundDecimal(Conductor.bpm, 3) : Conductor.bpm}'
+		+ '\nTime Signature: ${Conductor.beatsPerMeasure}/${Conductor.denominator}';
 
 		if (charterCamera.zoom != (charterCamera.zoom = lerp(charterCamera.zoom, __camZoom, __firstFrame ? 1 : 0.125)))
 			updateDisplaySprites();
@@ -1423,7 +1419,7 @@ class Charter extends UIState {
 		for(id=>str in strumLines.members)
 			if (str != null) str.y = strumlineInfoBG.y;
 
-		strumlineAddButton.x = 0;
+		//strumlineAddButton.x = 0;
 		strumlineAddButton.y = strumlineInfoBG.y;
 		strumlineLockButton.y = strumlineInfoBG.y;
 
@@ -1616,6 +1612,8 @@ class Charter extends UIState {
 		selection = sObjects;
 		_edit_copy(_); // to fix stupid bugs
 
+		checkSelectionForBPMUpdates();
+
 		undos.addToUndo(CCreateSelection(sObjects.copy()));
 	}
 
@@ -1658,6 +1656,7 @@ class Charter extends UIState {
 					if (s.selectable.draggable) s.selectable.handleDrag(s.change * -1);
 
 				selection = [for (s in selectionDrags) s.selectable];
+				checkSelectionForBPMUpdates();
 			case CEditSustains(changes):
 				for(n in changes)
 					n.note.updatePos(n.note.step, n.note.id, n.before, n.note.type);
@@ -1713,6 +1712,7 @@ class Charter extends UIState {
 				for (s in selectionDrags)
 					if (s.selectable.draggable) s.selectable.handleDrag(s.change);
 				//this.selection = selection;
+				checkSelectionForBPMUpdates();
 			case CEditSustains(changes):
 				for(n in changes)
 					n.note.updatePos(n.note.step, n.note.id, n.after, n.note.type);
@@ -1838,11 +1838,9 @@ class Charter extends UIState {
 	}
 	function _view_showeventSecSeparator(t) {
 		t.icon = (Options.charterShowSections = !Options.charterShowSections) ? 1 : 0;
-		leftEventsBackdrop.eventSecSeparator.visible = rightEventsBackdrop.eventSecSeparator.visible = gridBackdrops.sectionsVisible = Options.charterShowSections;
 	}
 	function _view_showeventBeatSeparator(t) {
 		t.icon = (Options.charterShowBeats = !Options.charterShowBeats) ? 1 : 0;
-		leftEventsBackdrop.eventBeatSeparator.visible = rightEventsBackdrop.eventBeatSeparator.visible = gridBackdrops.beatsVisible = Options.charterShowBeats;
 	}
 	function _view_switchWaveformRainbow(t) {
 		t.icon = (Options.charterRainbowWaveforms = !Options.charterRainbowWaveforms) ? 1 : 0;
@@ -2059,12 +2057,38 @@ class Charter extends UIState {
 	}
 
 	public function updateBPMEvents() {
+		leftEventsGroup.sortEvents();
+		rightEventsGroup.sortEvents();
+		Conductor.mapCharterBPMChanges(PlayState.SONG);
 		buildEvents();
 
-		Conductor.mapBPMChanges(PlayState.SONG);
-		Conductor.changeBPM(PlayState.SONG.meta.bpm, cast PlayState.SONG.meta.beatsPerMeasure.getDefault(4), cast PlayState.SONG.meta.stepsPerBeat.getDefault(4));
+		for(e in leftEventsGroup.members) {
+			for(event in e.events) {
+				if (event.name == "BPM Change" || event.name == "Time Signature Change" || event.name == "Continuous BPM Change") {
+					e.refreshEventIcons();
+					break;
+				}
+			}
+		}
+
+		for(e in rightEventsGroup.members) {
+			for(event in e.events) {
+				if (event.name == "BPM Change" || event.name == "Time Signature Change" || event.name == "Continuous BPM Change") {
+					e.refreshEventIcons();
+					break;
+				}
+			}
+		}
 
 		refreshBPMSensitive();
+	}
+
+	public inline function checkSelectionForBPMUpdates() {
+		for (s in selection)
+			if (s is CharterEvent) {
+				updateBPMEvents();
+				break;
+			}
 	}
 
 	public inline function hitsoundsEnabled(id:Int)

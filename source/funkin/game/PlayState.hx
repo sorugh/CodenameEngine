@@ -377,13 +377,28 @@ class PlayState extends MusicBeatState
 	 */
 	public var camZooming:Bool = false;
 	/**
-	  * Interval of cam zooming (beats).
-	  * For example: if set to 4, the camera will zoom every 4 beats.
-	  */
-	public var camZoomingInterval:Int = Flags.DEFAULT_CAM_ZOOM_INTERVAL;
+	 * Interval of cam zooming (in conductor values).
+	 * Example: If Interval is 1 and Beat Type is on MEASURE, it'll zoom every a measure.
+	 * NOTE: Will set to 4 if not found any other time signatures unlike 4/4
+	 */
+	public var camZoomingInterval:Float = Flags.DEFAULT_CAM_ZOOM_INTERVAL;
 	/**
-	  * How strong the cam zooms should be (defaults to 1)
-	  */
+	 * Number of Conductor values to offset camZooming by.
+	 */
+	public var camZoomingOffset:Float = Flags.DEFAULT_CAM_ZOOM_OFFSET;
+	/**
+	 * Beat type for interval of cam zooming.
+	 * Example: If Beat Type is on STEP and Interval is 2, it'll zoom every 2 steps.
+	 * NOTE: Will set to BEAT if not found any other time signatures unlike 4/4
+	 */
+	public var camZoomingEvery:BeatType = MEASURE;
+	/**
+	 * Stores what was the last beat for the cam zooming intervals.
+	 */
+	public var camZoomingLastBeat:Float;
+	/**
+	 * How strong the cam zooms should be (defaults to 1)
+	 */
 	public var camZoomingStrength:Float = Flags.DEFAULT_CAM_ZOOM_STRENGTH;
 	/**
 	  * Default multiplier for `maxCamZoom`.
@@ -1055,25 +1070,33 @@ class PlayState extends MusicBeatState
 	{
 		if (songData == null) songData = SONG;
 
-		events = songData.events != null ? songData.events.copy() : [];
-		// get first camera focus
-		for(e in events) {
-			if (e.time > 10) break;
-			if (e.name == "Camera Movement") {
-				executeEvent(e);
-				break;
+		var foundCam = false;
+		var foundSigs = songData.meta.beatsPerMeasure.getDefault(4) != 4 || songData.meta.stepsPerBeat.getDefault(4) != 4;
+
+		if (events == null) events = [];
+		else events = [
+			for (e in songData.events) {
+				switch (e.name) {
+					case "Camera Movement": if (!foundCam && e.time < 10) {
+						foundCam = true;
+						executeEvent(e);
+					}
+					case "Time Signature Change": if (!foundSigs && (e.params[0] != 4 || e.params[1] != 4)) {
+						foundSigs = true;
+					}
+				}
+				e;
 			}
+		];
+
+		if (!foundSigs) {
+			camZoomingInterval = 4;
+			camZoomingEvery = BEAT;
 		}
+
 		events.sort(function(p1, p2) {
 			return FlxSort.byValues(FlxSort.DESCENDING, p1.time, p2.time);
 		});
-
-		var beatsPerMeasure:Float = songData.meta.beatsPerMeasure.getDefault(Flags.DEFAULT_BEATS_PER_MEASURE);
-		var stepsPerBeat:Int = songData.meta.stepsPerBeat.getDefault(Flags.DEFAULT_STEPS_PER_BEAT);
-
-		camZoomingInterval = Std.int(beatsPerMeasure);
-
-		Conductor.changeBPM(songData.meta.bpm, beatsPerMeasure, stepsPerBeat);
 
 		curSong = songData.meta.name.toLowerCase();
 		curSongID = curSong.replace(" ", "-");
@@ -1318,6 +1341,15 @@ class PlayState extends MusicBeatState
 		if (canAccessDebugMenus && chartingMode && controls.DEV_ACCESS)
 			FlxG.switchState(new funkin.editors.charter.Charter(SONG.meta.name, difficulty, false));
 
+		if (Options.camZoomOnBeat && camZooming && FlxG.camera.zoom < maxCamZoom) {
+			var beat = Conductor.getBeats(camZoomingEvery, camZoomingInterval, camZoomingOffset);
+			if (camZoomingLastBeat != beat) {
+				camZoomingLastBeat = beat;
+				FlxG.camera.zoom += 0.015 * camZoomingStrength;
+				camHUD.zoom += 0.03 * camZoomingStrength;
+			}
+		}
+
 		if (doIconBop)
 			for (icon in iconArray)
 				if (icon.updateBump != null)
@@ -1539,6 +1571,12 @@ class PlayState extends MusicBeatState
 			case "Camera Modulo Change":
 				camZoomingInterval = event.params[0];
 				camZoomingStrength = event.params[1];
+				if (event.params[2] != null) camZoomingEvery = switch (event.params[2].toUpperCase()) {
+					case "STEP": STEP;
+					case "MEASURE": MEASURE;
+					default: BEAT;
+				}
+				if (event.params[3] != null) camZoomingOffset = event.params[3];
 			case "Camera Flash":
 				var camera:FlxCamera = event.params[3] == "camHUD" ? camHUD : camGame;
 
@@ -1987,13 +2025,6 @@ class PlayState extends MusicBeatState
 	override function beatHit(curBeat:Int)
 	{
 		super.beatHit(curBeat);
-
-		if (camZoomingInterval < 1) camZoomingInterval = 1;
-		if (Options.camZoomOnBeat && camZooming && FlxG.camera.zoom < maxCamZoom && curBeat % camZoomingInterval == 0)
-		{
-			FlxG.camera.zoom += Flags.CAM_BOP_STRENGTH * camZoomingStrength;
-			camHUD.zoom += Flags.HUD_BOP_STRENGTH * camZoomingStrength;
-		}
 
 		if (doIconBop)
 			for (icon in iconArray)

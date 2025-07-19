@@ -97,7 +97,7 @@ class ModsFolder {
 			return mods;
 
 		for (modFolder in modsList) {
-			if (FileSystem.isDirectory('${modsPath}${modFolder}')) {
+			if (FileSystem.isDirectory(modsPath + modFolder)) {
 				mods.push(modFolder);
 			} else {
 				var ext = Path.extension(modFolder).toLowerCase();

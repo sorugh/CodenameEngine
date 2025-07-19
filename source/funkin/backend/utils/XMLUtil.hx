@@ -34,7 +34,7 @@ typedef TextFormat = { text:String, format:Dynamic }
  * Class made to make XML parsing easier.
  * Used in Stage.hx, Character.hx, and more.
  */
-class XMLUtil {
+final class XMLUtil {
 	/**
 	 * Applies a property XML node to an object.
 	 * The format for the XML is as follows:
@@ -201,10 +201,15 @@ class XMLUtil {
 		if(node.has.color)
 			spr.color = FlxColor.fromString(node.getAtt("color")).getDefault(0xFFFFFFFF);
 
+		if(node.has.angle)
+			spr.angle = Std.parseFloat(node.getAtt("angle")).getDefault(spr.angle);
+
 		if (node.has.playOnCountdown)
 			spr.skipNegativeBeats = node.att.playOnCountdown == "true";
 		if (node.has.beatInterval)
 			spr.beatInterval = Std.parseInt(node.att.beatInterval);
+		if (node.has.interval)
+			spr.beatInterval = Std.parseInt(node.att.interval);
 		if (node.has.beatOffset)
 			spr.beatOffset = Std.parseInt(node.att.beatOffset);
 

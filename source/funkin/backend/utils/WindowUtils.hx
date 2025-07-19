@@ -2,7 +2,7 @@ package funkin.backend.utils;
 
 import openfl.Lib;
 
-class WindowUtils {
+final class WindowUtils {
 	public static var title(default, set):String;
 	private static function set_title(value:String):String {
 		title = value;

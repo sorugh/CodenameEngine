@@ -36,6 +36,7 @@ class MainState extends FlxState {
 		#end
 		Options.save();
 
+		ControlsUtil.resetCustomControls();
 		FlxG.bitmap.reset();
 		FlxG.sound.destroy(true);
 
@@ -109,6 +110,7 @@ class MainState extends FlxState {
 		Main.refreshAssets();
 		DiscordUtil.init();
 		EventsData.reloadEvents();
+		ControlsUtil.loadCustomControls();
 		TitleState.initialized = false;
 
 		if (Framerate.isLoaded)

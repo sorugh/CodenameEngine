@@ -17,7 +17,7 @@ class NewOption extends TextOption {
 		iconSpr.setPosition(90 - iconSpr.width, (__text.height - iconSpr.height) / 2);
 		iconSpr.scale.set(1.4, 1.4);
 		iconSpr.updateHitbox();
-		iconSpr.offset.set(20, -15);
+		iconSpr.offset.set(15, -15);
 		add(iconSpr);
 	}
 }

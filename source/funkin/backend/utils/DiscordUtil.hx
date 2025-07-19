@@ -17,7 +17,7 @@ import lime.app.Application;
 import sys.thread.Thread;
 #end
 
-class DiscordUtil
+final class DiscordUtil
 {
 	public static var currentID(default, set):String = null;
 	public static var discordThread:#if DISCORD_RPC Thread #else Dynamic #end = null;

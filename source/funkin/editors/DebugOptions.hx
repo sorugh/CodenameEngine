@@ -36,6 +36,10 @@ class DebugOptionsScreen extends OptionsScreen {
 			}));
 		#end
 		add(new Checkbox(
+			"Resizable Editors",
+			"If checked, this will allow the editors to render beyond the base 1280x720 resolution of FNF (allowing for more detail and space...)",
+			"editorsResizable"));
+		add(new Checkbox(
 			"Editor SFXs",
 			"If checked, will play sound effects when working on editors (ex: will play SFXs when checking checkboxes...)",
 			"editorSFX"));

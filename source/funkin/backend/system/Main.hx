@@ -1,5 +1,7 @@
 package funkin.backend.system;
 
+import sys.io.File;
+import sys.FileSystem;
 import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.transition.TransitionData;
@@ -31,7 +33,7 @@ class Main extends Sprite
 	public static var instance:Main;
 
 	public static var modToLoad:String = null;
-	public static var forceGPUOnlyBitmapsOff:Bool = #if windows false #else true #end;
+	public static var forceGPUOnlyBitmapsOff:Bool = #if desktop false #else true #end;
 	public static var noTerminalColor:Bool = false;
 	public static var verbose:Bool = false;
 
@@ -168,6 +170,9 @@ class Main extends Sprite
 
 		ModsFolder.init();
 		#if MOD_SUPPORT
+		if (FileSystem.exists("mods/autoload.txt"))
+			modToLoad = File.getContent("mods/autoload.txt").trim();
+
 		ModsFolder.switchMod(modToLoad.getDefault(Options.lastLoadedMod));
 		#end
 

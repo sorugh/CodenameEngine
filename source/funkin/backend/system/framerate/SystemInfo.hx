@@ -3,6 +3,10 @@ package funkin.backend.system.framerate;
 import funkin.backend.system.Logs;
 import funkin.backend.utils.MemoryUtil;
 import funkin.backend.utils.native.HiddenProcess;
+#if cpp
+import cpp.Float64;
+import cpp.UInt64;
+#end
 
 using StringTools;
 
@@ -17,7 +21,7 @@ class SystemInfo extends FramerateCategory {
 
 	static var __formattedSysText:String = "";
 
-	public static inline function init() {
+	public static function init() {
 		#if linux
 		var process = new HiddenProcess("cat", ["/etc/os-release"]);
 		if (process.exitCode() != 0) Logs.trace('Unable to grab OS Label', ERROR, RED);
@@ -107,11 +111,13 @@ class SystemInfo extends FramerateCategory {
 				#end
 
 				if(openfl.display3D.Context3D.__glMemoryTotalAvailable != -1) {
-					var vRAMBytes:UInt = cast flixel.FlxG.stage.context3D.gl.getParameter(openfl.display3D.Context3D.__glMemoryTotalAvailable);
+					var vRAMBytes:Int = cast flixel.FlxG.stage.context3D.gl.getParameter(openfl.display3D.Context3D.__glMemoryTotalAvailable);
 					if (vRAMBytes == 1000 || vRAMBytes == 1 || vRAMBytes <= 0)
 						Logs.trace('Unable to grab GPU VRAM', ERROR, RED);
-					else
-						vRAM = CoolUtil.getSizeString(vRAMBytes * 1000);
+					else {
+						var vRAMBytesFloat:#if cpp Float64 #else Float #end = vRAMBytes*1024;
+						vRAM = CoolUtil.getSizeString64(vRAMBytesFloat);
+					}
 				}
 			} else
 				Logs.trace('Unable to grab GPU Info', ERROR, RED);

@@ -11,7 +11,7 @@ import lime.media.AudioManager;
  * hi gray itsa me yoshicrafter29 i fixed it hehe
  */
 @:dox(hide)
-class AudioSwitchFix {
+final class AudioSwitchFix {
 	@:noCompletion
 	private static function onStateSwitch(state:FlxState):Void {
 		#if windows

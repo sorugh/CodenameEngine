@@ -43,7 +43,7 @@ MOD_DISCORD_LOGO_TEXT=""';
 		super.createPost();
 		hadPopup = true;
 
-		var substate = new UIWarningSubstate("Missing mod folder configuration!", "Your mod is currently missing a mod config file!\n\n\nWould you like to automatically generate one?\n\n(PS: If this is not your mod please disable Developer mode to stop this popup from appearing.)", [
+		var substate = new UIWarningSubstate("Missing mod folder configuration!", "Your mod is currently missing a mod config file!\n\nWould you like to automatically generate one?\n\n(PS: If this is not your mod please disable Developer mode to stop this popup from appearing.)", [
 			{
 				label: "Not Now",
 				color: 0x969533,
@@ -69,7 +69,6 @@ MOD_DISCORD_LOGO_TEXT=""';
 				}
 			}
 		], false);
-		substate.bHeight = 300;
 		openSubState(substate);
 	}
 }

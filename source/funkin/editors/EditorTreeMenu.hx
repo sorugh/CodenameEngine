@@ -12,6 +12,8 @@ class EditorTreeMenu extends TreeMenu {
 	public override function create() {
 		super.create();
 
+		UIState.setResolutionAware();
+
 		FlxG.camera.fade(0xFF000000, 0.5, true);
 
 		bg = new FlxBackdrop();

@@ -5,7 +5,7 @@ package funkin.backend.utils;
  *
  * DISCLAIMER: All types of utils only usable in a sorted array.
  */
-class SortedArrayUtil {
+final class SortedArrayUtil {
 	/**
 	 * Gets the index of a possible new element of an Array of T using an efficient algorithm.
 	 * @param array Array of T to check in

@@ -27,7 +27,7 @@ class SongCreationScreen extends UISubstateWindow {
 	public var songNameTextBox:UITextBox;
 	public var bpmStepper:UINumericStepper;
 	public var beatsPerMeasureStepper:UINumericStepper;
-	public var stepsPerBeatStepper :UINumericStepper;
+	public var denominatorStepper:UINumericStepper;
 	public var instExplorer:UIFileExplorer;
 	public var voicesExplorer:UIFileExplorer;
 	public var importFrom:UIButton;
@@ -107,10 +107,11 @@ class SongCreationScreen extends UISubstateWindow {
 
 		songDataGroup.add(new UIText(beatsPerMeasureStepper.x + 30, beatsPerMeasureStepper.y + 3, 0, "/", 22));
 
-		stepsPerBeatStepper = new UINumericStepper(beatsPerMeasureStepper.x + 30 + 24, beatsPerMeasureStepper.y, 4, 1, 0, 1, null, 54);
-		songDataGroup.add(stepsPerBeatStepper);
+		denominatorStepper = new UINumericStepper(beatsPerMeasureStepper.x + 30 + 24, beatsPerMeasureStepper.y, 4, 1, 0, 1, null, 54);
+		songDataGroup.add(denominatorStepper);
 
-		instExplorer = new UIFileExplorer(songNameTextBox.x, songNameTextBox.y + 32 + 36, null, null, Flags.SOUND_EXT, function (res) {
+		instExplorer = new UIFileExplorer(songNameTextBox.x, songNameTextBox.y + 32 + 36, null, null, Flags.SOUND_EXT, function (path, res) {
+			if (path == null || res == null) return;
 			var audioPlayer:UIAudioPlayer = new UIAudioPlayer(instExplorer.x + 8, instExplorer.y + 8, res);
 			instExplorer.members.push(audioPlayer);
 			instExplorer.uiElement = audioPlayer;
@@ -120,7 +121,8 @@ class SongCreationScreen extends UISubstateWindow {
 			"Inst Audio File $* Required$",
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
-		voicesExplorer = new UIFileExplorer(instExplorer.x + 320 + 26, instExplorer.y, null, null, Flags.SOUND_EXT, function (res) {
+		voicesExplorer = new UIFileExplorer(instExplorer.x + 320 + 26, instExplorer.y, null, null, Flags.SOUND_EXT, function (path, res) {
+			if (path == null || res == null) return;
 			var audioPlayer:UIAudioPlayer = new UIAudioPlayer(voicesExplorer.x + 8, voicesExplorer.y + 8, res);
 			voicesExplorer.members.push(audioPlayer);
 			voicesExplorer.uiElement = audioPlayer;
@@ -171,7 +173,6 @@ class SongCreationScreen extends UISubstateWindow {
 		var menuTitle:UIText;
 		selectFormatGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Import From:", 28));
 
-		engineDropdown = new UIDropDown(menuTitle.x, menuTitle.y + menuTitle.height + 36, 480, 32, ["Psych/Legacy FNF", "V-Slice", "V-Slice Project (.fnfc)"], 0, ["Supports runtime"]);
 		selectFormatGroup.add(engineDropdown);
 		addLabelOn(engineDropdown, "Chart Format");
 
@@ -186,7 +187,8 @@ class SongCreationScreen extends UISubstateWindow {
 		var menuTitle:UIText;
 		importAudioGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Add Audios", 28));
 
-		importInstExplorer = new UIFileExplorer(menuTitle.x, menuTitle.y + menuTitle.height + 36, null, null, Flags.SOUND_EXT, function (res) {
+		importInstExplorer = new UIFileExplorer(menuTitle.x, menuTitle.y + menuTitle.height + 36, null, null, Flags.SOUND_EXT, function (path, res) {
+			if (path == null || res == null) return;
 			var audioPlayer:UIAudioPlayer = new UIAudioPlayer(importInstExplorer.x + 8, importInstExplorer.y + 8, res);
 			importInstExplorer.members.push(audioPlayer);
 			importInstExplorer.uiElement = audioPlayer;
@@ -196,7 +198,8 @@ class SongCreationScreen extends UISubstateWindow {
 			"Inst Audio File $* Required$",
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
-		importVoicesExplorer = new UIFileExplorer(importInstExplorer.x + 320 + 26, importInstExplorer.y, null, null, Flags.SOUND_EXT, function (res) {
+		importVoicesExplorer = new UIFileExplorer(importInstExplorer.x + 320 + 26, importInstExplorer.y, null, null, Flags.SOUND_EXT, function (path, res) {
+			if (path == null || res == null) return;
 			var audioPlayer:UIAudioPlayer = new UIAudioPlayer(importVoicesExplorer.x + 8, importVoicesExplorer.y + 8, res);
 			importVoicesExplorer.members.push(audioPlayer);
 			importVoicesExplorer.uiElement = audioPlayer;
@@ -212,7 +215,7 @@ class SongCreationScreen extends UISubstateWindow {
 			"Song file name $* Required$",
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
-		importChartFile = new UIFileExplorer(importIdTextBox.x, importIdTextBox.y + importIdTextBox.height + 56, null, null, "fnfc", function (_) importIdTextBox.label.text = new haxe.io.Path(importChartFile.filePath).file);
+		importChartFile = new UIFileExplorer(importIdTextBox.x, importIdTextBox.y + importIdTextBox.height + 56, null, null, "fnfc", function (_, _) importIdTextBox.label.text = new haxe.io.Path(importChartFile.filePath).file);
 		importDataGroup.add(importChartFile);
 		addLabelOn(importChartFile, "Data/Chart File").applyMarkup(
 			"Data/Chart File $* Required$",
@@ -224,6 +227,7 @@ class SongCreationScreen extends UISubstateWindow {
 			"Meta File $* Required$",
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
+		engineDropdown = new UIDropDown(menuTitle.x, menuTitle.y + menuTitle.height + 36, 480, 32, ["Psych/Legacy FNF", "V-Slice", "V-Slice Project (.fnfc)"]);
 		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
 			var pages = isImporting ? importPages : pages;
 			if (curPage == pages.length-1) {
@@ -395,14 +399,14 @@ class SongCreationScreen extends UISubstateWindow {
 				]));
 			}
 		} else {
-			for (stepper in [bpmStepper, beatsPerMeasureStepper, stepsPerBeatStepper])
+			for (stepper in [bpmStepper, beatsPerMeasureStepper, denominatorStepper])
 				@:privateAccess stepper.__onChange(stepper.label.text);
 
 			var meta:ChartMetaData = {
 				name: songNameTextBox.label.text,
 				bpm: bpmStepper.value,
 				beatsPerMeasure: Std.int(beatsPerMeasureStepper.value),
-				stepsPerBeat: Std.int(stepsPerBeatStepper.value),
+				stepsPerBeat: Std.int(16 / denominatorStepper.value),
 				displayName: displayNameTextBox.label.text,
 				icon: iconTextBox.label.text,
 				color: colorWheel.curColor,

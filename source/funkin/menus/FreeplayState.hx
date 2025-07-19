@@ -229,7 +229,7 @@ class FreeplayState extends MusicBeatState
 		}
 
 		scoreText.text = "PERSONAL BEST:" + lerpScore;
-		scoreBG.scale.set(Math.max(Math.max(diffText.width, scoreText.width), coopText.width) + 8, (coopText.visible ? coopText.y + coopText.height : 66));
+		scoreBG.scale.set(MathUtil.maxSmart(diffText.width, scoreText.width, coopText.width) + 8, (coopText.visible ? coopText.y + coopText.height : 66));
 		scoreBG.updateHitbox();
 		scoreBG.x = FlxG.width - scoreBG.width;
 
@@ -287,12 +287,13 @@ class FreeplayState extends MusicBeatState
 	function updateCoopModes() {
 		__opponentMode = false;
 		__coopMode = false;
-		if (songs[curSelected].coopAllowed && songs[curSelected].opponentModeAllowed) {
+		var curSong = songs[curSelected];
+		if (curSong.coopAllowed && curSong.opponentModeAllowed) {
 			__opponentMode = curCoopMode % 2 == 1;
 			__coopMode = curCoopMode >= 2;
-		} else if (songs[curSelected].coopAllowed) {
+		} else if (curSong.coopAllowed) {
 			__coopMode = curCoopMode == 1;
-		} else if (songs[curSelected].opponentModeAllowed) {
+		} else if (curSong.opponentModeAllowed) {
 			__opponentMode = curCoopMode == 1;
 		}
 	}

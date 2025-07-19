@@ -32,6 +32,8 @@ class UIWarningSubstate extends MusicBeatSubstate {
 
 	var warnCam:FlxCamera;
 
+	public var bHeight:Int = 232;
+
 	public override function onSubstateOpen() {
 		super.onSubstateOpen();
 		parent.persistentUpdate = false;
@@ -69,7 +71,7 @@ class UIWarningSubstate extends MusicBeatSubstate {
 		warnCam.zoom = 0.1;
 		FlxG.cameras.add(warnCam, false);
 
-		var spr = new UISliceSprite(0, 0, CoolUtil.maxInt(560, 30 + (170 * buttons.length)), 232, 'editors/ui/${isError ? "normal" : "grayscale"}-popup');
+		var spr = new UISliceSprite(0, 0, CoolUtil.maxInt(560, 30 + (170 * buttons.length)), bHeight, 'editors/ui/${isError ? "normal" : "grayscale"}-popup');
 		spr.x = (FlxG.width - spr.bWidth) / 2;
 		spr.y = (FlxG.height - spr.bHeight) / 2;
 		spr.color = isError ? 0xFFFF0000 : 0xFFFFFF00;

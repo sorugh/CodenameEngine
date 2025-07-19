@@ -27,8 +27,6 @@ class MainMenuState extends MusicBeatState
 
 	public var canAccessDebugMenus:Bool = !Flags.DISABLE_EDITORS;
 
-	public static var hadPopup = false;
-
 	override function create()
 	{
 
@@ -82,23 +80,6 @@ class MainMenuState extends MusicBeatState
 		add(versionText);
 
 		changeItem();
-
-		if (Options.devMode && !MainMenuState.hadPopup)
-			for (i in Paths.assetsTree.libraries) {
-				var l = i;
-				if (l is openfl.utils.AssetLibrary) {
-					@:privateAccess
-					l = cast(l, openfl.utils.AssetLibrary).__proxy;
-				}
-				if (cast(l, funkin.backend.assets.IModsAssetLibrary).modName == funkin.backend.assets.ModsFolder.currentModFolder) {
-					if (!l.exists(Paths.getPath("data/config/modpack.ini"), lime.utils.AssetType.TEXT)) {
-						MusicBeatState.skipTransIn = true;
-						MusicBeatState.skipTransOut = true;
-						FlxG.switchState(new funkin.editors.ModConfigWarning(l));
-					}
-					break;
-				}
-			}
 	}
 
 	var selectedSomethin:Bool = false;

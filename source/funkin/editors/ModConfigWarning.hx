@@ -1,9 +1,15 @@
 package funkin.editors;
 
-class ModConfigWarning extends UIState {
+import funkin.backend.assets.ModsFolderLibrary;
+import flixel.FlxState;
 
-	var libraryToMakeConfigIn:Dynamic = null;
-	public static var defaultModConfigText = 
+class ModConfigWarning extends UIState {
+	public static var hadPopup:Bool = false;
+
+	var library:ModsFolderLibrary = null;
+	var goToState:Class<FlxState>;
+
+	public static inline var defaultModConfigText = 
 '[Common]
 MOD_NAME="YOUR MOD NAME HERE"
 MOD_DESCRIPTION="YOUR MOD DESCRIPTION HERE"
@@ -26,49 +32,43 @@ DISABLE_BETA_WARNING_SCREEN=true
 MOD_DISCORD_CLIENT_ID=""
 MOD_DISCORD_LOGO_KEY=""';
 
-	public function new(library) {
+	public function new(library:ModsFolderLibrary, ?goToState:Class<FlxState>) {
 		super();
-
-		libraryToMakeConfigIn = library;
+		this.library = library;
+		this.goToState = goToState != null ? goToState : funkin.menus.TitleState;
 	}
 
-	override function create() {
-		super.create();
+	override function createPost() {
+		super.createPost();
+		hadPopup = true;
 
-		openSubState(new UIWarningSubstate("Missing mod config!", "Your mod is currently missing a mod config file!\n\n\nWould you like to automatically generate one?\n\n(PS: If this is not your mod please disable Developer mode to stop this popup from appearing.)",
-		[
+		var substate = new UIWarningSubstate("Missing mod folder configuration!", "Your mod is currently missing a mod config file!\n\n\nWould you like to automatically generate one?\n\n(PS: If this is not your mod please disable Developer mode to stop this popup from appearing.)", [
 			{
 				label: "Not Now",
 				color: 0x969533,
 				onClick: function (_) {
-					funkin.menus.MainMenuState.hadPopup = true;
-					MusicBeatState.skipTransIn = false;
-					MusicBeatState.skipTransOut = false;
-					FlxG.switchState(new funkin.menus.MainMenuState());
+					MusicBeatState.skipTransOut = MusicBeatState.skipTransIn = false;
+					FlxG.switchState(cast Type.createInstance(goToState, []));
 				}
 			},
 			{
 				label: "Yes",
 				onClick: function(_) {
-					trace(libraryToMakeConfigIn.getPath("data/config/modpack.ini"));
-					sys.io.File.saveContent(libraryToMakeConfigIn.getPath("data/config/modpack.ini"), defaultModConfigText);
-					openSubState(new UIWarningSubstate("Created mod config!", "Your mod config file has been created at " + libraryToMakeConfigIn.getPath("data/config/modpack.ini") + "!", [
+					var path = '${library.folderPath}/data/config/modpack.ini';
+					CoolUtil.safeSaveFile(path, defaultModConfigText);
+					openSubState(new UIWarningSubstate("Created mod config!", "Your mod config file has been created at " + path + "!", [
 						{
 							label: "Ok",
 							onClick: function (_) {
-								funkin.menus.MainMenuState.hadPopup = true;
-								MusicBeatState.skipTransIn = false;
-								MusicBeatState.skipTransOut = false;
-								FlxG.switchState(new funkin.menus.MainMenuState());
+								MusicBeatState.skipTransOut = MusicBeatState.skipTransIn = false;
+								FlxG.switchState(cast Type.createInstance(goToState, []));
 							}
 						},
 					], false));
 				}
 			}
-		], false));
-	}
-
-	override function update(elapsed) {
-		super.update(elapsed);
+		], false);
+		substate.bHeight = 300;
+		openSubState(substate);
 	}
 }

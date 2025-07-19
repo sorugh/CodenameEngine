@@ -1,9 +1,11 @@
 package funkin.backend.system;
 
 import flixel.util.FlxColor;
+import funkin.backend.assets.ModsFolder;
 import funkin.backend.assets.IModsAssetLibrary;
 import funkin.backend.assets.ScriptedAssetLibrary;
 import funkin.backend.system.macros.GitCommitMacro;
+import funkin.backend.utils.IniUtil;
 import lime.app.Application;
 import lime.utils.AssetLibrary as LimeAssetLibrary;
 import lime.utils.AssetType;
@@ -13,11 +15,14 @@ import lime.utils.AssetType;
  */
 @:build(funkin.backend.system.macros.FlagMacro.build())
 class Flags {
+	// -- Codename's Addon Config --
+	@:bypass public static var addonFlags:Map<String, Dynamic> = [];
+
 	// -- Codename's Mod Config --
 	public static var MOD_NAME:String = "";
 	public static var MOD_DESCRIPTION:String = "";
 	public static var MOD_API_VERSION:Int = 1;
-	public static var MOD_DOWNLOADED_LINK:String  = "";
+	public static var MOD_DOWNLOAD_LINK:String  = "";
 	public static var MOD_DEPENDENCIES:Array<String> = [];
 
 	public static var MOD_ICON64:String = "";
@@ -27,7 +32,9 @@ class Flags {
 
 	public static var MOD_DISCORD_CLIENT_ID:String = "";
 	public static var MOD_DISCORD_LOGO_KEY:String = "";
+	public static var MOD_DISCORD_LOGO_TEXT:String = "";
 	// -- Codename's Default Flags --
+	public static var CURRENT_API_VERSION:Int = 1;
 	public static var COMMIT_NUMBER:Int = GitCommitMacro.commitNumber;
 	public static var COMMIT_HASH:String = GitCommitMacro.commitHash;
 	public static var COMMIT_MESSAGE:String = 'Commit $COMMIT_NUMBER ($COMMIT_HASH)';
@@ -175,29 +182,9 @@ class Flags {
 	@:bypass public static var customFlags:Map<String, String> = [];
 
 	public static function loadFromData(flags:Map<String, String>, data:String) {
-		var trimmed:String;
-		var splitContent = [for(e in data.split("\n")) if ((trimmed = e.trim()) != "") trimmed];
+		var res = IniUtil.parseString(data);
 
-		for(line in splitContent) {
-			if(line.startsWith(";")) continue;
-			if(line.startsWith("#")) continue;
-			if(line.startsWith("//")) continue;
-			if(line.length == 0) continue;
-			if(line.charAt(0) == "[" && line.charAt(line.length-1) == "]") continue;
-
-			var index = line.indexOf("=");
-			if(index == -1) continue;
-			var name = line.substr(0, index).trim();
-			var value = line.substr(index+1).trim();
-
-			var wasQuoted = value.length > 1 && value.charCodeAt(0) == '"'.code && value.charCodeAt(value.length-1) == '"'.code;
-			if(wasQuoted) value = value.substr(1, value.length - 2);
-			if((!wasQuoted && value.length == 0) || name.length == 0)
-				continue;
-
-			if(!flags.exists(name))
-				flags[name] = value;
-		}
+		for (section in res) for (key => value in section) flags[key] = value;
 	}
 
 	public static function loadFromDatas(datas:Array<String>) {
@@ -221,16 +208,42 @@ class Flags {
 	 * Loads the flags from the assets.
 	**/
 	public static function load(?libs:Array<LimeAssetLibrary> = null) {
-		if (libs == null)
-			libs = Paths.assetsTree.libraries;
-		final flagsPath = Paths.getPath("flags.ini");
-		var datas:Array<String> = [
-			for(lib in libs)
-				if(lib.exists(flagsPath, AssetType.TEXT))
-					lib.getAsset(flagsPath, AssetType.TEXT)
-		];
+		if (libs == null) {
+			libs = Paths.assetsTree.libraries.copy();
+			libs.reverse();
+		}
+		for(lib in libs) {
+			var l = lib;
+			if (l is openfl.utils.AssetLibrary) {
+				@:privateAccess
+				l = cast(l, openfl.utils.AssetLibrary).__proxy;
+			}
 
-		var flags:Map<String, String> = loadFromDatas(datas);
-		parseFlags(flags);
+			if (l is IModsAssetLibrary) {
+				var flagsTxt = "";
+				if (l.exists(Paths.ini("config/modpack"), AssetType.TEXT))
+					flagsTxt = l.getAsset(Paths.ini("config/modpack"), AssetType.TEXT);
+				if (cast(l, IModsAssetLibrary).modName == "assets") continue;
+
+				if (cast(l, IModsAssetLibrary).modName == ModsFolder.currentModFolder) {
+					var flags:Map<String, String> = [];
+					loadFromData(flags, flagsTxt);
+					parseFlags(flags);
+				}
+				else {
+					var flags:Map<String, String> = [];
+					loadFromData(flags, flagsTxt);
+					addonFlags.set(cast(l, IModsAssetLibrary).modName.toLowerCase().replace(" ", "").trim(), flags);
+				}
+			}
+			else {
+				var flagsTxt = "";
+				if (l.exists(Paths.getPath("data/config/flags.ini"), AssetType.TEXT))
+					flagsTxt = l.getAsset(Paths.getPath("data/config/flags.ini"), AssetType.TEXT);
+				var flags:Map<String, String> = [];
+				loadFromData(flags, flagsTxt);
+				parseFlags(flags);
+			}
+		}
 	}
 }

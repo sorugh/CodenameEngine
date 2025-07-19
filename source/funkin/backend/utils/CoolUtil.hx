@@ -455,7 +455,7 @@ final class CoolUtil
 		if (musicData != null) {
 			if (musicData["LoopTime"] != null) FlxG.sound.music.loopTime = Std.parseFloat(musicData["LoopTime"]) * 1000;
 			if (musicData["EndTime"] != null) FlxG.sound.music.endTime = Std.parseFloat(musicData["EndTime"]) * 1000;
-			if (musicData["Offset"] != null) FlxG.sound.music.endTime = Std.parseFloat(musicData["Offset"]) * 1000;
+			if (musicData["Offset"] != null) FlxG.sound.music.offset = Std.parseFloat(musicData["Offset"]) * 1000;
 
 			var timeSignParsed:Array<Null<Float>> = musicData["TimeSignature"] == null ? [] : [for(s in musicData["TimeSignature"].split("/")) Std.parseFloat(s)];
 			var beatsPerMeasure:Float = Flags.DEFAULT_BEATS_PER_MEASURE, stepsPerBeat:Float = Flags.DEFAULT_STEPS_PER_BEAT;

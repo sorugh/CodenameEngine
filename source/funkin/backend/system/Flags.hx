@@ -33,6 +33,7 @@ class Flags {
 	public static var MOD_DISCORD_LOGO_KEY:String = "";
 	public static var MOD_DISCORD_LOGO_TEXT:String = "";
 	// -- Codename's Default Flags --
+	public static var CURRENT_API_VERSION:Int = 1;
 	public static var COMMIT_NUMBER:Int = GitCommitMacro.commitNumber;
 	public static var COMMIT_HASH:String = GitCommitMacro.commitHash;
 	public static var COMMIT_MESSAGE:String = 'Commit $COMMIT_NUMBER ($COMMIT_HASH)';

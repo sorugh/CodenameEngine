@@ -5,6 +5,7 @@ import funkin.backend.assets.ModsFolder;
 import funkin.backend.assets.IModsAssetLibrary;
 import funkin.backend.assets.ScriptedAssetLibrary;
 import funkin.backend.system.macros.GitCommitMacro;
+import funkin.backend.utils.IniUtil;
 import lime.app.Application;
 import lime.utils.AssetLibrary as LimeAssetLibrary;
 import lime.utils.AssetType;
@@ -21,7 +22,7 @@ class Flags {
 	public static var MOD_NAME:String = "";
 	public static var MOD_DESCRIPTION:String = "";
 	public static var MOD_API_VERSION:Int = 1;
-	public static var MOD_DOWNLOADED_LINK:String  = "";
+	public static var MOD_DOWNLOAD_LINK:String  = "";
 	public static var MOD_DEPENDENCIES:Array<String> = [];
 
 	public static var MOD_ICON64:String = "";
@@ -179,29 +180,9 @@ class Flags {
 	@:bypass public static var customFlags:Map<String, String> = [];
 
 	public static function loadFromData(flags:Map<String, String>, data:String) {
-		var trimmed:String;
-		var splitContent = [for(e in data.split("\n")) if ((trimmed = e.trim()) != "") trimmed];
+		var res = IniUtil.parseString(data);
 
-		for(line in splitContent) {
-			if(line.startsWith(";")) continue;
-			if(line.startsWith("#")) continue;
-			if(line.startsWith("//")) continue;
-			if(line.length == 0) continue;
-			if(line.charAt(0) == "[" && line.charAt(line.length-1) == "]") continue;
-
-			var index = line.indexOf("=");
-			if(index == -1) continue;
-			var name = line.substr(0, index).trim();
-			var value = line.substr(index+1).trim();
-
-			var wasQuoted = value.length > 1 && value.charCodeAt(0) == '"'.code && value.charCodeAt(value.length-1) == '"'.code;
-			if(wasQuoted) value = value.substr(1, value.length - 2);
-			if((!wasQuoted && value.length == 0) || name.length == 0)
-				continue;
-
-			if(!flags.exists(name))
-				flags[name] = value;
-		}
+		for (section in res) for (key => value in section) flags[key] = value;
 	}
 
 	public static function loadFromDatas(datas:Array<String>) {
@@ -238,8 +219,8 @@ class Flags {
 
 			if (l is IModsAssetLibrary) {
 				var flagsTxt = "";
-				if (l.exists(Paths.getPath("data/config/modpack.ini"), AssetType.TEXT))
-					flagsTxt = l.getAsset(Paths.getPath("data/config/modpack.ini"), AssetType.TEXT);
+				if (l.exists(Paths.ini("config/modpack"), AssetType.TEXT))
+					flagsTxt = l.getAsset(Paths.ini("config/modpack"), AssetType.TEXT);
 				if (cast(l, IModsAssetLibrary).modName == "assets") continue;
 
 				if (cast(l, IModsAssetLibrary).modName == ModsFolder.currentModFolder) {

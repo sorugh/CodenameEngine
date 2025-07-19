@@ -17,7 +17,7 @@ MOD_DESCRIPTION="YOUR MOD DESCRIPTION HERE"
 # DO NOT EDIT!! this is used to check for version compatibility!
 MOD_API_VERSION=1
 
-MOD_DOWNLOADED_LINK="YOUR MOD PAGE LINK HERE"
+MOD_DOWNLOAD_LINK="YOUR MOD PAGE LINK HERE"
 
 # Not supported yet
 ;MOD_ICON64="path/to/icon64.png"
@@ -30,7 +30,8 @@ DISABLE_BETA_WARNING_SCREEN=true
 
 [Discord]
 MOD_DISCORD_CLIENT_ID=""
-MOD_DISCORD_LOGO_KEY=""';
+MOD_DISCORD_LOGO_KEY=""
+MOD_DISCORD_LOGO_TEXT=""';
 
 	public function new(library:ModsFolderLibrary, ?goToState:Class<FlxState>) {
 		super();

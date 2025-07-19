@@ -1,6 +1,7 @@
 package funkin.backend.system;
 
 import flixel.util.FlxColor;
+import funkin.backend.assets.ModsFolder;
 import funkin.backend.assets.IModsAssetLibrary;
 import funkin.backend.assets.ScriptedAssetLibrary;
 import funkin.backend.system.macros.GitCommitMacro;
@@ -13,6 +14,9 @@ import lime.utils.AssetType;
  */
 @:build(funkin.backend.system.macros.FlagMacro.build())
 class Flags {
+	// -- Codename's Addon Config --
+	@:bypass public static var addonFlags:Map<String, Dynamic> = [];
+
 	// -- Codename's Mod Config --
 	public static var MOD_NAME:String = "";
 	public static var MOD_DESCRIPTION:String = "";
@@ -27,6 +31,7 @@ class Flags {
 
 	public static var MOD_DISCORD_CLIENT_ID:String = "";
 	public static var MOD_DISCORD_LOGO_KEY:String = "";
+	public static var MOD_DISCORD_LOGO_TEXT:String = "";
 	// -- Codename's Default Flags --
 	public static var COMMIT_NUMBER:Int = GitCommitMacro.commitNumber;
 	public static var COMMIT_HASH:String = GitCommitMacro.commitHash;
@@ -219,16 +224,42 @@ class Flags {
 	 * Loads the flags from the assets.
 	**/
 	public static function load(?libs:Array<LimeAssetLibrary> = null) {
-		if (libs == null)
-			libs = Paths.assetsTree.libraries;
-		final flagsPath = Paths.getPath("flags.ini");
-		var datas:Array<String> = [
-			for(lib in libs)
-				if(lib.exists(flagsPath, AssetType.TEXT))
-					lib.getAsset(flagsPath, AssetType.TEXT)
-		];
+		if (libs == null) {
+			libs = Paths.assetsTree.libraries.copy();
+			libs.reverse();
+		}
+		for(lib in libs) {
+			var l = lib;
+			if (l is openfl.utils.AssetLibrary) {
+				@:privateAccess
+				l = cast(l, openfl.utils.AssetLibrary).__proxy;
+			}
 
-		var flags:Map<String, String> = loadFromDatas(datas);
-		parseFlags(flags);
+			if (l is IModsAssetLibrary) {
+				var flagsTxt = "";
+				if (l.exists(Paths.getPath("data/config/modpack.ini"), AssetType.TEXT))
+					flagsTxt = l.getAsset(Paths.getPath("data/config/modpack.ini"), AssetType.TEXT);
+				if (cast(l, IModsAssetLibrary).modName == "assets") continue;
+
+				if (cast(l, IModsAssetLibrary).modName == ModsFolder.currentModFolder) {
+					var flags:Map<String, String> = [];
+					loadFromData(flags, flagsTxt);
+					parseFlags(flags);
+				}
+				else {
+					var flags:Map<String, String> = [];
+					loadFromData(flags, flagsTxt);
+					addonFlags.set(cast(l, IModsAssetLibrary).modName.toLowerCase().replace(" ", "").trim(), flags);
+				}
+			}
+			else {
+				var flagsTxt = "";
+				if (l.exists(Paths.getPath("data/config/flags.ini"), AssetType.TEXT))
+					flagsTxt = l.getAsset(Paths.getPath("data/config/flags.ini"), AssetType.TEXT);
+				var flags:Map<String, String> = [];
+				loadFromData(flags, flagsTxt);
+				parseFlags(flags);
+			}
+		}
 	}
 }

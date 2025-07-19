@@ -10,6 +10,7 @@ typedef ChartData = {
 	public var stage:String;
 	public var scrollSpeed:Float;
 	public var noteTypes:Array<String>;
+	public var ?bookmarks:Array<ChartBookmark>;
 
 	public var ?chartVersion:String;
 	public var ?fromMods:Bool;
@@ -51,6 +52,12 @@ typedef ChartNote = {
 	var id:Int; // strum id of the note
 	var type:Int; // type (int) of the note
 	var sLen:Float; // sustain length of the note (ms)
+}
+
+typedef ChartBookmark = {
+	var time:Float;
+	var name:String;
+	var color:String;
 }
 
 typedef ChartEvent = {

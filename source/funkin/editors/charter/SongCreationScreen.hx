@@ -85,9 +85,9 @@ class SongCreationScreen extends UISubstateWindow {
 		super.create();
 
 		function addLabelOn(ui:UISprite, text:String):UIText {
-			var text:UIText = new UIText(ui.x, ui.y - 24, 0, text);
-			ui.members.push(text);
-			return text;
+			var label:UIText = new UIText(ui.x, ui.y - 24, 0, text);
+			ui.members.push(label);
+			return label;
 		}
 
 		var songTitle:UIText;
@@ -173,6 +173,7 @@ class SongCreationScreen extends UISubstateWindow {
 		var menuTitle:UIText;
 		selectFormatGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Import From:", 28));
 
+		engineDropdown = new UIDropDown(menuTitle.x, menuTitle.y + menuTitle.height + 36, 480, 32, ["Psych/Legacy FNF", "V-Slice", "V-Slice Project (.fnfc)"]);
 		selectFormatGroup.add(engineDropdown);
 		addLabelOn(engineDropdown, "Chart Format");
 
@@ -227,7 +228,6 @@ class SongCreationScreen extends UISubstateWindow {
 			"Meta File $* Required$",
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
-		engineDropdown = new UIDropDown(menuTitle.x, menuTitle.y + menuTitle.height + 36, 480, 32, ["Psych/Legacy FNF", "V-Slice", "V-Slice Project (.fnfc)"]);
 		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
 			var pages = isImporting ? importPages : pages;
 			if (curPage == pages.length-1) {

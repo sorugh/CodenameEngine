@@ -846,28 +846,28 @@ class FlxSound extends FlxBasic {
 	inline function set_pan(pan:Float):Float return _transform.pan = pan;
 
 	inline function getFakeTime():Float {
-		if (@:privateAccess _channel.__isValid && _source.playing && _realPitch > 0 && _lastTime != null)
+		if (_source.playing && _realPitch > 0 && _lastTime != null)
 			return _time + (FlxG.game.getTicks() - _lastTime) * _realPitch * _timeInterpolation;
 		else
 			return _time;
 	}
 	function get_time():Float {
-		if (_channel == null || /*AudioManager.context == null*/funkin.backend.system.Main.audioDisconnected /*CNE IMPLEMENTATION*/) return _time;
+		if (_channel == null || @:privateAccess !_channel.__isValid || AudioManager.context == null) return _time;
 
-		final pos = _channel.position - _offset;
-		if (!playing || _realPitch <= 0) {
+		final sourceTime = _source.currentTime - _source.offset - _offset;
+		if (!_source.playing || _realPitch <= 0) {
 			_lastTime = null;
-			return _time = pos;
+			return _time = sourceTime;
 		}
 
 		final fakeTime = getFakeTime();
-		if (pos != _time) {
+		if (sourceTime != _time) {
 			_lastTime = FlxG.game.getTicks();
-			if ((_timeInterpolation = 1 - Math.min(fakeTime - pos, 1000) * 0.001) < 1 && _timeInterpolation > .9)
+			if ((_timeInterpolation = 1 - Math.min(fakeTime - sourceTime, 1000) * 0.001) < 1 && _timeInterpolation > .9)
 				return _time = fakeTime;
 			else {
 				_timeInterpolation = 1;
-				return _time = pos;
+				return _time = sourceTime;
 			}
 		}
 		else

@@ -202,7 +202,7 @@ class Alphabet extends FlxSprite {
 		if (isMenuItem) {
 			var scaledY = targetY * 1.3;
 
-			y = CoolUtil.fpsLerp(y, (scaledY * 120) + (FlxG.height * 0.48), 0.16);
+			y = CoolUtil.fpsLerp(y, (scaledY * 120) + (FlxG.height - height) * 0.5, 0.16);
 			x = CoolUtil.fpsLerp(x, (targetY * 20) + 90, 0.16);
 		}
 	}

@@ -6,7 +6,8 @@ Putting this txt in here so others can edit and commit this to suggest or add mi
 - Cass (GlitchDotSmh)
 
 [] = Not done
-[!] = Priority/In progress
+[!] = Priority
+[-] = In Progress
 [x] = Done
 
 # Editor SFX

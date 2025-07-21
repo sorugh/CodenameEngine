@@ -34,7 +34,7 @@ typedef TextFormat = { text:String, format:Dynamic }
  * Class made to make XML parsing easier.
  * Used in Stage.hx, Character.hx, and more.
  */
-class XMLUtil {
+final class XMLUtil {
 	/**
 	 * Applies a property XML node to an object.
 	 * The format for the XML is as follows:
@@ -114,12 +114,13 @@ class XMLUtil {
 	 * @param parentFolder The parent folder
 	 * @param defaultAnimType The default animation type
 	 */
-	public static function loadSpriteFromXML(spr:FunkinSprite, node:Access, parentFolder:String = "", defaultAnimType:XMLAnimType = BEAT):FunkinSprite {
+	public static function loadSpriteFromXML(spr:FunkinSprite, node:Access, parentFolder:String = "", defaultAnimType:XMLAnimType = BEAT, loadGraphic:Bool = true):FunkinSprite {
 		if (parentFolder == null) parentFolder = "";
 
 		spr.name = node.getAtt("name");
 		spr.antialiasing = true;
-		spr.loadSprite(Paths.image('$parentFolder${node.getAtt("sprite").getDefault(spr.name)}', null, true));
+		if (loadGraphic)
+			spr.loadSprite(Paths.image('$parentFolder${node.getAtt("sprite").getDefault(spr.name)}', null, true));
 
 		spr.spriteAnimType = defaultAnimType;
 		if (node.has.type) {
@@ -200,10 +201,15 @@ class XMLUtil {
 		if(node.has.color)
 			spr.color = FlxColor.fromString(node.getAtt("color")).getDefault(0xFFFFFFFF);
 
+		if(node.has.angle)
+			spr.angle = Std.parseFloat(node.getAtt("angle")).getDefault(spr.angle);
+
 		if (node.has.playOnCountdown)
 			spr.skipNegativeBeats = node.att.playOnCountdown == "true";
 		if (node.has.beatInterval)
 			spr.beatInterval = Std.parseInt(node.att.beatInterval);
+		if (node.has.interval)
+			spr.beatInterval = Std.parseInt(node.att.interval);
 		if (node.has.beatOffset)
 			spr.beatOffset = Std.parseInt(node.att.beatOffset);
 
@@ -234,10 +240,10 @@ class XMLUtil {
 	 * @param cl The class to create (advanced)
 	 * @param args The arguments to pass to the class (advanced)
 	 */
-	public static inline function createSpriteFromXML(node:Access, parentFolder:String = "", defaultAnimType:XMLAnimType = BEAT, ?cl:Class<FunkinSprite>, ?args:Array<Dynamic>):FunkinSprite {
+	public static inline function createSpriteFromXML(node:Access, parentFolder:String = "", defaultAnimType:XMLAnimType = BEAT, ?cl:Class<FunkinSprite>, ?args:Array<Dynamic>, loadGraphic:Bool = true):FunkinSprite {
 		if(cl == null) cl = FunkinSprite;
 		if(args == null) args = [];
-		return loadSpriteFromXML(Type.createInstance(cl, args), node, parentFolder, defaultAnimType);
+		return loadSpriteFromXML(Type.createInstance(cl, args), node, parentFolder, defaultAnimType, loadGraphic);
 	}
 
 	/**

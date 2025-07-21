@@ -186,7 +186,7 @@ class VideoCutscene extends Cutscene {
 			text.destroy();
 		}});
 
-		__pausable = __loaded = true;
+		pausable = __loaded = true;
 		video.play();
 	}
 

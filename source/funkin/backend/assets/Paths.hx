@@ -71,16 +71,14 @@ class Paths
 	inline static public function voices(song:String, ?difficulty:String, ?prefix:String = "", ?ext:String) {
 		if (difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
 		if (ext == null) ext = Flags.SOUND_EXT;
-		song = song.toLowerCase();
-		var diff = getPath('songs/$song/song/Voices$prefix-${difficulty.toLowerCase()}.${ext}', null);
+		var diff = getPath('songs/$song/song/Voices$prefix-${difficulty}.${ext}', null);
 		return OpenFlAssets.exists(diff) ? diff : getPath('songs/$song/song/Voices$prefix.${ext}', null);
 	}
 
 	inline static public function inst(song:String, ?difficulty:String, ?prefix:String = "", ?ext:String) {
 		if (difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
 		if (ext == null) ext = Flags.SOUND_EXT;
-		song = song.toLowerCase();
-		var diff = getPath('songs/$song/song/Inst$prefix-${difficulty.toLowerCase()}.${ext}', null);
+		var diff = getPath('songs/$song/song/Inst$prefix-${difficulty}.${ext}', null);
 		return OpenFlAssets.exists(diff) ? diff : getPath('songs/$song/song/Inst$prefix.${ext}', null);
 	}
 
@@ -100,8 +98,7 @@ class Paths
 		if (!OpenFlAssets.exists(scriptPath)) {
 			var p:String;
 			for(ex in Script.scriptExtensions) {
-				p = '$scriptPath.$ex';
-				if (OpenFlAssets.exists(p)) {
+				if (OpenFlAssets.exists(p = scriptPath + '.' + ex)) {
 					scriptPath = p;
 					break;
 				}
@@ -112,8 +109,7 @@ class Paths
 
 	static public function chart(song:String, ?difficulty:String):String
 	{
-		difficulty = (difficulty != null ? difficulty : Flags.DEFAULT_DIFFICULTY).toLowerCase();
-		song = song.toLowerCase();
+		difficulty = (difficulty != null ? difficulty : Flags.DEFAULT_DIFFICULTY);
 
 		return getPath('songs/$song/charts/$difficulty.json', null);
 	}
@@ -191,6 +187,29 @@ class Paths
 		return tempFramesCache[key] = loadFrames(assetsPath ? key : Paths.image(key, library, true, ext), false, null, false, ext);
 	}
 
+	/**
+	 * Checks if the images needed for using getFrames() exist.
+	 * @param key Path to the image
+	 * @param checkAtlas Whenever to check for the Animation.json file (used in FlxAnimate)
+	 * @param assetsPath Whenever to use the raw path or to pass it through Paths.image()
+	 * @param library (Additional) library to load the frames from.
+	 * @return True if the images exist, false otherwise.
+	**/
+	public static function framesExists(key:String, checkAtlas:Bool = false, checkMulti:Bool = true, assetsPath:Bool = false, ?library:String) {
+		var path = assetsPath ? key : Paths.image(key, library, true);
+		var noExt = Path.withoutExtension(path);
+		if(checkAtlas && Assets.exists('$noExt/Animation.json'))
+			return true;
+		if(checkMulti && Assets.exists('$noExt/1.png'))
+			return true;
+		if(Assets.exists('$noExt.xml'))
+			return true;
+		if(Assets.exists('$noExt.txt'))
+			return true;
+		if(Assets.exists('$noExt.json'))
+			return true;
+		return false;
+	}
 
 	/**
 	 * Loads frames from a specific image path. Supports Sparrow Atlases, Packer Atlases, and multiple spritesheets.
@@ -246,14 +265,13 @@ class Paths
 		}
 		return content;
 	}
-
-	public static function getFolderContent(key:String, addPath:Bool = false, source:AssetSource = BOTH):Array<String> {
+	static public function getFolderContent(key:String, addPath:Bool = false, source:AssetSource = BOTH, noExtension:Bool = false):Array<String> {
 		// designed to work both on windows and web
 		if (!key.endsWith("/")) key += "/";
 		var content = assetsTree.getFiles('assets/$key', source);
-		if (addPath) {
-			for(k=>e in content)
-				content[k] = '$key$e';
+		for (k => e in content) {
+			if (noExtension) e = Path.withoutExtension(e);
+			content[k] = addPath ? '$key$e' : e;
 		}
 		return content;
 	}

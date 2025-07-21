@@ -66,7 +66,7 @@ class PauseSubState extends MusicBeatSubstate
 
 		menuItems = event.options;
 
-		pauseMusic = FlxG.sound.load(Paths.music(event.music), 0, true);
+		pauseMusic = FlxG.sound.load(Assets.getMusic(Paths.music(event.music)), 0, true);
 		pauseMusic.persist = false;
 		pauseMusic.group = FlxG.sound.defaultMusicGroup;
 		pauseMusic.play(false, FlxG.random.int(0, Std.int(pauseMusic.length / 2)));
@@ -174,7 +174,6 @@ class PauseSubState extends MusicBeatSubstate
 				if (PlayState.chartingMode && Charter.undos.unsaved)
 					game.saveWarn(false);
 				else {
-					PlayState.resetSongInfos();
 					if (Charter.instance != null) Charter.instance.__clearStatics();
 
 					// prevents certain notes to disappear early when exiting  - Nex

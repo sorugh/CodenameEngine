@@ -6,7 +6,7 @@ import funkin.backend.utils.NativeAPI.ConsoleColor;
 import funkin.backend.utils.NativeAPI;
 import haxe.Log;
 
-class Logs {
+final class Logs {
 	private static var __showing:Bool = false;
 
 	public static var nativeTrace = Log.trace;

@@ -3,7 +3,6 @@ package funkin.menus.ui;
 import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import funkin.backend.assets.AssetsLibraryList;
 import funkin.backend.assets.IModsAssetLibrary;
 import funkin.backend.assets.LimeLibrarySymbol;
 import haxe.xml.Access;
@@ -53,7 +52,9 @@ class ClassicAlphabet extends FlxSpriteGroup
 	public function refreshAlphabetXML(path:String) {
 		AlphaCharacter.__alphaPath = Paths.getAssetsRoot() + path;
 		try {
-			var xml = new Access(Xml.parse(Assets.getText(path)).firstElement());
+			var file = Assets.getText(path);
+			if(file == null) return;
+			var xml = new Access(Xml.parse(file).firstElement());
 			AlphaCharacter.boldAnims = [];
 			AlphaCharacter.letterAnims = [];
 			AlphaCharacter.boldAlphabetPath = AlphaCharacter.letterAlphabetPath = 'ui/alphabet';
@@ -92,7 +93,12 @@ class ClassicAlphabet extends FlxSpriteGroup
 		#if MOD_SUPPORT else {
 			var libThing = new LimeLibrarySymbol(alphabetPath);
 			if (libThing.library is AssetLibrary) {
-				var library = AssetsLibraryList.getCleanLibrary(libThing.library);
+				var library = cast(libThing.library, AssetLibrary);
+				@:privateAccess
+				if (library.__proxy != null && library.__proxy is AssetLibrary) {
+					@:privateAccess
+					library = cast(library.__proxy, AssetLibrary);
+				}
 				if (library is IModsAssetLibrary) {
 					var modLib = cast(library, IModsAssetLibrary);
 					@:privateAccess
@@ -158,7 +164,7 @@ class ClassicAlphabet extends FlxSpriteGroup
 		splitWords = _finalText.split("");
 	}
 
-	//public var personTalking:String = 'gf';
+	//public var personTalking:String = Flags.DEFAULT_GIRLFRIEND;
 
 	public function startTypedText():Void
 	{
@@ -208,10 +214,6 @@ class ClassicAlphabet extends FlxSpriteGroup
 			lastSprite = null;
 			addText();
 		}
-	}
-
-	override function draw() {
-		super.draw();
 	}
 }
 

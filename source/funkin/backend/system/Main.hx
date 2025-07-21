@@ -1,6 +1,7 @@
 package funkin.backend.system;
 
-import funkin.backend.utils.translations.FormatUtil;
+import sys.io.File;
+import sys.FileSystem;
 import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.transition.TransitionData;
@@ -32,7 +33,7 @@ class Main extends Sprite
 	public static var instance:Main;
 
 	public static var modToLoad:String = null;
-	public static var forceGPUOnlyBitmapsOff:Bool = #if windows false #else true #end;
+	public static var forceGPUOnlyBitmapsOff:Bool = #if desktop false #else true #end;
 	public static var noTerminalColor:Bool = false;
 	public static var verbose:Bool = false;
 
@@ -86,12 +87,12 @@ class Main extends Sprite
 	public static var audioDisconnected:Bool = false;
 
 	public static var changeID:Int = 0;
-	public static var pathBack = #if windows
+	public static var pathBack = #if (windows || linux)
 			"../../../../"
 		#elseif mac
 			"../../../../../../../"
 		#else
-			""
+			"../../../../"
 		#end;
 	public static var startedFromSource:Bool = #if TEST_BUILD true #else false #end;
 
@@ -174,6 +175,9 @@ class Main extends Sprite
 
 		ModsFolder.init();
 		#if MOD_SUPPORT
+		if (FileSystem.exists("mods/autoload.txt"))
+			modToLoad = File.getContent("mods/autoload.txt").trim();
+
 		ModsFolder.switchMod(modToLoad.getDefault(Options.lastLoadedMod));
 		#end
 
@@ -181,6 +185,8 @@ class Main extends Sprite
 	}
 
 	public static function refreshAssets() @:privateAccess {
+		FunkinCache.instance.clearSecondLayer();
+
 		var game = FlxG.game;
 		var daSndTray = Type.createInstance(game._customSoundTray = funkin.menus.ui.FunkinSoundTray, []);
 		var index:Int = game.numChildren - 1;
@@ -239,9 +245,9 @@ class Main extends Sprite
 			Sys.setCwd(haxe.io.Path.directory(Sys.programPath()));
 		}
 		#elseif android
-		Sys.setCwd(Path.addTrailingSlash(VERSION.SDK_INT > 30 ? Context.getObbDir() : Context.getExternalFilesDir()));
+		Sys.setCwd(haxe.io.Path.addTrailingSlash(VERSION.SDK_INT > 30 ? Context.getObbDir() : Context.getExternalFilesDir()));
 		#elseif (ios || switch)
-		Sys.setCwd(Path.addTrailingSlash(openfl.filesystem.File.applicationStorageDirectory.nativePath));
+		Sys.setCwd(haxe.io.Path.addTrailingSlash(openfl.filesystem.File.applicationStorageDirectory.nativePath));
 		#end
 	}
 

@@ -1,42 +1,33 @@
 package funkin.backend.utils;
 
-typedef IniMap = Map<String, String>;
-
-/**
- * Parses an ini file and returns a map of its contents.
- * WARNING: This is not a full ini parser, it only supports the basics. So no sections
- */
 class IniUtil {
-	public static inline function parseAsset(assetPath:String, ?defaultVariables:IniMap):IniMap
-		return parseString(Assets.getText(assetPath), defaultVariables);
+	public static inline function parseAsset(assetPath:String)
+		return parseString(Assets.getText(assetPath));
 
-	public static function parseString(data:String, ?defaultVariables:IniMap):IniMap {
-		var trimmed:String;
-		var splitContent = [for(e in data.split("\n")) if ((trimmed = e.trim()) != "") trimmed];
+	public static function parseString(data:String):Map<String, Map<String, String>> {
+		var res:Map<String, Map<String, String>> = [];
+		parseStringToMap(res, data);
+		return res;
+	}
 
-		var finalMap:IniMap = [];
-		if (defaultVariables != null)
-			for(k=>e in defaultVariables)
-				finalMap[k] = e;
+	public static function parseStringToMap(map:Map<String, Map<String, String>>, data:String) {
+		var section:Map<String, String> = null;
 
-		for(line in splitContent) {
-			// comment
-			if (line.startsWith(";")) continue;
-			// sections; not supported yet
-			if (line.startsWith("[") && line.endsWith("]")) continue;
+		var regexSec = ~/\\[(.+)\\]/g, regexVal = ~/(.+)=(.+)/g, quote = ~/[\\'"](.+)[\\'"]/g, iln = 0;
+		do {
+			var line = data.substring(iln, ((iln = data.indexOf('\n', iln) + 1) == 0 ? data.length : iln - 1));
+			if (regexSec.match(line)) {
+				if ((section = map.get(regexSec.matched(1))) == null) map.set(regexSec.matched(1), section = []);
+			}
+			else if (regexVal.match(line)) {
+				var s = regexVal.matched(2).trim();
+				if (quote.match(s)) s = quote.matched(1);
 
-			var index = line.indexOf("=");
-			var name = line.substr(0, index).trim();
-			var value = line.substr(index+1).trim();
-
-			if (value.length > 1 && value.charCodeAt(0) == '"'.code && value.charCodeAt(value.length-1) == '"'.code)
-				value = value.substr(1, value.length - 2);
-
-			if (value.length == 0 || name.length == 0)
-				continue;
-
-			finalMap[name] = value;
-		}
-		return finalMap;
+				if (section == null) {
+					if ((section = map.get("Global")) == null) map.set("Global", section = []);
+				}
+				section.set(regexVal.matched(1).trim(), s);
+			}
+		} while (iln != 0);
 	}
 }

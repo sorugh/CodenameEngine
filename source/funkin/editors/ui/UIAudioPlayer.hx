@@ -29,7 +29,7 @@ class UIAudioPlayer extends UIButton {
 	public function new(x:Float, y:Float, bytes:Bytes) {
 		sound = FlxG.sound.load(Sound.fromAudioBuffer(AudioBuffer.fromBytes(bytes)));
 
-		super(x, y, "", function () {
+		super(x, y, null, function () {
 			if (sound.playing) sound.pause();
 			else sound.play(false, sound.time);
 		}, 58 - 16, 58 - 16);
@@ -54,10 +54,11 @@ class UIAudioPlayer extends UIButton {
 		timeBarPlayer = new FlxSprite(timeBar.x, timeBar.y).loadGraphic(Paths.image('editors/ui/audio-time-empty'));
 		timeBarPlayer.colorTransform.color = 0x440364;
 		timeBarPlayer.scale.y = (timeBarPlayer.frameHeight + 2) / timeBarPlayer.frameHeight;
+		timeBarPlayer.pixelPerfectRender = true;
 		members.push(timeBarPlayer);
 
 		timeBarSpr = cast new UISprite(timeBar.x, timeBar.y).makeSolid(timeBar.barWidth, timeBar.barHeight, 0x00FFFFFF);
-		timeBarSpr.cursor = BUTTON;
+		timeBarSpr.cursor = CLICK;
 		members.push(timeBarSpr);
 
 		volumeBar = new FlxBar(timeBar.x + timeBar.barWidth - 56, y + 6, LEFT_TO_RIGHT, 56, 10, sound, "volume", 0, 1);
@@ -67,7 +68,7 @@ class UIAudioPlayer extends UIButton {
 		members.push(volumeBar);
 
 		volumeBarSpr = cast new UISprite(volumeBar.x, volumeBar.y).makeSolid(volumeBar.barWidth, volumeBar.barHeight, 0x00FFFFFF);
-		volumeBarSpr.cursor = BUTTON;
+		volumeBarSpr.cursor = CLICK;
 		members.push(volumeBarSpr);
 
 		volumeIcon = new FlxSprite(volumeBar.x - 12 - 8, volumeBar.y-1).loadGraphic(Paths.image('editors/ui/audio-icon'));
@@ -87,13 +88,13 @@ class UIAudioPlayer extends UIButton {
 			playingSprite.animation.play(sound.playing ? "playing" : "paused");
 			timeText.text = '${FlxStringUtil.formatTime(sound.time/1000, true)} / ${FlxStringUtil.formatTime(sound.length/1000)}';
 
-			if(timeBarPlayer.clipRect == null)
-				timeBarPlayer.clipRect = new FlxRect(0, 0, timeBarPlayer.frameWidth, timeBarPlayer.frameHeight);
+			if(timeBarPlayer.rawClipRect == null)
+				timeBarPlayer.rawClipRect = new FlxRect(0, 0, timeBarPlayer.frameWidth, timeBarPlayer.frameHeight);
 
-			timeBarPlayer.clipRect.x = timeBarPlayer.frameWidth * (sound.time/sound.length);
-			timeBarPlayer.clipRect.width = 2;
+			timeBarPlayer.rawClipRect.x = timeBarPlayer.frameWidth * (sound.time/sound.length);
+			timeBarPlayer.rawClipRect.width = 2;
 
-			timeBarPlayer.clipRect = timeBarPlayer.clipRect;
+			timeBarPlayer.rawClipRect = timeBarPlayer.rawClipRect;
 
 			nextPlayerColor = sound.playing ? 0x732D95 : 0x440364;
 			timeBarPlayer.colorTransform.color = FlxColor.interpolate(timeBarPlayer.colorTransform.color, nextPlayerColor, 1/14);

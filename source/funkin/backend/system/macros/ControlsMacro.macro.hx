@@ -14,6 +14,7 @@ class ControlsMacro
 {
 	static var _allControls: Array<String> = null;
 	static var _allInternalControls: Array<String> = null;
+	static var _allDevModeOnlyControls: Array<String> = null;
 	static var _currentControls: Map<String, Array<Expr>> = null;
 	static var _currentGamepadControls: Map<String, Expr> = null;
 	static var _keySet: Map<String, String> = null;
@@ -29,6 +30,7 @@ class ControlsMacro
 
 		_allControls = [];
 		_allInternalControls = [];
+		_allDevModeOnlyControls = [];
 		_currentControls = [];
 		_currentGamepadControls = [];
 		_keySet = [];
@@ -154,6 +156,7 @@ class ControlsMacro
 
 		_allControls = null;
 		_allInternalControls = null;
+		_allDevModeOnlyControls = null;
 		_currentControls = null;
 		_currentGamepadControls = null;
 		_keySet = null;
@@ -289,6 +292,9 @@ class ControlsMacro
 				case ":justReleased":
 					keyset = extractString(meta.params[0]);
 					expr = macro func($i{internalName}, JUST_RELEASED);
+				case ":devModeOnly":
+					if (!_allDevModeOnlyControls.contains(shortName))
+						_allDevModeOnlyControls.push(shortName);
 				default:
 					shouldRemove = false;
 			}
@@ -326,17 +332,16 @@ class ControlsMacro
 
 		// Generated Code:
 		// inline function get_UI_UP(): Bool
-		//     return _uiUp.check();
+		//     return _uiUp.check(); or return Options.devMode && _uiUp.check(); depending if its dev mode
 		var getField: Field = {
 			name: "get_" + name,
 			access: [APrivate, AInline],
 			kind: FFun({
 				ret: macro : Bool,
 				params: [],
-				expr: macro
-				{
-					return $i{internalName}.check();
-				},
+				expr: _allDevModeOnlyControls.contains(shortName) ?
+					(macro return Options.devMode && $i{internalName}.check()) :
+					(macro return $i{internalName}.check()),
 				args: []
 			}),
 			pos: field.pos,

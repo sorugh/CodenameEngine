@@ -18,17 +18,23 @@ class TreeMenu extends UIState {
 	public var pathDesc:FunkinText;
 	public var pathBG:FlxSprite;
 
+	public var screenScroll(default, set):Float;
+	private inline function set_screenScroll(val:Float) {
+		FlxG.camera.scroll.x = val * FlxG.camera.width;
+		return screenScroll = val;
+	}
+
 	public static var lastState:Class<FlxState> = null;  // Static for fixing the softlock bugs when resetting the state  - Nex
 
 	public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
-		if(lastState == null) lastState = Type.getClass(FlxG.state);
+		if (lastState == null) lastState = Type.getClass(FlxG.state);
 		super(scriptsAllowed, scriptName);
 	}
 
 	public override function createPost() {
 		if (main == null) main = new OptionsScreen("Fallback Treemenu", "Please set the \"main\" variable in your extended class before createPost", [new TextOption("Oops! No Options", "This doesn't look like it was supposed to happen...", () -> FlxG.resetState() ) ]);
 
-		FlxG.camera.scroll.set(-FlxG.width, 0);
+		screenScroll = -1;
 
 		pathLabel = new FunkinText(4, 4, FlxG.width - 8, "> Tree Menu", 32, true);
 		pathLabel.borderSize = 1.25;
@@ -66,28 +72,10 @@ class TreeMenu extends UIState {
 			if (menuChangeTween != null)
 				menuChangeTween.cancel();
 
-			// i hate this code  - Nex
-			// we need to rewrite OptionsTree to be more sane
-			var current = null;
-			var last = null;
-			var wasClosing = optionsTree.wasClosing;
-
-			current = optionsTree.members.last();
-			if (wasClosing) {
-				last = optionsTree.lastMenu;
-			} else if (optionsTree.members.length > 1) {
-				last = optionsTree.members[optionsTree.members.length - 2]; // previous
-			}
-
-			if (current != null)
-				current.visible = true;
-
-			menuChangeTween = FlxTween.tween(FlxG.camera.scroll, {x: FlxG.width * Math.max(0, (optionsTree.members.length-1))}, 1.5, {ease: menuTransitionEase, onComplete: function(t) {
+			menuChangeTween = FlxTween.num(screenScroll, Math.max(0, (optionsTree.members.length-1)), 1.5, {ease: menuTransitionEase, onComplete: function(t) {
 				optionsTree.clearLastMenu();
-				if (!wasClosing && last != null) // only hide if they are opening a menu
-					last.visible = false;
 				menuChangeTween = null;
-			}});
+			}}, (val:Float) -> screenScroll = val);
 
 			reloadLabels();
 		}
@@ -126,6 +114,20 @@ class TreeMenu extends UIState {
 
 		// in case path gets so long it goes offscreen
 		pathLabel.x = lerp(pathLabel.x, Math.max(0, FlxG.width - 4 - pathLabel.width), 0.125);
+	}
+
+	public override function onResize(width:Int, height:Int) {
+		super.onResize(width, height);
+		if (!UIState.resolutionAware) return;
+
+		if (width < FlxG.initialWidth || height < FlxG.initialHeight) {
+			width = FlxG.initialWidth; height = FlxG.initialHeight;
+		}
+
+		screenScroll = screenScroll;  // Updating the cam position  - Nex
+
+		if (pathDesc != null && pathLabel != null)
+			pathDesc.width = pathLabel.width = width - 8;
 	}
 
 	public static inline function menuTransitionEase(e:Float)

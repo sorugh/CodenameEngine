@@ -300,7 +300,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 		if(remappedNames.exists(fileName))
 			fileName = remappedNames.get(fileName);
 		Logs.traceColored([
-			Logs.logText('${fileName}: ', GREEN),
+			Logs.logText(fileName + ': ', GREEN),
 			Logs.logText(Std.string(v))
 		], TRACE);
 	}

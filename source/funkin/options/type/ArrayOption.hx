@@ -36,7 +36,7 @@ class ArrayOption extends OptionType {
 
 		var fieldValue = Reflect.field(parent, optionName);
 		if(fieldValue != null)
-			this.currentSelection = Std.int(Math.max(0, options.indexOf(fieldValue)));
+			this.currentSelection = CoolUtil.maxInt(0, options.indexOf(fieldValue));
 
 		this.optionName = optionName;
 

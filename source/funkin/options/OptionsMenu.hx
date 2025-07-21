@@ -89,19 +89,14 @@ class OptionsMenu extends TreeMenu {
 			});
 		}]);
 
-		var xmlPath = Paths.xml("config/options");
-		for(source in [funkin.backend.assets.AssetSource.SOURCE, funkin.backend.assets.AssetSource.MODS]) {
-			if (Paths.assetsTree.existsSpecific(xmlPath, "TEXT", source)) {
-				var access:Access = null;
-				try {
-					access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT", source)));
-				} catch(e) {
-					Logs.error('Error while parsing options.xml: ${Std.string(e)}');
-				}
+		for (i in funkin.backend.assets.ModsFolder.getLoadedMods()) {
+			var xmlPath = Paths.xml('config/options/LIB_$i');
 
-				if (access != null)
-					for(o in parseOptionsFromXML(access))
-						main.add(o);
+			if (Paths.assetsTree.existsSpecific(xmlPath, "TEXT")) {
+				var access:Access = null;
+				try access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT")))
+				catch(e) Logs.trace('Error while parsing options.xml: ${Std.string(e)}', ERROR);
+				if (access != null) for (o in parseOptionsFromXML(access)) main.add(o);
 			}
 		}
 	}

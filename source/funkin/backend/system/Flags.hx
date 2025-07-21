@@ -1,34 +1,40 @@
 package funkin.backend.system;
 
-import lime.utils.AssetLibrary as LimeAssetLibrary;
-import lime.utils.AssetType;
 import flixel.util.FlxColor;
-
-import lime.app.Application;
-import funkin.backend.system.macros.GitCommitMacro;
+import funkin.backend.assets.ModsFolder;
 import funkin.backend.assets.IModsAssetLibrary;
 import funkin.backend.assets.ScriptedAssetLibrary;
+import funkin.backend.system.macros.GitCommitMacro;
+import funkin.backend.utils.IniUtil;
+import lime.app.Application;
+import lime.utils.AssetLibrary as LimeAssetLibrary;
+import lime.utils.AssetType;
 
 /**
  * A class that reads the `flags.ini` file, allowing to read settable Flags (customs too).
  */
 @:build(funkin.backend.system.macros.FlagMacro.build())
 class Flags {
+	// -- Codename's Addon Config --
+	@:bypass public static var addonFlags:Map<String, Dynamic> = [];
+
 	// -- Codename's Mod Config --
-	public static var MOD_NAME:String;
-	public static var MOD_DESCRIPTION:String;
-	public static var MOD_API_VERSION:Int;
-	public static var MOD_DOWNLOADED_LINK:String;
+	public static var MOD_NAME:String = "";
+	public static var MOD_DESCRIPTION:String = "";
+	public static var MOD_API_VERSION:Int = 1;
+	public static var MOD_DOWNLOAD_LINK:String  = "";
 	public static var MOD_DEPENDENCIES:Array<String> = [];
 
-	public static var MOD_ICON64:String;
-	public static var MOD_ICON32:String;
-	public static var MOD_ICON16:String;
-	public static var MOD_ICON:String;
+	public static var MOD_ICON64:String = "";
+	public static var MOD_ICON32:String = "";
+	public static var MOD_ICON16:String = "";
+	public static var MOD_ICON:String = "";
 
-	public static var MOD_DISCORD_CLIENT_ID:String;
-	public static var MOD_DISCORD_LOGO_KEY:String;
+	public static var MOD_DISCORD_CLIENT_ID:String = "";
+	public static var MOD_DISCORD_LOGO_KEY:String = "";
+	public static var MOD_DISCORD_LOGO_TEXT:String = "";
 	// -- Codename's Default Flags --
+	public static var CURRENT_API_VERSION:Int = 1;
 	public static var COMMIT_NUMBER:Int = GitCommitMacro.commitNumber;
 	public static var COMMIT_HASH:String = GitCommitMacro.commitHash;
 	public static var COMMIT_MESSAGE:String = 'Commit $COMMIT_NUMBER ($COMMIT_HASH)';
@@ -42,10 +48,6 @@ class Flags {
 	public static var REPO_OWNER:String = "CodenameCrew";
 	public static var REPO_URL:String = 'https://github.com/$REPO_OWNER/$REPO_NAME';
 
-	// make this empty once you guys are done with the project.
-	// good luck /gen <3 @crowplexus
-	public static var RELEASE_CYCLE:String = "Beta";
-
 	/**
 	 * Preferred sound extension for the game's audio files.
 	 * Currently is set to `mp3` for web targets, and `ogg` for other targets.
@@ -55,7 +57,7 @@ class Flags {
 	public static var IMAGE_EXT:String = "png"; // we also support jpg
 
 	public static var DEFAULT_DISCORD_LOGO_KEY:String = "icon";
-	public static var DEFAULT_DISCORD_CLIENT_ID:String = "1027994136193810442";
+	public static var DEFAULT_DISCORD_CLIENT_ID:String = "1383853614589673472";
 	public static var DEFAULT_DISCORD_LOGO_TEXT:String = "Codename Engine";
 
 	@:also(funkin.game.Character.FALLBACK_CHARACTER)
@@ -88,23 +90,25 @@ class Flags {
 
 	// Internal stuff
 	public static var DEFAULT_BPM:Float = 100.0;
-	public static var DEFAULT_BEATS_PER_MEASURE:Float = 4;
+	public static var DEFAULT_BEATS_PER_MEASURE:Int = 4;
 	public static var DEFAULT_STEPS_PER_BEAT:Int = 4;
+	public static var DEFAULT_LOOP_TIME:Float = 0.0;
 
 	public static var SUPPORTED_CHART_RUNTIME_FORMATS:Array<String> = ["Legacy", "Psych Engine"];
 	public static var SUPPORTED_CHART_FORMATS:Array<String> = ["BaseGame"];
 
-	public static var BASEGAME_SONG_METADATA_VERSION:String = "2.2.2";
-	public static var BASEGAME_SONG_CHART_DATA_VERSION:String = "2.0.0";
-	public static var BASEGAME_DEFAULT_NOTE_STYLE:String = 'funkin';
-	public static var BASEGAME_DEFAULT_ALBUM_ID:String = 'volume1';
-	public static var BASEGAME_DEFAULT_PREVIEW_START:Float = 0;
-	public static var BASEGAME_DEFAULT_PREVIEW_END:Float = 15000;
+	public static var VSLICE_SONG_METADATA_VERSION:String = "2.2.2";
+	public static var VSLICE_SONG_CHART_DATA_VERSION:String = "2.0.0";
+	public static var VSLICE_DEFAULT_NOTE_STYLE:String = 'funkin';
+	public static var VSLICE_DEFAULT_ALBUM_ID:String = 'volume1';
+	public static var VSLICE_DEFAULT_PREVIEW_START:Int = 0;
+	public static var VSLICE_DEFAULT_PREVIEW_END:Int = 15000;
 
 	/**
-	 * Default background colors for songs without bg color
+	 * Default background colors for songs or more without bg color
 	 */
 	public static var DEFAULT_COLOR:FlxColor = 0xFF9271FD;
+	public static var DEFAULT_WEEK_COLOR:FlxColor = 0xFFF9CF51;
 	public static var DEFAULT_COOP_ALLOWED:Bool = false;
 	public static var DEFAULT_OPPONENT_MODE_ALLOWED:Bool = false;
 
@@ -122,11 +126,13 @@ class Flags {
 	public static var DEFAULT_GAMEOVER_LOSS_SFX:String = "gameOverSFX";
 	public static var DEFAULT_GAMEOVER_RETRY_SFX:String = "gameOverEnd";
 
-	public static var DEFAULT_CAM_ZOOM_INTERVAL:Int = 4;
+	public static var DEFAULT_CAM_ZOOM_INTERVAL:Int = 1;
+	public static var DEFAULT_CAM_ZOOM_OFFSET:Float = 0;
+	//public static var DEFAULT_CAM_ZOOM_EVERY:BeatType = MEASURE;
 	public static var DEFAULT_CAM_ZOOM_STRENGTH:Int = 1;
 	public static var DEFAULT_CAM_ZOOM:Float = 1.05; // what zoom level it defaults to
 	public static var DEFAULT_HUD_ZOOM:Float = 1.0;
-	public static var MAX_CAMERA_ZOOM:Float = 1.35;
+	public static var MAX_CAMERA_ZOOM_MULT:Float = 1.35;
 
 	// to translate these you need to convert them into ids
 	// Resume -> pause.resume
@@ -196,40 +202,19 @@ class Flags {
 	// -- End of Codename's Default Flags --
 
 	/**
-	 * Flags that Codename couldn't recognize as it's own defaults (they can only be `string`!).
+	 * Flags that Codename couldn't recognize as it's own defaults (they can only be `string`! due to them being unparsed).
 	 */
 	@:bypass public static var customFlags:Map<String, String> = [];
 
 	public static function loadFromData(flags:Map<String, String>, data:String) {
-		var trimmed:String;
-		var splitContent = [for(e in data.split("\n")) if ((trimmed = e.trim()) != "") trimmed];
+		var res = IniUtil.parseString(data);
 
-		for(line in splitContent) {
-			if(line.startsWith(";")) continue;
-			if(line.startsWith("#")) continue;
-			if(line.startsWith("//")) continue;
-			if(line.length == 0) continue;
-			if(line.charAt(0) == "[" && line.charAt(line.length-1) == "]") continue;
-
-			var index = line.indexOf("=");
-			if(index == -1) continue;
-			var name = line.substr(0, index).trim();
-			var value = line.substr(index+1).trim();
-
-			var wasQuoted = value.length > 1 && value.charCodeAt(0) == '"'.code && value.charCodeAt(value.length-1) == '"'.code;
-			if(wasQuoted) value = value.substr(1, value.length - 2);
-			if((!wasQuoted && value.length == 0) || name.length == 0)
-				continue;
-
-			if(!flags.exists(name))
-				flags[name] = value;
-		}
+		for (section in res) for (key => value in section) flags[key] = value;
 	}
 
-	public static function loadFromDatas(files:Array<String>) {
+	public static function loadFromDatas(datas:Array<String>) {
 		var flags:Map<String, String> = [];
-		for(file in files) {
-			var data:String = Assets.getText(file);
+		for(data in datas) {
 			if(data != null)
 				loadFromData(flags, data);
 		}
@@ -248,20 +233,46 @@ class Flags {
 	 * Loads the flags from the assets.
 	**/
 	public static function load(?libs:Array<LimeAssetLibrary> = null) {
-		if (libs == null)
-			libs = Paths.assetsTree.libraries;
-		final flagsPath = Paths.getPath("flags.ini");
-		var datas:Array<String> = [
-			for(lib in libs)
-				#if TRANSLATIONS_SUPPORT
+		if (libs == null) {
+			libs = Paths.assetsTree.libraries.copy();
+			libs.reverse();
+		}
+		for(lib in libs) {
+			var l = lib;
+			if (l is openfl.utils.AssetLibrary) {
+				@:privateAccess
+				l = cast(l, openfl.utils.AssetLibrary).__proxy;
+			}
+			if(lib is funkin.backend.assets.TranslatedAssetLibrary) {
 				// skip translations since it would be useless, if you wanna modify it set the flags inside of global.hx
-				if(!(lib is funkin.backend.assets.TranslatedAssetLibrary))
-				#end
-					if(lib.exists(flagsPath, AssetType.TEXT))
-						lib.getAsset(flagsPath, AssetType.TEXT)
-		];
+				continue;
+			}
 
-		var flags:Map<String, String> = loadFromDatas(datas);
-		parseFlags(flags);
+			if (l is IModsAssetLibrary) {
+				var flagsTxt = "";
+				if (l.exists(Paths.ini("config/modpack"), AssetType.TEXT))
+					flagsTxt = l.getAsset(Paths.ini("config/modpack"), AssetType.TEXT);
+				if (cast(l, IModsAssetLibrary).modName == "assets") continue;
+
+				if (cast(l, IModsAssetLibrary).modName == ModsFolder.currentModFolder) {
+					var flags:Map<String, String> = [];
+					loadFromData(flags, flagsTxt);
+					parseFlags(flags);
+				}
+				else {
+					var flags:Map<String, String> = [];
+					loadFromData(flags, flagsTxt);
+					addonFlags.set(cast(l, IModsAssetLibrary).modName.toLowerCase().replace(" ", "").trim(), flags);
+				}
+			}
+			else {
+				var flagsTxt = "";
+				if (l.exists(Paths.getPath("data/config/flags.ini"), AssetType.TEXT))
+					flagsTxt = l.getAsset(Paths.getPath("data/config/flags.ini"), AssetType.TEXT);
+				var flags:Map<String, String> = [];
+				loadFromData(flags, flagsTxt);
+				parseFlags(flags);
+			}
+		}
 	}
 }

@@ -1,25 +1,17 @@
 package funkin.options.keybinds;
 
 import flixel.util.FlxColor;
-
+import haxe.xml.Access;
 using StringTools;
 
-typedef KeybindCategory = {
-	var name:String;
-	var settings:Array<{
-		var name:String;
-		var control:String;
-		var ?icon:Array<String>;
-	}>;
-}
 
 class KeybindsOptions extends MusicBeatSubstate {
 	public static var instance:KeybindsOptions;
 
-	public var categories:Array<KeybindCategory> = [];
-
 	public function translate(id:String, ?args:Array<Dynamic>)
 		return TU.translate("KeybindsOptions." + id, args);
+
+	public var categories:Array<ControlsCategory> = [];
 
 	public var settingCam:FlxCamera;
 
@@ -103,12 +95,47 @@ class KeybindsOptions extends MusicBeatSubstate {
 					},
 				]
 			},
+		{
+			name: 'Volume',
+			settings: [
+				{
+					name: 'Up',
+					control: 'VOLUME_UP'
+				},
+				{
+					name: 'Down',
+					control: 'VOLUME_DOWN'
+				},
+				{
+					name: 'Mute',
+					control: 'VOLUME_MUTE'
+				},
+			]
+		},
 			{
 				name: translate("category.engine"),
 				settings: [
 					{
 						name: translate("engine.switchMod"),
 						control: 'SWITCHMOD'
+					},
+				]
+			},
+			{
+				name: 'Developer',
+				devModeOnly: true,
+				settings: [
+					{
+						name: 'Developer Menus',
+						control: 'DEV_ACCESS'
+					},
+					{
+						name: 'Open Console',
+						control: 'DEV_CONSOLE'
+					},
+					{
+						name: 'Reload State',
+						control: 'DEV_RELOAD'
 					},
 				]
 			}
@@ -145,8 +172,13 @@ class KeybindsOptions extends MusicBeatSubstate {
 			FlxG.camera.follow(camFollow, LOCKON, 0.125);
 		}
 
+		var customCategories = loadCustomCategories();
+		for (i in customCategories) categories.push(i);
+
 		var k:Int = 0;
-		for(category in categories) {
+		for (category in categories) {
+			if (category.devModeOnly && !Options.devMode) continue;
+
 			k++;
 			var title = new Alphabet(0, k * 75, category.name, "bold");
 			title.screenCenter(X);
@@ -160,8 +192,10 @@ class KeybindsOptions extends MusicBeatSubstate {
 					sparrowIcon = e.icon[0];
 					sparrowAnim = e.icon[1];
 				}
+				if (e.sparrowIcon != null) sparrowIcon = e.sparrowIcon;
+				if (e.sparrowAnim != null) sparrowAnim = e.sparrowAnim;
 
-				var text = new KeybindSetting(100, k * 75, e.name, e.control, sparrowIcon, sparrowAnim);
+				var text = new KeybindSetting(100, k * 75, e.name, e.control, sparrowIcon, sparrowAnim, e.custom == null ? false : e.custom);
 				if (!isSubState)
 					text.bind1.color = text.bind2.color = FlxColor.BLACK;
 				alphabets.add(text);
@@ -170,6 +204,10 @@ class KeybindsOptions extends MusicBeatSubstate {
 		}
 		add(alphabets);
 		add(camFollow);
+
+		FlxG.sound.volumeUpKeys = [];
+		FlxG.sound.volumeDownKeys = [];
+		FlxG.sound.muteKeys = [];
 	}
 
 	public override function destroy() {
@@ -183,10 +221,8 @@ class KeybindsOptions extends MusicBeatSubstate {
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
 
-
-		if (isSubState) {
-			bg.alpha = lerp(bg.alpha, 0.1, 0.125);
-		} else {
+		if (isSubState) bg.alpha = lerp(bg.alpha, 0.1, 0.125);
+		else {
 			if (curSelected < 4) {
 				if (coloredBG.alpha == 0)
 					coloredBG.color = noteColors[curSelected];
@@ -202,12 +238,14 @@ class KeybindsOptions extends MusicBeatSubstate {
 			changeSelection((controls.UP_P ? -1 : 0) + (controls.DOWN_P ? 1 : 0));
 
 			if (controls.BACK) {
-				MusicBeatState.skipTransIn = true;
-				if (isSubState)
-					close();
-				else
+				if (isSubState) close();
+				else {
+					MusicBeatState.skipTransIn = true;
 					FlxG.switchState(new OptionsMenu());
+				}
+				ControlsUtil.resetCustomControls();
 				Options.applyKeybinds();
+				ControlsUtil.loadCustomControls();
 				Options.save();
 				return;
 			}
@@ -251,9 +289,65 @@ class KeybindsOptions extends MusicBeatSubstate {
 			var minH = FlxG.height / 2;
 			var maxH = alphabets.members[alphabets.length-1].y + alphabets.members[alphabets.length-1].height - (FlxG.height / 2);
 			if (minH < maxH)
-				camFollow.setPosition(FlxG.width / 2, FlxMath.bound(alphabet.y + (alphabet.height / 2) - (35), minH, maxH));
+				camFollow.setPosition(FlxG.width / 2, CoolUtil.bound(alphabet.y + (alphabet.height / 2) - 35, minH, maxH));
 			else
 				camFollow.setPosition(FlxG.width / 2, FlxG.height / 2);
 		}
 	}
+
+	public function loadCustomCategories() {
+		var customCategories:Array<ControlsCategory> = [];
+
+		var xmlPath = Paths.xml("config/controls");
+		for(source in [funkin.backend.assets.AssetSource.SOURCE, funkin.backend.assets.AssetSource.MODS]) {
+			if (Paths.assetsTree.existsSpecific(xmlPath, "TEXT", source)) {
+				var access:Access = null;
+				try {
+					access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT", source)).firstElement());
+				} catch(e) {
+					Logs.trace('Error while parsing controls.xml: ${Std.string(e)}', ERROR);
+				}
+
+				if (access != null) {
+					for (category in access.elements) {
+						if (!category.has.name) continue;
+
+						var cat:ControlsCategory = {
+							name: category.getAtt("name"),
+							settings: []
+						};
+
+						for (control in category.elements) {
+							if (control.has.menuName && control.has.saveName) {
+								cat.settings.push({
+									name: control.getAtt("menuName"),
+									control: control.getAtt("saveName"),
+									custom: true,
+									sparrowIcon: control.getAtt("menuIcon").getDefault(null),
+									sparrowAnim: control.getAtt("menuAnim").getDefault(null)
+								});
+							}
+						}
+
+						customCategories.push(cat);
+					}
+				}
+			}
+		}
+		return customCategories;
+	}
+}
+
+typedef KeybindSettingData = {
+	var name:String;
+	var control:String;
+	var ?custom:Bool;
+	var ?sparrowIcon:String;
+	var ?sparrowAnim:String;
+}
+
+typedef ControlsCategory = {
+	var name:String;
+	var settings:Array<KeybindSettingData>;
+	var ?devModeOnly:Bool;
 }

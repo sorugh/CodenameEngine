@@ -1,12 +1,12 @@
 package funkin.menus.credits;
 
+import flixel.util.FlxColor;
 import funkin.backend.assets.AssetSource;
+import funkin.backend.system.github.GitHubContributor.CreditsGitHubContributor;
 import funkin.options.OptionsScreen;
 import funkin.options.TreeMenu;
-import funkin.backend.system.github.GitHubContributor.CreditsGitHubContributor;
 import funkin.options.type.*;
 import haxe.xml.Access;
-import flixel.util.FlxColor;
 
 class CreditsMain extends TreeMenu {
 	var bg:FlxSprite;
@@ -22,19 +22,14 @@ class CreditsMain extends TreeMenu {
 		bg.antialiasing = true;
 		add(bg);
 
-		var xmlPath = Paths.xml('config/credits');
-		for(source in [funkin.backend.assets.AssetSource.SOURCE, funkin.backend.assets.AssetSource.MODS]) {
-			if (Paths.assetsTree.existsSpecific(xmlPath, "TEXT", source)) {
-				var access:Access = null;
-				try {
-					access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT", source)));
-				} catch(e) {
-					Logs.error('Error while parsing credits.xml: ${Std.string(e)}', "CreditsMain");
-				}
+		for (i in funkin.backend.assets.ModsFolder.getLoadedMods()) {
+			var xmlPath = Paths.xml('config/credits/LIB_$i');
 
-				if (access != null)
-					for(c in parseCreditsFromXML(access, source))
-						items.push(c);
+			if (Paths.assetsTree.existsSpecific(xmlPath, "TEXT")) {
+				var access:Access = null;
+				try access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT")))
+				catch(e) Logs.trace('[CreditsMain] Error while parsing credits.xml: ${Std.string(e)}', ERROR);
+				if (access != null) for (c in parseCreditsFromXML(access)) items.push(c);
 			}
 		}
 
@@ -54,7 +49,7 @@ class CreditsMain extends TreeMenu {
 	/**
 	 * XML STUFF
 	 */
-	public function parseCreditsFromXML(xml:Access, source:AssetSource):Array<OptionType> {
+	public function parseCreditsFromXML(xml:Access, source:AssetSource = BOTH):Array<OptionType> {
 		var credsMenus:Array<OptionType> = [];
 
 		for(node in xml.elements) {

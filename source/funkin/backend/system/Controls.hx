@@ -24,6 +24,11 @@ enum Control
 	PAUSE;
 	//CHEAT;
 	SWITCHMOD;
+
+	// Debugs
+	DEV_ACCESS;
+	DEV_CONSOLE;
+	DEV_RELOAD;
 }
 
 enum KeyboardScheme
@@ -150,6 +155,25 @@ class Controls extends FlxActionSet
 	@:pressed("switchmod") public var SWITCHMOD_HOLD(get, set): Bool;
 	@:justReleased("switchmod") public var SWITCHMOD_R(get, set): Bool;
 
+	@:devModeOnly
+	@:gamepad([])
+	@:justPressed("dev-access") public var DEV_ACCESS(get, set): Bool;
+	@:pressed("dev-access") public var DEV_ACCESS_HOLD(get, set): Bool;
+	@:justReleased("dev-access") public var DEV_ACCESS_R(get, set): Bool;
+
+	@:devModeOnly
+	@:gamepad([])
+	@:justPressed("dev-console") public var DEV_CONSOLE(get, set): Bool;
+	@:pressed("dev-console") public var DEV_CONSOLE_HOLD(get, set): Bool;
+	@:justReleased("dev-console") public var DEV_CONSOLE_R(get, set): Bool;
+
+	@:devModeOnly
+	@:gamepad([])
+	@:justPressed("dev-reload") public var DEV_RELOAD(get, set): Bool;
+	@:pressed("dev-reload") public var DEV_RELOAD_HOLD(get, set): Bool;
+	@:justReleased("dev-reload") public var DEV_RELOAD_R(get, set): Bool;
+
+	@:allow(funkin.backend.utils.ControlsUtil)
 	var byName:Map<String, FlxActionDigital> = [];
 
 	public var gamepadsAdded:Array<Int> = [];
@@ -219,13 +243,13 @@ class Controls extends FlxActionSet
 		macro_forEachBound(control, (action, _) -> removeKeys(action, keys));
 	}
 
-	inline static function addKeys(action:FlxActionDigital, keys:Array<FlxKey>, state:FlxInputState)
+	public inline static function addKeys(action:FlxActionDigital, keys:Array<FlxKey>, state:FlxInputState)
 	{
 		for (key in keys)
 			action.addKey(key, state);
 	}
 
-	static function removeKeys(action:FlxActionDigital, keys:Array<FlxKey>)
+	public static function removeKeys(action:FlxActionDigital, keys:Array<FlxKey>)
 	{
 		var i = action.inputs.length;
 		while (i-- > 0)
@@ -302,13 +326,13 @@ class Controls extends FlxActionSet
 		macro_forEachBound(control, (action, _) -> removeButtons(action, gamepadID, buttons));
 	}
 
-	inline static function addButtons(action:FlxActionDigital, buttons:Array<FlxGamepadInputID>, state, id)
+	public inline static function addButtons(action:FlxActionDigital, buttons:Array<FlxGamepadInputID>, state, id)
 	{
 		for (button in buttons)
 			action.addGamepad(button, state, id);
 	}
 
-	static function removeButtons(action:FlxActionDigital, gamepadID:Int, buttons:Array<FlxGamepadInputID>)
+	public static function removeButtons(action:FlxActionDigital, gamepadID:Int, buttons:Array<FlxGamepadInputID>)
 	{
 		var i = action.inputs.length;
 		while (i-- > 0)
@@ -319,8 +343,21 @@ class Controls extends FlxActionSet
 		}
 	}
 
-	inline static function isGamepad(input:FlxActionInput, deviceID:Int)
+	public inline static function isGamepad(input:FlxActionInput, deviceID:Int)
 	{
 		return input.device == GAMEPAD && (deviceID == FlxInputDeviceID.ALL || input.deviceID == deviceID);
+	}
+
+	@:nullSafety(Off)
+	public inline function getJustPressed(name:String) {
+		return ControlsUtil.getJustPressed(this, name);
+	}
+	@:nullSafety(Off)
+	public inline function getJustReleased(name:String) {
+		return ControlsUtil.getJustReleased(this, name);
+	}
+	@:nullSafety(Off)
+	public inline function getPressed(name:String) {
+		return ControlsUtil.getPressed(this, name);
 	}
 }

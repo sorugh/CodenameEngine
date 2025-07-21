@@ -38,7 +38,7 @@ final class TranslationUtil
 	/**
 	 * Returns the current language config.
 	 */
-	public static var config:IniMap = [];
+	public static var config:Map<String, String> = [];
 	/**
 	 * Returns the current language.
 	 */
@@ -65,15 +65,15 @@ final class TranslationUtil
 
 	// Private
 	private static inline var LANG_FOLDER:String = "languages";
-	private static var langConfigs:Map<String, IniMap> = [];
+	private static var langConfigs:Map<String, Map<String, String>> = [];
 	private static var nameMap:Map<String, String> = [];
 	private static inline function getDefaultNameMap():Map<String, String> {
 		return [Flags.DEFAULT_LANGUAGE => Flags.DEFAULT_LANGUAGE_NAME];
 	}
-	private static inline function getDefaultLangConfigs():Map<String, IniMap> {
+	private static inline function getDefaultLangConfigs():Map<String, Map<String, String>> {
 		return [Flags.DEFAULT_LANGUAGE => getDefaultConfig(Flags.DEFAULT_LANGUAGE)];
 	}
-	@:noUsing private static inline function getDefaultConfig(name:String):IniMap {
+	@:noUsing private static inline function getDefaultConfig(name:String):Map<String, String> {
 		return ["name" => getLanguageName(name), "credits" => "", "version" => "1.0.0"];
 	}
 
@@ -200,7 +200,9 @@ final class TranslationUtil
 			var config = getDefaultConfig(lang);
 
 			if(Assets.exists(path)) {
-				config = IniUtil.parseAsset(path, config);
+				var c = IniUtil.parseAsset(path);
+				for (key => value in c)
+					config[key] = value;
 			} else { // if there was no config.ini, use the file name as the language name
 				for(file in Paths.getFolderContent(mainPath + lang).sortAlphabetically()) {
 					if(Path.extension(file) == "xml") {
@@ -313,7 +315,7 @@ final class TranslationUtil
 		return reverseMap.exists(name) ? reverseMap.get(name) : name;
 	}
 
-	public static function getConfig(lang:String):IniMap {
+	public static function getConfig(lang:String):Map<String, String> {
 		return langConfigs.exists(lang) ? langConfigs.get(lang) : getDefaultConfig(lang);
 	}
 

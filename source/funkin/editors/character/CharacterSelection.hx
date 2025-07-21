@@ -1,16 +1,21 @@
 package funkin.editors.character;
 
+import haxe.xml.Printer;
+import funkin.editors.ui.UIImageExplorer.ImageSaveData;
 import funkin.game.Character;
 import funkin.options.OptionsScreen;
 import funkin.options.type.IconOption;
 import funkin.options.type.NewOption;
 import funkin.options.type.TextOption;
 import funkin.options.type.OptionType;
+import funkin.backend.assets.ModsFolder;
 
 class CharacterSelection extends EditorTreeMenu
 {
 	inline function translate(id:String, ?args:Array<Dynamic>)
 		return TU.translate("characterSelection." + id, args);
+
+	public var modsList:Array<String> = [];
 
 	public override function create()
 	{
@@ -18,7 +23,7 @@ class CharacterSelection extends EditorTreeMenu
 		super.create();
 
 		var isMods:Bool = true;
-		var modsList:Array<String> = Character.getList(true, true);
+		modsList = Character.getList(true, true);
 
 		if(modsList.length == 0) {
 			modsList = Character.getList(false, true);
@@ -46,11 +51,8 @@ class CharacterSelection extends EditorTreeMenu
 				}
 			}
 
-			var newChar = translate("newCharacter");
-			list.insert(0, new NewOption(newChar, newChar, function() {
-				openSubState(new UIWarningSubstate(translate("warnings.notImplemented-title"), translate("warnings.notImplemented-body"), [
-					{label: TU.translate("editor.ok"), color: 0xFFFF0000, onClick: function(t) {}}
-				]));
+			list.insert(0, new NewOption(translate("newCharacter"), translate("newCharacterDesc"), function() {
+				openSubState(new CharacterCreationScreen(createCharacter));
 			}));
 
 			return list;
@@ -67,5 +69,30 @@ class CharacterSelection extends EditorTreeMenu
 		super.createPost();
 
 		main.changeSelection(1);
+	}
+
+	public function createCharacter(name:String, imageSaveData:ImageSaveData, xml:Xml) {
+		var characterAlreadyExists:Bool = modsList.contains(name);
+		if (characterAlreadyExists) {
+			openSubState(new UIWarningSubstate("Creating Character: Error!", "The character you are trying to create already exists, if you would like to override it delete the character first!", [
+				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
+			]));
+			return;
+		}
+
+		// Save Data file
+		var characterPath:String = '${Paths.getAssetsRoot()}/data/characters/${name}.xml';
+		CoolUtil.safeSaveFile(characterPath, "<!DOCTYPE codename-engine-character>\n" + Printer.print(xml, true));
+
+		// Save Image files 
+		UIImageExplorer.saveFilesGlobal(imageSaveData, '${Paths.getAssetsRoot()}/images/characters');
+
+		// Add to Menu >:D
+		var option:IconOption = new IconOption(name, "Press ACCEPT to edit this character.", Character.getIconFromCharName(name),
+			function() {
+				FlxG.switchState(new CharacterEditor(name));
+			}
+		);
+		optionsTree.members[optionsTree.members.length-1].insert(1, option);
 	}
 }

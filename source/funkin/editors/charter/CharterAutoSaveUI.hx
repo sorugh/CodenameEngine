@@ -39,7 +39,7 @@ class CharterAutoSaveUI extends UISliceSprite {
 		progressBar.antialiasing = false; progressBar.clipRect = new FlxRect(0, 0, progressBar.width, progressBar.height);
 		members.push(progressBar);
 
-		cancelButton = new UIButton(x-(10+16), y+8, "", () -> {
+		cancelButton = new UIButton(x-(10+16), y+8, null, () -> {
 			if (cancelled || !showedAnimation) return;
 			cancelled = true; __timer.cancel(); __tween.cancel();
 
@@ -108,7 +108,7 @@ class CharterAutoSaveUI extends UISliceSprite {
 			bar.follow(this, 10, bHeight-20);
 			bar.alpha = alpha;
 		}
-		progressBar.clipRect = progressBar.clipRect.set(0, 0, progressBar.width*progress,progressBar.height);
+		progressBar.rawClipRect = progressBar.rawClipRect.set(0, 0, progressBar.frameWidth*progress,progressBar.frameHeight);
 	}
 
 	public function appearAnimation() {

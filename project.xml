@@ -207,9 +207,6 @@
 	<haxelib name="markdown" />
 	<haxelib name="hxcpp-debug-server" if="TEST_BUILD debug" />
 
-	<!-- Custom Libraries -->
-	<haxelib name="macro-fixer" />
-
 	<!-- _________________________________ Additional stuff _______________________________ -->
 
 	<section if="MODCHARTING_FEATURES">

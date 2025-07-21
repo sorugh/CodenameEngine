@@ -13,14 +13,15 @@ Putting this txt in here so others can edit and commit this to suggest or add mi
 # Editor SFX
 
 ## Global:
-- Opening/Closing Context/Dropdown Menus []
-- Opening/Closing Pop-up Windows []
+- Opening/Closing Context/Dropdown Menus [x]
+- Opening/Closing Pop-up Windows [x]
 - Mouse Click [x]
-- UI Button being clicked []
-- Focusing/Unfocusing a text field []
-- Typing in a text field []
-- Saving []
-- Auto-Saving []
+- UI Button being clicked [x]
+- Focusing/Unfocusing a text field [x]
+- Typing in a text field [x]
+- Deleting from text field [x]
+- Saving [x]
+- Auto-Saving [x]
 - Copying []
 - Pasting []
 - Undoing []
@@ -28,10 +29,10 @@ Putting this txt in here so others can edit and commit this to suggest or add mi
 - Deleting []
 
 ## Chart Editor:
-- Placing Notes []
-- Deleting Notes []
-- Subtracting Sustain []
-- Adding Sustain []
+- Placing Notes [x]
+- Deleting Notes [x]
+- Subtracting Sustain [x]
+- Adding Sustain [x]
 - Picking Up Notes []
 - Moving Notes []
 - Dropping Notes []
@@ -41,9 +42,9 @@ Putting this txt in here so others can edit and commit this to suggest or add mi
 - Creating an Event []
 - Pulling up Event Editing menu []
 - Scrolling Up/Down (via `Scroll Wheel` or `W/S`) []
-- Note Snapping Change []
-- Locking Strums []
-- Unlocking Strums []
+- Note Snapping Change [x]
+- Locking Strums [x]
+- Unlocking Strums [x]
 - Creating Strum []
 
 ## Character/Stage Editor

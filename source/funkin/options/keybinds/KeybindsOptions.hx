@@ -37,22 +37,26 @@ class KeybindsOptions extends MusicBeatSubstate {
 				name: translate("category.notes"),
 				settings: [
 					{
-						icon: ["game/notes/default", "purple0"],
+						sparrowIcon: "game/notes/default",
+						sparrowAnim: "purple0",
 						name: translate("left"),
 						control: 'NOTE_LEFT'
 					},
 					{
-						icon: ['game/notes/default', 'blue0'],
+						sparrowIcon: "game/notes/default",
+						sparrowAnim: "blue0",
 						name: translate("down"),
 						control: 'NOTE_DOWN'
 					},
 					{
-						icon: ['game/notes/default', 'green0'],
+						sparrowIcon: "game/notes/default",
+						sparrowAnim: "green0",
 						name: translate("up"),
 						control: 'NOTE_UP'
 					},
 					{
-						icon: ['game/notes/default', 'red0'],
+						sparrowIcon: "game/notes/default",
+						sparrowAnim: "red0",
 						name: translate("right"),
 						control: 'NOTE_RIGHT'
 					},
@@ -188,10 +192,6 @@ class KeybindsOptions extends MusicBeatSubstate {
 			for(e in category.settings) {
 				var sparrowIcon:String = null;
 				var sparrowAnim:String = null;
-				if(e.icon != null) {
-					sparrowIcon = e.icon[0];
-					sparrowAnim = e.icon[1];
-				}
 				if (e.sparrowIcon != null) sparrowIcon = e.sparrowIcon;
 				if (e.sparrowAnim != null) sparrowAnim = e.sparrowAnim;
 

@@ -201,8 +201,9 @@ final class TranslationUtil
 
 			if(Assets.exists(path)) {
 				var c = IniUtil.parseAsset(path);
-				for (key => value in c)
-					config[key] = value;
+				for (i => v in c)
+					for (key => value in v)
+						config[key] = value;
 			} else { // if there was no config.ini, use the file name as the language name
 				for(file in Paths.getFolderContent(mainPath + lang).sortAlphabetically()) {
 					if(Path.extension(file) == "xml") {

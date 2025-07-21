@@ -15,7 +15,7 @@ class CharterEventAdd extends UISliceSprite {
 
 		this.global = flipX = global;
 
-		sideText = new UIText(0, -40, 0, global ? "Global Event" : "Local Event", 12);
+		sideText = new UIText(0, -40, 0, TU.translate("charter.eventType-" + (global ? "global" : "local")), 12);
 		sideText.alignment = "center"; sideText.alpha = 0.75;
 
 		text = new UIText(0, 0, 0, "");
@@ -37,7 +37,7 @@ class CharterEventAdd extends UISliceSprite {
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		text.follow(this, global ? bWidth - text.width - (text.text == "Add event" ? 15 : 20) : 20, (bHeight - text.height) / 2);
+		text.follow(this, global ? bWidth - text.width - (text.text == TU.translate("charter.addEvent") ? 15 : 20) : 20, (bHeight - text.height) / 2);
 		sideText.follow(this, (bWidth/2) - (sideText.fieldWidth/2), -(sideText.height + 2));
 		alpha = sprAlpha * 0.75;
 		text.alpha = sprAlpha;

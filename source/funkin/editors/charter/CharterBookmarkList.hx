@@ -12,14 +12,14 @@ class CharterBookmarkList extends UISubstateWindow {
 		FlxG.sound.music.pause();
 		Charter.instance.vocals.pause();
 
-		winTitle = 'Bookmark List Editor';
+		winTitle = TU.translate("charter.bookmarks.editBookmarkListTitle");
 		winWidth = 380;
 		winHeight = 390;
 
 		super.create();
 
 		var title:UIText;
-		add(title = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Edit Bookmarks", 28));
+		add(title = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, TU.translate("charter.bookmarks.editBookmarksTitle"), 28));
 
 		bookmarkList = new UIButtonList<BookmarkButton>(20, title.y + title.height + 10, winWidth - 40, 342 - 85 - 16, null, FlxPoint.get(winWidth - 40, (342 - 85 - 16)/4), null, 0);
 		bookmarkList.cameraSpacing = 0;
@@ -32,13 +32,13 @@ class CharterBookmarkList extends UISubstateWindow {
 
 		bookmarkList.content.remove(bookmarkList.addButton); //i dont need it
 
-		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
+		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, TU.translate("editor.saveClose"), function() {
 			saveList();
 			close();
 		}, 125);
 		add(saveButton);
 
-		closeButton = new UIButton(saveButton.x - 20, saveButton.y, "Close", function() {
+		closeButton = new UIButton(saveButton.x - 20, saveButton.y, TU.translate("editor.close"), function() {
 			close();
 		}, 125);
 		add(closeButton);

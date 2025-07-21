@@ -43,7 +43,7 @@ class StageCreationScreen extends UISubstateWindow {
 		add(stagePathTextBox = new UITextBox(stageNameTextBox.x + 320 + 26, stageNameTextBox.y, "Stage Path"));
 		addLabelOn(stagePathTextBox, "Stage Path");
 
-		add(saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
+		add(saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, TU.translate("editor.saveClose"), function() {
 			saveStageInfo();
 			close();
 		}, 125));

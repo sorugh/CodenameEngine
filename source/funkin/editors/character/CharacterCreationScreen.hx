@@ -48,7 +48,7 @@ class CharacterCreationScreen extends UISubstateWindow {
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 		imageExplorer.maxSize.y -= 100;
 
-		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
+		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, TU.translate("editor.saveClose"), function() {
 			close();
 			createCharacter();
 		}, 125);

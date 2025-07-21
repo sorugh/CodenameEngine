@@ -100,18 +100,18 @@ class KeybindsOptions extends MusicBeatSubstate {
 				]
 			},
 		{
-			name: 'Volume',
+			name: translate("category.volume"),
 			settings: [
 				{
-					name: 'Up',
+					name: translate("up"),
 					control: 'VOLUME_UP'
 				},
 				{
-					name: 'Down',
+					name: translate("down"),
 					control: 'VOLUME_DOWN'
 				},
 				{
-					name: 'Mute',
+					name: translate("volume.mute"),
 					control: 'VOLUME_MUTE'
 				},
 			]
@@ -126,19 +126,19 @@ class KeybindsOptions extends MusicBeatSubstate {
 				]
 			},
 			{
-				name: 'Developer',
+				name: translate("category.developer"),
 				devModeOnly: true,
 				settings: [
 					{
-						name: 'Developer Menus',
+						name: translate("developer.devMenus"),
 						control: 'DEV_ACCESS'
 					},
 					{
-						name: 'Open Console',
+						name: translate("developer.openConsole"),
 						control: 'DEV_CONSOLE'
 					},
 					{
-						name: 'Reload State',
+						name: translate("developer.reloadState"),
 						control: 'DEV_RELOAD'
 					},
 				]

@@ -42,7 +42,7 @@ class CharacterSpriteScreen extends UISubstateWindow {
 
 		ogImageSaveData = imageExplorer.getSaveData();
 
-		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight - 20, "Save & Close", function() {
+		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight - 20, TU.translate("editor.saveClose"), function() {
 			addToUndo(); // should be async?? -lunar
 			imageExplorer.saveFiles('${Paths.getAssetsRoot()}/images/characters', () -> {
 				onSave('${imageExplorer.saveData.directory.length > 0 ? '${imageExplorer.saveData.directory}/' : ""}' + imageExplorer.imageName, imageExplorer.isAtlas);

@@ -283,7 +283,7 @@ class UISoftcodedWindow extends UISubstateWindow {
 		addLayout(getArr(layout.elements));
 
 		if(get("hasSaveButton")) {
-			saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight - 20, "Save & Close", function() {
+			saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight - 20, TU.translate("editor.saveClose"), function() {
 				saveData();
 				close();
 			}, 125);
@@ -295,7 +295,7 @@ class UISoftcodedWindow extends UISubstateWindow {
 		if(get("hasCloseButton")) {
 			var x = saveButton != null ? saveButton.x - 20 : windowSpr.x + windowSpr.bWidth - 20;
 			var y = saveButton != null ? saveButton.y : windowSpr.y + windowSpr.bHeight - 20;
-			closeButton = new UIButton(x, y, "Close", function() {
+			closeButton = new UIButton(x, y, TU.translate("editor.close"), function() {
 				close();
 			}, 125);
 			if(saveButton != null)

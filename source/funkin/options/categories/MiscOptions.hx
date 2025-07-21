@@ -4,8 +4,8 @@ class MiscOptions extends OptionsScreen {
 	public override function new(title:String, desc:String) {
 		super(title, desc, "MiscOptions.");
 		add(new Checkbox(
-			"Developer Mode",
-			"If checked, you will be able to access developer features like certain keybinds, editors, developer options, state reloads, console and more.",
+			getName("devMode"),
+			getDesc("devMode"),
 			"devMode"));
 		#if UPDATE_CHECKING
 		add(new Checkbox(

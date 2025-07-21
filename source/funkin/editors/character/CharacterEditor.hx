@@ -436,7 +436,7 @@ class CharacterEditor extends UIState {
 		super.onResize(width, height);
 		if (!UIState.resolutionAware) return;
 
-		if (width < FlxG.initialWidth || height < FlxG.initialHeight) {
+		if ((width < FlxG.initialWidth || height < FlxG.initialHeight) && !Options.bypassEditorsResize) {
 			width = FlxG.initialWidth; height = FlxG.initialHeight;
 		}
 

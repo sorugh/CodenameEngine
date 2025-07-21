@@ -140,10 +140,10 @@ class SongCreationScreen extends UISubstateWindow {
 			translate("voicesAudio"),
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);*/
 
-		addLabelOn(voicesExplorer, "Vocal Audio File");
+		addLabelOn(voicesExplorer, translate("voicesAudio"));
 
-		importFrom = new UIButton(windowSpr.x + 20, windowSpr.y + windowSpr.bHeight - 16 - 32, "Import From...", function() {
-			winTitle = "Importing Song";
+		importFrom = new UIButton(windowSpr.x + 20, windowSpr.y + windowSpr.bHeight - 16 - 32, translate("importFrom"), function() {
+			winTitle = translate("win-title-importing");
 			isImporting = true;
 			updatePagesTexts();
 			refreshPages();
@@ -183,14 +183,14 @@ class SongCreationScreen extends UISubstateWindow {
 			{checkbox.y += 6; checkbox.x += 4;}
 
 		var menuTitle:UIText;
-		selectFormatGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Import From:", 28));
+		selectFormatGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, translate("importSource"), 28));
 
-		engineDropdown = new UIDropDown(menuTitle.x, menuTitle.y + menuTitle.height + 36, 480, 32, ["Psych/Legacy FNF", "V-Slice", "V-Slice Project (.fnfc)"]);
+		engineDropdown = new UIDropDown(menuTitle.x, menuTitle.y + menuTitle.height + 36, 480, 32, [translate("legacyOrPsych"), translate("vslice"), translate("vsliceProject")]);
 		selectFormatGroup.add(engineDropdown);
-		addLabelOn(engineDropdown, "Chart Format");
+		addLabelOn(engineDropdown, translate("importChartFormat"));
 
-		createSong = new UIButton(windowSpr.x + 20, windowSpr.y + windowSpr.bHeight - 16 - 32, "< Back", function() {
-			winTitle = "Creating New Song";
+		createSong = new UIButton(windowSpr.x + 20, windowSpr.y + windowSpr.bHeight - 16 - 32, "< " + translate("back"), function() {
+			winTitle = translate("win-title");
 			isImporting = false;
 			updatePagesTexts();
 			refreshPages();
@@ -198,7 +198,7 @@ class SongCreationScreen extends UISubstateWindow {
 		selectFormatGroup.add(createSong);
 
 		var menuTitle:UIText;
-		importAudioGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Add Audios", 28));
+		importAudioGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, translate("importAudios"), 28));
 
 		importInstExplorer = new UIFileExplorer(menuTitle.x, menuTitle.y + menuTitle.height + 36, null, null, Flags.SOUND_EXT, function (path, res) {
 			if (path == null || res == null) return;
@@ -207,8 +207,8 @@ class SongCreationScreen extends UISubstateWindow {
 			importInstExplorer.uiElement = audioPlayer;
 		});
 		importAudioGroup.add(importInstExplorer);
-		addLabelOn(importInstExplorer, "Inst Audio File").applyMarkup(
-			"Inst Audio File $* Required$",
+		addLabelOn(importInstExplorer, "").applyMarkup(
+			translate("instAudio"),
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
 		importVoicesExplorer = new UIFileExplorer(importInstExplorer.x + 320 + 26, importInstExplorer.y, null, null, Flags.SOUND_EXT, function (path, res) {
@@ -218,26 +218,26 @@ class SongCreationScreen extends UISubstateWindow {
 			importVoicesExplorer.uiElement = audioPlayer;
 		});
 		importAudioGroup.add(importVoicesExplorer);
-		addLabelOn(importVoicesExplorer, "Vocal Audio File");
+		addLabelOn(importVoicesExplorer, translate("voicesAudio"));
 
 		var menuTitle:UIText;
 		importDataGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Add Data", 28));
 
 		importDataGroup.add(importIdTextBox = new UITextBox(menuTitle.x, menuTitle.y + menuTitle.height + 36));
-		addLabelOn(importIdTextBox, "Song file name").applyMarkup(
-			"Song file name $* Required$",
+		addLabelOn(importIdTextBox, "").applyMarkup(
+			translate("songFileName"),
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
 		importChartFile = new UIFileExplorer(importIdTextBox.x, importIdTextBox.y + importIdTextBox.height + 56, null, null, "fnfc", function (_, _) importIdTextBox.label.text = new haxe.io.Path(importChartFile.filePath).file);
 		importDataGroup.add(importChartFile);
-		addLabelOn(importChartFile, "Data/Chart File").applyMarkup(
-			"Data/Chart File $* Required$",
+		addLabelOn(importChartFile, "").applyMarkup(
+			translate("songDataFile"),
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
 		importMetaFile = new UIFileExplorer(importChartFile.x + 320 + 26, importChartFile.y, null, null, "json");
 		importDataGroup.add(importMetaFile);
-		addLabelOn(importMetaFile, "Meta File").applyMarkup(
-			"Meta File $* Required$",
+		addLabelOn(importMetaFile, "").applyMarkup(
+			translate("songMetaFile"),
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
 		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, TU.translate("editor.saveClose"), function() {
@@ -291,7 +291,7 @@ class SongCreationScreen extends UISubstateWindow {
 		if (isImporting)
 		{
 			var name = engineDropdown.options[engineDropdown.index];
-			var project = name == "V-Slice Project (.fnfc)";
+			var project = name == translate("vsliceProject");
 
 			if (curPage == 1) {
 				importInstExplorer.selectable = importVoicesExplorer.selectable = !project;
@@ -299,7 +299,7 @@ class SongCreationScreen extends UISubstateWindow {
 			} else if (curPage == 2) {
 				importIdTextBox.selectable = !project;
 				importChartFile.fileType = project ? "fnfc" : "json";
-				importMetaFile.selectable = name == "V-Slice";
+				importMetaFile.selectable = name == translate("vslice");
 				saveButton.selectable = importChartFile.file != null && (!importMetaFile.selectable || importMetaFile.file != null) && (!importIdTextBox.selectable || importIdTextBox.label.text.trim().length > 0);
 			} else
 				saveButton.selectable = true;
@@ -331,7 +331,7 @@ class SongCreationScreen extends UISubstateWindow {
 		titleSpr.x = windowSpr.x + 25;
 		titleSpr.y = windowSpr.y + ((30 - titleSpr.height) / 2);
 
-		saveButton.field.text = curPage == pages.length-1 ? "Save & Close" : 'Next >';
+		saveButton.field.text = curPage == pages.length-1 ? TU.translate("editor.saveClose") : translate("next") + ' >';
 		titleSpr.text = '$winTitle (${curPage+1}/${pages.length})';
 
 		backButton.field.text = '< ' + translate("back");
@@ -358,9 +358,9 @@ class SongCreationScreen extends UISubstateWindow {
 	function saveSongInfo() {
 		if (isImporting)
 		{
-			try switch(engineDropdown.options[engineDropdown.index])
+			try switch(engineDropdown.index)
 			{
-				case "V-Slice Project (.fnfc)":
+				case 0 /*"V-Slice Project (.fnfc)"*/:
 					var files:Map<String, Any> = [];
 					for (field in new ZipReader(new BytesInput(importChartFile.file)).read()) {
 						var fileName = field.fileName;
@@ -368,7 +368,7 @@ class SongCreationScreen extends UISubstateWindow {
 						files.set(fileName, fileContent);
 					}
 					saveFromVSlice(files);
-				case "V-Slice":
+				case 1 /*"V-Slice"*/:
 					var songId = importIdTextBox.label.text;
 					var files:Map<String, Any> = [];
 					files.set('${songId}-metadata.json', importMetaFile.file);

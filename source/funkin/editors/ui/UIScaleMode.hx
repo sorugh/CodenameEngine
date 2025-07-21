@@ -4,7 +4,7 @@ import flixel.system.scaleModes.StageSizeScaleMode;
 
 class UIScaleMode extends StageSizeScaleMode {
 	override public function onMeasure(Width:Int, Height:Int):Void {
-		if (Width < FlxG.initialWidth || Height < FlxG.initialHeight) {
+		if ((Width < FlxG.initialWidth || Height < FlxG.initialHeight) && !Options.bypassEditorsResize) {
 			@:privateAccess {
 				FlxG.width = FlxG.initialWidth;
 				FlxG.height = FlxG.initialHeight;

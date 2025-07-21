@@ -37,9 +37,13 @@ class DebugOptionsScreen extends OptionsScreen {
 			}));
 		#end
 		add(new Checkbox(
-			"Resizable Editors",
-			"If checked, this will allow the editors to render beyond the base 1280x720 resolution of FNF (allowing for more detail and space...)",
+			getName("editorsResizable"),
+			getDesc("editorsResizable"),
 			"editorsResizable"));
+		add(new Checkbox(
+			getName("bypassEditorsResize"),
+			getDesc("bypassEditorsResize"),
+			"bypassEditorsResize"));
 		add(new Checkbox(
 			getName("editorSFX"),
 			getDesc("editorSFX"),

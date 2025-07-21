@@ -23,7 +23,7 @@
 
 	<group name="ChartEditor">
 		<group name="CharterSelection" prefix="charterSelection.">
-			<str id="desc">Select a song to modify the charts from."</str>
+			<str id="desc">Select a song to modify the charts from.</str>
 			<str id="acceptSong">Press ACCEPT to choose a difficulty to edit.</str>
 			<str id="acceptDifficulty">Press ACCEPT to edit the chart for the selected difficulty.</str>
 			<str id="selectDifficulty">Select a difficulty to continue.</str>
@@ -113,10 +113,22 @@
 
 		<group name="SongCreationScreen" prefix="songCreationScreen.">
 			<str id="win-title">Creating New Song</str>
+			<str id="win-title-importing">Importing Song</str>
 			<str id="title">Song Info</str>
 
 			<str id="instAudio">Inst Audio File $* Required*$</str>
-			<str id="voicesAudio">Vocal Audio File $* Required*$</str>
+			<str id="voicesAudio">Vocal Audio File</str>
+
+			<str id="importFrom">Import from...</str>
+			<str id="importSource">Import Source:</str>
+			<str id="legacyOrPsych">Psych/Legacy FNF</str>
+			<str id="vslice">V-Slice</str>
+			<str id="vsliceProject">V-Slice Project (.fnfc)</str>
+			<str id="importChartFormat">Chart Format</str>
+			<str id="importAudios">Add Audios</str>
+			<str id="songFileName">Song file name $* Required$</str>
+			<str id="songDataFile">Data/Chart File $* Required$</str>
+			<str id="songMetaFile">Meta File $* Required$</str>
 
 			<str id="back">Back</str>
 			<str id="next">Next</str>
@@ -129,13 +141,15 @@
 			<str id="scrollSpeed">Scroll Speed</str>
 			<str id="stagePos">Stage Position</str>
 			<str id="scale">Scale</str>
+			<str id="spacing">Spacing</str>
 			<str id="hudPos">Hud Position (X [Ratio 0-1],Y)</str>
 			<str id="visible">Visible?</str>
 			<str id="useChartScrollSpeed">Uses charts scroll speed?</str>
 			<str id="vocalSuffix">Vocal Suffix</str>
+			<str id="keyCount">Key Count</str>
 		</group>
 
-		<group name="ChartEditor" prefix="chart.">
+		<group name="ChartEditor" prefix="charter.">
 			<!-- Charter.hx -->
 			<group name="TopBar">
 				<str id="topBar.file">File</str>
@@ -143,10 +157,10 @@
 					<str id="new">New</str>
 					<str id="save">Save</str>
 					<str id="saveAs">Save As...</str>
-					<str id="saveWithoutEvents">Save Without Events</str>
-					<str id="saveWithoutEventsAs">Save Without Events As...</str>
-					<str id="saveEventsSeparately">Save Events Separately</str>
-					<str id="saveEventsSeparatelyAs">Save Events Separately As...</str>
+					<str id="saveGlobalEvents">Save Global Events</str>
+					<str id="saveGlobalEventsAs">Save Global Events As...</str>
+					<str id="saveNoLocalEvents">Save Chart without Local Events</str>
+					<str id="saveNoLocalEventsAs">Save Chart without Local Events As...</str>
 					<str id="saveMeta">Save Meta</str>
 					<str id="saveMetaAs">Save Meta As...</str>
 					<str id="exportFnfLegacy">Export For FNF Legacy...</str>
@@ -182,7 +196,11 @@
 					<str id="resetZoom">Reset Zoom</str>
 					<str id="showSectionsSeparator">Show Sections Separator</str>
 					<str id="showBeatsSeparator">Show Beats Separator</str>
+					<str id="rainbowWaveforms">Rainbow Waveforms</str>
 					<str id="lowDetailWaveforms">Low Detail Waveforms</str>
+					<str id="scrollLeft">Scroll Left</str>
+					<str id="scrollRight">Scroll Right</str>
+					<str id="scrollReset">Reset Scroll</str>
 				</group>
 
 				<str id="topBar.song">Song</str>
@@ -191,6 +209,18 @@
 					<str id="goEnd">Go forward to the end</str> <!-- used to be "Go to the end" -->
 					<str id="muteInst">Mute instrumental</str>
 					<str id="muteVoices">Mute voices</str>
+				</group>
+
+				<group name="BookmarkMenu" prefix="bookmarks.">
+					<str id="addBookmarkHere">Add Bookmark Here</str>
+					<str id="editBookmarkList">Edit Bookmark List</str>
+					<str id="goto">Go to "{0}"</str>
+					<str id="createBookmarkTitle">Creating New Bookmark...</str>
+					<str id="createBookmarkName">Bookmark Name:</str>
+					<str id="createBookmarkColor">Bookmark Color:</str>
+					<str id="editBookmarkListTitle">Bookmark List</str>
+					<str id="editBookmarksTitle">Edit Bookmarks</str>
+					<str id="newBookmarkName">New Bookmark</str>
 				</group>
 
 				<str id="topBar.note">Note</str>
@@ -218,6 +248,9 @@
 					<str id="speedLower">↓ Speed {0}%</str>
 					<str id="sectionBack">Go back a section</str>
 					<str id="sectionForward">Go forward a section</str>
+					<str id="sectionStart">Go to start of section</str>
+					<str id="backStep">Go back a step</str>
+					<str id="forwardStep">Go forward a step</str>
 					<str id="metronome">Metronome</str>
 					<str id="visualMetronome">Visual metronome</str>
 				</group>
@@ -257,6 +290,11 @@
 			<str id="createNew">Create New</str>
 			<str id="lock-unlock">Lock/Unlock</str>
 
+			<str id="info.localEvents">Local Events\n(Only This Difficulty)</str>
+			<str id="info.globalEvents">Global Events\n(All Difficulties)</str>
+			<str id="eventType-local">Local Event</str>
+			<str id="eventType-global">Global Event</str>
+
 			<!-- CharterEventAdd.hx -->
 			<str id="addEvent">Add Event</str>
 			<str id="editEvent">Edit</str> <!-- Should maybe be "Edit Event" -->
@@ -279,7 +317,7 @@
 
 			<group name="Warnings" prefix="warnings.">
 				<str id="notImplemented-title">New Character: Feature Not Implemented!</str>
-				<str id="notImplemented-body">This feature isn't implemented yet. Please wait for more cne updates to have this functional.\n\n\n- Codename Devs</str>
+				<str id="notImplemented-body">This feature isn't implemented yet. Please wait for more cne updates to have this functional.\n\n\n- Codename Crew</str>
 			</group>
 		</group>
 

@@ -20,7 +20,7 @@ class CharterBookmarkCreation extends UISubstateWindow {
 
 		winWidth = 320;
 		winHeight = 250;
-		winTitle = 'Creating New Bookmark';
+		winTitle = TU.translate("charter.bookmarks.createBookmarkTitle");
 
 		callback = close;
 
@@ -39,22 +39,22 @@ class CharterBookmarkCreation extends UISubstateWindow {
 
 		super.create();
 
-		textBox = new UITextBox(windowSpr.x + 20, windowSpr.y + 70, "New Bookmark", 276);
+		textBox = new UITextBox(windowSpr.x + 20, windowSpr.y + 70, TU.translate("charter.bookmarks.newBookmarkName"), 276);
 		textBox.antialiasing = true;
 		add(textBox);
-		addLabelOn(textBox, "Bookmark Name:");
+		addLabelOn(textBox, TU.translate("charter.bookmarks.createBookmarkName"));
 		
 		colorPicker = new UICompactColorwheel(textBox.x, textBox.y + textBox.bHeight + 34, flixel.util.FlxColor.RED);
 		add(colorPicker);
-		addLabelOn(colorPicker, "Bookmark Color:");
+		addLabelOn(colorPicker, TU.translate("charter.bookmarks.createBookmarkColor"));
 
-		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
+		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, TU.translate("editor.saveClose"), function() {
 			callback(true, textBox.label.text, colorPicker.curColor, bookmarkStep);
 			close();
 		}, 125);
 		add(saveButton);
 
-		closeButton = new UIButton(saveButton.x - 20, saveButton.y, "Close", function() {
+		closeButton = new UIButton(saveButton.x - 20, saveButton.y, TU.translate("editor.close"), function() {
 			callback(false, "", FlxColor.TRANSPARENT, -1);
 			close();
 		}, 125);

@@ -122,7 +122,7 @@ class CharterStrumlineScreen extends UISubstateWindow {
 
 		hudSpacingStepper = new UINumericStepper(hudScaleStepper.x + 80 - 32 + 26, hudScaleStepper.y, strumLine.strumSpacing != null ? strumLine.strumSpacing : 1, 0.001, 10, null, null, 84);
 		add(hudSpacingStepper);
-		addLabelOn(hudSpacingStepper, "Spacing");
+		addLabelOn(hudSpacingStepper, TU.translate("charterStrumLine.spacing"));
 
 		var strOffset:Float = strumLine.strumLinePos == null ? (strumLine.type == 1 ? 0.75 : 0.25) : strumLine.strumLinePos;
 
@@ -175,7 +175,7 @@ class CharterStrumlineScreen extends UISubstateWindow {
 		keyCountStepper = new UINumericStepper(stagePositionDropdown.x, vocalsSuffixDropDown.y, strumLine.keyCount != null ? strumLine.keyCount : 4, 1, 0, 1, 1000, 84);
 		// if (Flags.CHARTER_ADVANCED_SETTINGS) {
 			add(keyCountStepper);
-			addLabelOn(keyCountStepper, "Key Count");
+			addLabelOn(keyCountStepper, TU.translate("charterStrumLine.keyCount"));
 		// }
 
 		strumLineCam = new HudCamera();

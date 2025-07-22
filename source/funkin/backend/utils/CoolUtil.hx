@@ -484,7 +484,7 @@ final class CoolUtil
 	 */
 	@:noUsing public static function playMusic(path:String, Persist:Bool = false, Volume:Float = 1, Looped:Bool = true, DefaultBPM:Float = 102, ?Group:FlxSoundGroup) {
 		Conductor.reset();
-		if (FlxG.sound.music == null) FlxG.sound.music = new FlxSound();
+		if (FlxG.sound.music == null || !FlxG.sound.music.exists) FlxG.sound.music = new FlxSound();
 		else if (FlxG.sound.music.active) FlxG.sound.music.stop();
 		FlxG.sound.music.loadEmbedded(path, Looped);
 		FlxG.sound.music.volume = Volume;
@@ -520,14 +520,14 @@ final class CoolUtil
 	 * @param volume At which volume it should play
 	 */
 	@:noUsing public static inline function playMenuSFX(menuSFX:CoolSfx = SCROLL, volume:Float = 1) {
-		FlxG.sound.play(Paths.sound(switch(menuSFX) {
-			case CONFIRM:	'menu/confirm';
-			case CANCEL:	'menu/cancel';
-			case SCROLL:	'menu/scroll';
-			case CHECKED:	'menu/checkboxChecked';
-			case UNCHECKED:	'menu/checkboxUnchecked';
-			case WARNING:	'menu/warningMenu';
-			default: 		'menu/scroll';
+		FlxG.sound.play(Paths.sound('menu/' + switch(menuSFX) {
+			case CONFIRM:	'confirm';
+			case CANCEL:	'cancel';
+			case SCROLL:	'scroll';
+			case CHECKED:	'checkboxChecked';
+			case UNCHECKED:	'checkboxUnchecked';
+			case WARNING:	'warningMenu';
+			default: 		'scroll';
 		}), volume);
 	}
 
@@ -891,11 +891,7 @@ final class CoolUtil
 	 * Stops a sound, set its time to 0 then play it again.
 	 * @param sound Sound to replay.
 	 */
-	public static inline function replay(sound:FlxSound) {
-		sound.stop();
-		sound.time = 0;
-		sound.play();
-	}
+	public static inline function replay(sound:FlxSound) sound.play(true, 0);
 
 	/**
 	 * Equivalent of `Math.max`, except doesn't require a Int -> Float -> Int conversion.

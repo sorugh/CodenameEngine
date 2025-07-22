@@ -98,7 +98,7 @@ class UIWarningSubstate extends MusicBeatSubstate {
 		add(sprIcon);
 
 		messageSpr.x = sprIcon.x + 70 + 16 + 20;
-		messageSpr.y = sprIcon.y + 16;
+		messageSpr.y = sprIcon.y;
 		add(messageSpr);
 
 		var xPos = (FlxG.width - (30 + (170 * buttons.length))) / 2;

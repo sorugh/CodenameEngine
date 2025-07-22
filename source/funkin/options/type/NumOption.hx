@@ -42,9 +42,8 @@ class NumOption extends OptionType {
 		this.changeVal = changeVal;
 		this.optionName = optionName;
 
-		add(__text = new Alphabet(100, 20, text, "bold"));
-		add(__number = new Alphabet(__text.width + 120, 20, ': $currentSelection', "normal"));
-
+		add(__text = new Alphabet(20, 20, "", "bold"));
+		add(__number = new Alphabet(0, 20, ': $currentSelection', "bold"));
 		rawText = text;
 	}
 
@@ -56,10 +55,11 @@ class NumOption extends OptionType {
 	function set_rawText(v:String) {
 		rawText = v;
 		__text.text = TU.exists(rawText) ? TU.translate(rawText) : rawText;
+		__number.x = __text.x + __text.width + 12;
 		return v;
 	}
 
-	public override function onChangeSelection(change:Float):Void
+	override function onChangeSelection(change:Float):Void
 	{
 		if(currentSelection <= min && change == -1 || currentSelection >= max && change == 1) return;
 		currentSelection = FlxMath.roundDecimal(currentSelection + (change * changeVal), FlxMath.getDecimals(changeVal));

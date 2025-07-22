@@ -105,7 +105,10 @@
 		<str id="naughtyness-desc">If unchecked, will censor the Week 7 cutscenes.</str>
 
 		<str id="camZoomOnBeat-name">Camera Zoom on Beat</str>
-		<str id="camZoomOnBeat-desc">If unchecked, will stop the camera from zooming in every 4 beats</str>
+		<str id="camZoomOnBeat-desc">If unchecked, will stop the camera from zooming in every 4 beats.</str>
+
+		<str id="volumeSFX-name">SFX Volume</str>
+		<str id="volumeSFX-desc">Changes only the volume of the SFX instead of everything.</str>
 	</group>
 
 	<group name="LanguageOptions" prefix="LanguageOptions.">

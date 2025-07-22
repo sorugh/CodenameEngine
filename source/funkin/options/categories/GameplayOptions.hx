@@ -34,6 +34,13 @@ class GameplayOptions extends OptionsScreen {
 			getName("camZoomOnBeat"),
 			getDesc("camZoomOnBeat"),
 			"camZoomOnBeat"));
+		add(new MeterOption(
+			getName("volumeSFX"),
+			getDesc("volumeSFX"),
+			0, // minimum
+			1, // maximum
+			0.1, // change
+			"volumeSFX"));
 	}
 
 	private function __changeOffset(offset)

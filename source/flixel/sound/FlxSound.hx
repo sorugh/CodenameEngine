@@ -263,8 +263,9 @@ class FlxSound extends FlxBasic {
 	 */
 	public function reset():Void {
 		if (_source != null) stop();
-		x = y = 0;
+		onFinish.removeAll();
 
+		x = y = 0;
 		muted = false;
 		looped = false;
 		loopTime = 0;
@@ -297,8 +298,6 @@ class FlxSound extends FlxBasic {
 		_lastTime = null;
 
 		if (destroySound) {
-			onFinish.removeAll();
-
 			if (group != null) group.remove(this);
 
 			if (_channel != null) {

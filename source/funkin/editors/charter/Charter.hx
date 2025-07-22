@@ -950,6 +950,7 @@ class Charter extends UIState {
 							notesGroup.add(note);
 							selection = [note];
 							undos.addToUndo(CCreateSelection([note]));
+							FlxG.sound.play(Paths.sound('editors/charter/notePlace'));
 						}
 						isSelecting = false;
 					}
@@ -1014,7 +1015,10 @@ class Charter extends UIState {
 				});
 
 				if (FlxG.mouse.justReleasedRight) {
-					if (deletedNotes.length > 0) undos.addToUndo(CDeleteSelection(deletedNotes.copy()));
+					if (deletedNotes.length > 0) {
+						undos.addToUndo(CDeleteSelection(deletedNotes.copy()));
+						FlxG.sound.play(Paths.sound('editors/charter/noteDelete'));
+					}
 					else if (noteDeleteAnims.garbageIcon.alpha <= .5) {
 						var mousePos = FlxG.mouse.getScreenPosition(uiCamera);
 						closeCurrentContextMenu();

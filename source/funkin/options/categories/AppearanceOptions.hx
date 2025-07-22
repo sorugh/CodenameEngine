@@ -43,18 +43,6 @@ class AppearanceOptions extends OptionsScreen {
 				"gpuOnlyBitmaps"));
 		}
 		#end
-		add(new Checkbox(
-			getName("streamedMusic"),
-			getDesc("streamedMusic"),
-			"streamedMusic"));
-		add(new Checkbox(
-			getName("streamedVocals"),
-			getDesc("streamedVocals"),
-			"streamedVocals"));
-		add(new Checkbox(
-			getName("autoPause"),
-			getDesc("autoPause"),
-			"autoPause"));
 	}
 
 	private function __changeFPS(change:Float) {

@@ -3,6 +3,7 @@
 	<str id="optionsMenu.desc-missing">No Description</str>
 
 	<group name="OptionsMenu">
+		<str id="optionsMenu.advanced">Advanced</str>
 		<str id="optionsMenu.header.title">Options Menu</str>
 		<str id="optionsMenu.header.desc">Select a category to continue.</str>
 
@@ -11,6 +12,7 @@
 
 		<str id="optionsTree.gameplay-name">Gameplay</str>
 		<str id="optionsTree.gameplay-desc">Change Gameplay options such as Downscroll, Scroll Speed, Naughtyness...</str>
+		<str id="optionsTree.gameplay.advanced-desc">Change more advanced options such as Window Size, Streaming Audio...</str>
 
 		<str id="optionsTree.appearance-name">Appearance</str>
 		<str id="optionsTree.appearance-desc">Change Appearance options such as Flashing menus...</str>
@@ -80,15 +82,6 @@
 
 		<str id="gpuOnlyBitmaps-name">VRAM-Only Sprites</str>
 		<str id="gpuOnlyBitmaps-desc">If checked, will only store the bitmaps in the GPU, freeing a LOT of memory (EXPERIMENTAL). Turning this off will consume a lot of memory, especially on bigger sprites. If you aren't sure, leave this on.</str>
-
-		<str id="autoPause-name">Auto Pause</str>
-		<str id="autoPause-desc">If checked, switching windows will pause the game.</str>
-
-		<str id="streamedMusic-name">Streamed Music</str>
-		<str id="streamedMusic-desc">"If checked, only musics will have streamed audio, ALSO freeing a LOT of memory with the downside of higher cpu usage if more audio are being streamed at once (EXPERIMENTAL). Turning this off will consume a lot of memory, especially on longer songs. If you aren't sure, leave this on.</str>
-		
-		<str id="streamedVocals-name">Streamed Vocals</str>
-		<str id="streamedVocals-desc">If checked, vocals will also be streamed if Streamed Music is checked, will impact the performance if the song uses alot of vocals (EXPERIMENTAL). If you aren't sure, leave this on.</str>
 	</group>
 
 	<group name="GameplayOptions" prefix="GameplayOptions.">
@@ -98,17 +91,31 @@
 		<str id="ghostTapping-name">Ghost Tapping</str>
 		<str id="ghostTapping-desc">If unchecked, trying to hit any strum that have no note that can be hit will cause a miss.</str>
 
-		<str id="songOffset-name">Song Offset</str>
-		<str id="songOffset-desc">Changes the offset that songs should start with.</str>
-
 		<str id="naughtyness-name">Naughtyness</str>
 		<str id="naughtyness-desc">If unchecked, will censor the Week 7 cutscenes.</str>
 
 		<str id="camZoomOnBeat-name">Camera Zoom on Beat</str>
 		<str id="camZoomOnBeat-desc">If unchecked, will stop the camera from zooming in every 4 beats.</str>
 
+		<str id="autoPause-name">Auto Pause</str>
+		<str id="autoPause-desc">If checked, switching windows will pause the game.</str>
+
 		<str id="volumeSFX-name">SFX Volume</str>
 		<str id="volumeSFX-desc">Changes only the volume of the SFX instead of everything.</str>
+
+		<str id="songOffset-name">Song Offset</str>
+		<str id="songOffset-desc">Changes the offset that songs should start with.</str>
+
+		<group name="GameplayOptionsAdvanced" prefix="Advanced.">
+			<str id="windowSize-name">Window Size</str>
+			<str id="windowSize-desc">...</str>
+
+			<str id="streamedMusic-name">Streamed Music</str>
+			<str id="streamedMusic-desc">If checked, only musics will have streamed audio, ALSO freeing a LOT of memory with the downside of higher cpu usage if more audio are being streamed at once (EXPERIMENTAL). Turning this off will consume a lot of memory, especially on longer songs. If you aren't sure, leave this on.</str>
+			
+			<str id="streamedVocals-name">Streamed Vocals</str>
+			<str id="streamedVocals-desc">If checked, vocals will also be streamed if Streamed Music is checked, will impact the performance if the song uses alot of vocals (EXPERIMENTAL). If you aren't sure, leave this on.</str>
+		</group>
 	</group>
 
 	<group name="LanguageOptions" prefix="LanguageOptions.">

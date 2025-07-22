@@ -443,7 +443,7 @@ final class CoolUtil
 	 */
 	@:noUsing public static function playMusic(path:String, Persist:Bool = false, Volume:Float = 1, Looped:Bool = true, DefaultBPM:Float = 102, ?Group:FlxSoundGroup) {
 		Conductor.reset();
-		if (FlxG.sound.music == null) FlxG.sound.music = new FlxSound();
+		if (FlxG.sound.music == null || !FlxG.sound.music.exists) FlxG.sound.music = new FlxSound();
 		else if (FlxG.sound.music.active) FlxG.sound.music.stop();
 		FlxG.sound.music.loadEmbedded(path, Looped);
 		FlxG.sound.music.volume = Volume;

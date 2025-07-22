@@ -113,7 +113,7 @@
 	</section>
 
 	<!-- Uncomment this to achive faster compile times, will strip extraneous and commonly unused features. -->
-	<define name="STRIPPED_COMPILE" unless="debug"/>
+	<!-- <define name="STRIPPED_COMPILE" unless="debug"/> -->
 
 	<!-- Comment this out to disable modcharting features -->
 	<define name="MODCHARTING_FEATURES" unless="STRIPPED_COMPILE" />

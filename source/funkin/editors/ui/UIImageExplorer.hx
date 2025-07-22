@@ -35,6 +35,9 @@ class UIImageExplorer extends UIFileExplorer {
 	public var directoryTextBoxLabel:UIText;
 	public var directoryTextBox:UITextBox;
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("uiImageExplorer." + id, args);
+
 	public function new(x:Float, y:Float, image:String, ?w:Int, ?h:Int, ?onFile:(String, Bytes)->Void, ?directory:String = "images") {
 		super(x, y, w, h, "png, jpg", function (filePath, file) {
 			if (filePath != null && file != null) uploadImage(filePath, file);
@@ -51,7 +54,7 @@ class UIImageExplorer extends UIFileExplorer {
 		members.push(directoryIcon);
 
 		directoryBG = new UISliceSprite(0, 0, 210+16, 8+12+4+22+8, 'editors/ui/inputbox');
-		directoryBG.alpha = 0.9; directoryBG.members.push(directoryTextBoxLabel = new UIText(8, 6, 0, 'Directory ($directory/)', 12));
+		directoryBG.alpha = 0.9; directoryBG.members.push(directoryTextBoxLabel = new UIText(8, 6, 0, TU.getRaw('uiImageExplorer.directory').format([directory]), 12));
 		
 		directoryTextBox = new UITextBox(8, 8+12+4, "", 210, 22, false, true);
 		directoryBG.members.push(directoryTextBox);
@@ -245,17 +248,18 @@ class UIImageExplorer extends UIFileExplorer {
 		message.add('${imagePath.file}.${imagePath.ext}');
 		message.add(' (${CoolUtil.getSizeString(size)}');
 
+		var typeOfFrame = isAtlas ? translate("symbol") : translate("animation");
+		var shouldUsePlural = animationList.length != 1;
 		if (animationList.length > 0) {
-			if(animationList.length == 1) message.add(', ${animationList.length} ${isAtlas ? "Symbol" : "Animation"} Found');
-			else message.add(', ${animationList.length} ${isAtlas ? "Symbol" : "Animation"}s Found');
-		} else message.add(', #NO ${isAtlas ? "Symbol" : "Animation"}s Found#');
+			message.add(', ${TU.getRaw("uiImageExplorer." + (shouldUsePlural ? "foundplural" : "found")).format([animationList.length, typeOfFrame])}');
+		} else message.add(', ${TU.getRaw("uiImageExplorer.notFound").format([typeOfFrame])}');
 
 		if (isAtlas) {
-			if(spritemaps.length == 1) message.add(', ${spritemaps.length} Spritemap Found');
-			else message.add(', ${spritemaps.length} Spritemaps Found');
+			shouldUsePlural = spritemaps.length != 1;
+			message.add(', ${TU.getRaw("uiImageExplorer.foundAtlas" + (shouldUsePlural ? "plural" : "")).format([spritemaps.length])}');
 		}
 		message.add(')');
-		message.add(isAtlas ? " - Atlas" : " - Spritemap");
+		message.add(isAtlas ? ' - ${translate("atlas")}' : ' - ${translate("spritemap")}');
 
 		fileText = new UIText(x+20, y+16, bWidth-20-deleteButton.bWidth-16, "");
 		fileText.applyMarkup(message.toString(), [new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "#")]);
@@ -337,10 +341,9 @@ class UIImageExplorer extends UIFileExplorer {
 		}
 
 		if (alreadlyExistingFiles.length > 0 && checkExisting) @:privateAccess {
-			(FlxG.state.subState != null && !FlxG.state._requestSubStateReset ? FlxG.state.subState : FlxG.state).openSubState(new UIWarningSubstate("Alreadly Existing Files!!!", 
-				"The following files alreadly exist: \n\n" + alreadlyExistingFiles.join('\n') + "\n\nIMPORTANT: OVERRIDING CAN NOT BE UNDONE!!!!!!!!", 
-				[ {
-					label: "Override Files",
+			var buttons = [
+				{
+					label: TU.translate("uiImageExplorer.override"),
 					color: 0xFFFF0000,
 					onClick: (_) -> {
 						deleteExistingFiles();
@@ -348,10 +351,12 @@ class UIImageExplorer extends UIFileExplorer {
 					}
 				}, 
 				{
-					label: "Use Existing",
+					label: TU.translate("uiImageExplorer.useExisting"),
 					onClick: (_) -> {if (onFinishSaving != null) onFinishSaving();}
 				}
-			], false));
+			];
+			(FlxG.state.subState != null && !FlxG.state._requestSubStateReset ? FlxG.state.subState : FlxG.state).openSubState(new UIWarningSubstate("Alreadly Existing Files!!!", 
+				TU.getRaw("uiImageExplorer.fileAlreadyExists").format([alreadlyExistingFiles.join('\n')]), buttons, false));
 		} else acuttalySaveFiles();
 	}
 

@@ -16,6 +16,9 @@ class CharacterSpriteScreen extends UISubstateWindow {
 	public var saveButton:UIButton;
 	public var closeButton:UIButton;
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("characterEditor.characterSpriteScreen." + id, args);
+
 	public function new(imagePath:String, ?onSave:(String, Bool)->Void) {
 		super();
 		this.imagePath = imagePath;
@@ -23,7 +26,7 @@ class CharacterSpriteScreen extends UISubstateWindow {
 	}
 
 	public override function create() {
-		winTitle = 'Edit character sprite';
+		winTitle = translate("win-title");
 		winWidth = 360; winHeight = 183;
 
 		function addLabelOn(ui:UISprite, text:String):UIText {
@@ -36,8 +39,8 @@ class CharacterSpriteScreen extends UISubstateWindow {
 
 		imageExplorer = new UIImageExplorer(20, windowSpr.y + 30 + 16 + 20, imagePath, 320, 58, (_, _) -> {onLoadImage();}, "images/characters");
 		add(imageExplorer);
-		addLabelOn(imageExplorer, "Character Image File").applyMarkup(
-			"Character Image File $* Required$",
+		addLabelOn(imageExplorer, "").applyMarkup(
+			translate('charImageFile'),
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
 		ogImageSaveData = imageExplorer.getSaveData();
@@ -53,7 +56,7 @@ class CharacterSpriteScreen extends UISubstateWindow {
 		saveButton.y -= saveButton.bHeight;
 		saveButton.selectable = false;
 
-		closeButton = new UIButton(saveButton.x - 20, saveButton.y, "Cancel", function() {
+		closeButton = new UIButton(saveButton.x - 20, saveButton.y, TU.translate("editor.cancel"), function() {
 			close();
 		}, 125);
 		closeButton.color = 0xFFFF0000;

@@ -112,13 +112,14 @@ class CharacterAnimsWindow extends UIButtonList<CharacterAnimButton> {
 	}
 
 	public function generateAnimation() {
-		var animName:String = "New Anim";
+		var newAnim = TU.translate("characterEditor.characterAnim.defaultAnimName");
+		var animName:String = newAnim;
 		var animNames:Array<String> = character.getNameList();
 
 		var newAnimCount:Int = 0;
 		while (animNames.indexOf(animName) != -1) {
             newAnimCount++;
-            animName = 'New Anim - $newAnimCount';
+            animName = '$newAnim - $newAnimCount';
         }
 
 		if (__autoCompleteAnims.length <= 0)

@@ -48,7 +48,7 @@ class StageCreationScreen extends UISubstateWindow {
 			close();
 		}, 125));
 
-		add(closeButton = new UIButton(saveButton.x - 20 - saveButton.bWidth, saveButton.y, "Cancel", close, 125));
+		add(closeButton = new UIButton(saveButton.x - 20 - saveButton.bWidth, saveButton.y, TU.translate("editor.cancel"), close, 125));
 		closeButton.color = 0xFFFF0000;
 	}
 

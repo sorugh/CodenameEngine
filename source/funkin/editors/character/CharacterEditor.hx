@@ -107,12 +107,12 @@ class CharacterEditor extends UIState {
 				label: translate("topBar.edit"),
 				childs: [
 					{
-						label: "Copy Offset",
+						label: translate("edit.copyOffset"),
 						keybind: [CONTROL, C],
 						onSelect: _edit_copy_offset
 					},
 					{
-						label: "Paste Offset",
+						label: translate("edit.pasteOffset"),
 						keybind: [CONTROL, V],
 						onSelect: _edit_paste_offset
 					},
@@ -129,13 +129,13 @@ class CharacterEditor extends UIState {
 					},
 					null,
 					{
-						label: "Edit information",
+						label: translate("edit.editInfo"),
 						color: 0xFF959829, icon: 4,
 						onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2;},
 						onSelect: _edit_info
 					},
 					{
-						label: "Edit sprite",
+						label: translate("edit.editSprite"),
 						color: 0xFF959829, icon: 4,
 						onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2;},
 						onSelect: _edit_sprite
@@ -188,7 +188,7 @@ class CharacterEditor extends UIState {
 					},
 					null,
 					{
-						label: "Drag Offsets With Mouse?",
+						label: translate("offset.dragOffsetsMouse"),
 						onSelect: _offsets_drag_offsets_mouse,
 						icon: Options.characterDragging ? 1 : 0
 					},
@@ -200,7 +200,7 @@ class CharacterEditor extends UIState {
 				]
 			},
 			{
-				label: "Stage",
+				label: translate("topBar.stage"),
 				childs: buildStagesUI()
 			},
 			{
@@ -223,48 +223,48 @@ class CharacterEditor extends UIState {
 					},
 					null,
 					{
-						label: "Character Hitbox?",
+						label: translate("view.charHitbox"),
 						onSelect: _view_character_show_hitbox,
 						icon: Options.characterHitbox ? 1 : 0
 					},
 					{
-						label: "Character Camera?",
+						label: translate("view.charCam"),
 						onSelect: _view_character_show_camera,
 						icon: Options.characterCamera ? 1 : 0
 					},
 					{
-						label: "XY Axis?",
+						label: translate("view.axis"),
 						onSelect: _view_character_show_axis,
 						icon: Options.characterAxis ? 1 : 0
 					}
 				]
 			},
 			{
-				label: "Animation >",
+				label: translate("topBar.animation") + " >",
 				childs: [
 					{
-						label: "Play Animation",
+						label: translate("animation.playAnim"),
 						keybind: [SPACE],
 						onSelect: _animation_play,
 					},
 					{
-						label: "Stop Animation",
+						label: translate("animation.stopAnim"),
 						onSelect: _animation_stop
 					},
 					null,
 					{
-						label: "Change Animation ↑",
+						label: translate("animation.changeAnimUp"),
 						keybind: [W],
 						onSelect: _animation_up
 					},
 					{
-						label: "Change Animation ↓",
+						label: translate("animation.changeAnimDown"),
 						keybind: [S],
 						onSelect: _animation_down
 					},
 					null,
 					{
-						label: "Play Animation On Offset?",
+						label: translate("animation.playAnimOnOffset"),
 						onSelect: _animation_toggle_anim_playing_offsets,
 						icon: Options.playAnimOnOffset ? 1 : 0
 					},
@@ -685,16 +685,17 @@ class CharacterEditor extends UIState {
 		var stageFileList = Stage.getList(true);
 		if (stageFileList.length == 0) stageFileList = Stage.getList(false);
 
+		var stageText = TU.getRaw("characterEditor.stage.useStage");
 		for (stage in stageFileList)
 			newChilds.push({
-				label: 'Use "$stage"?',
+				label: stageText.format([stage]),
 				icon: currentStage == stage ? 1 : 0,
 				onSelect: (_) -> {changeStage(stage);}
 			});
 
 		newChilds.push(null);
 		newChilds.push({
-			label: "Use No Stage?",
+			label: translate("stage.useNone"),
 			icon: currentStage == null ? 1 : 0,
 			onSelect: (_) -> {changeStage(null);}
 		});

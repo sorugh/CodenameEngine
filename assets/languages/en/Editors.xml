@@ -24,19 +24,19 @@
 		<str id="foundAtlas">{0} Spritemap Found</str>
 		<str id="foundAtlasplural">{0} Spritemaps Found</str>
 
-		<str id="fileAlreadyExists">The following files alreadly exist: \n\n{0}\n\nIMPORTANT: OVERRIDING CAN NOT BE UNDONE!!!!!!!!</str>
+		<str id="fileAlreadyExists">The following files alreadly exist: \n\n{0}\n\nIMPORTANT: OVERRIDING CAN NOT BE UNDONE!</str>
 		<str id="override">Override Files</str>
 		<str id="useExisting">Use Existing</str>
 	</group>
 
 	<group name="EditorPicker" prefix="editor.">
+		<str id="alphabet.name">Alphabet Editor</str>
 		<str id="chart.name">Chart Editor</str>
 		<str id="character.name">Character Editor</str>
 		<str id="stage.name">Stage Editor</str>
 		<str id="uiDebug.name">UI Debug State</str>
 		<str id="wiki.name">Wiki</str>
 		<str id="debugOptions.name">Debug Options</str>
-		<str id="alphabet.name">Alphabet Editor</str>
 	</group>
 
 	<group name="ChartEditor">
@@ -429,7 +429,6 @@
 					<str id="charImageFile">Character Image File $* Required$</str>
 				</group>
 			</group>
-			<str id="name">Character Editor</str>
 		</group>
 
 		<group name="CharacterCreationScreen" prefix="characterCreationScreen.">
@@ -494,6 +493,135 @@
 					<str id="resetZoom">Reset Zoom</str>
 				</group>
 			</group>
+		</group>
+	</group>
+
+	<group name="StageEditor">
+		<group name="StageSelection" prefix="stageSelection.">
+			<str id="desc">Select a stage to edit. HSCRIPT only stages are not supported.</str>
+			<str id="acceptStage">Press ACCEPT to edit this stage.</str>
+			<str id="newStage">New Stage</str>
+			<str id="acceptNewStage">Press ACCEPT to create a new stage.</str>
+		</group>
+
+		<group name="StageEditor" prefix="stageEditor.">
+			<group name="TopBar">
+				<str id="topBar.file">File</str>
+				<group name="FileMenu" prefix="file.">
+					<str id="save">Save</str>
+					<str id="saveAs">Save As...</str>
+					<str id="exit">Exit</str>
+				</group>
+
+				<str id="topBar.edit">Edit</str>
+				<group name="EditMenu" prefix="edit.">
+					<str id="undo">Undo</str>
+					<str id="redo">Redo</str>
+					<str id="editStageInfo">Edit Stage Info</str>
+				</group>
+
+				<str id="topBar.select">Selection</str>
+				<group name="SelectionMenu" prefix="select.">
+					<str id="all">Select All</str>
+					<str id="deselect">Deselect</str>
+					<str id="inverse">Inverse Selection</str>
+				</group>
+
+				<str id="topBar.view">View</str>
+				<group name="ViewMenu" prefix="view.">
+					<str id="zoomIn">Zoom in</str>
+					<str id="zoomOut">Zoom out</str>
+					<str id="zoomReset">Reset Zoom</str>
+					<str id="focusDad">Focus Dad</str>
+					<str id="focusGF">Focus GF</str>
+					<str id="focusBF">Focus BF</str>
+				</group>
+
+				<str id="topBar.editor">Editor</str>
+				<group name="EditorMenu" prefix="editor.">
+					<str id="showCharacters">Show Characters</str>
+				</group>
+
+				<group name="StageSpriteScreen" prefix="stageSpriteScreen.">
+					<str id="win-title">Edit stage sprite</str>
+					<str id="stageImageFile">Stage Image File $* Required$</str>
+				</group>
+			</group>
+		</group>
+
+		<group name="StageCreationScreen" prefix="stageCreationScreen.">
+			<str id="win-title">Creating New Stage</str>
+			<str id="title">Stage Info</str>
+			<str id="stageName">Stage Name</str>
+			<str id="stagePath">Stage Path</str>
+		</group>
+
+		<group name="StageInfoScreen" prefix="stageInfoScreen">
+			<str id="win-title">Editing Stage "{0}" Infos</str>
+			<str id="title">Stage Info</str>
+			<str id="stageName">Stage Name</str>
+			<str id="spritePath">Sprite Path\n(Needs Refresh)</str>
+			<str id="startCamPos">Start Camera Position (X, Y)</str>
+			<str id="zoom">Zoom</str>
+		</group>
+
+		<group name="StageElementEditScreen" prefix="stageElementEditScreen.">
+			<str id="win-character-title">Editing Character "{0}"</str>
+			<str id="win-sprite-title">Editing Sprite "{0}"</str>
+			<str id="win-title">Editing XML &lt;{0} /&gt;</str>
+
+			<str id="character-title">Character Data</str>
+			<str id="sprite-title">Sprite Data</str>
+			<str id="title">XML Data</str>
+
+			<str id="elementName">Element Name</str>
+			<str id="nameID">Name Identifier</str>
+			<str id="imageFile">Image File (WIP: needs reload)\nIn (${stage.spritesParentFolder})</str>
+			<str id="scroll">Scroll {0}</str>
+			<str id="scale">Scale {0}</str>
+			<str id="camera">Camera {0}</str>
+			<str id="spacing">Spacing (X, Y)</str>
+			<str id="skew">Skew {0}</str>
+			<str id="alpha">Alpha</str>
+			<str id="angle">Angle</str>
+			<str id="zoomFactor">Zoom Factor</str>
+			<str id="positionName">Position Name</str>
+			<str id="flipX">Flip X</str>
+			<str id="antialiasing">Antialiasing</str>
+			<str id="highMemory">High Memory</str>
+			<str id="lowMemory">Low Memory</str>
+			<str id="attributes">Attributes</str>
+			<str id="transformPreview">Transform Preview:</str>
+
+			<str id="animType">Animation Type</str>
+			<group name="AnimTypeDropdown" prefix="animType.">
+				<str id="none">NONE</str>
+				<str id="beat">BEAT</str>
+				<str id="loop">LOOP</str>
+			</group>
+			<str id="tipCustomProperties">Tip: To access custom properties,\nHold Shift when clicking edit</str>
+		</group>
+
+		<group name="StageXMLEditScreen" prefix="stageXMLEditScreen.">
+			<str id="win-title">Editing {0} XML</str>
+			<str id="title">Xml Data</str>
+			<str id="attributes">Attributes</str>
+		</group>
+
+		<str id="stageCharacters.requiredPosition">This character position is required in stages!</str>
+		<str id="stageCharacters.noDeleteGirlfriend">You can't delete Girlfriend</str>
+
+		<group name="StageElement" prefix="stageElement.">
+			<str id="scale">Scale: {0}, {1}</str>
+			<str id="scroll">Scroll: {0}, {1}</str>
+		</group>
+
+		<group name="StageSprites" prefix="stageSprites.">
+			<str id="win-title">Stage Sprites</str>
+			<str id="sprite">Sprite</str>
+			<str id="box">Box</str>
+			<str id="character">Character</str>
+			<str id="warnings.not-implemented">Creating a box isnt implemented yet!</str>
 		</group>
 	</group>
 

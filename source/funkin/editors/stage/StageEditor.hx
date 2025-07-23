@@ -71,6 +71,9 @@ class StageEditor extends UIState {
 		return "stageEditor." + id;
 	}
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("stageEditor." + id, args);
+
 	public function new(stage:String) {
 		super();
 		if (stage != null) __stage = stage;
@@ -79,47 +82,47 @@ class StageEditor extends UIState {
 	public override function create() {
 		super.create();
 
-		WindowUtils.suffix = " (Stage Editor)";
+		WindowUtils.suffix = " (" + TU.translate("editor.stage.name") + ")";
 		SaveWarning.selectionClass = StageSelection;
 		SaveWarning.saveFunc = () -> {_file_save(null);};
 
 		topMenu = [
 			{
-				label: "File",
+				label: translate("topBar.file"),
 				childs: [
 					{
-						label: "Save",
+						label: translate("file.save"),
 						keybind: [CONTROL, S],
 						onSelect: _file_save,
 					},
 					{
-						label: "Save As...",
+						label: translate("file.saveAs"),
 						keybind: [CONTROL, SHIFT, S],
 						onSelect: _file_saveas,
 					},
 					null,
 					{
-						label: "Exit",
+						label: translate("file.exit"),
 						onSelect: _file_exit
 					}
 				]
 			},
 			{
-				label: "Edit",
+				label: translate("topBar.edit"),
 				childs: [
 					{
-						label: "Undo",
+						label: translate("edit.undo"),
 						keybind: [CONTROL, Z],
 						onSelect: _edit_undo,
 					},
 					{
-						label: "Redo",
+						label: translate("edit.redo"),
 						keybind: [CONTROL, SHIFT, Z],
 						onSelect: _edit_redo,
 					},
 					null,
 					{
-						label: "Edit Stage Info",
+						label: translate("edit.editStageInfo"),
 						onSelect: (_) -> {
 							openSubState(new UISoftcodedWindow(
 								"layouts/stage/stageInfoScreen",
@@ -130,7 +133,10 @@ class StageEditor extends UIState {
 									"stage" => stage,
 									"Stage" => Stage,
 									"exID" => exID,
-									"CEditInfo" => StageChange.CEditInfo
+									"CEditInfo" => StageChange.CEditInfo,
+									"translate" => function (id:String, ?args:Array<Dynamic>) {
+										return TU.translate("stageInfoScreen." + id, args);
+									}
 								]
 							));
 						},
@@ -138,56 +144,56 @@ class StageEditor extends UIState {
 				]
 			},
 			{
-				label: "Select",
+				label: translate("topBar.select"),
 				childs: [
 					{
-						label: "All",
+						label: translate("select.all"),
 						keybind: [CONTROL, A],
 						onSelect: (_) -> _select_all(_),
 					},
 					{
-						label: "Deselect",
+						label: translate("select.deselect"),
 						keybind: [CONTROL, D],
 						onSelect: (_) -> _select_deselect(_),
 					},
 					{
-						label: "Inverse",
+						label: translate("select.inverse"),
 						keybind: [CONTROL, SHIFT, I],
 						onSelect: (_) -> _select_inverse(_),
 					},
 				]
 			},
 			{
-				label: "View",
+				label: translate("topBar.view"),
 				childs: [
 					{
-						label: "Zoom in",
+						label: translate("view.zoomIn"),
 						keybind: [CONTROL, NUMPADPLUS],
 						onSelect: _view_zoomin
 					},
 					{
-						label: "Zoom out",
+						label: translate("view.zoomOut"),
 						keybind: [CONTROL, NUMPADMINUS],
 						onSelect: _view_zoomout
 					},
 					{
-						label: "Reset zoom",
+						label: translate("view.zoomReset"),
 						keybind: [CONTROL, NUMPADZERO],
 						onSelect: _view_zoomreset
 					},
 					null,
 					{
-						label: "Focus Dad",
+						label: translate("view.focusDad"),
 						//keybind: [CONTROL, NUMPADZERO],
 						onSelect: _view_focusdad
 					},
 					{
-						label: "Focus Gf",
+						label: translate("view.focusGF"),
 						//keybind: [CONTROL, NUMPADZERO],
 						onSelect: _view_focusgf
 					},
 					{
-						label: "Focus BF",
+						label: translate("view.focusBF"),
 						//keybind: [CONTROL, NUMPADZERO],
 						onSelect: _view_focusbf
 					},
@@ -195,10 +201,10 @@ class StageEditor extends UIState {
 				]
 			},
 			{
-				label: "Editor",
+				label: translate("topBar.editor"),
 				childs: [
 					{
-						label: "Show Characters",
+						label: translate("editor.showCharacters"),
 						//keybind: [CONTROL, NUMPADMINUS],
 						onSelect: _editor_showCharacters,
 						icon: showCharacters ? 1 : 0
@@ -808,7 +814,7 @@ class StageEditor extends UIState {
 				var sprite:FunkinSprite = cast sprite;
 				sprite.extra.set(exID("selected"), true);
 				sprite.extra.get(exID("button")).selected = true;
-				Logs.trace("Selected " + sprite.name);
+				//Logs.trace("Selected " + sprite.name);
 			}
 		}
 	}
@@ -1350,6 +1356,9 @@ class StageXMLEditScreen extends UISoftcodedWindow {
 	public var xml:Access;
 	public var saveCallback:Void->Void;
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("stageXMLEditScreen." + id, args);
+
 	public function new(xml:Access, saveCallback:Void->Void, type:String = "Unknown") {
 		this.xml = xml;
 		this.saveCallback = saveCallback;
@@ -1357,7 +1366,8 @@ class StageXMLEditScreen extends UISoftcodedWindow {
 			"stage" => StageEditor.instance.stage,
 			"xml" => xml,
 			"exID" => StageEditor.exID,
-			"type" => type
+			"type" => type,
+			"translate" => translate
 		]);
 	}
 

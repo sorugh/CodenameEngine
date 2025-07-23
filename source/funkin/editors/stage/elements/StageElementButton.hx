@@ -209,8 +209,10 @@ class StageElementButton extends UIButton {
 		var text = '${getName()} (${CoolUtil.quantize(pos.x, 100)}, ${CoolUtil.quantize(pos.y, 100)})';
 		var sprite = getSprite();
 		if(sprite != null) {
-			text += '\nScale: (${CoolUtil.quantize(sprite.scale.x, 100)}, ${CoolUtil.quantize(sprite.scale.y, 100)})';
-			text += '\nScroll: (${CoolUtil.quantize(sprite.scrollFactor.x, 100)}, ${CoolUtil.quantize(sprite.scrollFactor.y, 100)})';
+			var scaleText = TU.getRaw("stageElement.scale");
+			var scrollText = TU.getRaw("stageElement.scroll");
+			text += '\n${scaleText.format([CoolUtil.quantize(sprite.scale.x, 100), CoolUtil.quantize(sprite.scale.y, 100)])}';
+			text += '\n${scrollText.format([CoolUtil.quantize(sprite.scrollFactor.x, 100), CoolUtil.quantize(sprite.scrollFactor.y, 100)])}';
 		}
 		pos.put();
 		return text;

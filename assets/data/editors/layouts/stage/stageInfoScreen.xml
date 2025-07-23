@@ -1,4 +1,4 @@
-<window width="470" height="620" title="Editing Stage Info '${stage.stageName}'">
+<window width="470" height="620" title="${translate('win-title', [stage.stageName])}">
 	<set name="MARGIN" value="20" />
 	<set name="XOFFSET" value="50" />
 	<set name="YOFFSET" value="40" />
@@ -28,31 +28,31 @@
 		}
 	</exec>
 
-	<title name="title" x="MARGIN" y="30 + 16" text="Stage Info" />
+	<title name="title" x="MARGIN" y="30 + 16" text="${translate('title')}" />
 
 	<section> <!-- ROW 1 -->
 		<set name="curY" value="title.y + TO" />
 
-		<textbox name="nameTextBox" label="Stage Name" value="stage.stageName"   x="col(0)" y="curY" width="200" height="32" />
+		<textbox name="nameTextBox" label="${translate('stageName')}" value="stage.stageName"   x="col(0)" y="curY" width="200" height="32" />
 		<textbox name="spritePathTextBox" value="stage.spritesParentFolder" x="col(1)" y="curY" width="200" height="32" />
-		<label text="Sprite Path&#10;(Needs Refresh)" x="spritePathTextBox.x" y="spritePathTextBox.y - 14" size="15" />
+		<label text="${translate('spritePath')}" x="spritePathTextBox.x" y="spritePathTextBox.y - 14" size="15" />
 	</section>
 
 	<section> <!-- ROW 2 -->
 		<set name="curY" value="nameTextBox.y + nameTextBox.bHeight + YOFFSET" />
 
-		<label text="Start Cam Pos (X, Y)" x="col(0)" y="curY" />
+		<label text="${translate('startCamPos')}" x="col(0)" y="curY" />
 		<stepper name="camxStepper" value="stage.startCam.x" x="col(0)" y="curY" step="1" width="120" />
 		<stepper name="camyStepper" value="stage.startCam.y" x="last.x + last.bWidth + XOFFSET - 30" y="curY" step="1" width="120" />
 
-		<stepper name="zoomStepper" label="Zoom" value="stage.defaultZoom" x="col(1)" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="zoomStepper" label="${translate('zoom')}" value="stage.defaultZoom" x="col(1)" y="curY" precision="2" step="0.01" width="100" />
 	</section>
 
 	<section>
 		<set name="curY" value="camxStepper.y + camxStepper.bHeight + YOFFSET" />
 		<set name="listWidth" value="self.winWidth - MARGIN * 2" />
 
-		<buttonlist name="attributesList" label="Custom Attributes" x="col(0)" y="curY" width="listWidth" height="290" buttonSizeX="listWidth-10" buttonSizeY="35" buttonSpacing="5">
+		<buttonlist name="attributesList" label="${translate('customAttributes')}" x="col(0)" y="curY" width="listWidth" height="290" buttonSizeX="listWidth-10" buttonSizeY="35" buttonSpacing="5">
 			<texture path="editors/ui/inputbox" />
 			<camSpacing value="0" />
 

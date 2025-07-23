@@ -76,6 +76,9 @@ class StageSpriteEditScreen extends UISoftcodedWindow {
 	public var sprite:FunkinSprite;
 	var isSaving:Bool = false;
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("stageElementEditScreen." + id, args);
+
 	public function new(button:StageSpriteButton) {
 		this.button = button;
 		this.sprite = button.getSprite();
@@ -91,6 +94,7 @@ class StageSpriteEditScreen extends UISoftcodedWindow {
 			"setEx" => function(name:String, value:Dynamic) {
 				sprite.extra.set(StageEditor.exID(name), value);
 			},
+			"translate" => translate,
 		]);
 	}
 

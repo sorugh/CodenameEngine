@@ -209,9 +209,9 @@
 
 			<str id="topBar.view">Widok</str>
 			<group name="ViewMenu" prefix="view.">
-				<str id="zoomIn">Powiększ</str>
-				<str id="zoomOut">Pomniejsz</str>
-				<str id="resetZoom">Resetuj Powiększenie</str>
+				<str id="zoomIn">Przybliż</str>
+				<str id="zoomOut">Oddal</str>
+				<str id="resetZoom">Resetuj Przybliżenie</str>
 				<str id="showSectionsSeparator">Pokaż Oddział Sekcji</str>
 				<str id="showBeatsSeparator">Pokaż Oddział Bitów</str>
 				<str id="rainbowWaveforms">Tęczowe Fale Dźwiękowe</str>
@@ -251,11 +251,11 @@
 				</group>
 				<str id="topBar.snap">Snapowanie</str>
 				<group name="SnapMenu" prefix="snap.">
-					<str id="increaseSnap">↑ Snapowanie Siatki</str>
-					<str id="resetSnap">Resetuj Snapowanie Siatki</str>
-					<str id="decreaseSnap">↓ Snapowanie Siatki</str>
+					<str id="increaseSnap">↑ Snapowanie do Siatki</str>
+					<str id="resetSnap">Resetuj Snapowanie do Siatki</str>
+					<str id="decreaseSnap">↓ Snapowanie do Siatki</str>
 
-					<str id="snap">{0}x Snapowanie Siatki</str>
+					<str id="snap">{0}x Snapowanie do Siatki</str>
 				</group>
 
 				<str id="topBar.playback">Odtwarzanie</str>
@@ -359,7 +359,7 @@
 					<str id="copyOffset">Kopiuj Domiar</str>
 					<str id="pasteOffset">Wklej Domiar</str>
 					<str id="undo">Cofnij</str>
-					<str id="redo">Awansuj</str>
+					<str id="redo">Ponów</str>
 					<str id="editInfo">Edytuj Informacje</str>
 					<str id="editSprite">Edytuj Sprite'a</str>
 				</group>
@@ -386,9 +386,9 @@
 
 				<str id="topBar.view">Widok</str>
 				<group name="ViewMenu" prefix="view.">
-					<str id="zoomIn">Powiększ</str>
-					<str id="zoomOut">Pomniejsz</str>
-					<str id="resetZoom">Resetuj Powiększenie</str>
+					<str id="zoomIn">Przybliż</str>
+					<str id="zoomOut">Oddal</str>
+					<str id="resetZoom">Resetuj Przybliżenie</str>
 					<str id="charHitbox">Hitboks Postaci?</str>
 					<str id="charCam">Kamera Postaci?</str>
 					<str id="axis">Osie XY?</str>
@@ -463,7 +463,7 @@
 				<str id="topBar.edit">Edytuj</str>
 				<group name="EditMenu" prefix="edit.">
 					<str id="undo">Cofnij</str>
-					<str id="redo">Awansuj</str>
+					<str id="redo">Ponów</str>
 				</group>
 
 				<str id="topBar.glyph">Glif</str>
@@ -489,9 +489,9 @@
 
 				<str id="topBar.view">Widok</str>
 				<group name="ViewMenu" prefix="view.">
-					<str id="zoomIn">Powiększ</str>
-					<str id="zoomOut">Pomniejsz</str>
-					<str id="resetZoom">Resetuj Powiększenie</str>
+					<str id="zoomIn">Przybliż</str>
+					<str id="zoomOut">Oddal</str>
+					<str id="resetZoom">Resetuj Przybliżenie</str>
 				</group>
 			</group>
 		</group>
@@ -517,7 +517,7 @@
 				<str id="topBar.edit">Edytuj</str>
 				<group name="EditMenu" prefix="edit.">
 					<str id="undo">Cofnij</str>
-					<str id="redo">Awansuj</str>
+					<str id="redo">Ponów</str>
 					<str id="editStageInfo">Edytuj Info Sceny</str>
 				</group>
 
@@ -530,9 +530,9 @@
 
 				<str id="topBar.view">Widok</str>
 				<group name="ViewMenu" prefix="view.">
-					<str id="zoomIn">Powiększ</str>
-					<str id="zoomOut">Pomniejsz</str>
-					<str id="resetZoom">Resetuj Powiększenie</str>
+					<str id="zoomIn">Przybliż</str>
+					<str id="zoomOut">Oddal</str>
+					<str id="resetZoom">Resetuj Przybliżenie</str>
 					<str id="focusDad">Skupienie na Dad</str>
 					<str id="focusGF">Skupienie na GF</str>
 					<str id="focusBF">Skupienie na BF</str>
@@ -563,7 +563,7 @@
 			<str id="stageName">Nazwa Sceny</str>
 			<str id="spritePath">Ścieżka Plikowa Sprite'a\n(Wymaga Odświeżenia)</str>
 			<str id="startCamPos">Pozycja Startowa Kamery (X, Y)</str>
-			<str id="zoom">Powiększenie</str>
+			<str id="zoom">Przybliżenie</str>
 		</group>
 
 		<group name="StageElementEditScreen" prefix="stageElementEditScreen.">
@@ -585,9 +585,9 @@
 			<str id="skew">Krzywienie {0}</str>
 			<str id="alpha">Przezroczystość</str>
 			<str id="angle">Kąt</str>
-			<str id="zoomFactor">Czynnik Powiększania</str>
+			<str id="zoomFactor">Czynnik Przybliżania</str>
 			<str id="positionName">Nazwa Pozycji</str>
-			<str id="flipX">Odwróć Oś X</str>
+			<str id="flipX">Odwróć w Osi X</str>
 			<str id="antialiasing">Wygładzanie</str>
 			<str id="highMemory">Wysoka Pamięć</str>
 			<str id="lowMemory">Niska Pamięć</str>
@@ -622,7 +622,7 @@
 			<str id="sprite">Sprite</str>
 			<str id="box">Blok</str>
 			<str id="character">Postać</str>
-			<str id="warnings.not-implemented">Tworzenie Bloka jeeszcze nie istnieje!</str>
+			<str id="warnings.not-implemented">Tworzenie Bloku jeszcze nie istnieje!</str>
 		</group>
 	</group>
 

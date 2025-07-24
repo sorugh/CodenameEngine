@@ -44,7 +44,7 @@
 
 		<str id="category.engine">Silnik</str>
 		<group name="engine" prefix="engine.">
-			<str id="switchMod">Zmień Moda lub Tryb</str>
+			<str id="switchMod">Zmień Moda</str>
 		</group>
 		
 		<str id="category.volume">Głośność</str>
@@ -52,23 +52,23 @@
 
 		<str id="category.developer">Deweloper</str>
 		<group name="developer" prefix="developer.">
-			<str id="devMenus">Menu dla Deweloperów</str>
-			<str id="openConsole">Otwórz Konsolę</str>
-			<str id="reloadState">Odświerz Stan</str>
+			<str id="devMenus">Edytory</str>
+			<str id="openConsole">Konsola</str>
+			<str id="reloadState">Odświerz</str>
 		</group>
 	</group>
 
 	<group name="AppearanceOptions" prefix="AppearanceOptions.">
 		<str id="framerate-name">Klatki</str>
-		<str id="framerate-desc">Klatki na sekundę</str>
+		<str id="framerate-desc">Ilość Klatek na sekundę ktore gra renderuje</str>
 
 		<str id="antialiasing-name">Wygładzanie</str>
 		<str id="antialiasing-desc">Jeśli wyłączone, Wygładzanie nie będzie widoczne na Sprite'ach. Może poprawić wydajność na koszt ostrzejszego, pikselowatego wyglądu Sprite'ów.</str>
 
-		<str id="colorHealthBar-name">Pokolorowane Zdrowie</str>
+		<str id="colorHealthBar-name">Kolorowe Zdrowie</str>
 		<str id="colorHealthBar-desc">Jeśli wyłączone, Pasek zdrowia będzie tylko używał czerwonego i zielonego koloru, takiego jak z oryginalnej gry.</str>
 
-		<str id="week6PixelPerfect-name">Efekt Perfekcyjnych Pikseli</str>
+		<str id="week6PixelPerfect-name">Perfekcyjne Piksele</str>
 		<str id="week6PixelPerfect-desc">Jeśli włączone, Tydzień 6 będzie miał efekt perfekcyjnych pikseli, ustawiający każdy piksel na ekranie.</str>
 
 		<str id="gameplayShaders-name">Shadery Rozgrywki</str>
@@ -77,11 +77,11 @@
 		<str id="flashingMenu-name">Migające Menu</str>
 		<str id="flashingMenu-desc">Jeśli wyłączone, tło menu głównego nie będzie migać kolorów po wybraniu opcji. Inne migania będą znacznie wolniejsze.</str>
 
-		<str id="lowMemoryMode-name">Tryb Słabej Pamięci</str>
+		<str id="lowMemoryMode-name">Słaba Pamięć</str>
 		<str id="lowMemoryMode-desc">Jeśli włączone, usunie niektóre elementy tła, co użyje mniej pamięci.</str>
 
-		<str id="gpuOnlyBitmaps-name">Duszki tylko w VRAM</str>
-		<str id="gpuOnlyBitmaps-desc">Jeśli włączone, utrzyma bitmapy tylko w GPU, uwalniając więcej pamięci (EKSPERYMENTALNE). Wyłaczenie tego użyje o wiele więcej pamięci, szczególnie przy większych duszkach. Zostaw włączone w wypadku wątpliwości.</str>
+		<str id="gpuOnlyBitmaps-name">Sprite'y w VRAM</str>
+		<str id="gpuOnlyBitmaps-desc">Jeśli włączone, utrzyma obrazy tylko w GPU, uwalniając więcej pamięci (EKSPERYMENTALNE). Wyłaczenie tego użyje o wiele więcej pamięci, szczególnie przy większych duszkach. Zostaw włączone w wypadku wątpliwości.</str>
 	</group>
 
 	<group name="GameplayOptions" prefix="GameplayOptions.">
@@ -94,16 +94,16 @@
 		<str id="naughtyness-name">Niegrzeczność</str>
 		<str id="naughtyness-desc">Jeśli wyłączone, cenzuruje scenki 7 Tygodnia.</str>
 
-		<str id="camZoomOnBeat-name">Zoomowanie Kamery do Bitu</str>
+		<str id="camZoomOnBeat-name">Bicie Kamery do Bitu</str>
 		<str id="camZoomOnBeat-desc">Jeśli wyłączone, kamera nie będzie się zbliżać co 4 bity.</str>
 
-		<str id="autoPause-name">Automatyczna Pauza</str>
+		<str id="autoPause-name">Auto Pauza</str>
 		<str id="autoPause-desc">Jeśli włączone, opuszczając okno gry zatrzyma ją.</str>
 
 		<str id="volumeSFX-name">Głośność SFX</str>
 		<str id="volumeSFX-desc">Zmienia wyłącznie głośność efektów dzwiękowych.</str>
 
-		<str id="songOffset-name">Opóźnienie ścieżki</str>
+		<str id="songOffset-name">Opóźnienie Ścieżki</str>
 		<str id="songOffset-desc">Wyrównuje opóźnienie w jakim ścieżki się zaczną.</str>
 
 		<group name="GameplayOptionsAdvanced" prefix="Advanced.">
@@ -127,7 +127,7 @@ If checked, only musics will have streamed audio, ALSO freeing a LOT of memory w
 		<str id="forceCrash-name">Zmuś Zawieszenie</str>
 		<str id="forceCrash-desc">Wybierz by zmusić grę do zawieszenia.</str>
 
-		<str id="betaUpdates-name">Włącz Nocne Aktualizacje</str>
+		<str id="betaUpdates-name">Nocne Aktualizacje</str>
 		<str id="betaUpdates-desc">Jeśli włączone, uwzględni nocne budowy gry przy sprawdzaniu aktualizacji.</str>
 
 		<str id="checkForUpdates-name">Sprawdź Aktualizacje</str>

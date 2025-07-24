@@ -13,7 +13,6 @@ Putting this txt in here so others can edit and commit this to suggest or add mi
 # Editor SFX
 
 ## Global:
-- Opening/Closing Context/Dropdown Menus [x]
 - Opening/Closing Pop-up Windows [x]
 - Mouse Click [x]
 - UI Button being clicked [x]
@@ -22,11 +21,12 @@ Putting this txt in here so others can edit and commit this to suggest or add mi
 - Deleting from text field [x]
 - Saving [x]
 - Auto-Saving [x]
-- Copying []
-- Pasting []
-- Undoing []
-- Redoing []
-- Deleting []
+- Copying [x]
+- Pasting [x]
+- Cutting [x]
+- Undoing [x]
+- Redoing [x]
+- Deleting (more specifically using "delete" buttons) [x]
 
 ## Chart Editor:
 - Placing Notes [x]
@@ -37,20 +37,18 @@ Putting this txt in here so others can edit and commit this to suggest or add mi
 - Moving Notes []
 - Dropping Notes []
 - Selecting Notes (via `CTRL + Drag` or `CTRL + A`) []
-- Hitsounds []
+- Hitsounds [x]
 - Metronome []
 - Creating an Event []
 - Pulling up Event Editing menu []
-- Scrolling Up/Down (via `Scroll Wheel` or `W/S`) []
+- Scrolling Up/Down (via `Scroll Wheel` or `W/S`) [x]
 - Note Snapping Change [x]
 - Locking Strums [x]
 - Unlocking Strums [x]
 - Creating Strum []
 
 ## Character/Stage Editor
-- Selecting a Stage asset []
-- Switching Stage []
-- Changing Offset (via `Arrows`, `WASD`, or `Mouse Drag`) []
-- Enabling/Disabling Ghost Animation []
+- Changing Offset (via `Arrows`, `WASD`, or `Mouse Drag`) [x]
+- Enabling/Disabling Ghost Animation [x]
 
 

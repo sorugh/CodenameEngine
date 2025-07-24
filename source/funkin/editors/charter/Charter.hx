@@ -155,7 +155,7 @@ class Charter extends UIState {
 						onSelect: _file_events_save,
 					},
 					{
-						label: translate("file.saveGlobalEvents"),
+						label: translate("file.saveGlobalEventsAs"),
 						onSelect: _file_events_saveas,
 					},
 					{

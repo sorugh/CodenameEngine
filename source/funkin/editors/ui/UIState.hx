@@ -105,6 +105,10 @@ class UIState extends MusicBeatState {
 			buttonHandler = null;
 		}
 
+		if (FlxG.mouse.justPressed) {
+			FlxG.sound.play(Paths.sound('editors/click'));
+		}
+
 		if (FlxG.mouse.justReleased)
 			currentFocus = (hoveredSprite is IUIFocusable) ? (cast hoveredSprite) : null;
 
@@ -150,6 +154,7 @@ class UIState extends MusicBeatState {
 	}
 
 	public function openContextMenu(options:Array<UIContextMenuOption>, ?callback:UIContextMenuCallback, ?x:Float, ?y:Float, ?w:Int) {
+		FlxG.sound.play(Paths.sound('editors/windowAppear'));
 		var state = FlxG.state;
 		while(state.subState != null && !(state._requestSubStateReset && state._requestedSubState == null))
 			state = state.subState;

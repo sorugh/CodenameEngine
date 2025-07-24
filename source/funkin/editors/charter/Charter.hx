@@ -1017,7 +1017,6 @@ class Charter extends UIState {
 				if (FlxG.mouse.justReleasedRight) {
 					if (deletedNotes.length > 0) {
 						undos.addToUndo(CDeleteSelection(deletedNotes.copy()));
-						FlxG.sound.play(Paths.sound('editors/charter/noteDelete'));
 					}
 					else if (noteDeleteAnims.garbageIcon.alpha <= .5) {
 						var mousePos = FlxG.mouse.getScreenPosition(uiCamera);
@@ -1540,6 +1539,7 @@ class Charter extends UIState {
 	}
 
 	public static function saveAs(data:Dynamic, ?replacer:(key:Dynamic, value:Dynamic) -> Dynamic, ?space:String, ?options:SaveSubstate.SaveSubstateData, ?saveOptions:Map<String, Bool>, shouldBuild:Bool = true) {
+		FlxG.sound.play(Paths.sound('editors/save'));
 		if (shouldBuild && instance != null) instance.buildChart();
 		var cur = FlxG.state;
 		while(true) {
@@ -2076,11 +2076,15 @@ class Charter extends UIState {
 		return newChilds;
 	}
 
-	inline function _note_addsustain(t)
+	inline function _note_addsustain(t) {
+		FlxG.sound.play(Paths.sound('editors/charter/sustainAdd'));
 		changeNoteSustain(1);
+	}
 
-	inline function _note_subtractsustain(t)
+	inline function _note_subtractsustain(t) {
+		FlxG.sound.play(Paths.sound('editors/charter/sustainDelete'));
 		changeNoteSustain(-1);
+	}
 
 	function _note_selectall(_) {
 		selection = cast notesGroup.members.copy();

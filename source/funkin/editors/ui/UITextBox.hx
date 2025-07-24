@@ -110,6 +110,7 @@ class UITextBox extends UISliceSprite implements IUIFocusable {
 			case RIGHT:
 				changeSelection(1);
 			case BACKSPACE:
+				FlxG.sound.play(Paths.sound('editors/textRemove'));
 				if (position > 0) {
 					label.text = label.text.substr(0, position-1) + label.text.substr(position);
 					changeSelection(-1);
@@ -119,6 +120,7 @@ class UITextBox extends UISliceSprite implements IUIFocusable {
 			case END:
 				position = label.text.length;
 			case V:
+				FlxG.sound.play(Paths.sound('editors/textType'));
 				// Hey lj here, fixed copying because before we checked if the modifier was left or right ctrl
 				// but somehow it gave a int outside of the KeyModifier's range :sob:
 				// apparently there is a boolean that just checks for you. yw :D
@@ -129,13 +131,14 @@ class UITextBox extends UISliceSprite implements IUIFocusable {
 				var data:String = Clipboard.generalClipboard.getData(TEXT_FORMAT);
 				if (data != null) onTextInput(data);
 			case C:
+				FlxG.sound.play(Paths.sound('editors/textType'));
 				// if we are not holding ctrl, ignore
 				if (!modifier.ctrlKey) return;
 
 				// copying
 				Clipboard.generalClipboard.setData(TEXT_FORMAT, label.text);
 			default:
-				// nothing
+				FlxG.sound.play(Paths.sound('editors/textType'));
 		}
 	}
 

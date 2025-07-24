@@ -113,9 +113,9 @@ class Options
 	// Misc
 	public static var P1_RESET:Array<FlxKey> = [R];
 	public static var P1_SWITCHMOD:Array<FlxKey> = [TAB];
-	public static var P1_VOLUME_UP:Array<FlxKey> = [];
-	public static var P1_VOLUME_DOWN:Array<FlxKey> = [];
-	public static var P1_VOLUME_MUTE:Array<FlxKey> = [];
+	public static var P1_VOLUME_UP:Array<FlxKey> = [PLUS];
+	public static var P1_VOLUME_DOWN:Array<FlxKey> = [MINUS];
+	public static var P1_VOLUME_MUTE:Array<FlxKey> = [ZERO];
 
 	// Debugs
 	public static var P1_DEV_ACCESS:Array<FlxKey> = [SEVEN];
@@ -144,9 +144,9 @@ class Options
 	// Misc
 	public static var P2_RESET:Array<FlxKey> = [];
 	public static var P2_SWITCHMOD:Array<FlxKey> = [];
-	public static var P2_VOLUME_UP:Array<FlxKey> = [PLUS];
-	public static var P2_VOLUME_DOWN:Array<FlxKey> = [MINUS];
-	public static var P2_VOLUME_MUTE:Array<FlxKey> = [ZERO];
+	public static var P2_VOLUME_UP:Array<FlxKey> = [NUMPADPLUS];
+	public static var P2_VOLUME_DOWN:Array<FlxKey> = [NUMPADMINUS];
+	public static var P2_VOLUME_MUTE:Array<FlxKey> = [NUMPADZERO];
 
 	// Debugs
 	public static var P2_DEV_ACCESS:Array<FlxKey> = [];

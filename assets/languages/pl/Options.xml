@@ -169,7 +169,7 @@ If checked, only musics will have streamed audio, ALSO freeing a LOT of memory w
 		<str id="charterAutoSaveTime-name">Częstość Autozapisu</str>
 		<str id="charterAutoSaveTime-desc">Kontroluje co jaki czas edytor będzie automatycznie zapisywać. (w sekundach...)</str>
 
-		<str id="charterAutoSaveWarningTime-name">Czas Ostrzeżenia Zapisu</str>
+		<str id="charterAutoSaveWarningTime-name">Czas Ostrzeżenia</str>
 		<str id="charterAutoSaveWarningTime-desc">Kontroluje czas przed którym edytor cię ostrzeże o automatycznym zapisie. (w sekundach..., 0 by wyłączyć.)</str>
 
 		<str id="charterAutoSavesSeparateFolder-name">Folder Autozapisów</str>

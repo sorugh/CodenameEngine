@@ -27,6 +27,9 @@ MOD_DOWNLOAD_LINK="YOUR MOD PAGE LINK HERE"
 
 [Flags]
 DISABLE_BETA_WARNING_SCREEN=true
+DISABLE_WARNING_SCREEN=true
+# Set this to false if you want to bring back the warning state (prior to 1.0.0)
+# NOTE: Beta warning state has been renamed from BetaWarningState.hx to WarningState.hx
 
 [Discord]
 MOD_DISCORD_CLIENT_ID=""

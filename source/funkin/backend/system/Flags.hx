@@ -182,7 +182,7 @@ class Flags {
 	public static var JSON_PRETTY_PRINT:String = "\t";
 
 	public static var DISABLE_EDITORS:Bool = false;
-	public static var DISABLE_BETA_WARNING_SCREEN:Bool = false;
+	public static var DISABLE_WARNING_SCREEN:Bool = true;
 	public static var DISABLE_TRANSITIONS:Bool = false;
 
 	@:also(funkin.backend.MusicBeatTransition.script)

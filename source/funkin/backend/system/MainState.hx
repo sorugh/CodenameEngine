@@ -135,6 +135,7 @@ class MainState extends FlxState {
 			}
 		}
 
-		FlxG.switchState(new TitleState());
+		if (!Flags.DISABLE_WARNING_SCREEN) FlxG.switchState(new funkin.menu.WarningState());
+		else FlxG.switchState(new TitleState());
 	}
 }

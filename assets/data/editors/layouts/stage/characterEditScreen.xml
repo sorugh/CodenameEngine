@@ -28,7 +28,7 @@
 		<stepper name="scrollYStepper" label="${translate('scroll', ['Y'])}" value="char.scrollFactor.y" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
 
 		<stepper name="scaleXStepper" label="${translate('scale', ['X'])}" value="char.scale.x / charScale" x="col(2)" y="curY" precision="2" step="0.01" width="100" />
-		<stepper name="scaleYStepper" label="${translate('scroll', ['Y'])}" value="char.scale.y / charScale" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
+		<stepper name="scaleYStepper" label="${translate('scale', ['Y'])}" value="char.scale.y / charScale" x="last.x + last.bWidth + XOFFSET - 20" y="curY" precision="2" step="0.01" width="100" />
 	</section>
 
 	<section>

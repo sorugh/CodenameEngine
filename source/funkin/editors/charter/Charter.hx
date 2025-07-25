@@ -2093,7 +2093,7 @@ class Charter extends UIState {
 	}
 
 	inline function _note_subtractsustain(t) {
-		FlxG.sound.play(Paths.sound(DEFAULT_CHARTER_SUSTAINDELETE_SOUND));
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_CHARTER_SUSTAINDELETE_SOUND));
 		changeNoteSustain(-1);
 	}
 

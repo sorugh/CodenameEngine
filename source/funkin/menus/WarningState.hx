@@ -18,7 +18,7 @@ class WarningState extends MusicBeatState {
 
 		disclaimer = new FunkinText(16, titleAlphabet.y + titleAlphabet.height + 10, FlxG.width - 32, "", 32);
 		disclaimer.alignment = CENTER;
-		disclaimer.text = "This is a warning state! Make a script #./data/states/WarningState.hx# to edit this text! \n\n Note: you can use asterisks or hashtags to highlight your text in red or yellow, or you can just make your own markup using postCreate (you have to change the text in create() to apply the default markup)";
+		disclaimer.text = "This is a warning state! Make a script .#/data/states/WarningState.hx# to edit this text! \n\n Note: you can use asterisks or hashtags to highlight your text in red or yellow, or you can just make your own markup using postCreate (you have to change the text in create() to apply the default markup)";
 
 		super.create();
 

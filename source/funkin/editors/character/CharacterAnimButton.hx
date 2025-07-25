@@ -424,10 +424,12 @@ class CharacterAnimButton extends UIButton {
 
 	public function toggleGhost() {
 		if (valid && parent.ghosts.indexOf(anim) == -1) {
+			FlxG.sound.play(Paths.sound('editors/character/ghostEnable')); 
 			parent.ghosts.push(anim);
 			ghostIcon.animation.play("alive", true);
 			ghostIcon.color = 0xFFFFFFFF;
 		} else {
+			FlxG.sound.play(Paths.sound('editors/character/ghostDisable'));
 			parent.ghosts.remove(anim);
 			ghostIcon.animation.play("dead", true);
 			ghostIcon.color = 0xFFADADAD;

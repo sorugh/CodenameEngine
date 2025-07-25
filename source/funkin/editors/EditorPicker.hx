@@ -42,11 +42,6 @@ class EditorPicker extends MusicBeatSubstate {
 			onClick: function() {
 				CoolUtil.openURL(Flags.URL_WIKI);
 			}
-		},
-		{
-			name: "Debug Options",
-			id: "debugOptions",
-			state: DebugOptions
 		}
 	];
 

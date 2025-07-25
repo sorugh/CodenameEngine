@@ -22,7 +22,6 @@ class Flags {
 	public static var MOD_NAME:String = "";
 	public static var MOD_DESCRIPTION:String = "";
 	public static var MOD_AUTHOR:String = "";
-	public static var MOD_DESCRIPTION:String = "";
 	public static var MOD_API_VERSION:Int = 1;
 	public static var MOD_DOWNLOAD_LINK:String  = "";
 	public static var MOD_DEPENDENCIES:Array<String> = [];

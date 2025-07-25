@@ -284,9 +284,8 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 	}
 
 	public function quit() {
+		CharterEventGroup.stopThisFuckingShitDudeIstg = false;
 		saveCurTab();
-		chartEvent.refreshEventIcons();
-		Charter.instance.updateBPMEvents();
 
 		if (events.length <= 0)
 			Charter.instance.deleteSelection([chartEvent]);
@@ -296,6 +295,8 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 
 			Charter.undos.addToUndo(CEditEvent(chartEvent, oldEvents, [for (event in events) Reflect.copy(event)]));
 		}
+		chartEvent.refreshEventIcons();
+		Charter.instance.updateBPMEvents();
 		close();
 	}
 

@@ -30,12 +30,17 @@ class CharterEventAdd extends UISliceSprite {
 			if (curCharterEvent != null)
 				Charter.instance.openSubState(new CharterEventScreenNew(curCharterEvent));
 			else {
+				CharterEventGroup.stopThisFuckingShitDudeIstg = true;
 				var chartEvent = new CharterEvent(step, [], global);
-				chartEvent.events = [];
 				chartEvent.global = global;
 
 				Charter.instance.createSelection([chartEvent]);
 				Charter.instance.openSubState(new CharterEventScreenNew(chartEvent));
+				sprAlpha = 0;
+				alpha = sprAlpha * 0.75;
+				text.alpha = sprAlpha;
+
+				sideText.alpha = sprAlpha;
 			}
 		}
 	}
@@ -43,6 +48,7 @@ class CharterEventAdd extends UISliceSprite {
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
 
+		if (FlxG.state.subState != null) return;
 		text.follow(this, global ? bWidth - text.width - (text.text == TU.translate("charter.addEvent") ? 15 : 20) : 20, (bHeight - text.height) / 2);
 		sideText.follow(this, (bWidth/2) - (sideText.fieldWidth/2), -(sideText.height + 2));
 		alpha = sprAlpha * 0.75;
@@ -52,6 +58,7 @@ class CharterEventAdd extends UISliceSprite {
 	}
 
 	public function updatePos(step:Float) {
+		if (FlxG.state.subState != null) return;
 		curCharterEvent = null;
 		this.step = step;
 		this.y = (step * 40) - (bHeight / 2);
@@ -61,6 +68,7 @@ class CharterEventAdd extends UISliceSprite {
 	}
 
 	public function updateEdit(event:CharterEvent) {
+		if (FlxG.state.subState != null) return;
 		curCharterEvent = event;
 		this.y = event.y;
 		text.text = TU.translate("charter.editEvent");

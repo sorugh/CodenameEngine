@@ -498,7 +498,7 @@ class CharacterEditor extends UIState {
 	}
 	
 	function _undo(undo:CharacterEditorChange) {
-		FlxG.sound.play(Paths.sound('editors/undo'));
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_UNDO_SOUND));
 		switch (undo) {
 			case null: // do nothing
 			case CCharEditPosition(oldPos, newPos):
@@ -569,7 +569,7 @@ class CharacterEditor extends UIState {
 	}
 
 	function _redo(redo:CharacterEditorChange) {
-		FlxG.sound.play(Paths.sound('editors/redo'));
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_REDO_SOUND));
 		switch (redo) {
 			case null: // do nothing
 			case CCharEditPosition(oldPos, newPos):

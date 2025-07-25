@@ -197,6 +197,36 @@ class Flags {
 	public static var URL_EDITOR_FALLBACK:String = "https://www.youtube.com/watch?v=9Youam7GYdQ";
 	public static var URL_FNF_ITCH:String = "https://ninja-muffin24.itch.io/funkin";
 
+	/**
+	 * Default editor sound paths
+	 */
+	public static var DEFAULT_EDITOR_AUTOSAVE_SOUND = "editors/autosave";
+	public static var DEFAULT_EDITOR_BUTTONCLICK_SOUND = "editors/buttonClick";
+	public static var DEFAULT_EDITOR_CLICK_SOUND = "editors/click";
+	public static var DEFAULT_EDITOR_COPY_SOUND = "editors/copy";
+	public static var DEFAULT_EDITOR_CUT_SOUND = "editors/cut";
+	public static var DEFAULT_EDITOR_DELETE_SOUND = "editors/delete";
+	public static var DEFAULT_EDITOR_OFFSETDRAG_SOUND = "editors/offsetDrag";
+	public static var DEFAULT_EDITOR_PASTE_SOUND = "editors/paste";
+	public static var DEFAULT_EDITOR_REDO_SOUND = "editors/redo";
+	public static var DEFAULT_EDITOR_SAVE_SOUND = "editors/save";
+	public static var DEFAULT_EDITOR_TEXTREMOVE_SOUND = "editors/textRemove";
+	public static var DEFAULT_EDITOR_TEXTTYPE_SOUND = "editors/textType";
+	public static var DEFAULT_EDITOR_UNDO_SOUND = "editors/undo";
+	public static var DEFAULT_EDITOR_WINDOWAPPEAR_SOUND = "editors/windowAppear";
+	public static var DEFAULT_CHARTER_HITSOUND_SOUND = "editors/charter/hitsound";
+	public static var DEFAULT_CHARTER_METRONOME_SOUND = "editors/charter/metronome";
+	public static var DEFAULT_CHARTER_NOTEDELETE_SOUND = "editors/charter/noteDelete";
+	public static var DEFAULT_CHARTER_NOTEPLACE_SOUND = "editors/charter/notePlace";
+	public static var DEFAULT_CHARTER_SCROLL_SOUND = "editors/charter/scroll";
+	public static var DEFAULT_CHARTER_SNAPPINGCHANGE_SOUND = "editors/charter/snappingChange";
+	public static var DEFAULT_CHARTER_STRUMLOCK_SOUND = "editors/charter/strumLock";
+	public static var DEFAULT_CHARTER_STRUMUNLOCK_SOUND = "editors/charter/strumUnlock";
+	public static var DEFAULT_CHARTER_SUSTAINADD_SOUND = "editors/charter/sustainAdd";
+	public static var DEFAULT_CHARTER_SUSTAINDELETE_SOUND = "editors/charter/sustainDelete";
+	public static var DEFAULT_CHARACTER_GHOSTDISABLE_SOUND = "editors/character/ghostDisable";
+	public static var DEFAULT_CHARACTER_GHOSTENABLE_SOUND = "editors/character/ghostEnable";
+
 	public static var DEFAULT_GLSL_VERSION:String = "120";
 	@:also(funkin.backend.utils.HttpUtil.userAgent)
 	public static var USER_AGENT:String = 'request';

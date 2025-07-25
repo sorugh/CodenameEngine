@@ -731,7 +731,7 @@ class StageEditor extends UIState {
 	}
 
 	function _edit_undo(_) {
-		FlxG.sound.play(Paths.sound('editors/undo'));
+		FlxG.sound.play(Flags.DEFAULT_EDITOR_UNDO_SOUND);
 		var undo = undos.undo();
 		switch(undo) {
 			case null:
@@ -757,7 +757,7 @@ class StageEditor extends UIState {
 	}
 
 	function _edit_redo(_) {
-		FlxG.sound.play(Paths.sound('editors/redo'));
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_REDO_SOUND));
 		var redo = undos.redo();
 		switch(redo) {
 			case null:

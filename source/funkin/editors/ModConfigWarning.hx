@@ -26,7 +26,6 @@ MOD_DOWNLOAD_LINK="YOUR MOD PAGE LINK HERE"
 ;MOD_ICON="path/to/icon.ico"
 
 [Flags]
-DISABLE_BETA_WARNING_SCREEN=true
 DISABLE_WARNING_SCREEN=true
 # Set this to false if you want to bring back the warning state (prior to 1.0.0)
 # NOTE: Beta warning state has been renamed from BetaWarningState.hx to WarningState.hx

@@ -49,9 +49,17 @@ class DebugOptionsScreen extends OptionsScreen {
 			getDesc("editorSFX"),
 			"editorSFX"));
 		add(new Checkbox(
-			getName("editorPrettyPrint"),
-			getDesc("editorPrettyPrint"),
-			"editorPrettyPrint"));
+			getName("editorCharterPrettyPrint"),
+			getDesc("editorCharterPrettyPrint"),
+			"editorCharterPrettyPrint"));
+		add(new Checkbox(
+			getName("editorCharacterPrettyPrint"),
+			getDesc("editorCharacterPrettyPrint"),
+			"editorCharacterPrettyPrint"));
+		add(new Checkbox(
+			getName("editorStagePrettyPrint"),
+			getDesc("editorStagePrettyPrint"),
+			"editorStagePrettyPrint"));
 		add(new Checkbox(
 			getName("intensiveBlur"),
 			getDesc("intensiveBlur"),

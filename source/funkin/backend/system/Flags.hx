@@ -26,9 +26,9 @@ class Flags {
 	public static var MOD_DOWNLOAD_LINK:String  = "";
 	public static var MOD_DEPENDENCIES:Array<String> = [];
 
-	public static var MOD_ICON64:String = "";
-	public static var MOD_ICON32:String = "";
-	public static var MOD_ICON16:String = "";
+	@:noCompletion public static var MOD_ICON64:String = "";
+	@:noCompletion public static var MOD_ICON32:String = "";
+	@:noCompletion public static var MOD_ICON16:String = "";
 	public static var MOD_ICON:String = "";
 
 	public static var MOD_DISCORD_CLIENT_ID:String = "";

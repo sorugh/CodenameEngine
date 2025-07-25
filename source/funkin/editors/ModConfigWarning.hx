@@ -13,6 +13,8 @@ class ModConfigWarning extends UIState {
 '[Common]
 MOD_NAME="YOUR MOD NAME HERE"
 MOD_DESCRIPTION="YOUR MOD DESCRIPTION HERE"
+MOD_AUTHOR="YOU/YOUR TEAM HERE"
+MOD_VERSION="YOUR MOD\'S VERSION HERE"
 
 # DO NOT EDIT!! this is used to check for version compatibility!
 MOD_API_VERSION=1
@@ -23,7 +25,7 @@ MOD_DOWNLOAD_LINK="YOUR MOD PAGE LINK HERE"
 ;MOD_ICON64="path/to/icon64.png"
 ;MOD_ICON32="path/to/icon32.png"
 ;MOD_ICON16="path/to/icon16.png"
-;MOD_ICON="path/to/icon.ico"
+MOD_ICON="path/to/icon.png"
 
 [Flags]
 DISABLE_WARNING_SCREEN=true

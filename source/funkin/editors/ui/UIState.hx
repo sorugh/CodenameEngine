@@ -147,6 +147,7 @@ class UIState extends MusicBeatState {
 	}
 
 	public function closeCurrentContextMenu() {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_WINDOWCLOSE_SOUND));
 		if(curContextMenu != null) {
 			curContextMenu.close();
 			curContextMenu = null;

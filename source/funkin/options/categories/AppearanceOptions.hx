@@ -1,8 +1,10 @@
 package funkin.options.categories;
 
-class AppearanceOptions extends OptionsScreen {
-	public override function new(title:String, desc:String) {
-		super(title, desc, "AppearanceOptions.");
+class AppearanceOptions extends TreeMenuScreen {
+	public override function new() {
+		super('optionsTree.appearance-name', 'optionsTree.appearance-desc', "AppearanceOptions.");
+
+		/*
 		add(new NumOption(
 			getName("framerate"),
 			getDesc("framerate"),
@@ -43,13 +45,12 @@ class AppearanceOptions extends OptionsScreen {
 				"gpuOnlyBitmaps"));
 		}
 		#end
+		*/
 	}
 
-	private function __changeFPS(change:Float) {
-		// if statement cause of the flixel warning
-		if(FlxG.updateFramerate < Std.int(change))
-			FlxG.drawFramerate = FlxG.updateFramerate = Std.int(change);
-		else
-			FlxG.updateFramerate = FlxG.drawFramerate = Std.int(change);
+	private function __changeFPS(value:Float) {
+		var framerate = Math.floor(value);
+		if (FlxG.updateFramerate < framerate) FlxG.drawFramerate = FlxG.updateFramerate = framerate;
+		else FlxG.updateFramerate = FlxG.drawFramerate = framerate;
 	}
 }

@@ -209,7 +209,8 @@ class Options
 		applyKeybinds();
 		FlxG.game.stage.quality = (FlxG.enableAntialiasing = antialiasing) ? LOW : BEST;
 		FlxG.autoPause = autoPause;
-		FlxG.drawFramerate = FlxG.updateFramerate = framerate;
+		if (FlxG.updateFramerate < framerate) FlxG.drawFramerate = FlxG.updateFramerate = framerate;
+		else FlxG.updateFramerate = FlxG.drawFramerate = framerate;
 	}
 
 	public static function applyKeybinds() {

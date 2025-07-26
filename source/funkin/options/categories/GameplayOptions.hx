@@ -30,13 +30,13 @@ class GameplayOptions extends OptionsScreen {
 			getName("autoPause"),
 			getDesc("autoPause"),
 			"autoPause"));
-		add(new MeterOption(
+		/*add(new MeterOption(
 			getName("volumeSFX"),
 			getDesc("volumeSFX"),
 			0, // minimum
 			1, // maximum
 			0.1, // change
-			"volumeSFX"));
+			"volumeSFX"));*/
 		add(offsetSetting = new NumOption(
 			getName("songOffset"),
 			getDesc("songOffset"),

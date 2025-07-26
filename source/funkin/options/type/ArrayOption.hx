@@ -1,88 +1,57 @@
 package funkin.options.type;
 
-/**
- * Option type that allows you to select an array of options.
-**/
 class ArrayOption extends OptionType {
 	public var selectCallback:String->Void;
 
-	private var __text:Alphabet;
-	private var __selectiontext:Alphabet;
-
 	public var options:Array<Dynamic>;
 	public var displayOptions:Array<String>;
-
 	public var currentSelection:Int;
 
-	var optionName:String;
-
 	public var parent:Dynamic;
+	public var optionName:String;
 
-	private var rawText(default, set):String;
+	var __text:Alphabet;
+	var __selectionText:Alphabet;
 
-	public var text(get, set):String;
-	private function get_text() {return __text.text;}
-	private function set_text(v:String) {return __text.text = v;}
-
-	public function new(text:String, desc:String, options:Array<Dynamic>, displayOptions:Array<String>, optionName:String, ?selectCallback:String->Void = null, ?parent:Dynamic) {
-		super(desc);
+	public function new(text:String, desc:String, options:Array<Dynamic>, displayOptions:Array<String>, ?optionName:String, ?selectCallback:String->Void = null, ?parent:Dynamic) {
+		super(text, desc);
 		this.selectCallback = selectCallback;
 		this.displayOptions = displayOptions;
 		this.options = options;
-		if (parent == null)
-			parent = Options;
-
-		this.parent = parent;
-
-		var fieldValue = Reflect.field(parent, optionName);
-		if(fieldValue != null)
-			this.currentSelection = CoolUtil.maxInt(0, options.indexOf(fieldValue));
-
+		this.parent = parent = parent != null ? parent : Options;
 		this.optionName = optionName;
 
-		add(__text = new Alphabet(100, 20, text, "bold"));
-		add(__selectiontext = new Alphabet(__text.width + 120, 20, formatTextOption(), "normal"));
+		var fieldValue = Reflect.field(parent, optionName);
+		if (fieldValue != null) currentSelection = CoolUtil.maxInt(0, options.indexOf(fieldValue));
 
-		rawText = text;
+		add(__text = new Alphabet(20, 0, text, 'bold'));
+		add(__selectionText = new Alphabet(__text.x + __text.width + 12, 0, formatTextOption(), 'bold'));
 	}
 
 	override function reloadStrings() {
 		super.reloadStrings();
-		this.rawText = rawText;
-	}
-
-	function set_rawText(v:String) {
-		rawText = v;
-		__text.text = TU.exists(rawText) ? TU.translate(rawText) : rawText;
-		return v;
-	}
-
-	public override function draw() {
-		super.draw();
-	}
-
-	public override function onChangeSelection(change:Float):Void
-	{
-		if(currentSelection <= 0 && change == -1 || currentSelection >= options.length - 1 && change == 1) return;
-		currentSelection += Math.round(change);
+		__selectiontext.x = __text.x + __text.width + 12;
 		__selectiontext.text = formatTextOption();
-		Reflect.setField(parent, optionName, options[currentSelection]);
-		if(selectCallback != null)
-			selectCallback(options[currentSelection]);
 	}
 
-	private function formatTextOption() {
-		var currentOptionString = ": ";
-		if((currentSelection > 0))
-			currentOptionString += "< ";
-		else
-			currentOptionString += "  ";
+	override function changeSelection(change:Int) {
+		currentSelection = FlxMath.wrap(currentSelection + change, 0, options.length - 1);
+		__selectionText.text = formatTextOption();
+		CoolUtil.playMenuSFX(SCROLL);
 
-		currentOptionString += displayOptions[currentSelection];
+		if (selectCallback != null) selectCallback(options[currentSelection]);
+	}
 
-		if(!(currentSelection >= options.length - 1))
-			currentOptionString += " >";
+	function formatTextOption() {
+		var s = ": ";
 
-		return currentOptionString;
+		if (currentSelection > 0) s += "< ";
+		else s += "  ";
+
+		s += TU.exists(displayOptions[currentSelection]) ? TU.translate(displayOptions[currentSelection]) : displayOptions[currentSelection];
+
+		if (currentSelection < options.length - 1) s += " >";
+
+		return s;
 	}
 }

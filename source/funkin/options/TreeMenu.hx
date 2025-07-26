@@ -1,148 +1,269 @@
 package funkin.options;
 
-import flixel.FlxState;
-import flixel.tweens.FlxTween;
-import flixel.util.typeLimit.OneOfTwo;
-import flixel.util.typeLimit.OneOfThree;
-import funkin.backend.FunkinText;
-import funkin.editors.ui.UIState;
-import funkin.menus.MainMenuState;
-import funkin.options.type.OptionType;
-import funkin.options.type.TextOption;
+import flixel.util.FlxSignal;
 import funkin.backend.system.framerate.Framerate;
+import funkin.editors.ui.UIState;
+
+interface ITreeOption {
+	var desc:String;
+	var selected:Bool;
+
+	function changeSelection(change:Int);
+	function select():Void;
+}
 
 class TreeMenu extends UIState {
-	public var main:OptionsScreen;
-	public var optionsTree:OptionsTree;
-	public var pathLabel:FunkinText;
-	public var pathDesc:FunkinText;
-	public var pathBG:FlxSprite;
+	public var onMenuClosed:FlxTypedSignal<TreeMenuScreen->Void> = new FlxTypedSignal();
+	public var onMenuChanged:FlxTypedSignal<TreeMenuScreen->Void> = new FlxTypedSignal();
 
-	public var screenScroll(default, set):Float;
-	private inline function set_screenScroll(val:Float) {
-		FlxG.camera.scroll.x = val * FlxG.camera.width;
-		return screenScroll = val;
-	}
+	public var tree(default, null):Array<TreeMenuScreen>;
+	public var length(default, null):Int = 0;
+	public var lastMenu:Null<TreeMenuScreen>;
+	public var destroyMenus:Bool = true;
 
-	public static var lastState:Class<FlxState> = null;  // Static for fixing the softlock bugs when resetting the state  - Nex
+	public var exitCallback:TreeMenu->Void;
 
-	public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
-		if (lastState == null) lastState = Type.getClass(FlxG.state);
+	public var titleLabel:FunkinText;
+	public var descLabel:FunkinText;
+	public var bgLabel:FlxSprite;
+
+	var menuChangeTween:FlxTween;
+	var _drawer:TreeMenuDrawer;
+
+	public function new(exitCallback:TreeMenu->Void,
+		scriptsAllowed:Bool = true, ?scriptName:String)
+	{
 		super(scriptsAllowed, scriptName);
+		this.exitCallback = exitCallback;
 	}
 
-	public override function createPost() {
-		if (main == null) main = new OptionsScreen("Fallback Treemenu", "Please set the \"main\" variable in your extended class before createPost", [new TextOption("Oops! No Options", "This doesn't look like it was supposed to happen...", () -> FlxG.resetState() ) ]);
+	override function create() {
+		super.create();
 
-		screenScroll = -1;
+		bgLabel = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
+		bgLabel.alpha = 0.25;
+		bgLabel.scrollFactor.set();
 
-		pathLabel = new FunkinText(4, 4, FlxG.width - 8, "> Tree Menu", 32, true);
-		pathLabel.borderSize = 1.25;
-		pathLabel.scrollFactor.set();
+		titleLabel = new FunkinText(4, 4, FlxG.camera.width - 8, 32);
+		titleLabel.borderSize = 1.25;
+		titleLabel.scrollFactor.set();
 
-		pathDesc = new FunkinText(4, pathLabel.y + pathLabel.height + 2, FlxG.width - 8, "Current Tree Menu Description", 16, true);
-		pathDesc.scrollFactor.set();
+		descLabel = new FunkinText(4, 0, FlxG.camera.width - 8, 16);
+		descLabel.scrollFactor.set();
+	}
 
-		pathBG = new FlxSprite().makeGraphic(1, 1, 0xFF000000);
-		pathBG.scale.set(FlxG.width, pathDesc.y + pathDesc.height + 2);
-		pathBG.updateHitbox();
-		pathBG.alpha = 0.25;
-		pathBG.scrollFactor.set();
-
-		optionsTree = new OptionsTree();
-		optionsTree.onMenuChange = onMenuChange;
-		optionsTree.onMenuClose = onMenuClose;
-		optionsTree.treeParent = this;
-		optionsTree.add(main);
-
-
-		add(optionsTree);
-		add(pathBG);
-		add(pathLabel);
-		add(pathDesc);
-
-
+	override function createPost() {
 		super.createPost();
+
+		if ((length = tree.length) != 0) {
+			updateMenuPositions(true);
+			tree.last().inputEnabled = true;
+		}
+		else
+			add(new TreeMenuScreen("Fallback TreeMenuScreen", "Please insert menus into \"tree\" variable in your extended class in create or before createPost"));
+
+		add(_drawer = new TreeMenuDrawer(this));
+		add(bgLabel);
+		add(titleLabel);
+		add(descLabel);
+		updateLabels();
 	}
 
-	public function onMenuChange() {
-		if (optionsTree.members.length <= 0) {
-			exit();
-		} else {
-			if (menuChangeTween != null)
-				menuChangeTween.cancel();
+	public function updateMenuPositions(fromIndex:Int = 0, cameraScroll = false) {
+		var last = tree[position - 1], menu:TreeMenuScreen;
+		while (fromIndex < length) if ((menu = tree[fromIndex++]) != null) {
+			menu.x = last == null ? 0 : last.x + Math.max(FlxG.camera.width, last.width);
+			last = menu;
+		}
 
-			menuChangeTween = FlxTween.num(screenScroll, Math.max(0, (optionsTree.members.length-1)), 1.5, {ease: menuTransitionEase, onComplete: function(t) {
-				optionsTree.clearLastMenu();
-				menuChangeTween = null;
-			}}, (val:Float) -> screenScroll = val);
+		if (menuChangeTween != null && menuChangeTween.active) menuChangeTween.cancel();
+		if (cameraScroll) FlxG.camera.scroll.x = lastMenu.x;
+	}
 
-			reloadLabels();
+	public function updateLabels() {
+		var s = "", last = tree.last();
+		for (menu in tree) if (menu != null) s += menu.name + " > ";
+
+		titleLabel.text = s;
+		descLabel.y = titleLabel.y + titleLabel.height + 2;
+
+		updateDesc();
+	}
+
+	public function updateDesc(?customText:String) {
+		var last = tree.last();
+
+		descLabel.text = last.desc;
+		if (customText != null && customText.length > 0) descLabel.text += "\n" + customText;
+		else if (last.curSelected >= 0 && last.curSelected < last.length && last.members[last.curSelected] is ITreeOption)
+			descLabel.text += "\n" + (cast last.members[last.curSelected]:ITreeOption).desc;
+
+		bgLabel.scale.set(FLxG.width, descLabel.y + descLabel.height + 2);
+		bgLabel.updateHitbox();
+
+		Framerate.offset.y = bgLabel.height + 2;
+	}
+
+	public function add(menu:TreeMenuScreen):TreeMenuScreen {
+		if (menu == null) return null;
+		if (tree.indexOf(menu) != -1) return menu;
+
+		tree.push(menu);
+		menu.parent = this;
+		length++;
+
+		var prev = tree[length - 1];
+		menu.x = prev == null ? 0 : prev.x + Math.max(FlxG.camera.width, prev.width);
+
+		menuChanged();
+		menu.inputEnabled = true;
+		prev.inputEnabled = false;
+
+		return menu;
+	}
+
+	public function insert(position:Int, menu:TreeMenuScreen):TreeMenuScreen {
+		if (menu == null) return null;
+		if (tree.indexOf(menu) != -1) return menu;
+
+		if (position < 0) position = length - ((-position - 1) % length);
+		tree.insert(position, menu);
+		menu.parent = this;
+
+		var lastChanged = position >= length++;
+		updateMenuPositions(position, !lastChanged);
+
+		if (lastChanged) {
+			menuChanged();
+			menu.inputEnabled = true;
+			tree[length - 1].inputEnabled = false;
+		}
+
+		return menu;
+	}
+
+	public function pop():TreeMenuScreen {
+		(lastMenu = tree.pop(position)).parent = null;
+		length--;
+
+		menuChanged();
+		lastMenu.inputEnabled = false;
+		menu.inputEnabled = true;
+
+		return lastMenu;
+	}
+
+	public function remove(menu:TreeMenuScreen):TreeMenuScreen {
+		return if (menu == null) null; else removePosition(tree.indexOf(menu));
+	}
+
+	public function removePosition(position:Int):TreeMenuScreen {
+		if (position < 0 || position >= length) return null;
+
+		destroyLastMenu();
+		(lastMenu = tree.swapAndPop(position)).parent = null;
+
+		if (position == --length) {
+			menuChanged();
+			lastMenu.inputEnabled = false;
+			tree[length - 1].inputEnabled = true;
+		}
+		else {
+			updateMenuPositions(position, true);
+			updateLabels();
+		}
+
+		return lastMenu;
+	}
+
+	public function menuChanged() {
+		if (length == 0) exit();
+		else {
+			updateLabels();
+
+			if (menuChangeTween != null && menuChangeTween.active) menuChangeTween.cancel();
+
+			menuChangeTween = FlxTween.tween(FlxG.camera.scroll, {x: tree.last().x}, 1.5, {ease: menuTransitionEase, onComplete: (t) -> {
+				for (menu in tree) if (menu != null) menu.transitioning = false;
+				lastMenu.transitioning = false;
+			}});
+
+			for (menu in tree) if (menu != null) menu.transitioning = true;
+			lastMenu.transitioning = true;
 		}
 	}
 
-	public function onMenuClose(m:OptionsScreen) {
-		CoolUtil.playMenuSFX(CANCEL);
-	}
-
-	public function reloadLabels() {
-		var t = "";
-		for(o in optionsTree.members)
-			t += '${o.name} > ';
-		pathLabel.text = t;
-
-		var idk:OptionsScreen = optionsTree.members.last();
-		if (idk.members.length > 0) updateDesc(idk.members[idk.curSelected].desc);
-	}
-
-	public function updateDesc(moreTxt:String = '') {
-		pathDesc.text = optionsTree.members.last().desc;
-		if (moreTxt != null && moreTxt.length > 0) pathDesc.text += '\n' + moreTxt;
-		pathBG.scale.set(FlxG.width, pathDesc.y + pathDesc.height + 2);
-		pathBG.updateHitbox();
-	}
-
-	public function exit() {
-		FlxG.switchState((lastState != null) ? Type.createInstance(lastState, []) : new MainMenuState());
-		lastState = null;
-	}
-
-	var menuChangeTween:FlxTween;
-	public override function update(elapsed:Float) {
+	override function update(elapsed:Float) {
 		super.update(elapsed);
-		Framerate.offset.y = pathBG.height;
 
-		// in case path gets so long it goes offscreen
-		pathLabel.x = lerp(pathLabel.x, Math.max(0, FlxG.width - 4 - pathLabel.width), 0.125);
+		var i = 0, menu:TreeMenuScreen;
+		while (i < length) {
+			if ((menu = tree[i++]) == null || !menu.active || !menu.exists) continue;
+			if (i == length || menu.persistentUpdate || menu.transitioning) menu.update(elapsed);
+		}
+
+		if (lastMenu != null) {
+			if (lastMenu.transitioning) lastMenu.update(elapsed);
+			else destroyLastMenu();
+		}
+
+		// in case path gets so long it goes offscreen, ALTHOUGH this nevers happens anyway since we have set a expected width to the label.
+		//titleLabel.x = lerp(titleLabel.x, Math.max(0, FlxG.width - 4 - titleLabel.width), 0.125);
 	}
 
-	public override function onResize(width:Int, height:Int) {
+	override function destroy() {
+		super.destroy();
+		destroyLastMenu();
+	}
+
+	override function onResize(width:Int, height:Int) {
 		super.onResize(width, height);
 		if (!UIState.resolutionAware) return;
 
 		if (width < FlxG.initialWidth || height < FlxG.initialHeight) {
-			width = FlxG.initialWidth; height = FlxG.initialHeight;
+			width = FlxG.initialWidth;
+			height = FlxG.initialHeight;
 		}
 
-		screenScroll = screenScroll;  // Updating the cam position  - Nex
-
-		if (pathDesc != null && pathLabel != null)
-			pathDesc.width = pathLabel.width = width - 8;
+		updateMenuPositions(true);
+		descLabel.width = titleLabel.width = (bgLabel.width = width) - 8;
 	}
 
-	public static inline function menuTransitionEase(e:Float)
-		return FlxEase.quintInOut(FlxEase.cubeOut(e));
+	public function reloadStrings() {
+		for (menu in tree) if (menu != null) menu.reloadStrings();
+	}
+
+	public function destroyLastMenu() {
+		lastMenu = destroyMenus ? FlxDestroyUtil.destroy(lastMenu) : null;
+	}
+
+	public function exit() {
+		if (exitCallback != null) return exitCallback(this);
+
+		FlxG.switchState(new MainMenuState());
+	}
+
+	public function updateAll(elapsed:Float) {
+		for (menu in tree) if (menu != null && menu.active && menu.exists) menu.update(elapsed);
+	}
+
+	public dynamic function menuTransitionEase(e:Float) return FlxEase.quintInOut(FlxEase.cubeOut(e));
 }
 
-typedef OptionCategory = {
-	var name:String;
-	var desc:String;
-	var state:OneOfThree<OptionsScreen, Class<OptionsScreen>, (name:String, desc:String) -> OptionsScreen>;
-	var ?substate:OneOfThree<MusicBeatSubstate, Class<MusicBeatSubstate>, (name:String, desc:String) -> MusicBeatSubstate>;
-	var ?suffix:String;
-}
+final class TreeMenuDrawer extends FlxBasic {
+	public var parent:TreeMenu;
+	public function new(parent:TreeMenu) {
+		this.parent = parent;
+		moves = false;
+	}
 
-typedef OptionTypeDef = {
-	var type:Class<OptionType>;
-	var args:Array<Dynamic>;
+	override function draw() {
+		var i = 0, menu:TreeMenuScreen;
+		while (i < parent.length) {
+			if ((menu = parent.tree[i++]) == null || !menu.active || !menu.exists) continue;
+			if (i == length || menu.persistentUpdate || menu.transitioning) menu.update(elapsed);
+		}
+
+		if (parent.lastMenu != null) parent.lastMenu.draw();
+	}
 }

@@ -19,8 +19,8 @@ class Checkbox extends TextOption {
 		"checking" => FlxPoint.get(35, 29)
 	];
 
-	public function new(text:String, desc:String, optionName:String, ?selectCallback:Void->Void = null, ?parent:Dynamic) {
-		super(text, desc);
+	public function new(text:String, desc:String, optionName:String, ?selectCallback:Void->Void, ?parent:Dynamic) {
+		super(text, desc, selectCallback);
 		this.optionName = optionName;
 		this.parent = parent = parent != null ? parent : Options;
 
@@ -36,14 +36,13 @@ class Checkbox extends TextOption {
 
 		__text.x = 100;
 
-		var fieldValue = Reflect.field(parent, optionName);
 		if (optionName != null) checked = Reflect.field(parent, optionName);
 		else checked = false;
 	}
 
 	public var firstFrame:Bool = true;
 
-	public override function update(elapsed:Float) {
+	override function update(elapsed:Float) {
 		if (checkbox.animation.curAnim == null) checkbox.animation.play(checked ? "checked" : "unchecked", true);
 		super.update(elapsed);
 
@@ -64,15 +63,15 @@ class Checkbox extends TextOption {
 	}
 
 	function set_checked(v:Bool) {
-		if (checked != v) {
-			checked = v;
-			if (!firstFrame) checkbox.animation.play(checked ? "checking" : "unchecking", true);
-		}
+		if (checked == (checked = v)) return v;
+
+		if (!firstFrame) checkbox.animation.play(checked ? "checking" : "unchecking", true);
 		return v;
 	}
 
-	public override function select() {
+	override function select() {
 		if (locked) return;
+
 		checked = !checked;
 		if (optionName != null) Reflect.setField(parent, optionName, checked);
 
@@ -82,8 +81,8 @@ class Checkbox extends TextOption {
 		if (selectCallback != null) selectCallback();
 	}
 
-	public override function destroy() {
+	override function destroy() {
 		super.destroy();
-		for(e in offsets) e.put();
+		for (e in offsets) e.put();
 	}
 }

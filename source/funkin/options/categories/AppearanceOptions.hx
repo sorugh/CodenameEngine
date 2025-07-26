@@ -2,7 +2,7 @@ package funkin.options.categories;
 
 class AppearanceOptions extends TreeMenuScreen {
 	public function new() {
-		super('optionsTree.appearance-name', 'optionsTree.appearance-desc', "AppearanceOptions.");
+		super('optionsTree.appearance-name', 'optionsTree.appearance-desc', 'AppearanceOptions.');
 
 		add(new NumOption(getNameID('framerate'), getDescID('framerate'),
 			30, 240, 1,
@@ -35,7 +35,7 @@ class AppearanceOptions extends TreeMenuScreen {
 
 class AdvancedAppearanceOptions extends TreeMenuScreen {
 	public function new() {
-		super('optionsMenu.advanced', 'optionsTree.appearance.advanced-desc', "AppearanceOptions.Advanced.");
+		super('optionsMenu.advanced', 'optionsTree.appearance.advanced-desc', 'AppearanceOptions.Advanced.');
 
 		for (option in [
 			new Checkbox(getNameID('antialiasing'), getDescID('antialiasing'), 'antialiasing', __changeAntialiasing),

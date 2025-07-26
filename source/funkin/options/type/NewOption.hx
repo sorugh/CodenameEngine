@@ -12,6 +12,7 @@ class NewOption extends TextOption {
 		super(name, desc, callback);
 
 		__text.color = FlxColor.LIME;
+		__text.x = 100;
 
 		iconSpr = new FlxSprite().loadGraphic(Paths.image("editors/new"));
 		iconSpr.setPosition(90 - iconSpr.width, (__text.height - iconSpr.height) / 2);

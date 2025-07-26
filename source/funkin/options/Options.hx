@@ -45,6 +45,7 @@ class Options
 	public static var streamedMusic:Bool = true;
 	public static var streamedVocals:Bool = true;
 	public static var quality:Int = 1;
+	public static var allowConfigWarning:Bool = true;
 	#if MODCHARTING_FEATURES
 	public static var modchartingHoldSubdivisions:Int = 4;
 	#end

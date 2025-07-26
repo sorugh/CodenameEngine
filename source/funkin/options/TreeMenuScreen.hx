@@ -48,8 +48,8 @@ class TreeMenuScreen extends FlxSpriteGroup {
 	public var controls(get, never):Controls;
 	inline function get_controls():Controls return PlayerSettings.solo.controls;
 
-	var leftTurboControl:TurboControls = new TurboControls([Control.LEFT], 0.2, 1 / 30);
-	var rightTurboControl:TurboControls = new TurboControls([Control.RIGHT], 0.2, 1 / 30);
+	var leftTurboControl:TurboControls = new TurboControls([Control.LEFT], 0.2, 1 / 48);
+	var rightTurboControl:TurboControls = new TurboControls([Control.RIGHT], 0.2, 1 / 48);
 	var upTurboControl:TurboControls = new TurboControls([Control.UP]);
 	var downTurboControl:TurboControls = new TurboControls([Control.DOWN]);
 	var turboBasics:Array<TurboBasic>;
@@ -125,6 +125,8 @@ class TreeMenuScreen extends FlxSpriteGroup {
 
 	public function close() {
 		onClose.dispatch();
+
+		if (curOption != null) curOption.selected = false;
 
 		if (parent == null) return destroy();
 		else parent.removeMenu(this);

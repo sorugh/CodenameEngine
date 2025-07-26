@@ -89,6 +89,9 @@ class TreeMenu extends UIState {
 		if (cameraScroll && last != null) {
 			if (menuChangeTween != null && menuChangeTween.active) menuChangeTween.cancel();
 			FlxG.camera.scroll.x = last.x;
+
+			for (menu in tree) if (menu != null) menu.transitioning = false;
+			for (menu in previousMenus) if (menu != null) menu.transitioning = false;
 		}
 	}
 
@@ -203,8 +206,9 @@ class TreeMenu extends UIState {
 			}});
 
 			for (menu in tree) if (menu != null) menu.transitioning = true;
-			for (menu in previousMenus) if (menu != null) menu.transitioning = true;
 		}
+
+		for (menu in previousMenus) if (menu != null) menu.transitioning = true;
 	}
 
 	override function update(elapsed:Float) {
@@ -250,6 +254,7 @@ class TreeMenu extends UIState {
 
 	public function reloadStrings() {
 		for (menu in tree) if (menu != null) menu.reloadStrings();
+		updateLabels();
 	}
 
 	public function destroyPreviousMenus() {

@@ -408,7 +408,7 @@ final class CoolUtil
 	 * @return FPS-Modified Ratio
 	 */
 	@:noUsing public static inline function getFPSRatio(ratio:Float):Float {
-		return CoolUtil.bound(ratio * 60 * FlxG.elapsed, 0.0, 1.0);
+		return 1.0 - Math.pow(1.0 - ratio, FlxG.elapsed * 60);
 	}
 	/**
 	 * Tries to get a color from a `Dynamic` variable.

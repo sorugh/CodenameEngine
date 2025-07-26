@@ -106,7 +106,7 @@ class UIState extends MusicBeatState {
 		}
 
 		if (FlxG.mouse.justPressed) {
-			FlxG.sound.play(Paths.sound('editors/click'));
+			FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_CLICK_SOUND));
 		}
 
 		if (FlxG.mouse.justReleased)
@@ -147,6 +147,7 @@ class UIState extends MusicBeatState {
 	}
 
 	public function closeCurrentContextMenu() {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_WINDOWCLOSE_SOUND));
 		if(curContextMenu != null) {
 			curContextMenu.close();
 			curContextMenu = null;
@@ -154,7 +155,7 @@ class UIState extends MusicBeatState {
 	}
 
 	public function openContextMenu(options:Array<UIContextMenuOption>, ?callback:UIContextMenuCallback, ?x:Float, ?y:Float, ?w:Int) {
-		FlxG.sound.play(Paths.sound('editors/windowAppear'));
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_WINDOWAPPEAR_SOUND));
 		var state = FlxG.state;
 		while(state.subState != null && !(state._requestSubStateReset && state._requestedSubState == null))
 			state = state.subState;

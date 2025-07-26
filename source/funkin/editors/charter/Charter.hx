@@ -210,7 +210,7 @@ class Charter extends UIState {
 					{
 						label: translate("edit.copy"),
 						keybind: [CONTROL, C],
-						onSelect: _edit_copy
+						onSelect: cast _edit_copy
 					},
 					{
 						label: translate("edit.paste"),
@@ -408,8 +408,8 @@ class Charter extends UIState {
 			}
 		];
 
-		hitsound = FlxG.sound.load(Paths.sound('editors/charter/hitsound'));
-		metronome = FlxG.sound.load(Paths.sound('editors/charter/metronome'));
+		hitsound = FlxG.sound.load(Paths.sound(Flags.DEFAULT_CHARTER_HITSOUND_SOUND));
+		metronome = FlxG.sound.load(Paths.sound(Flags.DEFAULT_CHARTER_METRONOME_SOUND));
 
 		charterCamera = FlxG.camera;
 		uiCamera = new FlxCamera();
@@ -511,6 +511,7 @@ class Charter extends UIState {
 
 		strumlineLockButton = new CharterStrumlineButton("editors/charter/lock-strumline", translate("lock-unlock"));
 		strumlineLockButton.onClick = function () {
+			FlxG.sound.play(Paths.sound(!strumLines.draggable ? Flags.DEFAULT_CHARTER_STRUMUNLOCK_SOUND : Flags.DEFAULT_CHARTER_STRUMLOCK_SOUND));
 			if (strumLines != null) {
 				strumLines.draggable = !strumLines.draggable;
 				strumlineLockButton.textTweenColor.color = strumLines.draggable ? 0xFF5C95CA : 0xFFE16565;
@@ -950,7 +951,7 @@ class Charter extends UIState {
 							notesGroup.add(note);
 							selection = [note];
 							undos.addToUndo(CCreateSelection([note]));
-							FlxG.sound.play(Paths.sound('editors/charter/notePlace'));
+							FlxG.sound.play(Paths.sound(Flags.DEFAULT_CHARTER_NOTEPLACE_SOUND));
 						}
 						isSelecting = false;
 					}
@@ -1079,6 +1080,7 @@ class Charter extends UIState {
 		if (selected == null) return selected;
 
 		if (selected is CharterNote) {
+			FlxG.sound.play(Paths.sound(Flags.DEFAULT_CHARTER_NOTEDELETE_SOUND));
 			var note:CharterNote = cast selected;
 			note.strumLineID = strumLines.members.indexOf(note.strumLine);
 			note.strumLine = null; // For static undos :D
@@ -1472,6 +1474,7 @@ class Charter extends UIState {
 
 	public static function saveChart(shouldBuild:Bool = true, withEvents:Bool = true) {
 		#if sys
+		FlxG.sound.play(Paths.sound('editors/save'));
 		saveTo('${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}', !withEvents, shouldBuild);
 		if (undos != null) undos.save();
 		#else
@@ -1488,6 +1491,7 @@ class Charter extends UIState {
 
 	public static function saveEvents(shouldBuild:Bool = true) {
 		#if sys
+		FlxG.sound.play(Paths.sound('editors/save'));
 		if (shouldBuild && instance != null) instance.buildChart();
 		var data = {events: Chart.filterChartForSaving(PlayState.SONG, false, false, true).events};
 
@@ -1510,6 +1514,7 @@ class Charter extends UIState {
 
 	public static function saveMeta(shouldBuild:Bool = true) {
 		#if sys
+		FlxG.sound.play(Paths.sound('editors/save'));
 		if (shouldBuild && instance != null) instance.buildChart();
 		CoolUtil.safeSaveFile(
 			'${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}/meta.json',
@@ -1575,7 +1580,8 @@ class Charter extends UIState {
 	function _file_saveas_fnflegacy(_) saveLegacyChartAs();
 	function _file_saveas_psych(_) savePsychChartAs();
 
-	function _edit_copy(_) {
+	function _edit_copy(_, playSFX=true) {
+		if (playSFX) FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_COPY_SOUND));
 		if(selection.length == 0) return;
 
 		var minStep:Float = selection[0].step;
@@ -1594,6 +1600,7 @@ class Charter extends UIState {
 		];
 	}
 	function _edit_paste(_) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_PASTE_SOUND));
 		if (clipboard.length <= 0) return;
 
 		var minStep = curStep;
@@ -1613,7 +1620,7 @@ class Charter extends UIState {
 			}
 		}
 		selection = sObjects;
-		_edit_copy(_); // to fix stupid bugs
+		_edit_copy(_, false); // to fix stupid bugs
 
 		checkSelectionForBPMUpdates();
 
@@ -1621,13 +1628,15 @@ class Charter extends UIState {
 	}
 
 	function _edit_cut(_) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_CUT_SOUND));
 		if (selection == null || selection.length == 0) return;
 
-		_edit_copy(_);
+		_edit_copy(_, false);
 		deleteSelection(selection, false);
 	}
 
 	function _edit_delete(_) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_DELETE_SOUND));
 		if (selection == null || selection.length == 0) return;
 		selection.loop((n:CharterNote) -> {
 			noteDeleteAnims.deleteNotes.push({note: n, time: noteDeleteAnims.deleteTime});
@@ -1636,6 +1645,7 @@ class Charter extends UIState {
 	}
 
 	function _undo(undo:CharterChange) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_UNDO_SOUND));
 		switch(undo) {
 			case null: // do nothing
 			case CDeleteStrumLine(strumLineID, strumLine):
@@ -1696,6 +1706,7 @@ class Charter extends UIState {
 	}
 
 	function _redo(redo:CharterChange) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_REDO_SOUND));
 		switch(redo) {
 			case null: // do nothing
 			case CDeleteStrumLine(strumLineID, strumLine):
@@ -2040,8 +2051,8 @@ class Charter extends UIState {
 	inline function _snap_decreasesnap(_) changequant(-1);
 	inline function _snap_resetsnap(_) setquant(16);
 
-	inline function changequant(change:Int) {quant = quants[FlxMath.wrap(quants.indexOf(quant) + change, 0, quants.length-1)]; buildSnapsUI();};
-	inline function setquant(newQuant:Int) {quant = newQuant; buildSnapsUI();}
+	inline function changequant(change:Int) {FlxG.sound.play(Paths.sound(Flags.DEFAULT_CHARTER_SNAPPINGCHANGE_SOUND)); quant = quants[FlxMath.wrap(quants.indexOf(quant) + change, 0, quants.length-1)]; buildSnapsUI();};
+	inline function setquant(newQuant:Int) {FlxG.sound.play(Paths.sound(Flags.DEFAULT_CHARTER_SNAPPINGCHANGE_SOUND)); quant = newQuant; buildSnapsUI();}
 
 	function buildSnapsUI():Array<UIContextMenuOption> {
 		var snapsTopButton:UITopMenuButton = topMenuSpr == null ? null : cast topMenuSpr.members[snapIndex];
@@ -2077,12 +2088,12 @@ class Charter extends UIState {
 	}
 
 	inline function _note_addsustain(t) {
-		FlxG.sound.play(Paths.sound('editors/charter/sustainAdd'));
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_CHARTER_SUSTAINADD_SOUND));
 		changeNoteSustain(1);
 	}
 
 	inline function _note_subtractsustain(t) {
-		FlxG.sound.play(Paths.sound('editors/charter/sustainDelete'));
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_CHARTER_SUSTAINDELETE_SOUND));
 		changeNoteSustain(-1);
 	}
 

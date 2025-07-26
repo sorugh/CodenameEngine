@@ -508,6 +508,7 @@ class StageEditor extends UIState {
 
 	function _file_save(_) {
 		#if sys
+		FlxG.sound.play(Paths.sound('editors/save'));
 		CoolUtil.safeSaveFile(
 			'${Paths.getAssetsRoot()}/data/stages/${__stage}.xml',
 			buildStage()
@@ -519,6 +520,7 @@ class StageEditor extends UIState {
 	}
 
 	function _file_saveas(_) {
+		FlxG.sound.play(Paths.sound('editors/save'));
 		openSubState(new SaveSubstate(buildStage(), {
 			defaultSaveFile: '${__stage}.xml'
 		}));
@@ -729,6 +731,7 @@ class StageEditor extends UIState {
 	}
 
 	function _edit_undo(_) {
+		FlxG.sound.play(Flags.DEFAULT_EDITOR_UNDO_SOUND);
 		var undo = undos.undo();
 		switch(undo) {
 			case null:
@@ -754,6 +757,7 @@ class StageEditor extends UIState {
 	}
 
 	function _edit_redo(_) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_REDO_SOUND));
 		var redo = undos.redo();
 		switch(redo) {
 			case null:

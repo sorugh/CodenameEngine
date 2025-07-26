@@ -453,6 +453,7 @@ class CharacterEditor extends UIState {
 
 	function _file_save(_) {
 		#if sys
+		FlxG.sound.play(Paths.sound('editors/save'));
 		CoolUtil.safeSaveFile(
 			'${Paths.getAssetsRoot()}/data/characters/${character.curCharacter}.xml',
 			buildCharacter()
@@ -464,6 +465,7 @@ class CharacterEditor extends UIState {
 	}
 
 	function _file_saveas(_) {
+		FlxG.sound.play(Paths.sound('editors/save'));
 		openSubState(new SaveSubstate(buildCharacter(), {
 			defaultSaveFile: '${character.curCharacter}.xml'
 		}));
@@ -497,6 +499,7 @@ class CharacterEditor extends UIState {
 	}
 	
 	function _undo(undo:CharacterEditorChange) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_UNDO_SOUND));
 		switch (undo) {
 			case null: // do nothing
 			case CCharEditPosition(oldPos, newPos):
@@ -567,6 +570,7 @@ class CharacterEditor extends UIState {
 	}
 
 	function _redo(redo:CharacterEditorChange) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_REDO_SOUND));
 		switch (redo) {
 			case null: // do nothing
 			case CCharEditPosition(oldPos, newPos):

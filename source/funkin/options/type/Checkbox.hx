@@ -37,7 +37,7 @@ class Checkbox extends TextOption {
 		__text.x = 100;
 
 		var fieldValue = Reflect.field(parent, optionName);
-		checked = fieldValue != null && fieldValue;
+		checked = fieldValue != null ? fieldValue : false;
 	}
 
 	public var firstFrame:Bool = true;

@@ -32,7 +32,7 @@ class NumOption extends TextOption {
 		this.parent = parent = parent != null ? parent : Options;
 
 		var fieldValue = Reflect.field(parent, optionName);
-		if (fieldValue != null) currentSelection = fieldValue;
+		currentSelection = fieldValue != null ? fieldValue : 0;
 	
 		__number = new Alphabet(0, 20, ': $currentSelection', 'bold');
 		super(text, desc);

@@ -52,8 +52,7 @@ class ArrayOption extends TextOption {
 	}
 
 	override function changeSelection(change:Int) {
-		if (locked) return;
-		currentSelection = FlxMath.wrap(currentSelection + change, 0, options.length - 1);
+		if (locked || currentSelection == (currentSelection = CoolUtil.boundInt(currentSelection + change, 0, options.length - 1))) return;
 		__selectionText.text = formatTextOption();
 		CoolUtil.playMenuSFX(SCROLL);
 

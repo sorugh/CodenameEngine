@@ -106,7 +106,7 @@ class TurboButtons extends TurboBasic {
 	public function new(inputs:Array<FlxGamepadInputID>, ?gamepad:FlxGamepad, ?delay:Float, ?interval:Float, ?allPress:Bool) {
 		super(delay, interval, allPress);
 		this.inputs = inputs;
-		this.gamepad = gamepad ?? FlxG.gamepads.firstActive;
+		this.gamepad = gamepad != null ? gamepad : FlxG.gamepads.firstActive;
 	}
 
 	override function get_pressed() {

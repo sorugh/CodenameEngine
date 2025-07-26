@@ -39,8 +39,6 @@ Putting this txt in here so others can edit and commit this to suggest or add mi
 - Selecting Notes (via `CTRL + Drag` or `CTRL + A`) []
 - Hitsounds [x]
 - Metronome []
-- Creating an Event []
-- Pulling up Event Editing menu []
 - Scrolling Up/Down (via `Scroll Wheel` or `W/S`) [x]
 - Note Snapping Change [x]
 - Locking Strums [x]

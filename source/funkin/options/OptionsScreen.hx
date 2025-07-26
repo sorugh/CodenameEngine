@@ -1,3 +1,5 @@
+// REMOVE THIS WHEN COMPLETE
+
 package funkin.options;
 
 import funkin.options.type.OptionType;
@@ -92,13 +94,13 @@ class OptionsScreen extends FlxTypedSpriteGroup<OptionType> {
 		if (members.length > 0) {
 			members[curSelected].selected = true;
 			if (controls.ACCEPT || (FlxG.mouse.justReleased && Main.timeSinceFocus > 0.25)) {
-				members[curSelected].onSelect();
+				members[curSelected].select();
 				onSelect(members[curSelected]);
 			}
 			if (controls.LEFT_P)
-				members[curSelected].onChangeSelection(-1);
+				members[curSelected].changeSelection(-1);
 			if (controls.RIGHT_P)
-				members[curSelected].onChangeSelection(1);
+				members[curSelected].changeSelection(1);
 		}
 		if (controls.BACK || FlxG.mouse.justReleasedRight)
 			close();

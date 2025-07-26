@@ -33,7 +33,7 @@ class LanguageRadio extends RadioButton {
 	}
 }
 
-class LanguageOptions extends OptionsScreen {
+class LanguageOptions extends TreeMenuScreen {
 	public override function new(title:String, desc:String) {
 		super(title, desc, "LanguageOptions.");
 

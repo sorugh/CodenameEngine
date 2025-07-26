@@ -6,7 +6,7 @@ import flixel.tweens.FlxTween;
 import funkin.backend.FunkinText;
 import funkin.backend.scripting.events.menu.MenuChangeEvent;
 import funkin.backend.scripting.events.NameEvent;
-import funkin.menus.credits.CreditsMain;
+//import funkin.menus.credits.CreditsMain;
 import funkin.options.OptionsMenu;
 import lime.app.Application;
 
@@ -168,7 +168,7 @@ class MainMenuState extends MusicBeatState
 			{
 				case 'story mode': FlxG.switchState(new StoryMenuState());
 				case 'freeplay': FlxG.switchState(new FreeplayState());
-				case 'donate', 'credits': FlxG.switchState(new CreditsMain());  // kept donate for not breaking scripts, if you don't want donate to bring you to the credits menu, thats easy softcodable  - Nex
+				//case 'donate', 'credits': FlxG.switchState(new CreditsMain());  // kept donate for not breaking scripts, if you don't want donate to bring you to the credits menu, thats easy softcodable  - Nex
 				case 'options': FlxG.switchState(new OptionsMenu());
 			}
 		});

@@ -101,7 +101,9 @@ class RadioButton extends TextOption {
 		return v;
 	}
 
-	public override function onSelect() {
+	public override function select() {
+		if (locked) return;
+
 		checked = true;
 		if(checked) {
 			onSet(value);

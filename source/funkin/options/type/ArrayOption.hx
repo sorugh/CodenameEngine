@@ -1,7 +1,7 @@
 package funkin.options.type;
 
-class ArrayOption extends OptionType {
-	public var selectCallback:String->Void;
+class ArrayOption extends TextOption {
+	public var changedCallback:String->Void;
 
 	public var options:Array<Dynamic>;
 	public var displayOptions:Array<String>;
@@ -10,36 +10,32 @@ class ArrayOption extends OptionType {
 	public var parent:Dynamic;
 	public var optionName:String;
 
-	var __text:Alphabet;
 	var __selectionText:Alphabet;
 
-	public function new(text:String, desc:String, options:Array<Dynamic>, displayOptions:Array<String>, ?optionName:String, ?selectCallback:String->Void = null, ?parent:Dynamic) {
-		super(text, desc);
-		this.selectCallback = selectCallback;
+	override function set_text(v:String) {
+		super.set_text(v);
+		__selectionText.x = __text.x + __text.width + 12;
+		return v;
+	}
+
+	public function new(text:String, desc:String, options:Array<Dynamic>, displayOptions:Array<String>, ?optionName:String, ?changedCallback:Dynamic->Void = null, ?parent:Dynamic) {
+		this.changedCallback = changedCallback;
 		this.displayOptions = displayOptions;
 		this.options = options;
-		this.parent = parent = parent != null ? parent : Options;
 		this.optionName = optionName;
+		this.parent = parent = parent != null ? parent : Options;
 
 		var fieldValue = Reflect.field(parent, optionName);
 		if (fieldValue != null) currentSelection = CoolUtil.maxInt(0, options.indexOf(fieldValue));
-
-		add(__text = new Alphabet(20, 0, text, 'bold'));
-		add(__selectionText = new Alphabet(__text.x + __text.width + 12, 0, formatTextOption(), 'bold'));
+	
+		__selectionText = new Alphabet(0, 20, formatTextOption(), 'bold');
+		super(text, desc);
+		add(__selectionText);
 	}
 
 	override function reloadStrings() {
-		super.reloadStrings();
-		__selectiontext.x = __text.x + __text.width + 12;
-		__selectiontext.text = formatTextOption();
-	}
-
-	override function changeSelection(change:Int) {
-		currentSelection = FlxMath.wrap(currentSelection + change, 0, options.length - 1);
 		__selectionText.text = formatTextOption();
-		CoolUtil.playMenuSFX(SCROLL);
-
-		if (selectCallback != null) selectCallback(options[currentSelection]);
+		super.reloadStrings();
 	}
 
 	function formatTextOption() {
@@ -54,4 +50,16 @@ class ArrayOption extends OptionType {
 
 		return s;
 	}
+
+	override function changeSelection(change:Int) {
+		if (locked) return;
+		currentSelection = FlxMath.wrap(currentSelection + change, 0, options.length - 1);
+		__selectionText.text = formatTextOption();
+		CoolUtil.playMenuSFX(SCROLL);
+
+		if (optionName != null) Reflect.setField(parent, optionName, options[currentSelection]);
+		if (changedCallback != null) changedCallback(options[currentSelection]);
+	}
+
+	override function select() {}
 }

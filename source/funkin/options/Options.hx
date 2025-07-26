@@ -44,6 +44,7 @@ class Options
 	public static var language = "en"; // default to english, Flags.DEFAULT_LANGUAGE should not modify this
 	public static var streamedMusic:Bool = true;
 	public static var streamedVocals:Bool = true;
+	public static var quality:Int = 1;
 	#if MODCHARTING_FEATURES
 	public static var modchartingHoldSubdivisions:Int = 4;
 	#end
@@ -207,7 +208,19 @@ class Options
 
 	public static function applySettings() {
 		applyKeybinds();
-		FlxG.game.stage.quality = (FlxG.enableAntialiasing = antialiasing) ? LOW : BEST;
+
+		switch (quality) {
+			case 0:
+				antialiasing = false;
+				lowMemoryMode = true;
+				gameplayShaders = false;
+			case 1:
+				antialiasing = true;
+				lowMemoryMode = false;
+				gameplayShaders = true;
+		}
+
+		FlxG.game.stage.quality = (FlxG.enableAntialiasing = antialiasing) ? BEST : LOW;
 		FlxG.autoPause = autoPause;
 		if (FlxG.updateFramerate < framerate) FlxG.drawFramerate = FlxG.updateFramerate = framerate;
 		else FlxG.updateFramerate = FlxG.drawFramerate = framerate;

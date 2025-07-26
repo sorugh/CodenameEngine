@@ -9,6 +9,8 @@ class EditorTreeMenu extends TreeMenu {
 	public var bgType:String = "default";
 	public var bgMovement:FlxPoint = new FlxPoint();
 
+	public var main:OptionsScreen;
+
 	public override function create() {
 		super.create();
 
@@ -30,5 +32,9 @@ class EditorTreeMenu extends TreeMenu {
 
 	public override function exit() {
 		FlxG.switchState(new MainMenuState());
+	}
+
+	public function onMenuChange() {
+		
 	}
 }

@@ -10,15 +10,25 @@ import funkin.options.TreeMenu.ITreeOption;
 **/
 class OptionType extends FlxSpriteGroup implements ITreeOption {
 	public var selected:Bool = false;
+	public var locked(default, set):Bool;
 
 	public var text(default, set):String;
 	public var rawText(default, set):String;
 	public var desc:String;
 	public var rawDesc(default, set):String;
 
+	public var itemHeight:Float = 120;
+
 	public function new(text:String, desc:String) {
 		super();
-		reloadStrings();
+		rawText = text;
+		rawDesc = desc;
+	}
+
+	function set_locked(v:Bool) {
+		if (locked == (locked = v)) return v;
+		color = locked ? 0xFF7F7F7F : 0xFFFFFFFF;
+		return v;
 	}
 
 	function set_text(v:String) return text = v;
@@ -46,4 +56,6 @@ class OptionType extends FlxSpriteGroup implements ITreeOption {
 
 	public function changeSelection(change:Int) {}
 	public function select() {}
+
+	override function get_height() return itemHeight;
 }

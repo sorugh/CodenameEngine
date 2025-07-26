@@ -1,56 +1,55 @@
 package funkin.options.categories;
 
 class AppearanceOptions extends TreeMenuScreen {
-	public override function new() {
+	public function new() {
 		super('optionsTree.appearance-name', 'optionsTree.appearance-desc', "AppearanceOptions.");
 
-		/*
-		add(new NumOption(
-			getName("framerate"),
-			getDesc("framerate"),
-			30, // minimum
-			240, // maximum
-			10, // change
-			"framerate", // save name or smth
-			__changeFPS)); // callback
-		add(new Checkbox(
-			getName("antialiasing"),
-			getDesc("antialiasing"),
-			"antialiasing"));
-		add(new Checkbox(
-			getName("colorHealthBar"),
-			getDesc("colorHealthBar"),
-			"colorHealthBar"));
-		add(new Checkbox(
-			getName("week6PixelPerfect"),
-			getDesc("week6PixelPerfect"),
-			"week6PixelPerfect"));
-		add(new Checkbox(
-			getName("gameplayShaders"),
-			getDesc("gameplayShaders"),
-			"gameplayShaders"));
-		add(new Checkbox(
-			getName("flashingMenu"),
-			getDesc("flashingMenu"),
-			"flashingMenu"));
-		add(new Checkbox(
-			getName("lowMemoryMode"),
-			getDesc("lowMemoryMode"),
-			"lowMemoryMode"));
-		#if sys
-		if (!Main.forceGPUOnlyBitmapsOff) {
-			add(new Checkbox(
-				getName("gpuOnlyBitmaps"),
-				getDesc("gpuOnlyBitmaps"),
-				"gpuOnlyBitmaps"));
-		}
-		#end
-		*/
+		add(new NumOption(getNameID('framerate'), getDescID('framerate'),
+			30, 240, 1,
+			'framerate', __changeFPS
+		));
+		add(new Checkbox(getNameID('flashingMenu'), getDescID('flashingMenu'), 'flashingMenu'));
+		add(new ArrayOption(getNameID('quality'), getDescID('quality'),
+			[0, 1, 2], [getID('quality-low'), getID('quality-high'), getID('quality-custom')],
+			'quality', __changeQuality, null
+		));
+		add(new Checkbox(getNameID('colorHealthBar'), getDescID('colorHealthBar'), 'colorHealthBar'));
+		add(new Checkbox(getNameID('week6PixelPerfect'), getDescID('week6PixelPerfect'), 'week6PixelPerfect'));
+
+		add(new Separator());
+		add(new TextOption('optionsMenu.advanced', 'optionsTree.appearance.advanced-desc', ' >', () ->
+			parent.addMenu(new AdvancedAppearanceOptions())));
 	}
 
 	private function __changeFPS(value:Float) {
 		var framerate = Math.floor(value);
 		if (FlxG.updateFramerate < framerate) FlxG.drawFramerate = FlxG.updateFramerate = framerate;
 		else FlxG.updateFramerate = FlxG.drawFramerate = framerate;
+	}
+	
+	private function __changeQuality(value:Dynamic) {
+		var antialiasing = value == 0 ? false : (value == 1 ? true : Options.antialiasing);
+		FlxG.game.stage.quality = (FlxG.enableAntialiasing = antialiasing) ? BEST : LOW;
+	}
+}
+
+class AdvancedAppearanceOptions extends TreeMenuScreen {
+	public function new() {
+		super('optionsMenu.advanced', 'optionsTree.appearance.advanced-desc', "AppearanceOptions.Advanced.");
+
+		for (option in [
+			new Checkbox(getNameID('antialiasing'), getDescID('antialiasing'), 'antialiasing', __changeAntialiasing),
+			new Checkbox(getNameID('lowMemoryMode'), getDescID('lowMemoryMode'), 'lowMemoryMode'),
+			new Checkbox(getNameID('gameplayShaders'), getDescID('gameplayShaders'), 'gameplayShaders')
+		]) {
+			add(option);
+			if (option.locked = Options.quality != 2) option.rawDesc = 'AppearanceOptions.quality-optionDisabled-desc';
+		}
+
+		add(new Checkbox(getNameID('gpuOnlyBitmaps'), getDescID('gpuOnlyBitmaps'), 'gpuOnlyBitmaps'));
+	}
+
+	private function __changeAntialiasing() {
+		FlxG.game.stage.quality = (FlxG.enableAntialiasing = Options.antialiasing) ? BEST : LOW;
 	}
 }

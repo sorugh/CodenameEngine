@@ -2,8 +2,8 @@
 <TextureAtlas imagePath="slider.png" width="463" height="151">
   <SubTexture name="bar empty0000.png" x="119" y="134" width="70" height="4" rotated="true" frameX="-0" frameY="-0" frameWidth="4" frameHeight="70"/>
   <SubTexture name="bar filled0000.png" x="193" y="131" width="70" height="4" rotated="true" frameX="-0" frameY="-0" frameWidth="4" frameHeight="70"/>
-  <SubTexture name="corner empty0000.png" x="267" y="114" width="70" height="28" rotated="true" frameX="-0" frameY="-0" frameWidth="28" frameHeight="70"/>
-  <SubTexture name="corner filled0000.png" x="341" y="108" width="70" height="28" rotated="true" frameX="-0" frameY="-0" frameWidth="28" frameHeight="70"/>
+  <SubTexture name="corner empty0000.png" x="267" y="114" width="70" height="26" rotated="true" frameX="-0" frameY="-0" frameWidth="26" frameHeight="70"/>
+  <SubTexture name="corner filled0000.png" x="341" y="108" width="70" height="26" rotated="true" frameX="-0" frameY="-0" frameWidth="26" frameHeight="70"/>
   <SubTexture name="segment empty0000.png" x="372" y="98" width="70" height="4" rotated="true" frameX="-0" frameY="-0" frameWidth="4" frameHeight="70"/>
   <SubTexture name="segment filled0000.png" x="193" y="144" width="70" height="4" rotated="true" frameX="-0" frameY="-0" frameWidth="4" frameHeight="70"/>
   <SubTexture name="slider deselect0000.png" x="372" y="2"  width="89" height="91" frameX="-0" frameY="-12" frameWidth="89" frameHeight="109"/>

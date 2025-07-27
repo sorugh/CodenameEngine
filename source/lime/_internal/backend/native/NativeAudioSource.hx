@@ -394,6 +394,7 @@ class NativeAudioSource {
 				AL.sourcePlay(handle);
 			}
 		}
+		else completed = value + 1 < getLength();
 
 		if (!playing && streamed) bufferTimes[STREAM_MAX_BUFFERS - (requestBuffers = queuedBuffers = 1)] = value / 1000;
 

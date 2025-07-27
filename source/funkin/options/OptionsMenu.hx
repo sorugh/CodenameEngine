@@ -47,6 +47,7 @@ class OptionsMenu extends TreeMenu {
 	];
 
 	var bg:FlxSprite;
+	var debugOption:TextOption;
 
 	override function create() {
 		super.create();
@@ -87,6 +88,9 @@ class OptionsMenu extends TreeMenu {
 			}
 		})]));
 
+		tree.first().add(debugOption = new TextOption('optionsTree.debug-name', 'optionsTree.debug-desc', ' >', () -> addMenu(new DebugOptions())));
+		debugOption.locked = !Options.devMode;
+
 		for (i in funkin.backend.assets.ModsFolder.getLoadedMods()) {
 			var xmlPath = Paths.xml('config/options/LIB_$i');
 
@@ -111,6 +115,11 @@ class OptionsMenu extends TreeMenu {
 		if (!UIState.resolutionAware) return;
 
 		updateBG();
+	}
+
+	override function menuChanged() {
+		super.menuChanged();
+		debugOption.locked = !Options.devMode;
 	}
 
 	override function exit() {

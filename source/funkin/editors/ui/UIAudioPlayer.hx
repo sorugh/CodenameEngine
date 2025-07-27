@@ -31,7 +31,7 @@ class UIAudioPlayer extends UIButton {
 
 		super(x, y, null, () -> {
 			if (sound.playing) sound.pause();
-			else sound.play();
+			else sound.play(sound.time + 1 >= sound.length ? 0 : sound.time);
 		}, 58 - 16, 58 - 16);
 
 		playingSprite = new FlxSprite(x + ((58 - 16)/2) - 8, y + ((58 - 16)/2) - 8).loadGraphic(Paths.image('editors/ui/audio-buttons'), true, 16, 16);

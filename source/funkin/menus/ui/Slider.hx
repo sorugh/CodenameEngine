@@ -45,12 +45,13 @@ class Slider extends FlxSprite {
 			switch (animation.curAnim.name) {
 				case 'selected': if (!selected) playAnimOrDefault('deselect', 'unselected');
 				case 'unselected': if (selected) playAnimOrDefault('selecting', 'selected');
-				case 'selecting': if (animation.finished) animation.play('selected');
+				case 'selecting' | 'segment': if (animation.finished) animation.play('selected');
 				case 'deselect': if (animation.finished) animation.play('unselected');
 			}
 
 			if (__curSegments != (__curSegments = CoolUtil.minInt(segments, Math.floor(value * (segments + 1)))) && playSound) {
 				FlxG.sound.play(Paths.sound('menu/volume')).pitch = 0.75 + __curSegments * 0.5 / (segments + 1);
+				if (animation.curAnim.name == 'selected' && animation.exists('segment')) animation.play('segment');
 			}
 		}
 	}
@@ -85,6 +86,7 @@ class Slider extends FlxSprite {
 		animation.addByPrefix('selected', 'slider selected0', 24, true);
 		animation.addByPrefix('deselect', 'slider deselect0', 24, false);
 		animation.addByPrefix('selecting', 'slider selecting0', 24, false);
+		animation.addByPrefix('segment', 'slider segment0', 24, false);
 
 		var anim;
 		barHeight = 0;
@@ -105,7 +107,7 @@ class Slider extends FlxSprite {
 
 	override function set_frame(v:FlxFrame):FlxFrame {
 		super.set_frame(v);
-		sliderResetFrameSize();
+		if (v != null) sliderResetFrameSize();
 		return v;
 	}
 

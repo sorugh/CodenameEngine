@@ -88,8 +88,7 @@ class OptionsMenu extends TreeMenu {
 			}
 		})]));
 
-		tree.first().add(debugOption = new TextOption('optionsTree.debug-name', 'optionsTree.debug-desc', ' >', () -> addMenu(new DebugOptions())));
-		debugOption.locked = !Options.devMode;
+		checkDebugOption();
 
 		for (i in funkin.backend.assets.ModsFolder.getLoadedMods()) {
 			var xmlPath = Paths.xml('config/options/LIB_$i');
@@ -100,6 +99,22 @@ class OptionsMenu extends TreeMenu {
 				catch(e) Logs.trace('Error while parsing options.xml: ${Std.string(e)}', ERROR);
 				if (access != null) for (o in parseOptionsFromXML(access)) tree.first().add(o);
 			}
+		}
+	}
+
+	function checkDebugOption() {
+		var screen = tree.first();
+		if (Options.devMode) {
+			if (debugOption == null) {
+				screen.insert(CoolUtil.minInt(screen.length, mainOptions.length),
+					debugOption = new TextOption('optionsTree.debug-name', 'optionsTree.debug-desc', ' >', () -> addMenu(new DebugOptions()))
+				);
+			}
+		}
+		else if (debugOption != null) {
+			screen.remove(debugOption, true);
+			debugOption = flixel.util.FlxDestroyUtil.destroy(debugOption);
+			if (screen.curSelected >= screen.length) screen.changeSelection(0, true);
 		}
 	}
 
@@ -119,7 +134,7 @@ class OptionsMenu extends TreeMenu {
 
 	override function menuChanged() {
 		super.menuChanged();
-		debugOption.locked = !Options.devMode;
+		checkDebugOption();
 	}
 
 	override function exit() {

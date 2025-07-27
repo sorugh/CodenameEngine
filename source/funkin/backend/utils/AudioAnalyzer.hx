@@ -9,8 +9,13 @@ import lime.media.vorbis.VorbisFile;
 import lime.utils.ArrayBuffer;
 #end
 
-// ORIGINAL CODES FROM YOSH & LUNAR https://github.com/CodenameCrew/YoshiCrafterEngine/blob/main/source/WaveformSprite.hx
-// REWRITTEN BY RALTYRO
+/**
+ * An utility that analyze FlxSounds,
+ * can be used to make waveform or real-time audio visualizer.
+ * 
+ * FlxSound.amplitude does work in CNE so if any case if your only checking for peak of current
+ * time, use that instead.
+**/
 class AudioAnalyzer {
 	public var sound:FlxSound;
 	public var buffer:AudioBuffer;
@@ -27,14 +32,20 @@ class AudioAnalyzer {
 	var __vorbis:VorbisFile;
 	#end
 
+	/**
+	 * Creates an analyzer for specified FlxSound
+	 * @param sound An FlxSound to analyze.
+	**/
 	public function new(sound:FlxSound) {
 		this.sound = sound;
 		__check();
 	}
 
+	/**
+	 * TODO: IMPLEMENT FFT
+	**/
 	public function getLevels(levels:Array<Float>, barCount:Int, duration:Float):Float {
 		__check();
-		// TODO: implement FFT
 		return 0;
 	}
 

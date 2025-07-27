@@ -152,9 +152,7 @@ import lime.media.openal.AL;
 	@:noCompletion private function __updatePeaks(time:Float):Bool
 	{
 		if (Math.abs(time - __lastPeakTime) < 8) return false;
-
 		__lastPeakTime = time;
-		__leftPeak = __rightPeak = 0;
 
 		#if !macro
 		if (!__isValid) return false;
@@ -162,6 +160,7 @@ import lime.media.openal.AL;
 		var buffer = __source.buffer;
 		var wordSize = buffer.bitsPerSample >> 3, bitUnsignedSize = 1 << buffer.bitsPerSample, bitSize = 1 << (buffer.bitsPerSample - 1);
 		var pos = Math.floor(time * buffer.sampleRate / 1000 * buffer.channels * wordSize), size = 0, buf;
+		var leftMin = 0, leftMax = 0, rightMin = 0, rightMax = 0;
 
 		#if lime_cffi
 		var backend = __source.__backend, i = 0;
@@ -189,7 +188,10 @@ import lime.media.openal.AL;
 				}
 				if (b > bitSize) b -= bitUnsignedSize;
 			}
-			((c % 2 == 0) ? (if (__leftPeak < b) __leftPeak = b) : (if (__rightPeak < b) __rightPeak = b));
+			if (c % 2 == 0) {
+				if (leftMax < b) leftMax = b; else if (leftMin < (b = -b)) leftMin = b;
+			}
+			else if (rightMax < b) rightMax = b; else if (rightMin < (b = -b)) rightMin = b;
 
 			if (pos >= size) #if lime_cffi {
 				if (!backend.streamed || ++i >= backend.bufferDatas.length) break;
@@ -206,10 +208,10 @@ import lime.media.openal.AL;
 			w = b = 0;
 		}
 
-		if (buffer.channels == 1) __rightPeak = __leftPeak / bitSize;
+		if (buffer.channels == 1) __rightPeak = (__leftPeak = (leftMax + leftMin) / bitSize);
 		else {
-			__leftPeak = __leftPeak / bitSize;
-			__rightPeak = __rightPeak / bitSize;
+			__leftPeak = (leftMax + leftMin) / bitSize;
+			__rightPeak = (rightMax + rightMin) / bitSize;
 		}
 		#end
 

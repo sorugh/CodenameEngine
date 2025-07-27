@@ -15,11 +15,11 @@ class EditorTreeMenu extends funkin.options.TreeMenu {
 	}
 
 	override function createPost() {
-		super.createPost();
-		add(bg = new FlxBackdrop());
+		insert(0, bg = new FlxBackdrop());
 		bg.loadGraphic(Paths.image('editors/bgs/${bgType}'));
 		bg.antialiasing = true;
 		setBackgroundRotation(-5);
+		super.createPost();
 	}
 
 	public inline function setBackgroundRotation(rotation:Float) {

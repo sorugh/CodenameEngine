@@ -214,6 +214,8 @@ class Flags {
 	public static var DEFAULT_EDITOR_TEXTTYPE_SOUND = "editors/textType";
 	public static var DEFAULT_EDITOR_UNDO_SOUND = "editors/undo";
 	public static var DEFAULT_EDITOR_WINDOWAPPEAR_SOUND = "editors/windowAppear";
+	public static var DEFAULT_EDITOR_WINDOWCLOSE_SOUND = "editors/windowClose";
+	public static var DEFAULT_EDITOR_DROPDOWNAPPEAR_SOUND = "editors/dropdownAppear";
 	public static var DEFAULT_CHARTER_HITSOUND_SOUND = "editors/charter/hitsound";
 	public static var DEFAULT_CHARTER_METRONOME_SOUND = "editors/charter/metronome";
 	public static var DEFAULT_CHARTER_NOTEDELETE_SOUND = "editors/charter/noteDelete";

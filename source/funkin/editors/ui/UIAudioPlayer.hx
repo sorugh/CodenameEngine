@@ -29,9 +29,9 @@ class UIAudioPlayer extends UIButton {
 	public function new(x:Float, y:Float, bytes:Bytes) {
 		sound = FlxG.sound.load(Sound.fromAudioBuffer(AudioBuffer.fromBytes(bytes)));
 
-		super(x, y, null, function () {
+		super(x, y, null, () -> {
 			if (sound.playing) sound.pause();
-			else sound.play(false, sound.time);
+			else sound.play();
 		}, 58 - 16, 58 - 16);
 
 		playingSprite = new FlxSprite(x + ((58 - 16)/2) - 8, y + ((58 - 16)/2) - 8).loadGraphic(Paths.image('editors/ui/audio-buttons'), true, 16, 16);
@@ -126,7 +126,7 @@ class UIAudioPlayer extends UIButton {
 
 		if (FlxG.mouse.released) {
 			if (draggingObj == timeBar && wasPlaying) {
-				sound.resume();
+				sound.play();
 				wasPlaying = false;
 			}
 			draggingObj = null;

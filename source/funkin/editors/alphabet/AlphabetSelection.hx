@@ -69,5 +69,7 @@ class AlphabetIconOption extends TextOption {
 		}
 		iconSpr.setPosition(90 - iconSpr.width - 20, (__text.height - iconSpr.height) / 2);
 		add(iconSpr);
+
+		__text.x = 100;
 	}
 }

@@ -10,16 +10,15 @@ class DebugOptions extends TreeMenu {
 
 	override function create() {
 		super.create();
-		UIState.setResolutionAware();
 
 		add(bg = new FlxSprite().loadAnimatedGraphic(Paths.image('menus/menuBGBlue')));
 		bg.antialiasing = true;
 		bg.scrollFactor.set();
-		updateBG();
 
-		addMenu(new TreeMenuScreen('DebugOptions.title', 'DebugOptions.desc'));
+		addMenu(new DebugOptionsScreen());
 
 		FlxG.camera.fade(0xFF000000, 0.5, true);
+		UIState.setResolutionAware();
 	}
 
 	public function updateBG() {

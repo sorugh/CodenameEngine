@@ -18,7 +18,7 @@ class AlphabetSelection extends EditorTreeMenu {
 
 class AlphabetSelectionScreen extends EditorTreeMenuScreen {
 	public function new() {
-		super('editor.alphabet.name', 'editor.alphabet.selection.desc', 'editor.alphabet.selection', 'newTypeface', 'newTypefaceDesc', () -> {
+		super('editor.alphabet.name', 'editor.alphabet.selection.desc', 'editor.alphabet.selection.', 'newTypeface', 'newTypefaceDesc', () -> {
 			parent.openSubState(new UIWarningSubstate(translate('warnings.notImplemented-title'), translate('warnings.notImplemented-body'), [
 				{label: TU.translate("editor.ok"), color: 0xFFFF0000, onClick: (t) -> {}}
 			]));

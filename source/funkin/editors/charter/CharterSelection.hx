@@ -49,7 +49,7 @@ class CharterSelectionScreen extends EditorTreeMenuScreen {
 			parent.addMenu(screen);
 		});
 		opt.suffix = ' >';
-		opt.color = s.color.getDefault(FlxColor.WHITE);
+		opt.editorFlashColor = s.color.getDefault(FlxColor.WHITE);
 
 		return opt;
 	}

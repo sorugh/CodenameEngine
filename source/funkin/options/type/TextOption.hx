@@ -22,7 +22,7 @@ class TextOption extends OptionType {
 	}
 
 	public function new(text:String, desc:String, ?suffix:String = "", ?selectCallback:Void->Void = null) {
-		this.suffix = suffix;
+		@:bypassAccessor this.suffix = suffix;
 		this.selectCallback = selectCallback;
 
 		__text = new Alphabet(20, 20, "", "bold");

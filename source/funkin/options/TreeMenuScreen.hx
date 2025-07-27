@@ -131,7 +131,7 @@ class TreeMenuScreen extends FlxSpriteGroup {
 		if (parent == null) return destroy();
 		else parent.removeMenu(this);
 
-		CoolUtil.playMenuSFX(CANCEL);
+		CoolUtil.playMenuSFX(CANCEL).persist = true;
 	}
 
 	public function changeSelection(change:Int, force:Bool = false) {

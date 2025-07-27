@@ -12,6 +12,9 @@ class StageCharacterButton extends StageElementButton {
 	public var char:Character;
 	public var charScale(get, null):Float;
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("stageCharacters." + id, args);
+
 	public function new(x:Float,y:Float, char:Character, xml:Access) {
 		this.char = char;
 		super(x,y, xml);
@@ -61,9 +64,9 @@ class StageCharacterButton extends StageElementButton {
 
 	public override function onDelete() {
 		if (char.name.startsWith("NO_DELETE_")) {
-			var text = "This character position is required in stages!";
-			if (char.name == "NO_DELTE_girlfriend" && FlxG.random.bool(1))
-				text = "You can't delete Girlfriend";
+			var text = translate("requiredPosition");
+			if (char.name == "NO_DELETE_girlfriend" && FlxG.random.bool(1))
+				text = translate("noDeleteGirlfriend");
 			UIState.state.displayNotification(new UIBaseNotification(text, 2, BOTTOM_LEFT));
 			return;
 		}
@@ -100,6 +103,9 @@ class StageCharacterEditScreen extends UISoftcodedWindow {
 	public var button:StageCharacterButton;
 	public var char:Character;
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("stageElementEditScreen." + id, args);
+
 	public function new(button:StageCharacterButton) {
 		this.button = button;
 		this.char = button.char;
@@ -117,6 +123,7 @@ class StageCharacterEditScreen extends UISoftcodedWindow {
 			"setEx" => function(name:String, value:Dynamic) {
 				char.extra.set(StageEditor.exID(name), value);
 			},
+			"translate" => translate,
 		]);
 	}
 

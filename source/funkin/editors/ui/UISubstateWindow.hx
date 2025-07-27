@@ -86,6 +86,7 @@ class UISubstateWindow extends MusicBeatSubstate {
 	}
 
 	public override function destroy() {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_WINDOWCLOSE_SOUND));
 		super.destroy();
 		for(e in camShaders)
 			e.removeShader(blurShader);

@@ -1,11 +1,12 @@
 package funkin.menus.credits;
 
+import flixel.util.FlxColor;
+import funkin.backend.assets.AssetSource;
+import funkin.backend.system.github.GitHubContributor.CreditsGitHubContributor;
 import funkin.options.OptionsScreen;
 import funkin.options.TreeMenu;
-import funkin.backend.system.github.GitHubContributor.CreditsGitHubContributor;
 import funkin.options.type.*;
 import haxe.xml.Access;
-import flixel.util.FlxColor;
 
 class CreditsMain extends TreeMenu {
 	var bg:FlxSprite;
@@ -21,29 +22,25 @@ class CreditsMain extends TreeMenu {
 		bg.antialiasing = true;
 		add(bg);
 
-		var xmlPath = Paths.xml('config/credits');
-		for(source in [funkin.backend.assets.AssetsLibraryList.AssetSource.SOURCE, funkin.backend.assets.AssetsLibraryList.AssetSource.MODS]) {
-			if (Paths.assetsTree.existsSpecific(xmlPath, "TEXT", source)) {
-				var access:Access = null;
-				try {
-					access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT", source)));
-				} catch(e) {
-					Logs.trace('[CreditsMain] Error while parsing credits.xml: ${Std.string(e)}', ERROR);
-				}
+		for (i in funkin.backend.assets.ModsFolder.getLoadedMods()) {
+			var xmlPath = Paths.xml('config/credits/LIB_$i');
 
-				if (access != null)
-					for(c in parseCreditsFromXML(access, source))
-						items.push(c);
+			if (Paths.assetsTree.existsSpecific(xmlPath, "TEXT")) {
+				var access:Access = null;
+				try access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT")))
+				catch(e) Logs.trace('[CreditsMain] Error while parsing credits.xml: ${Std.string(e)}', ERROR);
+				if (access != null) for (c in parseCreditsFromXML(access)) items.push(c);
 			}
 		}
-		items.push(new TextOption("Codename Engine >", "Select this to see all the contributors of the engine!", function() {
+
+		items.push(new TextOption("Codename Engine >", TU.translate("credits.selectCodename"), function() {
 			optionsTree.add(Type.createInstance(CreditsCodename, []));
 		}));
-		items.push(new TextOption("Friday Night Funkin'", "Select this to open the itch.io page of the original game to donate!", function() {
+		items.push(new TextOption("Friday Night Funkin'", TU.translate("credits.selectBase"), function() {
 			CoolUtil.openURL(Flags.URL_FNF_ITCH);
 		}));
 
-		main = new OptionsScreen('Credits', 'The people who made this possible!', items);
+		main = new OptionsScreen(TU.translate("credits.name"), TU.translate("credits.madePossible"), items);
 		super.create();
 
 		DiscordUtil.call("onMenuLoaded", ["Credits Menu"]);
@@ -52,7 +49,7 @@ class CreditsMain extends TreeMenu {
 	/**
 	 * XML STUFF
 	 */
-	public function parseCreditsFromXML(xml:Access, source:funkin.backend.assets.AssetsLibraryList.AssetSource):Array<OptionType> {
+	public function parseCreditsFromXML(xml:Access, source:AssetSource = BOTH):Array<OptionType> {
 		var credsMenus:Array<OptionType> = [];
 
 		for(node in xml.elements) {
@@ -60,7 +57,7 @@ class CreditsMain extends TreeMenu {
 
 			if (node.name == "github") {
 				if (!node.has.user) {
-					Logs.trace("A github node requires a user attribute.", WARNING);
+					Logs.warn("A github node requires a user attribute.", "CreditsMain");
 					continue;
 				}
 
@@ -80,7 +77,7 @@ class CreditsMain extends TreeMenu {
 				credsMenus.push(opt);
 			} else {
 				if (!node.has.name) {
-					Logs.trace("A credit node requires a name attribute.", WARNING);
+					Logs.warn("A credit node requires a name attribute.", "CreditsMain");
 					continue;
 				}
 				var name = node.getAtt("name");

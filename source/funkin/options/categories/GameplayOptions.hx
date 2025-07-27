@@ -8,32 +8,45 @@ class GameplayOptions extends OptionsScreen {
 
 	var offsetSetting:NumOption;
 
-	public override function new() {
-		super("Gameplay", 'Change Gameplay options such as Downscroll, Scroll Speed, Naughtyness...');
+	public override function new(title:String, desc:String) {
+		super(title, desc, "GameplayOptions.");
 		add(new Checkbox(
-			"Downscroll",
-			"If checked, notes will go from up to down instead of down to up, as if they're falling.",
+			getName("downscroll"),
+			getDesc("downscroll"),
 			"downscroll"));
 		add(new Checkbox(
-			"Ghost Tapping",
-			"If unchecked, trying to hit any strum that have no note that can be hit will cause a miss.",
+			getName("ghostTapping"),
+			getDesc("ghostTapping"),
 			"ghostTapping"));
+		add(new Checkbox(
+			getName("naughtyness"),
+			getDesc("naughtyness"),
+			"naughtyness"));
+		add(new Checkbox(
+			getName("camZoomOnBeat"),
+			getDesc("camZoomOnBeat"),
+			"camZoomOnBeat"));
+		add(new Checkbox(
+			getName("autoPause"),
+			getDesc("autoPause"),
+			"autoPause"));
+		add(new MeterOption(
+			getName("volumeSFX"),
+			getDesc("volumeSFX"),
+			0, // minimum
+			1, // maximum
+			0.1, // change
+			"volumeSFX"));
 		add(offsetSetting = new NumOption(
-			"Song Offset",
-			"Changes the offset that songs should start with.",
+			getName("songOffset"),
+			getDesc("songOffset"),
 			-999, // minimum
 			999, // maximum
 			1, // change
 			"songOffset", // save name or smth
 			__changeOffset)); // callback
-		add(new Checkbox(
-			"Naughtyness",
-			"If unchecked, will censor the Week 7 cutscenes.",
-			"naughtyness"));
-		add(new Checkbox(
-			"Camera Zoom on Beat",
-			"If unchecked, will stop the camera from zooming in every 4 beats",
-			"camZoomOnBeat"));
+		add(new TextOption('optionsMenu.advanced', 'optionsTree.gameplay.advanced-desc', ' >', () ->
+			parent.add(new AdvancedGameplayOptions('optionsMenu.advanced', 'optionsTree.gameplay.advanced-desc'))));
 	}
 
 	private function __changeOffset(offset)
@@ -53,21 +66,33 @@ class GameplayOptions extends OptionsScreen {
 				__lastBeat = Conductor.curBeat;
 			}
 
-			var beat = Math.floor(Conductor.getStepForTime(FlxG.sound.music.time) / Conductor.stepsPerBeat);
+			var beat = Math.floor(Conductor.getTimeInBeats(FlxG.sound.music.time));
 			if (__lastSongBeat != beat) {
 				__metronome.replay();
 				__lastSongBeat = beat;
 			}
 		}
-		else FlxG.sound.music.volume = 1;
+		else
+			FlxG.sound.music.volume = 1;
 	}
 
-	public override function close() {
-		// To remove this timer move super.update(elapsed); to the end, but im afraid it will cause stuff to break
-		new FlxTimer().start(0.0000001, (_) -> {
-			FlxG.camera.zoom = 1;
-			FlxG.sound.music.volume = 1;
-		});
+	override function close() {
+		FlxG.camera.zoom = 1;
+		FlxG.sound.music.volume = 1;
 		super.close();
+	}
+}
+
+class AdvancedGameplayOptions extends OptionsScreen {
+	public override function new(title:String, desc:String) {
+		super(title, desc, "GameplayOptions.Advanced.");
+		add(new Checkbox(
+			getName("streamedMusic"),
+			getDesc("streamedMusic"),
+			"streamedMusic"));
+		add(new Checkbox(
+			getName("streamedVocals"),
+			getDesc("streamedVocals"),
+			"streamedVocals"));
 	}
 }

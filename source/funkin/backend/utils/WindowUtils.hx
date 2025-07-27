@@ -58,6 +58,17 @@ final class WindowUtils {
 	}
 
 	/**
+	 * Sets the window title and icon.
+	 * @param title The title to set.
+	 * @param image The image to set as the icon.
+	**/
+	public static inline function setWindow(?name:String, ?image:String)
+	{
+		Lib.application.window.setIcon(lime.graphics.Image.fromBytes(Assets.getBytes(Flags.MOD_ICON != null ? Flags.MOD_ICON : image)));
+		title = Flags.MOD_NAME != null ? Flags.MOD_NAME : title;
+	}
+
+	/**
 	 * Updates the window title to have the current title and prefix/suffix.
 	**/
 	public static inline function updateTitle()

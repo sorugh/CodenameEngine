@@ -15,13 +15,16 @@ class CharacterCreationScreen extends UISubstateWindow {
 	public var saveButton:UIButton;
 	public var closeButton:UIButton;
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("characterCreationScreen." + id, args);
+
 	public function new(?onSave:(String, ImageSaveData, Xml)->Void) {
 		super();
 		if (onSave != null) this.onSave = onSave;
 	}
 
 	public override function create() {
-		winTitle = "Creating New Character";
+		winTitle = translate("win-title");
 
 		winWidth = 360;
 		winHeight = 520;
@@ -37,24 +40,24 @@ class CharacterCreationScreen extends UISubstateWindow {
 		characterNameTextBox = new UITextBox(windowSpr.x + 20, windowSpr.y + 30 + 16 + 20, "character", 320);
 		characterNameTextBox.onChange = (_) -> {checkRequired();};
 		add(characterNameTextBox);
-		addLabelOn(characterNameTextBox, "Character File Name").applyMarkup(
-			"Character File Name $* Required$",
+		addLabelOn(characterNameTextBox, "").applyMarkup(
+			translate("charName"),
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
 		imageExplorer = new UIImageExplorer(characterNameTextBox.x, characterNameTextBox.y + 30 + 16 + 20, null, 320, 58, (_, _) -> {onLoadImage();}, "images/characters");
 		add(imageExplorer);
-		addLabelOn(imageExplorer, "Character Image File").applyMarkup(
-			"Character Image File $* Required$",
+		addLabelOn(imageExplorer, "").applyMarkup(
+			translate("charImgName"),
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 		imageExplorer.maxSize.y -= 100;
 
-		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
+		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, TU.translate("editor.saveClose"), function() {
 			close();
 			createCharacter();
 		}, 125);
 		add(saveButton);
 
-		closeButton = new UIButton(saveButton.x - 20 - saveButton.bWidth, saveButton.y, "Cancel", function() {
+		closeButton = new UIButton(saveButton.x - 20 - saveButton.bWidth, saveButton.y, TU.translate("editor.cancel"), function() {
 			close();
 		}, 125);
 		add(closeButton);

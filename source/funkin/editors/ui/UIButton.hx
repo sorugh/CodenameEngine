@@ -28,7 +28,10 @@ class UIButton extends UISliceSprite {
 
 	public override function onHovered() {
 		super.onHovered();
-		if (FlxG.mouse.justPressed) hasBeenPressed = true;
+		if (FlxG.mouse.justPressed) {
+			hasBeenPressed = true;
+			FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_BUTTONCLICK_SOUND));
+		}
 		if (FlxG.mouse.justReleased && callback != null && shouldPress && hasBeenPressed) {
 			callback();
 			hasBeenPressed = false;

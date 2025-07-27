@@ -1,3 +1,4 @@
+
 package funkin.editors.character;
 
 import funkin.backend.FlxAnimate;
@@ -26,6 +27,9 @@ class CharacterPropertiesWindow extends UISliceSprite {
 
 	public var labels:Map<UISprite, UIText> = [];
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("characterEditor.characterProperties." + id, args);
+
 	public function new(x:Float, y:Float, character:Character) @:privateAccess {
 		super(x, y, 424+16, 204+20, "editors/ui/inputbox");
 
@@ -40,7 +44,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 			this.changePosition(positionXStepper.value, null);
 		};
 		members.push(positionXStepper);
-		addLabelOn(positionXStepper, "Position (X,Y)");
+		addLabelOn(positionXStepper, translate("position"));
 
 		members.push(positionXYComma = new UIText(positionXStepper.x+104-32+0, positionXStepper.y + 9, 0, ",", 22));
 
@@ -57,17 +61,17 @@ class CharacterPropertiesWindow extends UISliceSprite {
 			this.changeScale(scaleStepper.value);
 		};
 		members.push(scaleStepper);
-		addLabelOn(scaleStepper, "Scale");
+		addLabelOn(scaleStepper, translate("scale"));
 
-		editCharacterButton = new UIButton(scaleStepper.x + 90 -32 + 26, scaleStepper.y-20, "Edit Info", editCharacterInfoUI, 120, 24);
+		editCharacterButton = new UIButton(scaleStepper.x + 90 -32 + 26, scaleStepper.y-20, translate("editInfo"), editCharacterInfoUI, 120, 24);
 		editCharacterButton.field.size -= 2;
 		members.push(editCharacterButton);
 
-		editSpriteButton = new UIButton(editCharacterButton.x, editCharacterButton.y+24+6, "Edit Sprite", editCharacterSpriteUI, 120, 24);
+		editSpriteButton = new UIButton(editCharacterButton.x, editCharacterButton.y+24+6, translate("editSprite"), editCharacterSpriteUI, 120, 24);
 		editSpriteButton.field.size -= 2;
 		members.push(editSpriteButton);
 
-		flipXCheckbox = new UICheckbox(scaleStepper.x+22, scaleStepper.y+32+14, "Flipped?", character.isPlayer ? !character.__baseFlipped : character.__baseFlipped);
+		flipXCheckbox = new UICheckbox(scaleStepper.x+22, scaleStepper.y+32+14, translate("charFlipped"), character.isPlayer ? !character.__baseFlipped : character.__baseFlipped);
 		flipXCheckbox.onChecked = (checked:Bool) -> {this.changeFlipX(checked);};
 		members.push(flipXCheckbox);
 
@@ -77,7 +81,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 			this.changeCamPosition(cameraXStepper.value, null);
 		};
 		members.push(cameraXStepper);
-		addLabelOn(cameraXStepper, "Camera Position (X,Y)");
+		addLabelOn(cameraXStepper, translate("camPosition"));
 
 		members.push(cameraXYComma = new UIText(cameraXStepper.x + 104-32+0, cameraXStepper.y+9, 0, ",", 22));
 
@@ -88,7 +92,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 		};
 		members.push(cameraYStepper);
 
-		antialiasingCheckbox = new UICheckbox(scaleStepper.x+22, flipXCheckbox.y+32, "Antialiased?", character.antialiasing);
+		antialiasingCheckbox = new UICheckbox(scaleStepper.x+22, flipXCheckbox.y+32, translate("antialiased"), character.antialiasing);
 		antialiasingCheckbox.onChecked = (checked:Bool) -> {this.changeAntialiasing(checked);};
 		members.push(antialiasingCheckbox);
 
@@ -97,7 +101,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 			CharacterEditor.instance.changeStagePosition(testAsDropDown.options[index]);
 		};
 		members.push(testAsDropDown);
-		addLabelOn(testAsDropDown, "Test Character As...");
+		addLabelOn(testAsDropDown, translate("testCharAs"));
 		testAsDropDown.bWidth = 193; //REFUSES TO FUCKING SET TO 170 PIECE OF SHIT!!
 
 		designedAsDropDown = new UIDropDown(testAsDropDown.x+193+22, testAsDropDown.y, 193, 32, ["BOYFRIEND", "DAD"], character.playerOffsets ? 0 : 1);
@@ -105,7 +109,7 @@ class CharacterPropertiesWindow extends UISliceSprite {
 			CharacterEditor.instance.changeCharacterDesginedAs(designedAsDropDown.options[index] == "BOYFRIEND");
 		};
 		members.push(designedAsDropDown);
-		addLabelOn(designedAsDropDown, "Char Desgined As...");
+		addLabelOn(designedAsDropDown, translate("charDesign"));
 		designedAsDropDown.bWidth = 193;
 
 		alpha = 0.7;

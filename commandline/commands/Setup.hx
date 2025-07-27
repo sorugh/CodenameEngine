@@ -73,7 +73,7 @@ class Setup {
 
 		function handleLib(libNode:Access) {
 			switch(libNode.name) {
-				case "lib" | "git":
+				case "lib" | "git" | "custom":
 					final lib:Library = {
 						name: libNode.att.name,
 						type: libNode.name,
@@ -191,6 +191,8 @@ class Setup {
 							} else {
 								command('haxelib$commandPrefix git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}');
 							}
+						case "custom":
+							command('haxelib$commandPrefix dev ${lib.name} "./libraries/${lib.name}"');
 						default:
 							prettyPrint('Cannot resolve library of type "${lib.type}"');
 					}

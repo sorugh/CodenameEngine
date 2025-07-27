@@ -61,6 +61,12 @@ class Main extends Sprite
 	public static var gameThreads:Array<Thread> = [];
 	#end
 
+	public static function preInit() {
+		funkin.backend.utils.NativeAPI.registerAsDPICompatible();
+		funkin.backend.system.CommandLineHandler.parseCommandLine(Sys.args());
+		funkin.backend.system.Main.fixWorkingDirectory();
+	}
+
 	public function new()
 	{
 		super();
@@ -81,12 +87,12 @@ class Main extends Sprite
 	public static var audioDisconnected:Bool = false;
 
 	public static var changeID:Int = 0;
-	public static var pathBack = #if windows
+	public static var pathBack = #if (windows || linux)
 			"../../../../"
 		#elseif mac
 			"../../../../../../../"
 		#else
-			""
+			"../../../../"
 		#end;
 	public static var startedFromSource:Bool = #if TEST_BUILD true #else false #end;
 
@@ -132,16 +138,15 @@ class Main extends Sprite
 		#end
 
 		#if (sys && TEST_BUILD)
-			trace("Used cne test / cne build. Switching into source assets.");
+			Logs.infos("Used cne test / cne build. Switching into source assets.");
 			#if MOD_SUPPORT
 				ModsFolder.modsPath = './${pathBack}mods/';
 				ModsFolder.addonsPath = './${pathBack}addons/';
 			#end
-			Paths.assetsTree.__defaultLibraries.push(ModsFolder.loadLibraryFromFolder('assets', './${pathBack}assets/', true));
+			Paths.assetsTree.__defaultLibraries.push(ModsFolder.loadLibraryFromFolder('assets', './${pathBack}assets/', true, SOURCE));
 		#elseif USE_ADAPTED_ASSETS
-			Paths.assetsTree.__defaultLibraries.push(ModsFolder.loadLibraryFromFolder('assets', './assets/', true));
+			Paths.assetsTree.__defaultLibraries.push(ModsFolder.loadLibraryFromFolder('assets', './assets/', true, SOURCE));
 		#end
-
 
 		var lib = new AssetLibrary();
 		@:privateAccess
@@ -180,6 +185,8 @@ class Main extends Sprite
 	}
 
 	public static function refreshAssets() @:privateAccess {
+		FunkinCache.instance.clearSecondLayer();
+
 		var game = FlxG.game;
 		var daSndTray = Type.createInstance(game._customSoundTray = funkin.menus.ui.FunkinSoundTray, []);
 		var index:Int = game.numChildren - 1;
@@ -238,9 +245,9 @@ class Main extends Sprite
 			Sys.setCwd(haxe.io.Path.directory(Sys.programPath()));
 		}
 		#elseif android
-		Sys.setCwd(Path.addTrailingSlash(VERSION.SDK_INT > 30 ? Context.getObbDir() : Context.getExternalFilesDir()));
+		Sys.setCwd(haxe.io.Path.addTrailingSlash(VERSION.SDK_INT > 30 ? Context.getObbDir() : Context.getExternalFilesDir()));
 		#elseif (ios || switch)
-		Sys.setCwd(Path.addTrailingSlash(openfl.filesystem.File.applicationStorageDirectory.nativePath));
+		Sys.setCwd(haxe.io.Path.addTrailingSlash(openfl.filesystem.File.applicationStorageDirectory.nativePath));
 		#end
 	}
 

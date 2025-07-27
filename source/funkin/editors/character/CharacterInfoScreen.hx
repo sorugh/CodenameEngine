@@ -40,8 +40,11 @@ class CharacterInfoScreen extends UISubstateWindow {
 		super();
 	}
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("characterInfoScreen." + id, args);
+
 	public override function create() {
-		winTitle = 'Edit Character Properties...';
+		winTitle = translate("win-title");
 		winWidth = 824; winHeight = 400;
 
 		super.create();
@@ -50,15 +53,15 @@ class CharacterInfoScreen extends UISubstateWindow {
 			add(new UIText(ui.x, ui.y - 24, 0, text));
 
 		var title:UIText;
-		add(title = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Edit Character Info", 28));
+		add(title = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, translate("title"), 28));
 
 		iconColorPicker = new UIIconColorPicker(title.x, title.y + title.height + 38, character.getIcon(), character.antialiasing, null);
 		add(iconColorPicker);
-		addLabelOn(iconColorPicker, "Icon");
+		addLabelOn(iconColorPicker, translate("icon"));
 
 		iconColorWheel = new UIColorwheel(iconColorPicker.x+12+125+12+22, iconColorPicker.y, character.iconColor);
 		add(iconColorWheel);
-		addLabelOn(iconColorWheel, "Icon Color");
+		addLabelOn(iconColorWheel, translate("iconColor"));
 
 		if (character.iconColor != null)
 			iconColorWheel.colorChanged = true;
@@ -66,9 +69,9 @@ class CharacterInfoScreen extends UISubstateWindow {
 
 		durationStepper = new UINumericStepper(iconColorWheel.x, iconColorWheel.y + 125 + 36, character.holdTime == -1 ? 4 : character.holdTime, 0.001, 2, 0, 9999999, 74);
 		add(durationStepper);
-		addLabelOn(durationStepper, "Sing Duration");
+		addLabelOn(durationStepper, translate("singDuration"));
 
-		useDurationCheckbox = new UICheckbox(durationStepper.x + durationStepper.bWidth + 20, durationStepper.y+6, "Use Sing Duration?", character.holdTime != -1);
+		useDurationCheckbox = new UICheckbox(durationStepper.x + durationStepper.bWidth + 20, durationStepper.y+6, translate("useSingDuration"), character.holdTime != -1);
 		useDurationCheckbox.onChecked = (checked:Bool) -> {durationStepper.selectable = checked;};
 		add(useDurationCheckbox);
 
@@ -86,15 +89,15 @@ class CharacterInfoScreen extends UISubstateWindow {
 				customPropertiesButtonList.add(new PropertyButton(prop, val, customPropertiesButtonList));
 
 		add(customPropertiesButtonList);
-		addLabelOn(customPropertiesButtonList, "Custom Values (Advanced)");
+		addLabelOn(customPropertiesButtonList, translate("customValues"));
 
-		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
+		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, TU.translate("editor.saveClose"), function() {
 			saveCharacterInfo();
 			close();
 		}, 125);
 		add(saveButton);
 
-		closeButton = new UIButton(saveButton.x - 20 - saveButton.bWidth, saveButton.y, "Close", function() {
+		closeButton = new UIButton(saveButton.x - 20 - saveButton.bWidth, saveButton.y, TU.translate("editor.close"), function() {
 			close();
 		}, 125);
 		add(closeButton);

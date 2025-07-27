@@ -4,8 +4,12 @@ import funkin.editors.stage.elements.StageElementButton;
 import funkin.editors.stage.elements.*;
 
 class StageSpritesWindow extends UIButtonList<StageElementButton> {
+
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("stageSprites." + id, args);
+
 	public function new(x:Float, y:Float) {
-		super(x, y, 400, FlxG.height-25, "Stage Sprites", FlxPoint.get(400, 64));
+		super(x, y, 400, FlxG.height-25, translate("win-title"), FlxPoint.get(400, 64));
 
 		collapsable = true;
 		topAlpha = 0.9;
@@ -23,22 +27,22 @@ class StageSpritesWindow extends UIButtonList<StageElementButton> {
 			var screenPos = addButton.getScreenPosition(null, lastDrawCam == null ? FlxG.camera : lastDrawCam);
 			StageEditor.instance.openContextMenu([
 				{
-					label: "Sprite",
+					label: translate("sprite"),
 					onSelect: StageEditor.instance._sprite_new,
 					color: 0xFF00FF00,
 					icon: 2
 				},
 				{
-					label: "Box",
+					label: translate("box"),
 					onSelect: function(_) {
-						UIState.state.displayNotification(new UIBaseNotification("Creating a box isnt implemented yet!", 2, BOTTOM_LEFT));
+						UIState.state.displayNotification(new UIBaseNotification(translate("warnings.not-implemented"), 2, BOTTOM_LEFT));
 						CoolUtil.playMenuSFX(WARNING, 0.45);
 					},
 					color: 0xFF00FF00,
 					icon: 2
 				},
 				{
-					label: "Character",
+					label: translate("character"),
 					onSelect: StageEditor.instance._character_new,
 					color: 0xFF00FF00,
 					icon: 2

@@ -105,6 +105,8 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 	public static var skipTransOut:Bool = false;
 	public static var skipTransIn:Bool = false;
 
+	public static var ALLOW_DEV_RELOAD:Bool = true;
+
 	inline function get_controls():Controls
 		return PlayerSettings.solo.controls;
 	inline function get_controlsP1():Controls
@@ -153,16 +155,20 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 			call("postUpdate", [elapsed]);
 		}
 
-		if (_requestSubStateReset)
-		{
+		if (_requestSubStateReset) {
 			_requestSubStateReset = false;
 			resetSubState();
 		}
-		if (subState != null)
-		{
-			subState.tryUpdate(elapsed);
+
+		if (/*subState == null && */(ALLOW_DEV_RELOAD && controls.DEV_RELOAD)) {
+			Logs.trace("Reloading Current State...", INFO, YELLOW);
+			FlxG.resetState();
 		}
+
+		if (subState != null)
+			subState.tryUpdate(elapsed);
 	}
+
 	override function create()
 	{
 		loadScript();
@@ -223,12 +229,6 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 
 	override function update(elapsed:Float)
 	{
-		// TODO: DEBUG MODE!!
-		#if EXPERMENTAL_SCRIPT_RELOADING
-		if (FlxG.keys.justPressed.F5) {
-			loadScript();
-		}
-		#end
 		call("update", [elapsed]);
 
 		super.update(elapsed);

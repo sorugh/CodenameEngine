@@ -82,16 +82,13 @@ final class Logs {
 			logText('  |'),
 			switch (level)
 			{
-				case WARNING:
-					logText('   WARNING   ', DARKYELLOW);
-				case ERROR:
-					logText('    ERROR    ', DARKRED);
-				case TRACE:
-					logText('    TRACE    ', GRAY);
-				case VERBOSE:
-					logText('   VERBOSE   ', DARKMAGENTA);
-				default:
-					logText(' INFORMATION ', CYAN);
+				case WARNING:	logText('   WARNING   ', DARKYELLOW);
+				case ERROR:		logText('    ERROR    ', DARKRED);
+				case TRACE:		logText('    TRACE    ', GRAY);
+				case VERBOSE:	logText('   VERBOSE   ', DARKMAGENTA);
+				case SUCCESS:	logText('   SUCCESS   ', GREEN);
+				case FAILURE:	logText('   FAILURE   ', RED);
+				default:		logText(' INFORMATION ', CYAN);
 			},
 			logText('] ')
 		];
@@ -165,6 +162,8 @@ enum abstract Level(Int) {
 	var ERROR = 2;
 	var TRACE = 3;
 	var VERBOSE = 4;
+	var SUCCESS = 5;
+	var FAILURE = 6;
 }
 
 typedef LogText = {

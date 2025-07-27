@@ -10,6 +10,7 @@ typedef ChartData = {
 	public var stage:String;
 	public var scrollSpeed:Float;
 	public var noteTypes:Array<String>;
+	public var ?bookmarks:Array<ChartBookmark>;
 
 	public var ?chartVersion:String;
 	public var ?fromMods:Bool;
@@ -22,16 +23,12 @@ typedef ChartMetaData = {
 	public var ?beatsPerMeasure:Float;
 	public var ?stepsPerBeat:Int;
 	public var ?icon:String;
-	public var ?color:Dynamic;
+	public var ?color:FlxColor;
 	public var ?difficulties:Array<String>;
 	public var ?coopAllowed:Bool;
 	public var ?opponentModeAllowed:Bool;
 	public var ?customValues:Dynamic;
 	public var ?needsVoices:Bool;
-	public var ?artist:String;
-
-	// NOT TO BE EXPORTED
-	public var ?parsedColor:FlxColor;
 }
 
 typedef ChartStrumLine = {
@@ -55,6 +52,12 @@ typedef ChartNote = {
 	var id:Int; // strum id of the note
 	var type:Int; // type (int) of the note
 	var sLen:Float; // sustain length of the note (ms)
+}
+
+typedef ChartBookmark = {
+	var time:Float;
+	var name:String;
+	var color:String;
 }
 
 typedef ChartEvent = {

@@ -88,6 +88,14 @@ class UIContextMenu extends MusicBeatSubstate {
 			for(o in separators)
 				o.y -= bg.bHeight;
 		}
+
+		if (bg.x + bg.bWidth > FlxG.width && bg.x > FlxG.width*0.5) {
+			bg.x -= bg.bWidth;
+			for(o in contextMenuOptions)
+				o.x -= bg.bWidth;
+			for(o in separators)
+				o.x -= bg.bWidth;
+		}
 	}
 
 	public function select(option:UIContextMenuOption) {

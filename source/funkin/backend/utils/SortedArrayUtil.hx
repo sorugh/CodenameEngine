@@ -12,7 +12,7 @@ final class SortedArrayUtil {
 	 * @param getVal Function that returns the position value of T
 	 * @return The index of the element
 	 */
-	public static inline function binarySearch<T>(array:Array<T>, val:Float, getVal:T->Float):Int {
+	public static function binarySearch<T>(array:Array<T>, val:Float, getVal:T->Float):Int {
 		if (array.length <= 0) return 0; // if the array is empty, it should be equal to zero (the beginning)
 		if (getVal(array[0]) > val) return 0; // in case its the minimum
 		if (getVal(array[array.length-1]) < val) return array.length; // in case its the maximum
@@ -56,7 +56,8 @@ final class SortedArrayUtil {
 	 * @param getVal Function that returns the value that needs to be sorted
 	 */
 	public static inline function removeSorted<T>(array:Array<T>, val:T, getVal:T->Float) {
-		if (val != null)
-			array.splice(binarySearch(array, getVal(val), getVal), 1);
+		var index = binarySearch(array, getVal(val), getVal);
+		if (index != -1)
+			array.splice(index, 1);
 	}
 }

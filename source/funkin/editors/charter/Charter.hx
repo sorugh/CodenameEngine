@@ -11,6 +11,7 @@ import funkin.backend.chart.ChartData;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.framerate.Framerate;
 import funkin.editors.charter.CharterBackdropGroup.EventBackdrop;
+import funkin.editors.charter.CharterBackdropGroup.CharterGridSeperatorBase;
 import funkin.editors.charter.CharterEvent;
 import funkin.editors.charter.CharterStrumline;
 import funkin.editors.extra.CameraHoverDummy;
@@ -22,6 +23,7 @@ import haxe.Json;
 #if sys
 import sys.FileSystem;
 #end
+import flixel.util.FlxColor;
 
 class Charter extends UIState {
 	public static var __song:String;
@@ -31,6 +33,9 @@ class Charter extends UIState {
 	var chart(get, never):ChartData;
 	private function get_chart()
 		return PlayState.SONG;
+
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("charter." + id, args);
 
 	public static var instance(get, never):Charter;
 
@@ -44,6 +49,7 @@ class Charter extends UIState {
 	@:noCompletion private var playbackIndex:Int = 7;
 	@:noCompletion private var snapIndex:Int = 6;
 	@:noCompletion private var noteIndex:Int = 5;
+	@:noCompletion private var songIndex:Int = 4;
 
 	public var scrollBar:UIScrollBar;
 	public var songPosInfo:UIText;
@@ -102,7 +108,11 @@ class Charter extends UIState {
 	public static var clipboard:Array<CharterCopyboardObject> = [];
 	public static var waveformHandler:CharterWaveformHandler;
 
-	//public var textLayer:FlxLayer;
+	private var SONGPOSINFO_STEP = TU.getRaw("songPosInfo.step");
+	private var SONGPOSINFO_BEAT = TU.getRaw("songPosInfo.beat");
+	private var SONGPOSINFO_MEASURE = TU.getRaw("songPosInfo.measure");
+	private var SONGPOSINFO_BPM = TU.getRaw("songPosInfo.bpm");
+	private var SONGPOSINFO_TIMESIGNATURE = TU.getRaw("songPosInfo.timeSignature");
 
 	public function new(song:String, diff:String, reload:Bool = true) {
 		super();
@@ -116,154 +126,149 @@ class Charter extends UIState {
 	public override function create() {
 		super.create();
 
-		WindowUtils.suffix = " (Chart Editor)";
+		WindowUtils.suffix = " (" + TU.translate("editor.chart.name") + ")";
 		SaveWarning.selectionClass = CharterSelection;
 		SaveWarning.saveFunc = () -> saveEverything();
 
 		topMenu = [
 			{
-				label: "File",
+				label: translate("topBar.file"),
 				childs: [
 					/*{
-						label: "New"
+						label: translate("file.new")
 					},
 					null,*/
 					{
-						label: "Save",
+						label: translate("file.save"),
 						keybind: [CONTROL, S],
 						onSelect: _file_save_all,
 					},
-					null,
 					{
-						label: "Save chart",
+						label: translate("file.saveAs"),
 						keybind: [CONTROL, SHIFT, S],
-						onSelect: _file_save,
-					},
-					{
-						label: "Save chart as...",
 						onSelect: _file_saveas,
 					},
 					null,
 					{
-						label: "Save global events",
+						label: translate("file.saveGlobalEvents"),
 						keybind: [CONTROL, B, S],
 						onSelect: _file_events_save,
 					},
 					{
-						label: "Save global events as...",
+						label: translate("file.saveGlobalEventsAs"),
 						onSelect: _file_events_saveas,
 					},
 					{
-						label: "Save chart without local events",
+						label: translate("file.saveNoLocalEvents"),
 						keybind: [CONTROL, ALT, S],
 						onSelect: _file_save_no_events,
 					},
 					{
-						label: "Save chart without local events as...",
+						label: translate("file.saveNoLocalEventsAs"),
 						onSelect: _file_saveas_no_events,
 					},
 					null,
 					{
-						label: "Save meta",
+						label: translate("file.saveMeta"),
 						keybind: [CONTROL, M, S],
 						onSelect: _file_meta_save,
 					},
 					{
-						label: "Save meta as...",
+						label: translate("file.saveMetaAs"),
 						onSelect: _file_meta_saveas,
 					},
 					null,
 					{
-						label: "Export for FNF Legacy as...",
+						label: translate("file.exportFnfLegacy"),
 						onSelect: _file_saveas_fnflegacy,
 					},
 					{
-						label: "Export for Psych Engine as...",
+						label: translate("file.exportPsych"),
 						onSelect: _file_saveas_psych,
 					},
 					null,
 					{
-						label: "Exit",
+						label: translate("file.exit"),
 						onSelect: _file_exit
 					}
 				]
 			},
 			{
-				label: "Edit",
+				label: translate("topBar.edit"),
 				childs: [
 					{
-						label: "Undo",
+						label: translate("edit.undo"),
 						keybind: [CONTROL, Z],
 						onSelect: _edit_undo
 					},
 					{
-						label: "Redo",
+						label: translate("edit.redo"),
 						keybinds: [[CONTROL, Y], [CONTROL, SHIFT, Z]],
 						onSelect: _edit_redo
 					},
 					null,
 					{
-						label: "Copy",
+						label: translate("edit.copy"),
 						keybind: [CONTROL, C],
-						onSelect: _edit_copy
+						onSelect: cast _edit_copy
 					},
 					{
-						label: "Paste",
+						label: translate("edit.paste"),
 						keybind: [CONTROL, V],
 						onSelect: _edit_paste
 					},
 					null,
 					{
-						label: "Cut",
+						label: translate("edit.cut"),
 						keybind: [CONTROL, X],
 						onSelect: _edit_cut
 					},
 					{
-						label: "Delete",
+						label: translate("edit.delete"),
 						keybind: [DELETE],
 						onSelect: _edit_delete
 					}
 				]
 			},
 			{
-				label: "Chart",
+				label: translate("topBar.chart"),
 				childs: [
 					{
-						label: "Playtest",
+						label: translate("chart.playtest"),
 						keybind: [ENTER],
 						onSelect: _chart_playtest
 					},
 					{
-						label: "Playtest here",
+						label: translate("chart.playtestHere"),
 						keybind: [SHIFT, ENTER],
 						onSelect: _chart_playtest_here
 					},
 					null,
 					{
-						label: "Playtest as opponent",
+						label: translate("chart.playtestOpponent"),
 						keybind: [CONTROL, ENTER],
 						onSelect: _chart_playtest_opponent
 					},
 					{
-						label: "Playtest as opponent here",
+						label: translate("chart.playtestOpponentHere"),
 						keybind: [CONTROL, SHIFT, ENTER],
 						onSelect: _chart_playtest_opponent_here
 					},
 					null,
 					{
-						label: 'Enable scripts during playtesting',
+						label: translate("chart.enableScripts"),
 						onSelect: _chart_enablescripts,
 						icon: Options.charterEnablePlaytestScripts ? 1 : 0
 					},
 					null,
 					{
-						label: "Edit chart data",
+						label: translate("chart.editChartData"),
 						color: 0xFF959829, icon: 4,
 						onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2;},
 						onSelect: chart_edit_data
 					},
 					{
-						label: "Edit metadata information",
+						label: translate("chart.editMetadata"),
 						color: 0xFF959829, icon: 4,
 						onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2;},
 						onSelect: chart_edit_metadata
@@ -271,160 +276,140 @@ class Charter extends UIState {
 				]
 			},
 			{
-				label: "View",
+				label: translate("topBar.view"),
 				childs: [
 					{
-						label: "Zoom in",
+						label: translate("view.zoomIn"),
 						keybind: [CONTROL, NUMPADPLUS],
 						onSelect: _view_zoomin
 					},
 					{
-						label: "Zoom out",
+						label: translate("view.zoomOut"),
 						keybind: [CONTROL, NUMPADMINUS],
 						onSelect: _view_zoomout
 					},
 					{
-						label: "Reset zoom",
+						label: translate("view.resetZoom"),
 						keybind: [CONTROL, NUMPADZERO],
 						onSelect: _view_zoomreset
 					},
 					null,
 					{
-						label: 'Show Sections Separator',
+						label: translate("view.showSectionsSeparator"),
 						onSelect: _view_showeventSecSeparator,
 						icon: Options.charterShowSections ? 1 : 0
 					},
 					{
-						label: 'Show Beats Separator',
+						label: translate("view.showBeatsSeparator"),
 						onSelect: _view_showeventBeatSeparator,
 						icon: Options.charterShowBeats ? 1 : 0
 					},
 					null,
 					{
-						label: 'Rainbow Waveforms',
+						label: translate("view.rainbowWaveforms"),
 						onSelect: _view_switchWaveformRainbow,
 						icon: Options.charterRainbowWaveforms ? 1 : 0
 					},
 					{
-						label: 'Low Detail Waveforms',
+						label: translate("view.lowDetailWaveforms"),
 						onSelect: _view_switchWaveformDetail,
 						icon: Options.charterLowDetailWaveforms ? 1 : 0
 					},
 					null,
 					{
-						label: "Scroll left",
+						label: translate("view.scrollLeft"),
 						keybind: [SHIFT, LEFT],
 						onSelect: _view_scrollleft
 					},
 					{
-						label: "Scroll right",
+						label: translate("view.scrollRight"),
 						keybind: [SHIFT, RIGHT],
 						onSelect: _view_scrollright
 					},
 					{
-						label: "Reset scroll",
+						label: translate("view.scrollReset"),
 						keybind: [SHIFT, DOWN],
 						onSelect: _view_scrollreset
 					}
 				]
 			},
 			{
-				label: "Song",
-				childs: [
-					{
-						label: "Go back to the start",
-						keybind: [HOME],
-						onSelect: _song_start
-					},
-					{
-						label: "Go to the end",
-						keybind: [END],
-						onSelect: _song_end
-					},
-					null,
-					{
-						label: "Mute instrumental",
-						onSelect: _song_muteinst
-					},
-					{
-						label: "Mute voices",
-						onSelect: _song_mutevoices
-					}
-				]
+				label: translate("topBar.song"),
+				childs: buildSongUI()
 			},
 			{
-				label: "Note >",
+				label: translate("topBar.note") + " >",
 				childs: buildNoteTypesUI()
 			},
 			{
-				label: "Snap >",
+				label: translate("topBar.snap") + " >",
 				childs: buildSnapsUI()
 			},
 			{
-				label: "Playback >",
+				label: translate("topBar.playback") + " >",
 				childs: [
 					{
-						label: "Play/Pause",
+						label: translate("playback.play"),
 						keybind: [SPACE],
 						onSelect: _playback_play
 					},
 					null,
 					{
-						label: "↑ Speed 25%",
+						label: translate("playback.speedRaise", ["25"]),
 						keybind: [PERIOD],
 						onSelect: _playback_speed_raise
 					},
 					{
-						label: "Reset Speed",
+						label: translate("playback.speedReset"),
 						onSelect: _playback_speed_reset
 					},
 					{
-						label: "↓ Speed 25%",
+						label: translate("playback.speedLower", ["25"]),
 						keybind: [COMMA],
 						onSelect: _playback_speed_lower
 					},
 					null,
 					{
-						label: "Go back a section",
+						label: translate("playback.sectionBack"),
 						keybind: [A],
 						onSelect: _playback_back
 					},
 					{
-						label: "Go forward a section",
+						label: translate("playback.sectionForward"),
 						keybind: [D],
 						onSelect: _playback_forward
 					},
 					{
-						label: "Go to start of section",
+						label: translate("playback.sectionStart"),
 						keybind: [SHIFT, S],
 						onSelect: _playback_section_start
 					},
 					null,
 					{
-						label: "Go back a step",
+						label: translate("playback.backStep"),
 						keybind: [W],
 						onSelect: _playback_back_step
 					},
 					{
-						label: "Go forward a step",
+						label: translate("playback.forwardStep"),
 						keybind: [S],
 						onSelect: _playback_forward_step
 					},
 					null,
 					{
-						label: "Metronome",
+						label: translate("playback.metronome"),
 						onSelect: _playback_metronome,
 						icon: Options.charterMetronomeEnabled ? 1 : 0
 					},
 					/*{
-						label: "Visual metronome"
+						label: translate("playback.visualMetronome")
 					},*/
 				]
 			}
 		];
 
-		hitsound = FlxG.sound.load(Paths.sound('editors/charter/hitsound'));
-		metronome = FlxG.sound.load(Paths.sound('editors/charter/metronome'));
+		hitsound = FlxG.sound.load(Paths.sound(Flags.DEFAULT_CHARTER_HITSOUND_SOUND));
+		metronome = FlxG.sound.load(Paths.sound(Flags.DEFAULT_CHARTER_METRONOME_SOUND));
 
 		charterCamera = FlxG.camera;
 		uiCamera = new FlxCamera();
@@ -443,7 +428,7 @@ class Charter extends UIState {
 		gridBackdrops = new CharterBackdropGroup(strumLines);
 		gridBackdrops.notesGroup = this.notesGroup;
 
-		leftEventRowText = new UIText(0, -40, 0, "Local Events\n(Only This Difficulty)", 12);
+		leftEventRowText = new UIText(0, -40, 0, translate("info.localEvents"), 12);
 		leftEventRowText.alignment = "center"; leftEventRowText.alpha = 0.75;
 
 		leftEventsBackdrop = new EventBackdrop(false);
@@ -453,7 +438,7 @@ class Charter extends UIState {
 		leftEventsGroup.eventsBackdrop = leftEventsBackdrop;
 		leftEventsGroup.eventsRowText = leftEventRowText;
 
-		rightEventRowText = new UIText(0, -40, 0, "Global Events\n(All Difficulties)", 12);
+		rightEventRowText = new UIText(0, -40, 0, translate("info.globalEvents"), 12);
 		rightEventRowText.alignment = "center"; rightEventRowText.alpha = 0.75;
 
 		rightEventsBackdrop = new EventBackdrop(true);
@@ -481,7 +466,7 @@ class Charter extends UIState {
 		topMenuSpr = new UITopMenu(topMenu);
 		topMenuSpr.cameras = uiGroup.cameras = [uiCamera];
 
-		noteTypeText = new UIText(0, 0, 0, "(0) Default Note");
+		noteTypeText = new UIText(0, 0, 0, "(0) " + translate("noteTypes.default"));
 		noteTypeText.cameras = [uiCamera];
 
 		scrollBar = new UIScrollBar(FlxG.width - 20, topMenuSpr.bHeight, 1000, 0, 100);
@@ -519,13 +504,14 @@ class Charter extends UIState {
 		autoSaveNotif = new CharterAutoSaveUI(20, strumlineInfoBG.y + strumlineInfoBG.height + 20);
 		uiGroup.add(autoSaveNotif);
 
-		strumlineAddButton = new CharterStrumlineButton("editors/new", "Create New");
+		strumlineAddButton = new CharterStrumlineButton("editors/new", translate("createNew"));
 		strumlineAddButton.onClick = createStrumWithUI;
 		strumlineAddButton.animationOnClick = false;
 		strumlineAddButton.textColorLerp = 0.5;
 
-		strumlineLockButton = new CharterStrumlineButton("editors/charter/lock-strumline", "Lock/Unlock");
+		strumlineLockButton = new CharterStrumlineButton("editors/charter/lock-strumline", translate("lock-unlock"));
 		strumlineLockButton.onClick = function () {
+			FlxG.sound.play(Paths.sound(!strumLines.draggable ? Flags.DEFAULT_CHARTER_STRUMUNLOCK_SOUND : Flags.DEFAULT_CHARTER_STRUMLOCK_SOUND));
 			if (strumLines != null) {
 				strumLines.draggable = !strumLines.draggable;
 				strumlineLockButton.textTweenColor.color = strumLines.draggable ? 0xFF5C95CA : 0xFFE16565;
@@ -667,6 +653,7 @@ class Charter extends UIState {
 		}
 
 		buildNoteTypesUI();
+		updateBookmarks();
 		refreshBPMSensitive();
 
 		// Just for now until i add event stacking -lunar
@@ -685,25 +672,22 @@ class Charter extends UIState {
 		gridBackdrops.bottomLimitY = __endStep * 40;
 		leftEventsBackdrop.bottomSeparator.y = rightEventsBackdrop.bottomSeparator.y = gridBackdrops.bottomLimitY-2;
 
-		updateWaveforms();
-	}
+		CharterGridSeperatorBase.lastConductorSprY = Math.NEGATIVE_INFINITY;
 
-	inline function isSoundLoaded(sound:FlxSound) {
-		@:privateAccess
-		return sound != null && sound._sound != null && sound._sound.length > 0;
+		updateWaveforms();
 	}
 
 	public function getWavesToGenerate():Array<{name:String, sound:FlxSound}> {
 		var wavesToGenerate:Array<{name:String, sound:FlxSound}> = [];
 
-		if(isSoundLoaded(FlxG.sound.music))
+		if (FlxG.sound.music.loaded)
 			wavesToGenerate.push({name: "Inst.ogg", sound: FlxG.sound.music});
 
-		if (PlayState.SONG.meta.needsVoices != false && isSoundLoaded(vocals))
+		if (PlayState.SONG.meta.needsVoices != false && vocals.loaded)
 			wavesToGenerate.push({name: "Voices.ogg", sound: vocals});
 
 		for (strumLine in strumLines)
-			if (strumLine.vocals != null && strumLine.strumLine.vocalsSuffix != null && strumLine.strumLine.vocalsSuffix != "" && isSoundLoaded(strumLine.vocals))
+			if (strumLine.vocals != null && strumLine.strumLine.vocalsSuffix != null && strumLine.strumLine.vocalsSuffix != "" && strumLine.vocals.loaded)
 				wavesToGenerate.push({
 					name: 'Voices${strumLine.strumLine.vocalsSuffix}.ogg',
 					sound: strumLine.vocals
@@ -795,10 +779,8 @@ class Charter extends UIState {
 		if (autoSaveTimer < Options.charterAutoSaveWarningTime && !autoSaveNotif.cancelled && !autoSaveNotif.showedAnimation) {
 			if (Options.charterAutoSavesSeparateFolder)
 				__autoSaveLocation = __diff.toLowerCase() + DateTools.format(Date.now(), "%m-%d_%H-%M");
-			autoSaveNotif.startAutoSave(autoSaveTimer,
-				!Options.charterAutoSavesSeparateFolder ? 'Saved chart at ${__diff.toLowerCase()}.json!' :
-				'Saved chart at $__autoSaveLocation.json!'
-			);
+			var filename = !Options.charterAutoSavesSeparateFolder ? '${__diff.toLowerCase()}.json' : '${__autoSaveLocation}.json';
+			autoSaveNotif.startAutoSave(autoSaveTimer, translate("popup.savedChartAt", [filename]));
 		}
 		if (autoSaveTimer <= 0) {
 			autoSaveTimer = Options.charterAutoSaveTime;
@@ -924,7 +906,7 @@ class Charter extends UIState {
 							s.cursor = CLICK;
 						}
 					}
-
+					checkSelectionForBPMUpdates();
 					if (!(verticalChange == 0 && horizontalChange == 0)) {
 						notesGroup.sortNotes();
 
@@ -969,6 +951,7 @@ class Charter extends UIState {
 							notesGroup.add(note);
 							selection = [note];
 							undos.addToUndo(CCreateSelection([note]));
+							FlxG.sound.play(Paths.sound(Flags.DEFAULT_CHARTER_NOTEPLACE_SOUND));
 						}
 						isSelecting = false;
 					}
@@ -1033,7 +1016,9 @@ class Charter extends UIState {
 				});
 
 				if (FlxG.mouse.justReleasedRight) {
-					if (deletedNotes.length > 0) undos.addToUndo(CDeleteSelection(deletedNotes.copy()));
+					if (deletedNotes.length > 0) {
+						undos.addToUndo(CDeleteSelection(deletedNotes.copy()));
+					}
 					else if (noteDeleteAnims.garbageIcon.alpha <= .5) {
 						var mousePos = FlxG.mouse.getScreenPosition(uiCamera);
 						closeCurrentContextMenu();
@@ -1095,6 +1080,7 @@ class Charter extends UIState {
 		if (selected == null) return selected;
 
 		if (selected is CharterNote) {
+			FlxG.sound.play(Paths.sound(Flags.DEFAULT_CHARTER_NOTEDELETE_SOUND));
 			var note:CharterNote = cast selected;
 			note.strumLineID = strumLines.members.indexOf(note.strumLine);
 			note.strumLine = null; // For static undos :D
@@ -1128,11 +1114,7 @@ class Charter extends UIState {
 		notesGroup.sortNotes();
 		notesGroup.autoSort = true;
 
-		for (s in selection)
-			if (s is CharterEvent) {
-				Charter.instance.updateBPMEvents();
-				break;
-			}
+		checkSelectionForBPMUpdates();
 
 		if (addToUndo)
 			undos.addToUndo(CCreateSelection(selection));
@@ -1156,11 +1138,7 @@ class Charter extends UIState {
 		notesGroup.sortNotes();
 		notesGroup.autoSort = true;
 
-		for (s in selection)
-			if (s is CharterEvent) {
-				Charter.instance.updateBPMEvents();
-				break;
-			}
+		checkSelectionForBPMUpdates();
 
 		if (addToUndo)
 			undos.addToUndo(CDeleteSelection(selection));
@@ -1205,6 +1183,8 @@ class Charter extends UIState {
 			createSelection(toBeCreated, false);
 		}
 
+		updateBookmarks();
+
 		if (addToUndo)
 			undos.addToUndo(CCreateStrumLine(strumLineID, strL));
 	}
@@ -1227,6 +1207,8 @@ class Charter extends UIState {
 		strumLines.members.remove(strumLines.members[strumLineID]);
 		strumLines.refreshStrumlineIDs();
 		strumLines.snapStrums();
+
+		updateBookmarks();
 
 		if (addToUndo) {
 			var newStrL = Reflect.copy(strL);
@@ -1299,6 +1281,19 @@ class Charter extends UIState {
 		updateNoteLogic(elapsed);
 		updateAutoSaving(elapsed);
 
+		for (bs in __bookmarkObjects)
+		{
+			var bars:Array<FlxSprite> = bs[0];
+			var text:UIText = bs[1];
+			if (bars == null || bars.length == 0) continue;
+			for (i => spr in bars) {
+				if (spr == null || strumLines.members[i] == null) continue;
+				spr.x = strumLines.members[i].x;
+			}
+			if (text != null)
+				text.x = strumLines.members[0].x + 4;
+		}
+
 		if (FlxG.sound.music.playing || __firstFrame) {
 			gridBackdrops.conductorSprY = curStepFloat * 40;
 		} else {
@@ -1338,7 +1333,7 @@ class Charter extends UIState {
 			noteTypeText.x = noteTopButton.x + noteTopButton.bWidth + 6;
 			noteTypeText.y = Std.int((noteTopButton.bHeight - noteTypeText.height) / 2);
 		}
-		noteTypeText.text = '($noteType) ${noteTypes[noteType-1] == null ? "Default Note" : noteTypes[noteType-1]}';
+		noteTypeText.text = '($noteType) ' + (noteTypes[noteType-1] == null ? translate("noteTypes.default") : noteTypes[noteType-1]);
 
 		super.update(elapsed);
 
@@ -1380,12 +1375,16 @@ class Charter extends UIState {
 			for (strumLine in strumLines.members) strumLine.vocals.pause();
 		}
 
-		songPosInfo.text = '${CoolUtil.timeToStr(Conductor.songPosition)} / ${CoolUtil.timeToStr(songLength)}'
-		+ '\nStep: ${curStep}'
-		+ '\nBeat: ${curBeat}'
-		+ '\nMeasure: ${curMeasure}'
-		+ '\nBPM: ${Conductor.bpm}'
-		+ '\nTime Signature: ${Conductor.beatsPerMeasure}/${Conductor.stepsPerBeat}';
+		var curChange = Conductor.curChange;
+		songPosInfo.text = [
+			// no need to translate the time text since it has no text only numbers
+			'${CoolUtil.timeToStr(Conductor.songPosition)} / ${CoolUtil.timeToStr(songLength)}',
+			SONGPOSINFO_STEP.format([curStep]),
+			SONGPOSINFO_BEAT.format([curBeat]),
+			SONGPOSINFO_MEASURE.format([curMeasure]),
+			SONGPOSINFO_BPM.format([(curChange != null && curChange.continuous && curChange.endSongTime > songPos) ? FlxMath.roundDecimal(Conductor.bpm, 3) : Conductor.bpm]),
+			SONGPOSINFO_TIMESIGNATURE.format([Conductor.beatsPerMeasure, Conductor.denominator])
+		].join("\n");
 
 		if (charterCamera.zoom != (charterCamera.zoom = lerp(charterCamera.zoom, __camZoom, __firstFrame ? 1 : 0.125)))
 			updateDisplaySprites();
@@ -1423,15 +1422,18 @@ class Charter extends UIState {
 		for(id=>str in strumLines.members)
 			if (str != null) str.y = strumlineInfoBG.y;
 
+		//strumlineAddButton.x = 0;
 		strumlineAddButton.y = strumlineInfoBG.y;
 		strumlineLockButton.y = strumlineInfoBG.y;
+
+		strumlineLockButton.text.visible = strumlineLockButton.button.selectable = strumlineLockButton.button.visible = strumLines.members.length > 0;
 	}
 
 	public override function onResize(width:Int, height:Int) {
 		super.onResize(width, height);
 		if (!UIState.resolutionAware) return;
 
-		if (width < FlxG.initialWidth || height < FlxG.initialHeight) {
+		if ((width < FlxG.initialWidth || height < FlxG.initialHeight) && !Options.bypassEditorsResize) {
 			width = FlxG.initialWidth; height = FlxG.initialHeight;
 		}
 
@@ -1443,6 +1445,7 @@ class Charter extends UIState {
 		playBackSlider.x = width - 160 - 26 - 20;
 
 		updateDisplaySprites();
+		updateBookmarks();
 		charterBG.screenCenter();
 	}
 
@@ -1471,6 +1474,7 @@ class Charter extends UIState {
 
 	public static function saveChart(shouldBuild:Bool = true, withEvents:Bool = true) {
 		#if sys
+		FlxG.sound.play(Paths.sound('editors/save'));
 		saveTo('${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}', !withEvents, shouldBuild);
 		if (undos != null) undos.save();
 		#else
@@ -1487,6 +1491,7 @@ class Charter extends UIState {
 
 	public static function saveEvents(shouldBuild:Bool = true) {
 		#if sys
+		FlxG.sound.play(Paths.sound('editors/save'));
 		if (shouldBuild && instance != null) instance.buildChart();
 		var data = {events: Chart.filterChartForSaving(PlayState.SONG, false, false, true).events};
 
@@ -1509,6 +1514,7 @@ class Charter extends UIState {
 
 	public static function saveMeta(shouldBuild:Bool = true) {
 		#if sys
+		FlxG.sound.play(Paths.sound('editors/save'));
 		if (shouldBuild && instance != null) instance.buildChart();
 		CoolUtil.safeSaveFile(
 			'${Paths.getAssetsRoot()}/songs/${__song.toLowerCase()}/meta.json',
@@ -1538,6 +1544,7 @@ class Charter extends UIState {
 	}
 
 	public static function saveAs(data:Dynamic, ?replacer:(key:Dynamic, value:Dynamic) -> Dynamic, ?space:String, ?options:SaveSubstate.SaveSubstateData, ?saveOptions:Map<String, Bool>, shouldBuild:Bool = true) {
+		FlxG.sound.play(Paths.sound('editors/save'));
 		if (shouldBuild && instance != null) instance.buildChart();
 		var cur = FlxG.state;
 		while(true) {
@@ -1558,7 +1565,7 @@ class Charter extends UIState {
 	#if REGION
 	function _file_exit(_) {
 		if (undos.unsaved) SaveWarning.triggerWarning();
-		else {undos = null; FlxG.switchState(new CharterSelection()); PlayState.resetSongInfos(); Charter.instance.__clearStatics();}
+		else {undos = null; FlxG.switchState(new CharterSelection()); Charter.instance.__clearStatics();}
 	}
 
 	function _file_save_all(_) saveEverything();
@@ -1573,7 +1580,8 @@ class Charter extends UIState {
 	function _file_saveas_fnflegacy(_) saveLegacyChartAs();
 	function _file_saveas_psych(_) savePsychChartAs();
 
-	function _edit_copy(_) {
+	function _edit_copy(_, playSFX=true) {
+		if (playSFX) FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_COPY_SOUND));
 		if(selection.length == 0) return;
 
 		var minStep:Float = selection[0].step;
@@ -1592,6 +1600,7 @@ class Charter extends UIState {
 		];
 	}
 	function _edit_paste(_) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_PASTE_SOUND));
 		if (clipboard.length <= 0) return;
 
 		var minStep = curStep;
@@ -1611,19 +1620,23 @@ class Charter extends UIState {
 			}
 		}
 		selection = sObjects;
-		_edit_copy(_); // to fix stupid bugs
+		_edit_copy(_, false); // to fix stupid bugs
+
+		checkSelectionForBPMUpdates();
 
 		undos.addToUndo(CCreateSelection(sObjects.copy()));
 	}
 
 	function _edit_cut(_) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_CUT_SOUND));
 		if (selection == null || selection.length == 0) return;
 
-		_edit_copy(_);
+		_edit_copy(_, false);
 		deleteSelection(selection, false);
 	}
 
 	function _edit_delete(_) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_DELETE_SOUND));
 		if (selection == null || selection.length == 0) return;
 		selection.loop((n:CharterNote) -> {
 			noteDeleteAnims.deleteNotes.push({note: n, time: noteDeleteAnims.deleteTime});
@@ -1632,6 +1645,7 @@ class Charter extends UIState {
 	}
 
 	function _undo(undo:CharterChange) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_UNDO_SOUND));
 		switch(undo) {
 			case null: // do nothing
 			case CDeleteStrumLine(strumLineID, strumLine):
@@ -1655,6 +1669,7 @@ class Charter extends UIState {
 					if (s.selectable.draggable) s.selectable.handleDrag(s.change * -1);
 
 				selection = [for (s in selectionDrags) s.selectable];
+				checkSelectionForBPMUpdates();
 			case CEditSustains(changes):
 				for(n in changes)
 					n.note.updatePos(n.note.step, n.note.id, n.before, n.note.type);
@@ -1673,6 +1688,9 @@ class Charter extends UIState {
 			case CEditNoteTypes(oldArray, newArray):
 				noteTypes = oldArray;
 				changeNoteType(null, false);
+			case CEditBookmarks(oldArray, newArray):
+				PlayState.SONG.bookmarks = oldArray;
+				updateBookmarks();
 			case CEditSpecNotesType(notes, oldTypes, newTypes):
 				for(i=>note in notes) note.updatePos(note.step, note.id, note.susLength, oldTypes[i]);
 			case CChangeBundle(changes):
@@ -1688,6 +1706,7 @@ class Charter extends UIState {
 	}
 
 	function _redo(redo:CharterChange) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_REDO_SOUND));
 		switch(redo) {
 			case null: // do nothing
 			case CDeleteStrumLine(strumLineID, strumLine):
@@ -1710,6 +1729,7 @@ class Charter extends UIState {
 				for (s in selectionDrags)
 					if (s.selectable.draggable) s.selectable.handleDrag(s.change);
 				//this.selection = selection;
+				checkSelectionForBPMUpdates();
 			case CEditSustains(changes):
 				for(n in changes)
 					n.note.updatePos(n.note.step, n.note.id, n.after, n.note.type);
@@ -1728,6 +1748,9 @@ class Charter extends UIState {
 			case CEditNoteTypes(oldArray, newArray):
 				noteTypes = newArray;
 				changeNoteType(null, false);
+			case CEditBookmarks(oldArray, newArray):
+				PlayState.SONG.bookmarks = newArray;
+				updateBookmarks();
 			case CEditSpecNotesType(notes, oldTypes, newTypes):
 				for(i=>note in notes) note.updatePos(note.step, note.id, note.susLength, newTypes[i]);
 			case CChangeBundle(changes):
@@ -1767,12 +1790,10 @@ class Charter extends UIState {
 			vocals.pause();
 			for (strumLine in strumLines.members) strumLine.vocals.pause();
 		} else {
-			FlxG.sound.music.play();
-			vocals.play();
-			vocals.time = FlxG.sound.music.time = Conductor.songPosition + Conductor.songOffset * 2;
+			FlxG.sound.music.play(true, Conductor.songPosition + Conductor.songOffset);
+			vocals.play(true, FlxG.sound.music.getActualTime());
 			for (strumLine in strumLines.members) {
-				strumLine.vocals.play();
-				strumLine.vocals.time = vocals.time;
+				strumLine.vocals.play(true, FlxG.sound.music.getActualTime());
 			}
 		}
 	}
@@ -1821,6 +1842,172 @@ class Charter extends UIState {
 		if (FlxG.sound.music.playing) return;
 		Conductor.songPosition = FlxG.sound.music.length;
 	}
+
+	public function getBookmarkList():Array<ChartBookmark> {
+		var bookmarks:Array<ChartBookmark> = [];
+		try {
+			if (PlayState.SONG.bookmarks != null)
+				bookmarks = PlayState.SONG.bookmarks;
+		} catch (e) {}
+		
+		return bookmarks;
+	}
+
+	function _bookmarks_add(_) {
+		var addBookmarkAt = function(name:String, color:FlxColor, daStep:Float)
+		{
+			var currentBookmarks:Array<ChartBookmark> = getBookmarkList();
+			var newBookmarks:Array<ChartBookmark> = getBookmarkList();
+			newBookmarks.push({time: daStep, name: name, color: color.toWebString()});
+				
+			PlayState.SONG.bookmarks = newBookmarks;
+			updateBookmarks();	
+			undos.addToUndo(CEditBookmarks(currentBookmarks, newBookmarks));
+		}
+
+		if (FlxG.keys.pressed.SHIFT)
+			addBookmarkAt(translate("bookmarks.newBookmarkName"), 0xFF911DD9, curStepFloat);
+		else {
+			FlxG.state.openSubState(new CharterBookmarkCreation(curStepFloat, (success, n, c, s) ->  {
+				if (success)
+					addBookmarkAt(n, c, s);
+			}));
+		}
+	}
+	function _bookmarks_edit_list(_)
+		FlxG.state.openSubState(new CharterBookmarkList()); //idk why its FlxG.state but it looks so off lmfao
+
+	public var __bookmarkObjects:Array<Dynamic> = [];
+	public var __scrollbarBookmarks:Array<Dynamic> = [];
+	public function updateBookmarks()
+	{
+		for (bs in __bookmarkObjects)
+		{
+			var bars:Array<FlxSprite> = bs[0];
+			var text:UIText = bs[1];
+			
+			if (bars != null) {
+				for (spr in bars) {
+					if (spr == null) continue;
+					remove(spr);
+					spr.kill();
+				}
+			}
+			if (text != null) {
+				remove(text);
+				text.kill();
+			}
+		}
+		for (bar in __scrollbarBookmarks) {
+			if (bar == null) continue;
+			uiGroup.remove(bar);
+			bar.kill();
+		}
+ 		__bookmarkObjects.clear();
+		__scrollbarBookmarks.clear();
+		for (b in getBookmarkList())
+		{
+			var bookmarkcolor:FlxColor = b.color != null ? FlxColor.fromString(b.color) : 0xff9d00ff;
+			var luminance = CoolUtil.getLuminance(bookmarkcolor);
+
+			var sprites = [];
+			for (str in strumLines.members)
+			{
+				var bookmarkspr = new FlxSprite(str.x, (b.time * 40)).makeSolid(str.keyCount * 40, 4, bookmarkcolor);
+				bookmarkspr.updateHitbox();
+				bookmarkspr.camera = charterCamera;
+				add(bookmarkspr);
+				sprites.push(bookmarkspr);
+			}
+
+			var bookmarkText = new UIText(strumLines.members[0].x + 4, 0, 400, b.name, 15, bookmarkcolor, true);
+			bookmarkText.y = sprites[0].y - (bookmarkText.height + 2);
+			bookmarkText.camera = charterCamera;
+			add(bookmarkText);
+
+			if (luminance < 0.5)
+				bookmarkText.borderColor = 0x88FFFFFF;
+
+			__bookmarkObjects.push([sprites, bookmarkText]);
+
+			var yPos = scrollBar.y + CoolUtil.bound(
+				FlxMath.remapToRange(
+					b.time,
+					0,
+					scrollBar.length + scrollBar.size,
+					0,
+					scrollBar.height
+				),
+				0,
+				scrollBar.height
+			);
+			
+			var bookmarkspr = new FlxSprite(scrollBar.x - 10, yPos).makeSolid(40, 4, bookmarkcolor);
+			uiGroup.add(bookmarkspr);
+			sprites.push(bookmarkspr);
+			__scrollbarBookmarks.push(bookmarkspr);
+		}
+
+		buildSongUI();
+	}
+
+	function buildSongUI():Array<UIContextMenuOption> {
+		var songTopButton:UITopMenuButton = topMenuSpr == null ? null : cast topMenuSpr.members[songIndex];
+		var newChilds:Array<UIContextMenuOption> = [
+			{
+				label: translate("song.goStart"),
+				keybind: [HOME],
+				onSelect: _song_start
+			},
+			{
+				label: translate("song.goEnd"),
+				keybind: [END],
+				onSelect: _song_end
+			},
+			null,
+			{
+				label: translate("bookmarks.addBookmarkHere"),
+				onSelect: _bookmarks_add
+			},
+			{
+				label: translate("bookmarks.editBookmarkList"),
+				color: 0xFF959829, icon: 4,
+				onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2; button.icon.offset.y = -1;},
+				onSelect: _bookmarks_edit_list
+			},
+			null
+		];
+
+		var bookmarks:Array<ChartBookmark> = getBookmarkList();
+
+		if (bookmarks.length > 0)
+		{
+			var goToBookmark = TU.getRaw("charter.bookmarks.goTo");
+			for (b in bookmarks)
+			{
+				newChilds.push({
+					label: goToBookmark.format([b.name]),
+					onSelect: function(_) { Conductor.songPosition = Conductor.getTimeForStep(b.time); }
+				});
+			}
+			newChilds.push(null);
+		}
+
+		
+		newChilds.push({
+			label: translate("song.muteInst"),
+			onSelect: _song_muteinst
+		});
+
+		newChilds.push({
+			label: translate("song.muteVoices"),
+			onSelect: _song_mutevoices
+		});
+
+		if (songTopButton != null) songTopButton.contextMenu = newChilds;
+		return newChilds;
+	}
+
 	function _view_zoomin(_) {
 		zoom += 0.25;
 		__camZoom = Math.pow(2, zoom);
@@ -1835,11 +2022,9 @@ class Charter extends UIState {
 	}
 	function _view_showeventSecSeparator(t) {
 		t.icon = (Options.charterShowSections = !Options.charterShowSections) ? 1 : 0;
-		leftEventsBackdrop.eventSecSeparator.visible = rightEventsBackdrop.eventSecSeparator.visible = gridBackdrops.sectionsVisible = Options.charterShowSections;
 	}
 	function _view_showeventBeatSeparator(t) {
 		t.icon = (Options.charterShowBeats = !Options.charterShowBeats) ? 1 : 0;
-		leftEventsBackdrop.eventBeatSeparator.visible = rightEventsBackdrop.eventBeatSeparator.visible = gridBackdrops.beatsVisible = Options.charterShowBeats;
 	}
 	function _view_switchWaveformRainbow(t) {
 		t.icon = (Options.charterRainbowWaveforms = !Options.charterRainbowWaveforms) ? 1 : 0;
@@ -1866,32 +2051,34 @@ class Charter extends UIState {
 	inline function _snap_decreasesnap(_) changequant(-1);
 	inline function _snap_resetsnap(_) setquant(16);
 
-	inline function changequant(change:Int) {quant = quants[FlxMath.wrap(quants.indexOf(quant) + change, 0, quants.length-1)]; buildSnapsUI();};
-	inline function setquant(newQuant:Int) {quant = newQuant; buildSnapsUI();}
+	inline function changequant(change:Int) {FlxG.sound.play(Paths.sound(Flags.DEFAULT_CHARTER_SNAPPINGCHANGE_SOUND)); quant = quants[FlxMath.wrap(quants.indexOf(quant) + change, 0, quants.length-1)]; buildSnapsUI();};
+	inline function setquant(newQuant:Int) {FlxG.sound.play(Paths.sound(Flags.DEFAULT_CHARTER_SNAPPINGCHANGE_SOUND)); quant = newQuant; buildSnapsUI();}
 
 	function buildSnapsUI():Array<UIContextMenuOption> {
 		var snapsTopButton:UITopMenuButton = topMenuSpr == null ? null : cast topMenuSpr.members[snapIndex];
 		var newChilds:Array<UIContextMenuOption> = [
 			{
-				label: "↑ Grid Snap",
+				label: translate("snap.increaseSnap"),
 				keybind: [X],
 				onSelect: _snap_increasesnap
 			},
 			{
-				label: "Reset Grid Snap",
+				label: translate("snap.resetSnap"),
 				onSelect: _snap_resetsnap
 			},
 			{
-				label: "↓ Grid Snap",
+				label: translate("snap.decreaseSnap"),
 				keybind: [Z],
 				onSelect: _snap_decreasesnap
 			},
 			null
 		];
 
+		var snapStr = TU.getRaw("charter.snap.snap");
+
 		for (_quant in quants)
 			newChilds.push({
-				label: '${_quant}x Grid Snap',
+				label: snapStr.format([_quant]),
 				onSelect: (_) -> {setquant(_quant); buildSnapsUI();},
 				icon: _quant == quant ? 1 : 0
 			});
@@ -1900,11 +2087,15 @@ class Charter extends UIState {
 		return newChilds;
 	}
 
-	inline function _note_addsustain(t)
+	inline function _note_addsustain(t) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_CHARTER_SUSTAINADD_SOUND));
 		changeNoteSustain(1);
+	}
 
-	inline function _note_subtractsustain(t)
+	inline function _note_subtractsustain(t) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_CHARTER_SUSTAINDELETE_SOUND));
 		changeNoteSustain(-1);
+	}
 
 	function _note_selectall(_) {
 		selection = cast notesGroup.members.copy();
@@ -1959,29 +2150,29 @@ class Charter extends UIState {
 		var noteTopButton:UITopMenuButton = topMenuSpr == null ? null : cast topMenuSpr.members[noteIndex];
 		var newChilds:Array<UIContextMenuOption> = [
 			{
-				label: "Add sustain length",
+				label: translate("note.addSustainLength"),
 				keybind: [E],
 				onSelect: _note_addsustain
 			},
 			{
-				label: "Subtract sustain length",
+				label: translate("note.subtractSustainLength"),
 				keybind: [Q],
 				onSelect: _note_subtractsustain
 			},
 			null,
 			{
-				label: "Select all",
+				label: translate("note.selectAll"),
 				keybind: [CONTROL, A],
 				onSelect: _note_selectall
 			},
 			{
-				label: "Select measure",
+				label: translate("note.selectMeasure"),
 				keybind: [CONTROL, SHIFT, A],
 				onSelect: _note_selectmeasure
 			},
 			null,
 			{
-				label: "(0) Default Note",
+				label: "(0) " + translate("noteTypes.default"),
 				keybind: [ZERO],
 				onSelect: (_) -> {changeNoteType(0);},
 				icon: this.noteType == 0 ? 1 : 0
@@ -1992,6 +2183,7 @@ class Charter extends UIState {
 		for (i=>type in noteTypes) {
 			var realNoteID:Int = i+1; // Default Note not stored
 			var newChild:UIContextMenuOption = {
+				// TODO: make this translatable?
 				label: '(${realNoteID}) ${type}',
 				onSelect: (_) -> {changeNoteType(realNoteID);},
 				icon: this.noteType == realNoteID ? 1 : 0
@@ -2000,7 +2192,7 @@ class Charter extends UIState {
 			newChilds.push(newChild);
 		}
 		newChilds.push({
-			label: "Edit Note Types List",
+			label: translate("note.editNoteTypesList"),
 			color: 0xFF959829, icon: 4,
 			onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2;},
 			onSelect: editNoteTypesList
@@ -2056,12 +2248,38 @@ class Charter extends UIState {
 	}
 
 	public function updateBPMEvents() {
+		leftEventsGroup.sortEvents();
+		rightEventsGroup.sortEvents();
+		Conductor.mapCharterBPMChanges(PlayState.SONG);
 		buildEvents();
 
-		Conductor.mapBPMChanges(PlayState.SONG);
-		Conductor.changeBPM(PlayState.SONG.meta.bpm, cast PlayState.SONG.meta.beatsPerMeasure.getDefault(4), cast PlayState.SONG.meta.stepsPerBeat.getDefault(4));
+		for(e in leftEventsGroup.members) {
+			for(event in e.events) {
+				if (event.name == "BPM Change" || event.name == "Time Signature Change" || event.name == "Continuous BPM Change") {
+					e.refreshEventIcons();
+					break;
+				}
+			}
+		}
+
+		for(e in rightEventsGroup.members) {
+			for(event in e.events) {
+				if (event.name == "BPM Change" || event.name == "Time Signature Change" || event.name == "Continuous BPM Change") {
+					e.refreshEventIcons();
+					break;
+				}
+			}
+		}
 
 		refreshBPMSensitive();
+	}
+
+	public inline function checkSelectionForBPMUpdates() {
+		for (s in selection)
+			if (s is CharterEvent) {
+				updateBPMEvents();
+				break;
+			}
 	}
 
 	public inline function hitsoundsEnabled(id:Int)
@@ -2145,7 +2363,7 @@ class Charter extends UIState {
 	}
 
 	@:noCompletion public function __clearStatics() {
-		selection = null; undos = null; clipboard = null; playtestInfo = null; 
+		selection = null; undos = null; clipboard = null; playtestInfo = null;
 		waveformHandler.destroy(); Charter.waveformHandler = null; autoSaveTimer = 0;
 	}
 
@@ -2193,6 +2411,7 @@ enum CharterChange {
 	CEditEventGroups(events:Array<CharterEvent>);
 	CEditChartData(oldData:{stage:String, speed:Float}, newData:{stage:String, speed:Float});
 	CEditNoteTypes(oldArray:Array<String>, newArray:Array<String>);
+	CEditBookmarks(oldArray:Array<ChartBookmark>, newArray:Array<ChartBookmark>);
 	CEditSpecNotesType(notes:Array<CharterNote>, oldNoteTypes:Array<Int>, newNoteTypes:Array<Int>);
 
 	CChangeBundle(changes:Array<CharterChange>);

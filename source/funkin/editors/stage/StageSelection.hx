@@ -21,20 +21,20 @@ class StageSelection extends EditorTreeMenu
 		var list:Array<OptionType> = [
 			for (stage in (modsList.length == 0 ? Stage.getList(false, true) : modsList)) {
 				stages.push(stage);
-				new TextOption(stage, "Press ACCEPT to edit this stage.",
+				new TextOption(stage, TU.translate("stageSelection.acceptStage"),
 			 	function() {
 					FlxG.switchState(new StageEditor(stage));
 				});
 			}
 		];
 
-		list.insert(0, new NewOption("New Stage", "Press ACCEPT to create a new stage.", function() {
+		list.insert(0, new NewOption(TU.translate("stageSelection.newStage"), TU.translate("stageSelection.acceptNewStage"), function() {
 			FlxG.state.openSubState(new StageCreationScreen(saveStage));
 		}));
 
-		main = new OptionsScreen("Stage Editor", "Select a stage to edit. HSCRIPT only stages are not supported.", list);
+		main = new OptionsScreen(TU.translate("editor.stage.name"), TU.translate("stageSelection.desc"), list);
 
-		//DiscordUtil.call("onEditorTreeLoaded", ["Stage Editor"]);
+		DiscordUtil.call("onEditorTreeLoaded", ["Stage Editor"]);
 	}
 
 	public function saveStage(creation:StageCreationData) {
@@ -51,7 +51,7 @@ class StageSelection extends EditorTreeMenu
 		#end
 
 		// Add to List
-		var option = new TextOption(creation.name, "Press ACCEPT to edit this stage.", function() {
+		var option = new TextOption(creation.name, TU.translate("stageSelection.acceptStage"), function() {
 			FlxG.switchState(new StageEditor(creation.name));
 		});
 		optionsTree.members[optionsTree.members.length-1].insert(1, option);

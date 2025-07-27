@@ -20,8 +20,11 @@ class StageCreationScreen extends UISubstateWindow {
 		if (onSave != null) this.onSave = onSave;
 	}
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("stageCreationScreen." + id, args);
+
 	public override function create() {
-		winTitle = "Creating New Stage";
+		winTitle = translate("win-title");
 
 		winWidth = 748 - 32 + 40;
 		winHeight = 220;
@@ -35,20 +38,20 @@ class StageCreationScreen extends UISubstateWindow {
 		}
 
 		var stageInfo:UIText;
-		add(stageInfo = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Stage Info", 28));
+		add(stageInfo = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, translate("title"), 28));
 
-		add(stageNameTextBox = new UITextBox(stageInfo.x, stageInfo.y + stageInfo.height + 36, "Stage Name"));
-		addLabelOn(stageNameTextBox, "Stage Name");
+		add(stageNameTextBox = new UITextBox(stageInfo.x, stageInfo.y + stageInfo.height + 36, translate("stage-name")));
+		addLabelOn(stageNameTextBox, translate("stage-name"));
 
-		add(stagePathTextBox = new UITextBox(stageNameTextBox.x + 320 + 26, stageNameTextBox.y, "Stage Path"));
-		addLabelOn(stagePathTextBox, "Stage Path");
+		add(stagePathTextBox = new UITextBox(stageNameTextBox.x + 320 + 26, stageNameTextBox.y, translate("stage-path")));
+		addLabelOn(stagePathTextBox, translate("stage-path"));
 
-		add(saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
+		add(saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, TU.translate("editor.saveClose"), function() {
 			saveStageInfo();
 			close();
 		}, 125));
 
-		add(closeButton = new UIButton(saveButton.x - 20 - saveButton.bWidth, saveButton.y, "Cancel", close, 125));
+		add(closeButton = new UIButton(saveButton.x - 20 - saveButton.bWidth, saveButton.y, TU.translate("editor.cancel"), close, 125));
 		closeButton.color = 0xFFFF0000;
 	}
 

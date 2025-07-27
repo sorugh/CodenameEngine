@@ -1,4 +1,4 @@
-<window width="450" height="570" title="Editing XML ${type}">
+<window width="450" height="570" title="${translate('win-title', [type])}">
 	<!-- BASED ON unknownEditScreen.xml -->
 	<set name="MARGIN" value="20" />
 	<set name="XOFFSET" value="30" />
@@ -11,13 +11,13 @@
 		}
 	</exec>
 
-	<title name="title" x="MARGIN" y="30 + 16" text="Xml Data" />
+	<title name="title" x="MARGIN" y="30 + 16" text="${translate('title')}" />
 
 	<section>
 		<set name="curY" value="title.y + TO" />
 		<set name="listWidth" value="self.winWidth - MARGIN * 2" />
 
-		<buttonlist name="attributesList" label="Attributes" x="col(0)" y="curY" width="listWidth" height="400" buttonSizeX="listWidth-10" buttonSizeY="35" buttonSpacing="5">
+		<buttonlist name="attributesList" label="${translate('attributes')}" x="col(0)" y="curY" width="listWidth" height="400" buttonSizeX="listWidth-10" buttonSizeY="35" buttonSpacing="5">
 			<texture path="editors/ui/inputbox" />
 			<camSpacing value="0" />
 

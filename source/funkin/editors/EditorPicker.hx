@@ -6,7 +6,13 @@ import flixel.math.FlxPoint;
 class EditorPicker extends MusicBeatSubstate {
 	public var bg:FlxSprite;
 
+	// Name is for backwards compatibility, don't use it, use id instead
 	public var options:Array<Editor> = [
+		{
+			name: "Alphabet Editor",
+			id: "alphabet",
+			state: funkin.editors.alphabet.AlphabetSelection
+		},
 		{
 			name: "Chart Editor",
 			id: "chart",
@@ -22,7 +28,7 @@ class EditorPicker extends MusicBeatSubstate {
 			id: "stage",
 			state: funkin.editors.stage.StageSelection
 		},
-		#if debug
+		#if (debug || debug_ui)
 		{
 			name: "UI Debug State",
 			id: "uiDebug",
@@ -74,7 +80,8 @@ class EditorPicker extends MusicBeatSubstate {
 
 		optionHeight = FlxG.height / options.length;
 		for(k=>o in options) {
-			var spr = new EditorPickerOption(o.name, o.id, optionHeight);
+			var visualName = (o.id != null) ? TU.translate("editor." + o.id + ".name") : o.name;
+			var spr = new EditorPickerOption(visualName, o.id, optionHeight);
 			spr.y = k * optionHeight;
 			add(spr);
 			sprites.push(spr);
@@ -176,13 +183,16 @@ class EditorPickerOption extends FlxTypedSpriteGroup<FlxSprite> {
 
 		FlxG.mouse.visible = true;
 		iconSpr = new FlxSprite();
-		iconSpr.loadGraphic(Paths.image('editors/icons/$iconID'));
+		if(iconID != null)
+			iconSpr.loadGraphic(Paths.image('editors/icons/$iconID'));
+		else
+			iconSpr.exists = false;
 		iconSpr.antialiasing = true;
 		iconSpr.setUnstretchedGraphicSize(110, 110, false);
 		iconSpr.x = 25 + ((height - iconSpr.width) / 2);
 		iconSpr.y = (height - iconSpr.height) / 2;
 
-		label = new Alphabet(25 + iconSpr.width + 25, 0, name, true);
+		label = new Alphabet(25 + iconSpr.width + 25, 0, name, "bold");
 		label.y = (height - label.height) / 2;
 
 		selectionBG = new FlxSprite().makeGraphic(1, 1, -1);

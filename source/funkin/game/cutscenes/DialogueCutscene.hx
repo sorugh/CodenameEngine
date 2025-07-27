@@ -68,8 +68,10 @@ class DialogueCutscene extends ScriptedCutscene {
 			// Add characters
 			for (char in dialogueData.nodes.char) {
 				if (!char.has.name) continue;
-				if (charMap.exists(char.att.name))
-					Logs.trace('2 dialogue characters share the same name (${char.att.name}, ${char.att.name}). The old character has been replaced.');
+				if (charMap.exists(char.att.name)) {
+					Logs.warn('2 dialogue characters share the same name (${char.att.name}, ${char.att.name}). The old character has been replaced.');
+					remove(charMap[char.att.name], true);
+				}
 
 				var leChar:DialogueCharacter = new DialogueCharacter(char.att.name, char.getAtt('position').getDefault('default'));
 				if (char.has.defaultAnim) leChar.defaultAnim = char.att.defaultAnim;
@@ -92,7 +94,7 @@ class DialogueCutscene extends ScriptedCutscene {
 					callback: node.getAtt('callback'),
 					changeDefAnim: node.getAtt('changeDefAnim'),
 					speed: Std.parseFloat(node.getAtt("speed")).getDefault(0.05),
-					musicVolume: node.has.musicVolume ? (volume = Std.parseFloat(node.att.speed).getDefault(0.8)) : null,
+					musicVolume: node.has.musicVolume ? (volume = Std.parseFloat(node.att.musicVolume).getDefault(0.8)) : null,
 					changeMusic: node.has.changeMusic ? FlxG.sound.load(Paths.music(node.att.changeMusic), volume, true) : null,
 					playSound: node.has.playSound ? FlxG.sound.load(Paths.sound(node.att.playSound)) : null,
 					nextSound: node.has.nextSound ? FlxG.sound.load(Paths.sound(node.att.nextSound)) : null,
@@ -200,7 +202,7 @@ class DialogueCutscene extends ScriptedCutscene {
 		if (curMusic != null && !curMusic.persist) curMusic.destroy();
 
 		super.destroy();
-		cutscene = null;
+		if (cutscene == this) cutscene = null;
 		FlxG.cameras.remove(dialogueCamera);
 	}
 }

@@ -1,5 +1,6 @@
 package funkin.backend.shaders;
 
+import flixel.graphics.FlxGraphic;
 import flixel.system.FlxAssets.FlxShader;
 import flixel.util.FlxSignal.FlxTypedSignal;
 import haxe.Exception;
@@ -555,34 +556,44 @@ class FunkinShader extends FlxShader implements IHScriptCustomBehaviour {
 			return val;
 		}
 
-		var field:Dynamic = Reflect.field(data, name);
-		var cl:String = Type.getClassName(Type.getClass(field));
+		var field = Reflect.field(data, name);
+		var cl = Type.getClassName(Type.getClass(field));
+		var isNotNull = val != null;
 		// cant do "field is ShaderInput" for some reason
 		if (cl.startsWith("openfl.display.ShaderParameter")) {
 			if (field.__length <= 1) {
-				if ((val is Array))
-					return field.value = val;
 				// that means we wait for a single number, instead of an array
-				if (field.__isInt && !(val is Int))
+				if (field.__isInt && isNotNull && !(val is Int)) {
 					throw new ShaderTypeException(name, Type.getClass(val), 'Int');
-				else if (field.__isBool && !(val is Bool))
+					return null;
+				} else
+				if (field.__isBool && isNotNull && !(val is Bool)) {
 					throw new ShaderTypeException(name, Type.getClass(val), 'Bool');
-				else if (field.__isFloat && !(val is Float))
+					return null;
+				} else
+				if (field.__isFloat && isNotNull && !(val is Float)) {
 					throw new ShaderTypeException(name, Type.getClass(val), 'Float');
-
-				return field.value = [val];
+					return null;
+				}
+				return field.value = isNotNull ? [val] : null;
 			} else {
-				if (!(val is Array))
+				if (isNotNull && !(val is Array)) {
 					throw new ShaderTypeException(name, Type.getClass(val), Array);
-
+					return null;
+				}
 				return field.value = val;
 			}
 		} else if (cl.startsWith("openfl.display.ShaderInput")) {
 			// shader input!!
-			if (!(val is BitmapData)) {
+			var bitmap:BitmapData;
+			if (!isNotNull) bitmap = null;
+			else if (val is BitmapData) bitmap = val;
+			else if (val is FlxGraphic) bitmap = val.bitmap;
+			else {
 				throw new ShaderTypeException(name, Type.getClass(val), BitmapData);
+				return null;
 			}
-			field.input = cast val;
+			field.input = bitmap;
 		}
 
 		return val;

@@ -5,8 +5,10 @@ using StringTools;
 #if macro
 class BuildInfo {
 	public static function printBuildInfo() {
-		if(haxe.macro.Context.defined("display")) return;
+		if(haxe.macro.Context.defined("display") || haxe.macro.Context.defined("display-details")) return;
 		var haxeVersion = haxe.macro.Context.definedValue("haxe").trim();
+		var sleepChangeVersion = false;
+
 		Sys.println('[ BUILD INFO ]');
 		Sys.println('Haxe Version: ${haxeVersion}');
 		try {
@@ -33,8 +35,10 @@ class BuildInfo {
 				}
 			}
 
-			if(lastBuiltWith != null && lastBuiltWith.length > 0 && lastBuiltWith != haxeVersion)
+			if(lastBuiltWith != null && lastBuiltWith.length > 0 && lastBuiltWith != haxeVersion) {
 				Sys.println('Last Built With Haxe: ${lastBuiltWith} [!!!! MAKE SURE IF YOU SWITCHED VERSIONS YOU DELETE EXPORT FOLDERS !!!!]');
+				sleepChangeVersion = true;
+			}
 		} catch(e) {}
 		var targetPlatform = #if html5 "Web (HTML5)"
 			#elseif ios "iOS"
@@ -51,6 +55,14 @@ class BuildInfo {
 		Sys.println('Target Platform: ' + targetPlatform);
 		Sys.println('Build Date: ${Date.now().toString()}');
 		Sys.println('');
+
+		if(sleepChangeVersion) {
+			Sys.println('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+			Sys.println('!!!! MAKE SURE IF YOU SWITCHED VERSIONS YOU DELETE EXPORT FOLDERS !!!!');
+			Sys.println('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+			Sys.println('');
+			Sys.sleep(5);
+		}
 	}
 }
 #end

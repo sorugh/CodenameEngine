@@ -75,7 +75,7 @@ class StageUnknownButton extends StageElementButton {
 	}
 
 	public override function getInfoText():String {
-		return 'Unknown\n<${getName()} />';
+		return TU.translate("stageElement.unknown", [getName()]);
 	}
 
 	public override function updatePos() {
@@ -86,13 +86,17 @@ class StageUnknownButton extends StageElementButton {
 class StageUnknownEditScreen extends UISoftcodedWindow {
 	public var button:StageUnknownButton;
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("stageElementEditScreen." + id, args);
+
 	public function new(button:StageUnknownButton) {
 		this.button = button;
 		super("layouts/stage/unknownEditScreen", [
 			"stage" => StageEditor.instance.stage,
 			"button" => button,
 			"xml" => button.xml,
-			"exID" => StageEditor.exID
+			"exID" => StageEditor.exID,
+			"translate" => translate,
 		]);
 	}
 

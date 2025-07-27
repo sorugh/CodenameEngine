@@ -21,6 +21,8 @@ class NumOption extends OptionType {
 
 	public var parent:Dynamic;
 
+	private var rawText(default, set):String;
+
 	public var text(get, set):String;
 	private function get_text() {return __text.text;}
 	private function set_text(v:String) {return __text.text = v;}
@@ -40,11 +42,24 @@ class NumOption extends OptionType {
 		this.changeVal = changeVal;
 		this.optionName = optionName;
 
-		add(__text = new Alphabet(100, 20, text, true));
-		add(__number = new Alphabet(__text.width + 120, -30, ': $currentSelection', false));
+		add(__text = new Alphabet(20, 20, "", "bold"));
+		add(__number = new Alphabet(0, 20, ': $currentSelection', "bold"));
+		rawText = text;
 	}
 
-	public override function onChangeSelection(change:Float):Void
+	override function reloadStrings() {
+		super.reloadStrings();
+		this.rawText = rawText;
+	}
+
+	function set_rawText(v:String) {
+		rawText = v;
+		__text.text = TU.exists(rawText) ? TU.translate(rawText) : rawText;
+		__number.x = __text.x + __text.width + 12;
+		return v;
+	}
+
+	override function onChangeSelection(change:Float):Void
 	{
 		if(currentSelection <= min && change == -1 || currentSelection >= max && change == 1) return;
 		currentSelection = FlxMath.roundDecimal(currentSelection + (change * changeVal), FlxMath.getDecimals(changeVal));

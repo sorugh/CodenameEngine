@@ -12,6 +12,9 @@ import funkin.backend.assets.ModsFolder;
 
 class CharacterSelection extends EditorTreeMenu
 {
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("characterSelection." + id, args);
+
 	public var modsList:Array<String> = [];
 
 	public override function create()
@@ -34,13 +37,13 @@ class CharacterSelection extends EditorTreeMenu
 				if(char.endsWith("/")) {
 					var folderName = CoolUtil.getFilename(char.substr(0, char.length-1));
 
-					list.push(new TextOption(folderName + " >", "Press ACCEPT to edit this folder.", function() {
+					list.push(new TextOption(folderName + " >", translate("acceptFolder"), function() {
 						var newModsList = Character.getList(isMods, true, char);
 						var newList:Array<OptionType> = generateList(newModsList, isMods, folderPath + folderName + "/");
-						optionsTree.add(new OptionsScreen(folderPath + folderName, "Select a character to edit in " + folderPath + folderName + "/", newList));
+						optionsTree.add(new OptionsScreen(folderPath + folderName, translate("desc-folder", [folderPath + folderName + "/"]), newList));
 					}));
 				} else {
-					list.push(new IconOption(char, "Press ACCEPT to edit this character.", Character.getIconFromCharName(folderPath + char, char),
+					list.push(new IconOption(char, translate("acceptCharacter"), Character.getIconFromCharName(folderPath + char, char),
 						function() {
 							FlxG.switchState(new CharacterEditor(folderPath + char));
 						})
@@ -48,7 +51,7 @@ class CharacterSelection extends EditorTreeMenu
 				}
 			}
 
-			list.insert(0, new NewOption("New Character", "Press ACCEPT to create a new character.", function() {
+			list.insert(0, new NewOption(translate("newCharacter"), translate("newCharacterDesc"), function() {
 				openSubState(new CharacterCreationScreen(createCharacter));
 			}));
 
@@ -57,7 +60,7 @@ class CharacterSelection extends EditorTreeMenu
 
 		var list = generateList(modsList, isMods);
 
-		main = new OptionsScreen("Character Editor", "Select a character to edit", list);
+		main = new OptionsScreen(TU.translate("editor.character.name"), translate("desc"), list);
 
 		DiscordUtil.call("onEditorTreeLoaded", ["Character Editor"]);
 	}

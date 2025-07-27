@@ -50,7 +50,7 @@ class FreeplayState extends MusicBeatState
 	/**
 	 * Currently lerped score. Is updated to go towards `intendedScore`.
 	 */
-	public var lerpScore:Int = 0;
+	public var lerpScore:Float = 0;
 	/**
 	 * Destination for the currently lerped score.
 	 */
@@ -132,13 +132,15 @@ class FreeplayState extends MusicBeatState
 
 		for (i in 0...songs.length)
 		{
-			var songText:Alphabet = new Alphabet(0, (70 * i) + 30, songs[i].displayName, true, false);
+			var songText:Alphabet = new Alphabet(0, (70 * i) + 30, songs[i].displayName, "bold");
 			songText.isMenuItem = true;
 			songText.targetY = i;
 			grpSongs.add(songText);
 
 			var icon:HealthIcon = new HealthIcon(songs[i].icon);
 			icon.sprTracker = songText;
+			icon.setUnstretchedGraphicSize(150, 150, true);
+			icon.updateHitbox();
 
 			// using a FlxGroup is too much fuss!
 			iconArray.push(icon);
@@ -160,7 +162,7 @@ class FreeplayState extends MusicBeatState
 		diffText.font = scoreText.font;
 		add(diffText);
 
-		coopText = new FlxText(diffText.x, diffText.y + diffText.height + 2, 0, "[TAB] Solo", 24);
+		coopText = new FlxText(diffText.x, diffText.y + diffText.height + 2, 0, "", 24);
 		coopText.font = scoreText.font;
 		add(coopText);
 
@@ -204,6 +206,8 @@ class FreeplayState extends MusicBeatState
 	public var autoplayShouldPlay:Bool = true;
 	#end
 
+	private var TEXT_FREEPLAY_SCORE = TU.getRaw("freeplay.score");
+
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -213,7 +217,7 @@ class FreeplayState extends MusicBeatState
 			FlxG.sound.music.volume += 0.5 * elapsed;
 		}
 
-		lerpScore = Math.floor(lerp(lerpScore, intendedScore, 0.4));
+		lerpScore = lerp(lerpScore, intendedScore, 0.4);
 
 		if (Math.abs(lerpScore - intendedScore) <= 10)
 			lerpScore = intendedScore;
@@ -221,12 +225,12 @@ class FreeplayState extends MusicBeatState
 		if (canSelect) {
 			changeSelection((controls.UP_P ? -1 : 0) + (controls.DOWN_P ? 1 : 0) - FlxG.mouse.wheel);
 			changeDiff((controls.LEFT_P ? -1 : 0) + (controls.RIGHT_P ? 1 : 0));
-			changeCoopMode((FlxG.keys.justPressed.TAB ? 1 : 0));
+			changeCoopMode((FlxG.keys.justPressed.TAB ? 1 : 0)); // TODO: make this configurable
 			// putting it before so that its actually smooth
 			updateOptionsAlpha();
 		}
 
-		scoreText.text = "PERSONAL BEST:" + lerpScore;
+		scoreText.text = TEXT_FREEPLAY_SCORE.format([Math.round(lerpScore)]);
 		scoreBG.scale.set(MathUtil.maxSmart(diffText.width, scoreText.width, coopText.width) + 8, (coopText.visible ? coopText.y + coopText.height : 66));
 		scoreBG.updateHitbox();
 		scoreBG.x = FlxG.width - scoreBG.width;
@@ -234,7 +238,7 @@ class FreeplayState extends MusicBeatState
 		scoreText.x = coopText.x = scoreBG.x + 4;
 		diffText.x = Std.int(scoreBG.x + ((scoreBG.width - diffText.width) / 2));
 
-		interpColor.fpsLerpTo(songs[curSelected].parsedColor, 0.0625);
+		interpColor.fpsLerpTo(songs[curSelected].color, 0.0625);
 		bg.color = interpColor.color;
 
 		#if PRELOAD_ALL
@@ -320,10 +324,9 @@ class FreeplayState extends MusicBeatState
 	}
 
 	public function convertChart() {
-		var curSong = songs[curSelected];
-		trace('Converting ${curSong.name} (${curSong.difficulties[curDifficulty]}) to Codename format...');
-		var chart = Chart.parse(curSong.name, curSong.difficulties[curDifficulty]);
-		Chart.save('${Main.pathBack}assets/songs/${curSong.name}', chart, curSong.difficulties[curDifficulty].toLowerCase());
+		trace('Converting ${songs[curSelected].name} (${songs[curSelected].difficulties[curDifficulty]}) to Codename format...');
+		var chart = Chart.parse(songs[curSelected].name, songs[curSelected].difficulties[curDifficulty]);
+		Chart.save('${Main.pathBack}assets/songs/${songs[curSelected].name}', chart, songs[curSelected].difficulties[curDifficulty]);
 	}
 
 	/**
@@ -346,9 +349,9 @@ class FreeplayState extends MusicBeatState
 		updateScore();
 
 		if (curSong.difficulties.length > 1)
-			diffText.text = '< ${curSong.difficulties[curDifficulty]} >';
+			diffText.text = '< ${curSong.difficulties[curDifficulty].toUpperCase()} >';
 		else
-			diffText.text = validDifficulties ? curSong.difficulties[curDifficulty] : "-";
+			diffText.text = validDifficulties ? curSong.difficulties[curDifficulty].toUpperCase() : "-";
 	}
 
 	function updateScore() {
@@ -368,10 +371,10 @@ class FreeplayState extends MusicBeatState
 	 * Array containing all labels for Co-Op / Opponent modes.
 	 */
 	public var coopLabels:Array<String> = [
-		"[TAB] Solo",
-		"[TAB] Opponent Mode",
-		"[TAB] Co-Op Mode",
-		"[TAB] Co-Op Mode (Switched)"
+		TU.translate("freeplay.solo"),
+		TU.translate("freeplay.opponentMode"),
+		TU.translate("freeplay.coopMode"),
+		TU.translate("freeplay.coopModeSwitched")
 	];
 
 	/**
@@ -392,10 +395,12 @@ class FreeplayState extends MusicBeatState
 
 		updateScore();
 
+		var key = "[TAB] "; // TODO: make this configurable
+
 		if (bothEnabled) {
-			coopText.text = coopLabels[curCoopMode];
+			coopText.text = key + coopLabels[curCoopMode];
 		} else {
-			coopText.text = coopLabels[curCoopMode * (songs[curSelected].coopAllowed ? 2 : 1)];
+			coopText.text = key + coopLabels[curCoopMode * (songs[curSelected].coopAllowed ? 2 : 1)];
 		}
 	}
 
@@ -429,19 +434,22 @@ class FreeplayState extends MusicBeatState
 		var event = event("onUpdateOptionsAlpha", EventManager.get(FreeplayAlphaUpdateEvent).recycle(0.6, 0.45, 1, 1, 0.25));
 		if (event.cancelled) return;
 
-		for (i in 0...iconArray.length)
-			iconArray[i].alpha = lerp(iconArray[i].alpha, #if PRELOAD_ALL songInstPlaying ? event.idlePlayingAlpha : #end event.idleAlpha, event.lerp);
+		final idleAlpha = #if PRELOAD_ALL songInstPlaying ? event.idlePlayingAlpha : #end event.idleAlpha;
+		final selectedAlpha = #if PRELOAD_ALL songInstPlaying ? event.selectedPlayingAlpha : #end event.selectedAlpha;
 
-		iconArray[curSelected].alpha = #if PRELOAD_ALL songInstPlaying ? event.selectedPlayingAlpha : #end event.selectedAlpha;
+		for (i in 0...iconArray.length)
+			iconArray[i].alpha = lerp(iconArray[i].alpha, idleAlpha, event.lerp);
+
+		iconArray[curSelected].alpha = selectedAlpha;
 
 		for (i=>item in grpSongs.members)
 		{
 			item.targetY = i - curSelected;
 
-			item.alpha = lerp(item.alpha, #if PRELOAD_ALL songInstPlaying ? event.idlePlayingAlpha : #end event.idleAlpha, event.lerp);
+			item.alpha = lerp(item.alpha, idleAlpha, event.lerp);
 
 			if (item.targetY == 0)
-				item.alpha =  #if PRELOAD_ALL songInstPlaying ? event.selectedPlayingAlpha : #end event.selectedAlpha;
+				item.alpha = selectedAlpha;
 		}
 	}
 }
@@ -451,18 +459,12 @@ class FreeplaySonglist {
 
 	public function new() {}
 
-	public function getSongsFromSource(source:funkin.backend.assets.AssetsLibraryList.AssetSource, useTxt:Bool = true) {
+	public function getSongsFromSource(source:funkin.backend.assets.AssetSource, useTxt:Bool = true) {
 		var path:String = Paths.txt('freeplaySonglist');
-		var songsFound:Array<String> = [];
-		if (useTxt && Paths.assetsTree.existsSpecific(path, "TEXT", source)) {
-			songsFound = CoolUtil.coolTextFile(Paths.txt('freeplaySonglist'));
-		} else {
-			songsFound = Paths.getFolderDirectories('songs', false, source);
-		}
+		var songsFound:Array<String> = useTxt && Paths.assetsTree.existsSpecific(path, "TEXT", source) ? CoolUtil.coolTextFile(path) : Paths.getFolderDirectories('songs', false, source);
 
 		if (songsFound.length > 0) {
-			for(s in songsFound)
-				songs.push(Chart.loadChartMeta(s, Flags.DEFAULT_DIFFICULTY, source == MODS));
+			for (s in songsFound) songs.push(Chart.loadChartMeta(s, Flags.DEFAULT_DIFFICULTY, source == MODS));
 			return false;
 		}
 		return true;

@@ -3,6 +3,7 @@ package funkin.options;
 class OptionsTree extends FlxTypedGroup<OptionsScreen> {
 	public var lastMenu:OptionsScreen;
 	public var treeParent:TreeMenu;
+	public var wasClosing:Bool = false;
 	//public override function new() {
 	//	super();
 	//}
@@ -13,11 +14,25 @@ class OptionsTree extends FlxTypedGroup<OptionsScreen> {
 			last.update(elapsed);
 	}
 
+	public function updateAll(elapsed:Float) {
+		for (member in members) {
+			if(member == null) continue;
+			if(member.active && member.exists) {
+				member.update(elapsed);
+			}
+		}
+	}
 
 	public override function draw() {
 		super.draw();
-		if (lastMenu != null) {
+		if (lastMenu != null) { // manually draw lastMenu since it got removed from the members list
 			lastMenu.draw();
+		}
+	}
+
+	public function reloadStrings() {
+		for(o in members) {
+			o.reloadStrings();
 		}
 	}
 
@@ -25,6 +40,7 @@ class OptionsTree extends FlxTypedGroup<OptionsScreen> {
 		super.add(m);
 		setup(m);
 		clearLastMenu();
+		wasClosing = false;
 		onMenuChange();
 		return m;
 	}
@@ -32,8 +48,10 @@ class OptionsTree extends FlxTypedGroup<OptionsScreen> {
 		var last = members.last();
 		super.insert(pos, m);
 		setup(m);
-		if (last != members.last())
+		if (last != members.last()) {
+			wasClosing = false;
 			onMenuChange();
+		}
 		return m;
 	}
 
@@ -45,6 +63,7 @@ class OptionsTree extends FlxTypedGroup<OptionsScreen> {
 	}
 
 	function __subMenuClose(m:OptionsScreen) {
+		wasClosing = true;
 		clearLastMenu();
 		lastMenu = m;
 		remove(m, true);

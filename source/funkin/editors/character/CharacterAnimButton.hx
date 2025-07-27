@@ -48,6 +48,9 @@ class CharacterAnimButton extends UIButton {
 	public var foldableButtons:Array<FlxSprite> = [];
 	public var closed:Bool = true;
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("characterEditor.characterAnim." + id, args);
+
 	public function new(x:Float, y:Float, animData:AnimData, parent:CharacterAnimsWindow) {
 		this.anim = animData.name;
 		this.data = animData;
@@ -76,13 +79,13 @@ class CharacterAnimButton extends UIButton {
 		nameTextBox.onChange = (newName:String) -> {this.changeName(newName);};
 		members.push(nameTextBox);
 		foldableButtons.push(nameTextBox);
-		addLabelOn(nameTextBox, "Name", 12);
+		addLabelOn(nameTextBox, translate("name"), 12);
 
 		animTextBox = new UIAutoCompleteTextBox(nameTextBox.x + 100, nameTextBox.y, animData.anim, 156, 22, false, true);
 		animTextBox.onChange = (newAnim:String) -> {this.changeAnim(newAnim);};
 		members.push(animTextBox);
 		foldableButtons.push(animTextBox);
-		addLabelOn(animTextBox, "Animation", 12);
+		addLabelOn(animTextBox, translate("anim"), 12);
 
 		positionXStepper = new UINumericStepper(animTextBox.x, animTextBox.y+32+18, animData.x, 0.001, 2, null, null, 64, 22, true);
 		positionXStepper.onChange = (text:String) -> {
@@ -91,7 +94,7 @@ class CharacterAnimButton extends UIButton {
 		};
 		members.push(positionXStepper);
 		foldableButtons.push(positionXStepper);
-		addLabelOn(positionXStepper, "Position (X,Y)", 12);
+		addLabelOn(positionXStepper, translate("position"), 12);
 
 		members.push(XYComma = new UIText(positionXStepper.x+104-32+0, positionXStepper.y + 9, 0, ",", 18));
 		foldableButtons.push(XYComma);
@@ -111,7 +114,7 @@ class CharacterAnimButton extends UIButton {
 		};
 		members.push(fpsStepper);
 		foldableButtons.push(fpsStepper);
-		addLabelOn(fpsStepper, "FPS", 12);
+		addLabelOn(fpsStepper, translate("fps"), 12);
 
 		loopedCheckbox = new UICheckbox(fpsStepper.x + 82 - 32 + 26, fpsStepper.y, "Looping?", animData.loop, 0, true);
 		loopedCheckbox.onChecked = (newLooping:Bool) -> {this.changeLooping(newLooping);};
@@ -126,7 +129,7 @@ class CharacterAnimButton extends UIButton {
 		}
 		members.push(indicesTextBox);
 		foldableButtons.push(indicesTextBox);
-		addLabelOn(indicesTextBox, "Indices (frames)", 12);
+		addLabelOn(indicesTextBox, translate("indices"), 12);
 
 		animIcon = new FlxSprite(x-(10+16), y+8).loadGraphic(Paths.image("editors/character/anim-icons"), true, 16, 12);
 		animIcon.animation.add("play", [0]);
@@ -421,10 +424,12 @@ class CharacterAnimButton extends UIButton {
 
 	public function toggleGhost() {
 		if (valid && parent.ghosts.indexOf(anim) == -1) {
+			FlxG.sound.play(Paths.sound(Flags.DEFAULT_CHARACTER_GHOSTENABLE_SOUND)); 
 			parent.ghosts.push(anim);
 			ghostIcon.animation.play("alive", true);
 			ghostIcon.color = 0xFFFFFFFF;
 		} else {
+			FlxG.sound.play(Paths.sound(Flags.DEFAULT_CHARACTER_GHOSTDISABLE_SOUND));
 			parent.ghosts.remove(anim);
 			ghostIcon.animation.play("dead", true);
 			ghostIcon.color = 0xFFADADAD;

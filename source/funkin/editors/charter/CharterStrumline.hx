@@ -88,8 +88,7 @@ class CharterStrumline extends UISprite {
 		button = new CharterStrumlineOptions(this);
 		members.push(button);
 
-		vocals = strumLine.vocalsSuffix.length > 0 ? FlxG.sound.load(Paths.voices(PlayState.SONG.meta.name, PlayState.difficulty, strumLine.vocalsSuffix)) : new FlxSound();
-		vocals.group = FlxG.sound.defaultMusicGroup;
+		updateInfo();
 
 		selectedWaveform = -1;
 	}
@@ -136,8 +135,16 @@ class CharterStrumline extends UISprite {
 			healthIcons.add(healthIcon);
 		}
 
-		vocals = null;
-		vocals = strumLine.vocalsSuffix.length > 0 ? FlxG.sound.load(Paths.voices(PlayState.SONG.meta.name, PlayState.difficulty, strumLine.vocalsSuffix)) : new FlxSound();
+		var asset = strumLine.vocalsSuffix.length > 0 ? Assets.getSound(Paths.voices(PlayState.SONG.meta.name, PlayState.difficulty, strumLine.vocalsSuffix)) : null;
+
+		if (vocals == null) FlxG.sound.list.add(vocals = new FlxSound());
+		if (asset != null) {
+			vocals.reset();
+			vocals.loadEmbedded(asset);
+		}
+		else {
+			vocals.destroy();
+		}
 		vocals.group = FlxG.sound.defaultMusicGroup;
 	}
 }
@@ -145,7 +152,8 @@ class CharterStrumline extends UISprite {
 class CharterStrumlineOptions extends UITopMenuButton {
 	var strLine:CharterStrumline;
 	public function new(parent:CharterStrumline) {
-		super(0, 95, null, "Options ↓", []);
+		// TODO: better id for this
+		super(0, 95, null, TU.translate("charter.strumLine.button-name"), []);
 		strLine = parent;
 	}
 
@@ -159,14 +167,14 @@ class CharterStrumlineOptions extends UITopMenuButton {
 	public override function openContextMenu() {
 		contextMenu = [
 			{
-				label: "Hitsounds",
+				label: TU.translate("charter.strumLine.hitsounds"),
 				onSelect: function(_) {
 					strLine.hitsounds = !strLine.hitsounds;
 				},
 				icon: strLine.hitsounds ? 1 : 0
 			},
 			{
-				label: "Mute Vocals",
+				label: TU.translate("charter.strumLine.muteVocals"),
 				onSelect: function(_) {
 					strLine.vocals.volume = strLine.vocals.volume > 0 ? 0 : 1;
 				},
@@ -174,7 +182,7 @@ class CharterStrumlineOptions extends UITopMenuButton {
 			},
 			null,
 			{
-				label: "Edit",
+				label: TU.translate("charter.strumLine.edit"),
 				onSelect: function (_) {
 					Charter.instance.editStrumline(strLine.strumLine);
 				},
@@ -182,7 +190,7 @@ class CharterStrumlineOptions extends UITopMenuButton {
 				icon: 4
 			},
 			{
-				label: "Delete",
+				label: TU.translate("charter.strumLine.delete"),
 				onSelect: function (_) {
 					Charter.instance.deleteStrumlineFromData(strLine.strumLine);
 				},
@@ -192,7 +200,7 @@ class CharterStrumlineOptions extends UITopMenuButton {
 		];
 
 		contextMenu.insert(0, {
-			label: "No Waveform",
+			label: TU.translate("charter.strumLine.noWaveform"),
 			onSelect: function(_) {strLine.selectedWaveform = -1;},
 			icon: strLine.selectedWaveform == -1 ? 1 : 0
 		});

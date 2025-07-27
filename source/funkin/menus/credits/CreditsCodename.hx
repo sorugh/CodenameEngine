@@ -16,7 +16,7 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 
 	public override function new()
 	{
-		super("Codename Engine", "All the contributors of the engine! - Press RESET to update the list (One reset per 2 minutes).");
+		super("Codename Engine", TU.translate("credits.allContributors"));
 		tryUpdating(true);
 	}
 
@@ -39,7 +39,7 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 	}
 
 	public function tryUpdating(forceDisplaying:Bool = false) {
-		updateMenuDesc("Downloading List...");
+		updateMenuDesc(TU.translate("credits.downloadingList"));
 		_canReset = false;
 		Main.execAsync(function() {
 			if(checkUpdate() || forceDisplaying) _downloadingSteps = 2;
@@ -77,7 +77,7 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 		var idk = GitHub.getContributors(Flags.REPO_OWNER, Flags.REPO_NAME, function(e) {
 			error = true;
 			var errMsg:String = 'Error while trying to download contributors list:\n${CoolUtil.removeIP(e.message)}';
-			Logs.traceColored([Logs.logText(errMsg.replace('\n', ' '), RED)], ERROR);
+			Logs.error(errMsg.replace('\n', ' '));
 			funkin.backend.utils.NativeAPI.showMessageBox("Codename Engine Warning", errMsg, MSG_WARNING);
 		});
 		if(error) return false;
@@ -98,7 +98,7 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 		var idk2 = GitHub.getOrganizationMembers(Flags.REPO_OWNER, function(e) {
 			errorOnMain = true;
 			var errMsg:String = 'Error while trying to download ${Flags.REPO_OWNER} members list:\n${CoolUtil.removeIP(e.message)}';
-			Logs.traceColored([Logs.logText(errMsg.replace('\n', ' '), RED)], ERROR);
+			Logs.error(errMsg.replace('\n', ' '));
 			funkin.backend.utils.NativeAPI.showMessageBox("Codename Engine Warning", errMsg, MSG_WARNING);
 		});
 		if(!errorOnMain) {
@@ -122,9 +122,10 @@ class CreditsCodename extends funkin.options.OptionsScreen {
 		totalContributions = 0;
 		for(c in Options.contributors) totalContributions += c.contributions;
 		for(c in Options.contributors) {
-			var opt:GithubIconOption = new GithubIconOption(c, 'Total Contributions: ~${c.contributions}~ / *${totalContributions}* (~${FlxMath.roundDecimal(c.contributions / totalContributions * 100, 2)}%~) - Select to open GitHub account');
+			var text = TU.translate("credits.totalContributions", [c.contributions, totalContributions, FlxMath.roundDecimal(c.contributions / totalContributions * 100, 2)]);
+			var opt:GithubIconOption = new GithubIconOption(c, text);
 			if(Options.mainDevs.contains(c.id)) {
-				opt.desc += " *- Public member of the main Devs!*";
+				opt.desc += TU.translate("credits.mainDev");
 				@:privateAccess opt.__text.color = Flags.MAIN_DEVS_COLOR;
 			}
 			add(opt);

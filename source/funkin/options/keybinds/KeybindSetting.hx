@@ -34,12 +34,13 @@ class KeybindSetting extends FlxTypedSpriteGroup<FlxSprite> {
 
 		for(i in 1...3) {
 			var b = null;
+			var bx = FlxG.width * (0.25 * (i+1)) - x;
 			if (i == 1)
-				b = bind1 = new Alphabet(0, 0, "", false);
+				b = bind1 = new Alphabet(bx, 0, "", "normal");
 			else
-				b = bind2 = new Alphabet(0, 0, "", false);
+				b = bind2 = new Alphabet(bx, 0, "", "normal");
 
-			b.setPosition(FlxG.width * (0.25 * (i+1)) - x, -60);
+			//b.setPosition(FlxG.width * (0.25 * (i+1)) - x, -60);
 			add(b);
 		}
 		updateText();
@@ -113,7 +114,7 @@ class KeybindSetting extends FlxTypedSpriteGroup<FlxSprite> {
 	}
 
 	public function updateText() {
-		bind1.text = '${CoolUtil.keyToString(option1)}';
-		bind2.text = '${CoolUtil.keyToString(option2)}';
+		bind1.text = CoolUtil.keyToString(option1);
+		bind2.text = CoolUtil.keyToString(option2);
 	}
 }

@@ -26,50 +26,55 @@ class DebugOptions extends TreeMenu {
 
 class DebugOptionsScreen extends OptionsScreen {
 	public override function new() {
-		super("Debug Options", "Use this menu to change debug options.");
+		prefix = "DebugOptions.";
+		super(translate("title"), translate("desc"), prefix);
 		#if windows
 		add(new TextOption(
-			"Show Console",
-			"Select this to show the debug console, which contains log information about the game.",
+			getName("showConsole"),
+			getDesc("showConsole"),
 			function() {
 				NativeAPI.allocConsole();
 			}));
 		#end
 		add(new Checkbox(
-			"Resizable Editors",
-			"If checked, this will allow the editors to render beyond the base 1280x720 resolution of FNF (allowing for more detail and space...)",
+			getName("editorsResizable"),
+			getDesc("editorsResizable"),
 			"editorsResizable"));
 		add(new Checkbox(
-			"Editor SFXs",
-			"If checked, will play sound effects when working on editors (ex: will play SFXs when checking checkboxes...)",
+			getName("bypassEditorsResize"),
+			getDesc("bypassEditorsResize"),
+			"bypassEditorsResize"));
+		add(new Checkbox(
+			getName("editorSFX"),
+			getDesc("editorSFX"),
 			"editorSFX"));
 		add(new Checkbox(
-			"Pretty Print",
-			"If checked, the saved files from the editor will be formatted to be easily viewable (does not apply to XMLs...)",
+			getName("editorPrettyPrint"),
+			getDesc("editorPrettyPrint"),
 			"editorPrettyPrint"));
 		add(new Checkbox(
-			"Intensive Blur",
-			"If checked, will use more intensive blur that may be laggier but look better.",
+			getName("intensiveBlur"),
+			getDesc("intensiveBlur"),
 			"intensiveBlur"));
 		add(new Checkbox(
-			"Editor Autosaves",
-			"If checked, this will autosave your files in the editor, with the settings listed below.",
+			getName("charterAutoSaves"),
+			getDesc("charterAutoSaves"),
 			"charterAutoSaves"));
 		add(new NumOption(
-			"Autosaving Time",
-			"This controls how often the editor will autosave your file (in seconds...)",
+			getName("charterAutoSaveTime"),
+			getDesc("charterAutoSaveTime"),
 			60, 60*10, 30,
 			"charterAutoSaveTime"
 		));
 		add(new NumOption(
-			"Save Warning Time",
-			"This controls how long the editor will warn you before it autosaves (in seconds..., 0 to disable)",
+			getName("charterAutoSaveWarningTime"),
+			getDesc("charterAutoSaveWarningTime"),
 			0, 15, 1,
 			"charterAutoSaveWarningTime"
 		));
 		add(new Checkbox(
-			"Autosaves Folder",
-			"If checked, this will autosave your file in a separate folder with a time stamp instead of overriding your current file. (song/autosaves/)",
+			getName("charterAutoSavesSeparateFolder"),
+			getDesc("charterAutoSavesSeparateFolder"),
 			"charterAutoSavesSeparateFolder"));
 	}
 }

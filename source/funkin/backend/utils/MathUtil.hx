@@ -74,6 +74,84 @@ final class MathUtil {
 	}
 
 	/**
+	 * Checks if a is less than b with considering a margin of error.
+	 * 
+	 * @param a Float
+	 * @param b Float
+	 * @param margin Float (Default: EPSILON)
+	 * 
+	 * @return Bool
+	**/
+	public static function lessThan(a:Float, b:Float, margin:Float = 0.0000001):Bool {
+		return a < b - margin;
+	}
+
+	/**
+	 * Checks if a is less than or equally b with considering a margin of error.
+	 * 
+	 * @param a Float
+	 * @param b Float
+	 * @param margin Float (Default: EPSILON)
+	 * 
+	 * @return Bool
+	**/
+	public static function lessThanEqual(a:Float, b:Float, margin:Float = 0.0000001):Bool {
+		return a <= b - margin;
+	}
+
+	/**
+	 * Checks if a is greater than b with considering a margin of error.
+	 * 
+	 * @param a Float
+	 * @param b Float
+	 * @param margin Float (Default: EPSILON)
+	 * 
+	 * @return Bool
+	**/
+	public static function greaterThan(a:Float, b:Float, margin:Float = 0.0000001):Bool {
+		return a > b + margin;
+	}
+
+	/**
+	 * Checks if a is greater than or equally b with considering a margin of error.
+	 * 
+	 * @param a Float
+	 * @param b Float
+	 * @param margin Float (Default: EPSILON)
+	 * 
+	 * @return Bool
+	**/
+	public static function greaterThanEqual(a:Float, b:Float, margin:Float = 0.0000001):Bool {
+		return a >= b + margin;
+	}
+
+	/**
+	 * Checks if a is approximately equal to b.
+	 * 
+	 * @param a Float
+	 * @param b Float
+	 * @param margin Float (Default: EPSILON)
+	 * 
+	 * @return Bool
+	**/
+	public static function equal(a:Float, b:Float, margin:Float = 0.0000001):Bool {
+		return Math.abs(a - b) <= margin;
+	}
+
+	/**
+	 * Checks if a are not approximately equal to b.
+	 * 
+	 * @param a Float
+	 * @param b Float
+	 * @param margin Float (Default: EPSILON)
+	 * 
+	 * @return Bool
+	**/
+	public static function notEqual(a:Float, b:Float, margin:Float = 0.0000001):Bool {
+		return Math.abs(a - b) > margin;
+	}
+
+	/**
 	 * Shortcut to `Math.max` but with infinite amount of arguments
 	 *
 	 * Might not preserve the order of arguments, please test this.

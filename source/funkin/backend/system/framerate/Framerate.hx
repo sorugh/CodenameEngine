@@ -20,7 +20,7 @@ class Framerate extends Sprite {
 	public static var codenameBuildField:CodenameBuildField;
 	#end
 
-	public static var fontName:String = #if windows '${Sys.getEnv("windir")}\\Fonts\\consola.ttf' #else "_sans" #end;
+	public static var fontName:String = #if windows '${Sys.getEnv("windir")}\\Fonts\\consola.ttf' #else "_typewriter" #end;
 
 	/**
 	 * 0: FPS INVISIBLE
@@ -46,7 +46,7 @@ class Framerate extends Sprite {
 		super();
 		if (instance != null) throw "Cannot create another instance";
 		instance = this;
-		textFormat = new TextFormat("Consolas", 12, -1);
+		textFormat = new TextFormat(fontName, 12, -1);
 
 		isLoaded = true;
 

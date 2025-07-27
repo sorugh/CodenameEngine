@@ -3,6 +3,7 @@ package funkin.options;
 import flixel.FlxState;
 import flixel.tweens.FlxTween;
 import flixel.util.typeLimit.OneOfTwo;
+import flixel.util.typeLimit.OneOfThree;
 import funkin.backend.FunkinText;
 import funkin.editors.ui.UIState;
 import funkin.menus.MainMenuState;
@@ -76,14 +77,22 @@ class TreeMenu extends UIState {
 				menuChangeTween = null;
 			}}, (val:Float) -> screenScroll = val);
 
-			var t = "";
-			for(o in optionsTree.members)
-				t += '${o.name} > ';
-			pathLabel.text = t;
-
-			var idk:OptionsScreen = optionsTree.members.last();
-			if (idk.members.length > 0) updateDesc(idk.members[idk.curSelected].desc);
+			reloadLabels();
 		}
+	}
+
+	public function onMenuClose(m:OptionsScreen) {
+		CoolUtil.playMenuSFX(CANCEL);
+	}
+
+	public function reloadLabels() {
+		var t = "";
+		for(o in optionsTree.members)
+			t += '${o.name} > ';
+		pathLabel.text = t;
+
+		var idk:OptionsScreen = optionsTree.members.last();
+		if (idk.members.length > 0) updateDesc(idk.members[idk.curSelected].desc);
 	}
 
 	public function updateDesc(moreTxt:String = '') {
@@ -98,14 +107,9 @@ class TreeMenu extends UIState {
 		lastState = null;
 	}
 
-	public function onMenuClose(m:OptionsScreen) {
-		CoolUtil.playMenuSFX(CANCEL);
-	}
-
 	var menuChangeTween:FlxTween;
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
-
 		Framerate.offset.y = pathBG.height;
 
 		// in case path gets so long it goes offscreen
@@ -133,8 +137,9 @@ class TreeMenu extends UIState {
 typedef OptionCategory = {
 	var name:String;
 	var desc:String;
-	var state:OneOfTwo<OptionsScreen, Class<OptionsScreen>>;
-	var ?substate:OneOfTwo<MusicBeatSubstate, Class<MusicBeatSubstate>>;
+	var state:OneOfThree<OptionsScreen, Class<OptionsScreen>, (name:String, desc:String) -> OptionsScreen>;
+	var ?substate:OneOfThree<MusicBeatSubstate, Class<MusicBeatSubstate>, (name:String, desc:String) -> MusicBeatSubstate>;
+	var ?suffix:String;
 }
 
 typedef OptionTypeDef = {

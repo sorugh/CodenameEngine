@@ -65,74 +65,77 @@ class CharacterEditor extends UIState {
 		if (character != null) __character = character;
 	}
 
+	inline function translate(id:String, ?args:Array<Dynamic>)
+		return TU.translate("characterEditor." + id, args);
+
 	public override function create() {
 		super.create();
 
 		undos = new UndoList<CharacterEditorChange>();
 
-		WindowUtils.suffix = " (Character Editor)";
+		WindowUtils.suffix = " (" + TU.translate("editor.character.name") + ")";
 		SaveWarning.selectionClass = CharacterSelection;
 		SaveWarning.saveFunc = () -> {_file_save(null);};
 
 		topMenu = [
 			{
-				label: "File",
+				label: translate("topBar.file"),
 				childs: [
 					{
-						label: "New",
+						label: translate("file.new"),
 						onSelect: _file_new,
 					},
 					null,
 					{
-						label: "Save",
+						label: translate("file.save"),
 						keybind: [CONTROL, S],
 						onSelect: _file_save,
 					},
 					{
-						label: "Save As...",
+						label: translate("file.saveAs"),
 						keybind: [CONTROL, SHIFT, S],
 						onSelect: _file_saveas,
 					},
 					null,
 					{
-						label: "Exit",
+						label: translate("file.exit"),
 						onSelect: _file_exit
 					}
 				]
 			},
 			{
-				label: "Edit",
+				label: translate("topBar.edit"),
 				childs: [
 					{
-						label: "Copy Offset",
+						label: translate("edit.copyOffset"),
 						keybind: [CONTROL, C],
 						onSelect: _edit_copy_offset
 					},
 					{
-						label: "Paste Offset",
+						label: translate("edit.pasteOffset"),
 						keybind: [CONTROL, V],
 						onSelect: _edit_paste_offset
 					},
 					null,
 					{
-						label: "Undo",
+						label: translate("edit.undo"),
 						keybind: [CONTROL, Z],
 						onSelect: _edit_undo
 					},
 					{
-						label: "Redo",
+						label: translate("edit.redo"),
 						keybinds: [[CONTROL, Y], [CONTROL, SHIFT, Z]],
 						onSelect: _edit_redo
 					},
 					null,
 					{
-						label: "Edit information",
+						label: translate("edit.editInfo"),
 						color: 0xFF959829, icon: 4,
 						onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2;},
 						onSelect: _edit_info
 					},
 					{
-						label: "Edit sprite",
+						label: translate("edit.editSprite"),
 						color: 0xFF959829, icon: 4,
 						onCreate: function (button:UIContextMenuOptionSpr) {button.label.offset.x = button.icon.offset.x = -2;},
 						onSelect: _edit_sprite
@@ -140,128 +143,128 @@ class CharacterEditor extends UIState {
 				]
 			},
 			{
-				label: "Offsets",
+				label: translate("topBar.offset"),
 				childs: [
 					{
-						label: "Move Left",
+						label: translate("offset.moveLeft"),
 						keybind: [LEFT],
 						onSelect: _offsets_left,
 					},
 					{
-						label: "Move Up",
+						label: translate("offset.moveUp"),
 						keybind: [UP],
 						onSelect: _offsets_up,
 					},
 					{
-						label: "Move Down",
+						label: translate("offset.moveDown"),
 						keybind: [DOWN],
 						onSelect: _offsets_down,
 					},
 					{
-						label: "Move Right",
+						label: translate("offset.moveRight"),
 						keybind: [RIGHT],
 						onSelect: _offsets_right,
 					},
 					null,
 					{
-						label: "Move Extra Left",
+						label: translate("offset.moveExtraLeft"),
 						keybind: [SHIFT, LEFT],
 						onSelect: _offsets_extra_left,
 					},
 					{
-						label: "Move Extra Up",
+						label: translate("offset.moveExtraUp"),
 						keybind: [SHIFT, UP],
 						onSelect: _offsets_extra_up,
 					},
 					{
-						label: "Move Extra Down",
+						label: translate("offset.moveExtraDown"),
 						keybind: [SHIFT, DOWN],
 						onSelect: _offsets_extra_down,
 					},
 					{
-						label: "Move Extra Right",
+						label: translate("offset.moveExtraRight"),
 						keybind: [SHIFT, RIGHT],
 						onSelect: _offsets_extra_right,
 					},
 					null,
 					{
-						label: "Drag Offsets With Mouse?",
+						label: translate("offset.dragOffsetsMouse"),
 						onSelect: _offsets_drag_offsets_mouse,
 						icon: Options.characterDragging ? 1 : 0
 					},
 					{
-						label: "Clear Offsets",
+						label: translate("offset.clearOffsets"),
 						keybind: [CONTROL, R],
 						onSelect: _offsets_clear,
 					}
 				]
 			},
 			{
-				label: "Stage",
+				label: translate("topBar.stage"),
 				childs: buildStagesUI()
 			},
 			{
-				label: "View",
+				label: translate("topBar.view"),
 				childs: [
 					{
-						label: "Zoom in",
+						label: translate("view.zoomIn"),
 						keybind: [CONTROL, NUMPADPLUS],
 						onSelect: _view_zoomin
 					},
 					{
-						label: "Zoom out",
+						label: translate("view.zoomOut"),
 						keybind: [CONTROL, NUMPADMINUS],
 						onSelect: _view_zoomout
 					},
 					{
-						label: "Reset zoom",
+						label: translate("view.resetZoom"),
 						keybind: [CONTROL, NUMPADZERO],
 						onSelect: _view_zoomreset
 					},
 					null,
 					{
-						label: "Character Hitbox?",
+						label: translate("view.charHitbox"),
 						onSelect: _view_character_show_hitbox,
 						icon: Options.characterHitbox ? 1 : 0
 					},
 					{
-						label: "Character Camera?",
+						label: translate("view.charCam"),
 						onSelect: _view_character_show_camera,
 						icon: Options.characterCamera ? 1 : 0
 					},
 					{
-						label: "XY Axis?",
+						label: translate("view.axis"),
 						onSelect: _view_character_show_axis,
 						icon: Options.characterAxis ? 1 : 0
 					}
 				]
 			},
 			{
-				label: "Animation >",
+				label: translate("topBar.animation") + " >",
 				childs: [
 					{
-						label: "Play Animation",
+						label: translate("animation.playAnim"),
 						keybind: [SPACE],
 						onSelect: _animation_play,
 					},
 					{
-						label: "Stop Animation",
+						label: translate("animation.stopAnim"),
 						onSelect: _animation_stop
 					},
 					null,
 					{
-						label: "Change Animation ↑",
+						label: translate("animation.changeAnimUp"),
 						keybind: [W],
 						onSelect: _animation_up
 					},
 					{
-						label: "Change Animation ↓",
+						label: translate("animation.changeAnimDown"),
 						keybind: [S],
 						onSelect: _animation_down
 					},
 					null,
 					{
-						label: "Play Animation On Offset?",
+						label: translate("animation.playAnimOnOffset"),
 						onSelect: _animation_toggle_anim_playing_offsets,
 						icon: Options.playAnimOnOffset ? 1 : 0
 					},
@@ -433,7 +436,7 @@ class CharacterEditor extends UIState {
 		super.onResize(width, height);
 		if (!UIState.resolutionAware) return;
 
-		if (width < FlxG.initialWidth || height < FlxG.initialHeight) {
+		if ((width < FlxG.initialWidth || height < FlxG.initialHeight) && !Options.bypassEditorsResize) {
 			width = FlxG.initialWidth; height = FlxG.initialHeight;
 		}
 
@@ -450,6 +453,7 @@ class CharacterEditor extends UIState {
 
 	function _file_save(_) {
 		#if sys
+		FlxG.sound.play(Paths.sound('editors/save'));
 		CoolUtil.safeSaveFile(
 			'${Paths.getAssetsRoot()}/data/characters/${character.curCharacter}.xml',
 			buildCharacter()
@@ -461,6 +465,7 @@ class CharacterEditor extends UIState {
 	}
 
 	function _file_saveas(_) {
+		FlxG.sound.play(Paths.sound('editors/save'));
 		openSubState(new SaveSubstate(buildCharacter(), {
 			defaultSaveFile: '${character.curCharacter}.xml'
 		}));
@@ -493,6 +498,7 @@ class CharacterEditor extends UIState {
 	}
 	
 	function _undo(undo:CharacterEditorChange) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_UNDO_SOUND));
 		switch (undo) {
 			case null: // do nothing
 			case CCharEditPosition(oldPos, newPos):
@@ -563,6 +569,7 @@ class CharacterEditor extends UIState {
 	}
 
 	function _redo(redo:CharacterEditorChange) {
+		FlxG.sound.play(Paths.sound(Flags.DEFAULT_EDITOR_REDO_SOUND));
 		switch (redo) {
 			case null: // do nothing
 			case CCharEditPosition(oldPos, newPos):
@@ -682,16 +689,17 @@ class CharacterEditor extends UIState {
 		var stageFileList = Stage.getList(true);
 		if (stageFileList.length == 0) stageFileList = Stage.getList(false);
 
+		var stageText = TU.getRaw("characterEditor.stage.useStage");
 		for (stage in stageFileList)
 			newChilds.push({
-				label: 'Use "$stage"?',
+				label: stageText.format([stage]),
 				icon: currentStage == stage ? 1 : 0,
 				onSelect: (_) -> {changeStage(stage);}
 			});
 
 		newChilds.push(null);
 		newChilds.push({
-			label: "Use No Stage?",
+			label: translate("stage.useNone"),
 			icon: currentStage == null ? 1 : 0,
 			onSelect: (_) -> {changeStage(null);}
 		});

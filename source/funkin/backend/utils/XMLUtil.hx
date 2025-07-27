@@ -67,7 +67,7 @@ final class XMLUtil {
 	 */
 	public static function applyXMLProperty(object:Dynamic, property:Access):ErrorCode {
 		if (!property.has.name || !property.has.type || !property.has.value) {
-			Logs.trace('Failed to apply XML property: XML Element is missing name, type, or value attributes.', WARNING);
+			Logs.warn('Failed to apply XML property: XML Element is missing name, type, or value attributes.');
 			return MISSING_PROPERTY;
 		}
 
@@ -101,7 +101,7 @@ final class XMLUtil {
 			if(isPath) {
 				str += ' (Path: ${property.att.name})';
 			}
-			Logs.trace(str, WARNING);
+			Logs.warn(str);
 			return REFLECT_ERROR;
 		}
 		return OK;
@@ -114,12 +114,13 @@ final class XMLUtil {
 	 * @param parentFolder The parent folder
 	 * @param defaultAnimType The default animation type
 	 */
-	public static function loadSpriteFromXML(spr:FunkinSprite, node:Access, parentFolder:String = "", defaultAnimType:XMLAnimType = BEAT):FunkinSprite {
+	public static function loadSpriteFromXML(spr:FunkinSprite, node:Access, parentFolder:String = "", defaultAnimType:XMLAnimType = BEAT, loadGraphic:Bool = true):FunkinSprite {
 		if (parentFolder == null) parentFolder = "";
 
 		spr.name = node.getAtt("name");
 		spr.antialiasing = true;
-		spr.loadSprite(Paths.image('$parentFolder${node.getAtt("sprite").getDefault(spr.name)}', null, true));
+		if (loadGraphic)
+			spr.loadSprite(Paths.image('$parentFolder${node.getAtt("sprite").getDefault(spr.name)}', null, true));
 
 		spr.spriteAnimType = defaultAnimType;
 		if (node.has.type) {
@@ -192,10 +193,10 @@ final class XMLUtil {
 		if (node.has.updateHitbox && node.att.updateHitbox == "true") spr.updateHitbox();
 
 		if (node.has.zoomfactor)
-			spr.zoomFactor = Std.parseFloat(node.getAtt("zoomfactor")).getDefault(spr.zoomFactor);
+			spr.zoomFactor = Std.parseFloat(node.getAtt("zoomfactor")).getDefaultFloat(spr.zoomFactor);
 
 		if (node.has.alpha)
-			spr.alpha = Std.parseFloat(node.getAtt("alpha")).getDefault(spr.alpha);
+			spr.alpha = Std.parseFloat(node.getAtt("alpha")).getDefaultFloat(spr.alpha);
 
 		if(node.has.color)
 			spr.color = FlxColor.fromString(node.getAtt("color")).getDefault(0xFFFFFFFF);
@@ -239,10 +240,10 @@ final class XMLUtil {
 	 * @param cl The class to create (advanced)
 	 * @param args The arguments to pass to the class (advanced)
 	 */
-	public static inline function createSpriteFromXML(node:Access, parentFolder:String = "", defaultAnimType:XMLAnimType = BEAT, ?cl:Class<FunkinSprite>, ?args:Array<Dynamic>):FunkinSprite {
+	public static inline function createSpriteFromXML(node:Access, parentFolder:String = "", defaultAnimType:XMLAnimType = BEAT, ?cl:Class<FunkinSprite>, ?args:Array<Dynamic>, loadGraphic:Bool = true):FunkinSprite {
 		if(cl == null) cl = FunkinSprite;
 		if(args == null) args = [];
-		return loadSpriteFromXML(Type.createInstance(cl, args), node, parentFolder, defaultAnimType);
+		return loadSpriteFromXML(Type.createInstance(cl, args), node, parentFolder, defaultAnimType, loadGraphic);
 	}
 
 	/**
@@ -266,9 +267,9 @@ final class XMLUtil {
 		if (anim.has.name) animData.name = anim.att.name;
 		if (anim.has.type) animData.animType = XMLAnimType.fromString(anim.att.type, animData.animType);
 		if (anim.has.anim) animData.anim = anim.att.anim;
-		if (anim.has.fps) animData.fps = Std.parseFloat(anim.att.fps).getDefault(animData.fps);
-		if (anim.has.x) animData.x = Std.parseFloat(anim.att.x).getDefault(animData.x);
-		if (anim.has.y) animData.y = Std.parseFloat(anim.att.y).getDefault(animData.y);
+		if (anim.has.fps) animData.fps = Std.parseFloat(anim.att.fps).getDefaultFloat(animData.fps);
+		if (anim.has.x) animData.x = Std.parseFloat(anim.att.x).getDefaultFloat(animData.x);
+		if (anim.has.y) animData.y = Std.parseFloat(anim.att.y).getDefaultFloat(animData.y);
 		if (anim.has.loop) animData.loop = anim.att.loop == "true";
 		if (anim.has.forced) animData.forced = anim.att.forced == "true";
 		if (anim.has.indices) animData.indices = CoolUtil.parseNumberRange(anim.att.indices);

@@ -16,13 +16,14 @@ This changelog lists every change that has been added since the last update (inc
 - Added a function ``WindowUtils.resetAffixes()`` to reset the prefix and suffix of the engine's window title, and fixed a typo ([1d94945](https://github.com/CodenameCrew/CodenameEngine/commit/1d94945faeea86af02bcaecd715f5bea22ef48fd))
 - Added a field `extra` to FunkinSprite, which can be used to store any extra data you want (e.g. sprite.extra.set("name", value)) ([fb48570](https://github.com/CodenameCrew/CodenameEngine/commit/fb485701b451d6a7a22a1e696bfc081699f1c6d2))
 - Added default icon colors to every base game character ([814bd71](https://github.com/CodenameCrew/CodenameEngine/commit/814bd712fe2ea2dd21116e9903d9c2babe5341b1))
-- Added more features to cne.bat/cne.sh: ([4ef43df](https://github.com/CodenameCrew/CodenameEngine/commit/4ef43dfbecc79283d038d939f94671966802039e), [0dc166c](https://github.com/CodenameCrew/CodenameEngine/commit/0dc166c601b25e3167a1d04542840265484576b4))
+- Added more features to cne.bat/cne.sh: ([4ef43df](https://github.com/CodenameCrew/CodenameEngine/commit/4ef43dfbecc79283d038d939f94671966802039e), [0dc166c](https://github.com/CodenameCrew/CodenameEngine/commit/0dc166c601b25e3167a1d04542840265484576b4), [21bba98](https://github.com/CodenameCrew/CodenameEngine/commit/21bba98923307fe75667e1395781d068a7ec47ad))
 	- Setup
 		- `--reinstall` to reinstall all libraries
 		- `--no-vscheck` to skip the Visual Studio check
 		- `--silent` to not print the download progress
-		- project file has conditionals now
+		- libs file has conditionals now
 		- `--lib=path.xml` to use a specific setup file
+		- `--fast` for quickly downloading git libraries, but requires you to reinstall it fully when updates happen
 - Alphabet now allows multiple lines in the text ([d519db0](https://github.com/CodenameCrew/CodenameEngine/commit/d519db011a14aac0ddfc052089836c6b445f7f44))
 - Allow importing mod root level modules in hscript, instead of only source/ ([7e66ee8](https://github.com/CodenameCrew/CodenameEngine/commit/7e66ee81e24204cd152de20046fa1500bb9d204b))
 - Added a way to force animations in the `Play Animation` event ([d7b6fbe](https://github.com/CodenameCrew/CodenameEngine/commit/d7b6fbe510edeb832112ab5adc8ab19dfe97d77f))
@@ -63,7 +64,6 @@ This changelog lists every change that has been added since the last update (inc
 - Added `bf` shorthand for `boyfriend` in playstate ([2b81220](https://github.com/CodenameCrew/CodenameEngine/commit/2b81220c15ed77acecd17c09a975ed401677165f))
 - Added character script extensions ([682358c](https://github.com/CodenameCrew/CodenameEngine/commit/682358c93a0c17469d1a481de0523e4c4e19c6ec))
 - Folder support in the character editor selection ([68c2fea](https://github.com/CodenameCrew/CodenameEngine/commit/68c2feab373db69d4a00b6f274f98afb3d8e3803))
-- cne.bat/cne.sh setup --fast for quickly downloading git libraries ([21bba98](https://github.com/CodenameCrew/CodenameEngine/commit/21bba98923307fe75667e1395781d068a7ec47ad))
 - Allow hold notes to be force deleted ([25b5630](https://github.com/CodenameCrew/CodenameEngine/commit/25b563066fc53ac92ebe3064175c80b5f1ae64bc))
 - Allow tweening shaders and array values using FlxTween ([3de3c3f](https://github.com/CodenameCrew/CodenameEngine/commit/3de3c3f8286b2b07c9690334e2d85ce052a909c5))
 - Made the advanced info show `Mod State: {name}` instead of `State: funkin.backend.scripting.ModState` ([3de3c3f](https://github.com/CodenameCrew/CodenameEngine/commit/3de3c3f8286b2b07c9690334e2d85ce052a909c5))

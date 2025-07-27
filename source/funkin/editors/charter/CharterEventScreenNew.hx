@@ -88,7 +88,7 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 				});
 				eventsList.add(new EventButtonNew(events[events.length-1], CharterEvent.generateEventIcon(events[events.length-1]), events.length-1, this, eventsList));
 				changeTab(events.length-1);
-			}));
+			}, chartEvent.step));
 		};
 		for (k=>i in events)
 			eventsList.add(new EventButtonNew(i, CharterEvent.generateEventIcon(i), k, this, eventsList));
@@ -284,19 +284,19 @@ class CharterEventScreenNew extends MusicBeatSubstate {
 	}
 
 	public function quit() {
+		CharterEventGroup.stopThisFuckingShitDudeIstg = false;
 		saveCurTab();
-		chartEvent.refreshEventIcons();
 
 		if (events.length <= 0)
 			Charter.instance.deleteSelection([chartEvent]);
 		else if (events.length > 0) {
 			var oldEvents:Array<ChartEvent> = chartEvent.events.copy();
 			chartEvent.events = [for (i in eventsList.buttons.members) i.event];
-			chartEvent.refreshEventIcons();
-			Charter.instance.updateBPMEvents();
 
 			Charter.undos.addToUndo(CEditEvent(chartEvent, oldEvents, [for (event in events) Reflect.copy(event)]));
 		}
+		chartEvent.refreshEventIcons();
+		Charter.instance.updateBPMEvents();
 		close();
 	}
 

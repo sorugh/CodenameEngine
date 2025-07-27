@@ -130,17 +130,18 @@ class Stage extends FlxBasic implements IBeatReceiver {
 					case "box" | "solid":
 						if (!node.has.name || !node.has.width || !node.has.height) continue;
 
-						var spr = new FunkinSprite(
-							(node.has.x) ? Std.parseFloat(node.att.x).getDefault(0) : 0,
-							(node.has.y) ? Std.parseFloat(node.att.y).getDefault(0) : 0
-						);
-						spr.name = node.getAtt("name");
+						var isSolid = node.name == "solid";
 
-						(node.name == "solid" ? spr.makeSolid : spr.makeGraphic)(
+						var spr = new FunkinSprite();
+						(isSolid ? spr.makeSolid : spr.makeGraphic)(
 							Std.parseInt(node.att.width),
 							Std.parseInt(node.att.height),
 							(node.has.color) ? CoolUtil.getColorFromDynamic(node.att.color) : -1
 						);
+
+						if (isSolid) node.x.remove("updateHitbox");
+						for (a in ["width", "height", "color"]) node.x.remove(a);
+						XMLUtil.loadSpriteFromXML(spr, node, "", NONE, false);
 
 						stageSprites.set(spr.name, spr);
 						addSprite(spr);
@@ -156,8 +157,8 @@ class Stage extends FlxBasic implements IBeatReceiver {
 					case "ratings" | "combo":
 						if (PlayState.instance != state) continue;
 						PlayState.instance.comboGroup.setPosition(
-							Std.parseFloat(node.getAtt("x")).getDefault(PlayState.instance.comboGroup.x),
-							Std.parseFloat(node.getAtt("y")).getDefault(PlayState.instance.comboGroup.y)
+							Std.parseFloat(node.getAtt("x")).getDefaultFloat(PlayState.instance.comboGroup.x),
+							Std.parseFloat(node.getAtt("y")).getDefaultFloat(PlayState.instance.comboGroup.y)
 						);
 						PlayState.instance.add(PlayState.instance.comboGroup);
 						PlayState.instance.comboGroup;
@@ -352,6 +353,11 @@ class Stage extends FlxBasic implements IBeatReceiver {
 	public function stepHit(curStep:Int) {}
 
 	public function measureHit(curMeasure:Int) {}
+
+	public override function destroy() {
+		startCam.put();
+		super.destroy();
+	}
 
 	/**
 	 * Gets a list of stages that are available to be used.

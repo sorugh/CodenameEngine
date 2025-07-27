@@ -12,6 +12,10 @@ class CodenameBuildField extends TextField {
 		reload();
 	}
 
-	public function reload()
-		text = 'Codename Engine ${Flags.RELEASE_CYCLE}\n${Flags.COMMIT_MESSAGE}';
+	public function reload() {
+		text = '${Flags.VERSION_MESSAGE}';
+		#if debug
+		text += '\n${Flags.COMMIT_MESSAGE}';
+		#end
+	}
 }

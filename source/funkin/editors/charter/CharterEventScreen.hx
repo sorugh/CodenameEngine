@@ -38,7 +38,7 @@ class CharterEventScreen extends UISubstateWindow {
 		var creatingEvent:Bool = chartEvent == null;
 		if (creatingEvent) chartEvent = new CharterEvent(step, [], global);
 
-		winTitle = creatingEvent ? "Create Event Group" : "Edit Event Group";
+		winTitle = TU.translate("charterEventScreen.title" + (creatingEvent ? "-creating" : "-editing"));
 		winWidth = 960;
 
 		super.create();
@@ -59,7 +59,7 @@ class CharterEventScreen extends UISubstateWindow {
 			});
 			eventsList.add(new EventButton(events[events.length-1], CharterEvent.generateEventIcon(events[events.length-1]), events.length-1, this, eventsList));
 			changeTab(events.length-1);
-		}));
+		}, chartEvent.step));
 		for (k=>i in events)
 			eventsList.add(new EventButton(i, CharterEvent.generateEventIcon(i), k, this, eventsList));
 		add(eventsList);
@@ -67,9 +67,11 @@ class CharterEventScreen extends UISubstateWindow {
 		paramsPanel = new FlxGroup();
 		add(paramsPanel);
 
-		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight - 16 - 32, "Save & Close", function() {
+		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20, windowSpr.y + windowSpr.bHeight - 16 - 32, TU.translate("editor.saveClose"), function() {
 			saveCurTab();
 			chartEvent.refreshEventIcons();
+
+			Charter.instance.updateBPMEvents();
 
 			if (events.length <= 0 && !creatingEvent)
 				Charter.instance.deleteSelection([chartEvent]);
@@ -78,12 +80,11 @@ class CharterEventScreen extends UISubstateWindow {
 				chartEvent.events = [for (i in eventsList.buttons.members) i.event];
 				chartEvent.global = global;
 
+				chartEvent.refreshEventIcons();
+
 				if (creatingEvent && events.length > 0)
 					Charter.instance.createSelection([chartEvent]);
 				else {
-					chartEvent.refreshEventIcons();
-					Charter.instance.updateBPMEvents();
-
 					Charter.undos.addToUndo(CEditEvent(chartEvent, oldEvents, [for (event in events) Reflect.copy(event)]));
 				}
 			}
@@ -93,7 +94,7 @@ class CharterEventScreen extends UISubstateWindow {
 		saveButton.x -= saveButton.bWidth;
 		add(saveButton);
 
-		closeButton = new UIButton(saveButton.x - 10, saveButton.y, "Close", ()->close());
+		closeButton = new UIButton(saveButton.x - 10, saveButton.y, TU.translate("editor.close"), ()->close());
 		closeButton.color = 0xFFFF0000;
 		closeButton.x -= closeButton.bWidth;
 		add(closeButton);
@@ -120,12 +121,20 @@ class CharterEventScreen extends UISubstateWindow {
 		if (id >= 0 && id < events.length) {
 			curEvent = id;
 			var curEvent = events[curEvent];
-			eventName.text = curEvent.name;
+
+			var visualName = curEvent.name;
+			var tuId = "charter.events." + TU.raw2Id(curEvent.name);
+			if(TU.exists(tuId))
+				visualName = TU.translate(tuId);
+
+			eventName.text = visualName;
 			// add new elements
 			var y:Float = eventName.y + eventName.height + 10;
 			for(k=>param in EventsData.getEventParams(curEvent.name)) {
 				function addLabel() {
-					var label:UIText = new UIText(eventName.x, y, 0, param.name);
+					var visualName = param.name;
+					// TODO: add translations
+					var label:UIText = new UIText(eventName.x, y, 0, visualName);
 					y += label.height + 4;
 					paramsPanel.add(label);
 				};
@@ -153,7 +162,11 @@ class CharterEventScreen extends UISubstateWindow {
 						numericStepper;
 					case TStrumLine:
 						addLabel();
-						var dropdown = new UIDropDown(eventName.x, y, 320, 32, [for(k=>s in cast(FlxG.state, Charter).strumLines.members) 'Strumline #${k+1} (${s.strumLine.characters[0]})'], cast value);
+						var strumlineFormat = TU.getRaw("charterEventScreen.strumLine.format");
+						var dropdown = new UIDropDown(eventName.x, y, 320, 32, [
+							for(k=>s in cast(FlxG.state, Charter).strumLines.members)
+								strumlineFormat.format([k+1, s.strumLine.characters[0]])
+						], cast value);
 						paramsPanel.add(dropdown); paramsFields.push(dropdown);
 						dropdown;
 					case TColorWheel:
@@ -194,7 +207,7 @@ class CharterEventScreen extends UISubstateWindow {
 					y += cast(lastAdded, FlxSprite).height + 6;
 			}
 		} else {
-			eventName.text = "No event";
+			eventName.text = TU.translate("charterEventScreen.noEvent"); // Maybe should be No Events?
 			curEvent = -1;
 		}
 	}
@@ -202,11 +215,11 @@ class CharterEventScreen extends UISubstateWindow {
 	public function saveCurTab() {
 		if (curEvent < 0) return;
 
-		events[curEvent].params = [
-			for(p in paramsFields) {
+		var dataParams = EventsData.getEventParams(events[curEvent].name);
+		var params:Array<Dynamic> = [
+			for (i => p in paramsFields) {
 				if (p is UIDropDown) {
-					var dataParams = EventsData.getEventParams(events[curEvent].name);
-					if (dataParams[paramsFields.indexOf(p)].type == TStrumLine) cast(p, UIDropDown).index;
+					if (dataParams[i].type == TStrumLine) cast(p, UIDropDown).index;
 					else cast(p, UIDropDown).label.text;
 				}
 				else if (p is UINumericStepper) {
@@ -227,6 +240,14 @@ class CharterEventScreen extends UISubstateWindow {
 					null;
 			}
 		];
+
+		while(dataParams.length > 0 && {
+			var index = params.length - 1;
+			var dataParam = dataParams[index];
+			dataParam.saveIfDefault == false && params[index] == dataParam.defValue;
+		}) params.pop();
+
+		events[curEvent].params = params;
 	}
 }
 

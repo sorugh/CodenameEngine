@@ -62,9 +62,9 @@ class CreditsCodename extends funkin.options.TreeMenuScreen {
 		]);
 	}
 
-	override function destroy() {
-		super.destroy();
+	override function close() {
 		for (frmt in contribFormats) parent.descLabel.removeFormat(frmt.format);
+		super.close();
 	}
 
 	public function checkUpdate():Bool {

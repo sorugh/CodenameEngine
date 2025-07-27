@@ -66,13 +66,6 @@
 		<str id="flashingMenu-name">Flashing Menu</str>
 		<str id="flashingMenu-desc">If unchecked, will disable menu flashing when you select an option in the Main Menu, and other flashes will be slower.</str>
 
-		<str id="quality-name">Quality</str>
-		<str id="quality-desc">Quality modes to choose, "LOW" = Disable every heavy visual effects as it can get to smoothen the gameplay, "HIGH" = Enable all of the visual effects, with the cost of performance, "CUSTOM" = Allow of custom options that is available in Advanced.</str>
-		<str id="quality-low">LOW</str>
-		<str id="quality-high">HIGH</str>
-		<str id="quality-custom">CUSTOM</str>
-		<str id="quality-optionDisabled-desc">Following option is locked for Quality Option, to unlock set Quality to CUSTOM</str>
-
 		<str id="colorHealthBar-name">Colored Healthbar</str>
 		<str id="colorHealthBar-desc">If unchecked, the game will use the original red/green health bar from the week 6 fnf game.</str>
 
@@ -80,6 +73,12 @@
 		<str id="week6PixelPerfect-desc">If checked, Week 6 will have a pixel perfect effect to it enabled, aligning every pixel on the screen.</str>
 
 		<group name="AppearanceOptionsAdvanced" prefix="Advanced.">
+			<str id="quality-name">Quality</str>
+			<str id="quality-desc">Quality modes to choose, "LOW" = Disable every heavy visual effects as it can get to smoothen the gameplay, "HIGH" = Enable all of the visual effects, with the cost of performance, "CUSTOM" = Allow of custom options that is available in Advanced.</str>
+			<str id="quality-low">LOW</str>
+			<str id="quality-high">HIGH</str>
+			<str id="quality-custom">CUSTOM</str>
+
 			<str id="antialiasing-name">Antialiasing</str>
 			<str id="antialiasing-desc">If unchecked, will disable antialiasing on every sprite. Can boost performances at the cost of sharper, more pixely sprites.</str>
 

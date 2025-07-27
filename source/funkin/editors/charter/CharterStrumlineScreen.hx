@@ -144,9 +144,6 @@ class CharterStrumlineScreen extends UISubstateWindow {
 
 		saveButton = new UIButton(windowSpr.x + windowSpr.bWidth - 20 - 125, windowSpr.y + windowSpr.bHeight - 16 - 32, TU.translate("editor.saveClose"), function() {
 			saveStrumline();
-			for (grp in [Charter.instance.leftEventsGroup, Charter.instance.rightEventsGroup]) {
-				for (e in grp.members) e.refreshEventIcons();
-			}
 			close();
 		}, 125);
 		add(saveButton);

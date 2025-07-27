@@ -1,6 +1,7 @@
 package funkin.options.type;
 
 import flixel.group.FlxSpriteGroup;
+import flixel.util.FlxColor;
 import funkin.backend.system.Controls;
 import funkin.options.TreeMenu.ITreeOption;
 
@@ -18,6 +19,8 @@ class OptionType extends FlxSpriteGroup implements ITreeOption {
 	public var rawDesc(default, set):String;
 
 	public var itemHeight:Float = 120;
+
+	public var editorFlashColor:FlxColor = FlxColor.WHITE;
 
 	public function new(text:String, desc:String) {
 		super();

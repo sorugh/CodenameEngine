@@ -6,13 +6,19 @@ import flixel.effects.FlxFlicker;
  * Option type that has text.
 **/
 class TextOption extends OptionType {
-	public var suffix:String;
+	public var suffix(default, set):String;
 	public var selectCallback:Void->Void;
 
 	var __text:Alphabet;
 	override function set_text(v:String) {
 		__text.text = v + suffix;
 		return text = v;
+	}
+
+	function set_suffix(v:String) {
+		if (suffix == (suffix = v)) return v;
+		__text.text = text + suffix;
+		return v;
 	}
 
 	public function new(text:String, desc:String, ?suffix:String = "", ?selectCallback:Void->Void = null) {

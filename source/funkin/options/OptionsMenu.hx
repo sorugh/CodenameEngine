@@ -94,7 +94,7 @@ class OptionsMenu extends TreeMenu {
 				var access:Access = null;
 				try access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT")))
 				catch(e) Logs.trace('Error while parsing options.xml: ${Std.string(e)}', ERROR);
-				//if (access != null) for (o in parseOptionsFromXML(access)) main.add(o);
+				if (access != null) for (o in parseOptionsFromXML(access)) tree.first().add(o);
 			}
 		}
 	}
@@ -120,9 +120,8 @@ class OptionsMenu extends TreeMenu {
 	}
 
 	// XML STUFF
-	/*
-	public function parseOptionsFromXML(xml:Access):Array<OptionType> {
-		var options:Array<OptionType> = [];
+	public function parseOptionsFromXML(xml:Access):Array<FlxSprite> {
+		var options:Array<FlxSprite> = [];
 
 		for(node in xml.elements) {
 			if (!node.has.name) {
@@ -164,13 +163,10 @@ class OptionsMenu extends TreeMenu {
 						options.push(new ArrayOption(name, desc, optionOptions, optionDisplayOptions, node.att.id, null, FlxG.save.data));
 
 				case "menu":
-					options.push(new TextOption(name + " >", desc, function() {
-						optionsTree.add(new TreeMenuScreen(name, desc, parseOptionsFromXML(node)));
-					}));
+					options.push(new TextOption(name, desc, ' >', () -> addMenu(new TreeMenuScreen(name, desc, parseOptionsFromXML(node)))));
 			}
 		}
 
 		return options;
 	}
-	*/
 }

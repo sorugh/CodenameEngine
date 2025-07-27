@@ -32,8 +32,6 @@ class TreeMenu extends UIState {
 	public var descLabel:FunkinText;
 	public var bgLabel:FlxSprite;
 
-	public var optionsTree:OptionsTree;
-
 	var menuChangeTween:FlxTween;
 	var __drawer:TreeMenuDrawer;
 	var __treeCreated:Bool = false;
@@ -74,7 +72,9 @@ class TreeMenu extends UIState {
 		add(bgLabel);
 		add(titleLabel);
 		add(descLabel);
-		updateLabels();
+
+		FlxG.camera.scroll.x = -FlxG.width;
+		menuChanged();
 
 		__treeCreated = true;
 	}

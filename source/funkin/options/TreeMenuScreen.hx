@@ -5,6 +5,8 @@ import flixel.util.FlxSignal;
 import funkin.backend.system.Controls;
 import funkin.backend.TurboControls;
 import funkin.options.TreeMenu.ITreeOption;
+import funkin.options.TreeMenu.ITreeFloatOption;
+import funkin.options.type.OptionType;
 import funkin.options.type.Separator;
 
 class TreeMenuScreen extends FlxSpriteGroup {
@@ -55,6 +57,7 @@ class TreeMenuScreen extends FlxSpriteGroup {
 	var turboBasics:Array<TurboBasic>;
 
 	var curOption:ITreeOption;
+	var curFloatOption:ITreeFloatOption;
 	var __firstFrame:Bool = true;
 
 	public function new(name:String, desc:String, ?prefix:String, ?objects:Array<FlxSprite>) {
@@ -72,7 +75,7 @@ class TreeMenuScreen extends FlxSpriteGroup {
 		rawName = rawName;
 		rawDesc = rawDesc;
 
-		for (object in members) if (object != null && object is ITreeOption) cast(object, ITreeOption).reloadStrings();
+		for (object in members) if (object != null && object is OptionType) cast(object, OptionType).reloadStrings();
 	}
 
 	override function update(elapsed:Float) {
@@ -80,7 +83,10 @@ class TreeMenuScreen extends FlxSpriteGroup {
 
 		if (__firstFrame) {
 			__firstFrame = false;
-			if (members[curSelected] is ITreeOption) (curOption = cast members[curSelected]).selected = true;
+			if (members[curSelected] is ITreeOption) {
+				(curOption = cast members[curSelected]).selected = true;
+				if (curOption is ITreeFloatOption) curFloatOption = cast curOption;
+			}
 			updateItems(true);
 			return;
 		}
@@ -91,8 +97,14 @@ class TreeMenuScreen extends FlxSpriteGroup {
 
 			if (length > 0 && curOption != null) {
 				if (controls.ACCEPT || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(members[curSelected]))) curOption.select();
-				if (leftTurboControl.activated) curOption.changeSelection(-1);
-				if (rightTurboControl.activated) curOption.changeSelection(1);
+				if (curFloatOption != null) {
+					if (controls.LEFT) curFloatOption.changeValue(-elapsed);
+					if (controls.RIGHT) curFloatOption.changeValue(elapsed);
+				}
+				else {
+					if (leftTurboControl.activated) curOption.changeSelection(-1);
+					if (rightTurboControl.activated) curOption.changeSelection(1);
+				}
 			}
 
 			if (controls.BACK || (FlxG.mouse.justPressedRight && Main.timeSinceFocus > 0.3)) close();
@@ -142,7 +154,15 @@ class TreeMenuScreen extends FlxSpriteGroup {
 			if ((curSelected = FlxMath.wrap(curSelected + (change > 0 ? 1 : -1), 0, members.length - 1)) == prevSelect) break;
 
 		if (curOption != null) curOption.selected = false;
-		if (members[curSelected] is ITreeOption) (curOption = cast members[curSelected]).selected = true;
+		if (members[curSelected] is ITreeOption) {
+			(curOption = cast members[curSelected]).selected = true;
+			if (curOption is ITreeFloatOption) curFloatOption = cast curOption;
+			else curFloatOption = null;
+		}
+		else {
+			curOption = null;
+			curFloatOption = null;
+		}
 		updateMenuDesc();
 
 		CoolUtil.playMenuSFX(SCROLL);

@@ -12,9 +12,12 @@ interface ITreeOption {
 	var desc:String;
 	var selected:Bool;
 
-	function reloadStrings():Void;
 	function changeSelection(change:Int):Void;
 	function select():Void;
+}
+
+interface ITreeFloatOption extends ITreeOption {
+	function changeValue(change:Float):Void;
 }
 
 class TreeMenu extends UIState {

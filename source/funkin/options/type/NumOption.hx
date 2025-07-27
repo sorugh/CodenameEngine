@@ -10,7 +10,7 @@ class NumOption extends TextOption {
 	public var max:Float;
 	public var step:Float;
 
-	public var currentSelection:Float;
+	public var currentValue:Float;
 
 	public var parent:Dynamic;
 	public var optionName:String;
@@ -31,20 +31,20 @@ class NumOption extends TextOption {
 		this.optionName = optionName;
 		this.parent = parent = parent != null ? parent : Options;
 
-		if (Reflect.field(parent, optionName) != null) currentSelection = Reflect.field(parent, optionName);
+		if (Reflect.field(parent, optionName) != null) currentValue = Reflect.field(parent, optionName);
 	
-		__number = new Alphabet(0, 20, ': $currentSelection', 'bold');
+		__number = new Alphabet(0, 20, ': $currentValue', 'bold');
 		super(text, desc);
 		add(__number);
 	}
 
 	override function changeSelection(change:Int):Void {
 		if (locked) return;
-		if (currentSelection == (currentSelection = FlxMath.bound(currentSelection + change, min, max))) return;
-		__number.text = ': $currentSelection';
+		if (currentValue == (currentValue = FlxMath.bound(currentValue + change, min, max))) return;
+		__number.text = ': $currentValue';
 
-		Reflect.setField(parent, optionName, currentSelection);
-		if (changedCallback != null) changedCallback(currentSelection);
+		Reflect.setField(parent, optionName, currentValue);
+		if (changedCallback != null) changedCallback(currentValue);
 
 		CoolUtil.playMenuSFX(SCROLL);
 	}

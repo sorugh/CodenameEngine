@@ -528,7 +528,7 @@ final class CoolUtil
 			case UNCHECKED:	'checkboxUnchecked';
 			case WARNING:	'warningMenu';
 			default: 		'scroll';
-		}), volume);
+		}), volume * Options.volumeSFX);
 	}
 
 	/**

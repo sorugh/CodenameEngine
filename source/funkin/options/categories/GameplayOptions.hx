@@ -14,8 +14,9 @@ class GameplayOptions extends TreeMenuScreen {
 		add(new Checkbox(getNameID('ghostTapping'), getDescID('ghostTapping'), 'ghostTapping'));
 		add(new Checkbox(getNameID('naughtyness'), getDescID('naughtyness'), 'naughtyness'));
 		add(new Checkbox(getNameID('camZoomOnBeat'), getDescID('camZoomOnBeat'), 'camZoomOnBeat'));
-		add(new Checkbox(getNameID('autoPause'), getDescID('autoPause'), 'autoPause'));
+		add(new Checkbox(getNameID('autoPause'), getDescID('autoPause'), 'autoPause', __changeAutoPause));
 		add(offsetSetting = new NumOption(getNameID('songOffset'), getDescID('songOffset'), -999, 999, 1, 'songOffset', __changeOffset));
+		add(new SliderOption(getNameID('volumeSFX'), getDescID('volumeSFX'), 0, 1, 1, 10, 'volumeSFX'));
 
 		add(new Separator());
 		add(new TextOption('optionsMenu.advanced', 'optionsTree.gameplay.advanced-desc', ' >', () ->
@@ -23,6 +24,7 @@ class GameplayOptions extends TreeMenuScreen {
 	}
 
 	private function __changeOffset(offset:Float) Conductor.songOffset = offset;
+	private function __changeAutoPause() FlxG.autoPause = Options.autoPause;
 
 	var __lastBeat:Int = 0;
 	var __lastSongBeat:Int = 0;

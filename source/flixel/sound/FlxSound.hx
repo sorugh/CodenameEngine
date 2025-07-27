@@ -880,7 +880,7 @@ class FlxSound extends FlxBasic {
 				cleanup(false, true);
 				startSound(time);
 			}
-			else if (playing) {
+			else {
 				_source.offset = 0;
 				_source.currentTime = time + _offset;
 			}

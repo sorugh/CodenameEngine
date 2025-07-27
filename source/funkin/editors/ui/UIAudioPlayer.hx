@@ -107,20 +107,17 @@ class UIAudioPlayer extends UIButton {
 
 			var spritePos:FlxPoint = sprite.getScreenPosition(FlxPoint.get(), __lastDrawCameras[0]);
 
-			if (((mousePos.x > (spritePos.x)) && (mousePos.x < (spritePos.x) + timeBar.barWidth))
-				&& ((mousePos.y > (spritePos.y)) && (mousePos.y < (spritePos.y) + timeBar.barHeight))) {
-				if (FlxG.mouse.justPressed) {
-					draggingObj = sprite;
-					wasPlaying = draggingObj == timeBar ? sound.playing : false;
-				}
+			if (((mousePos.x > spritePos.x) && (mousePos.x < spritePos.x + sprite.barWidth))
+				&& ((mousePos.y > spritePos.y) && (mousePos.y < spritePos.y + sprite.barHeight))) {
 
+				if (FlxG.mouse.justPressed) {
+					if ((draggingObj = sprite) == timeBar && (wasPlaying = sound.playing)) sound.pause();
+				}
 				if (FlxG.mouse.pressed) {
-					if (draggingObj == timeBar) {
-						if (sound.playing) sound.pause();
+					if (draggingObj == timeBar)
 						sound.time = FlxMath.remapToRange(mousePos.x - spritePos.x, 0, timeBar.barWidth, 0, sound.length);
-					} else if (draggingObj == volumeBar) {
+					else if (draggingObj == volumeBar)
 						sound.volume = FlxMath.remapToRange(mousePos.x - spritePos.x, 0, volumeBar.barWidth, 0, 1);
-					}
 				}
 			}
 			spritePos.put();
@@ -128,8 +125,10 @@ class UIAudioPlayer extends UIButton {
 		mousePos.put();
 
 		if (FlxG.mouse.released) {
-			if (draggingObj == timeBar && wasPlaying)
-				sound.play(wasPlaying = false, sound.time);
+			if (draggingObj == timeBar && wasPlaying) {
+				sound.resume();
+				wasPlaying = false;
+			}
 			draggingObj = null;
 		}
 	}

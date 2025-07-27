@@ -260,7 +260,7 @@ class StrumLineButton extends UIButton {
 		members.push(scrollSpeedStepper);
 		addLabelOn(scrollSpeedStepper, TU.translate("charterStrumLine.scrollSpeed"));
 
-		usesChartScrollSpeed = new UICheckbox(scrollSpeedStepper.x + 104, typeDropdown.y + 135, TU.translate("charterStrumLine.useChartScrollSpeed"), strumLine.scrollSpeed == null);
+		usesChartScrollSpeed = new UICheckbox(scrollSpeedStepper.x + 104, typeDropdown.y + 135, TU.translate("charterStrumLine.useChartScrollSpeed"), true);
 		usesChartScrollSpeed.onChecked = function(b) {
 			if(b) {
 				scrollSpeedStepper.value = subState.scrollSpeedTextBox.value;

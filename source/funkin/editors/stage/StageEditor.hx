@@ -395,6 +395,7 @@ class StageEditor extends UIState {
 		char.extra.set(exID("parentNode"), parent);
 		char.extra.set(exID("highMemory"), parent.name == "highMemory");
 		char.extra.set(exID("lowMemory"), parent.name == "lowMemory");
+		char.scale.x = node.has.scalex ? Std.parseFloat(node.att.scalex) : 1;
 
 		chars.push(char);
 		stage.applyCharStuff(char, charPos.name, 0);

@@ -178,6 +178,12 @@ class AudioBuffer
 
 		return audioBuffer;
 		#elseif (lime_cffi && !macro)
+		#if lime_vorbis // CNE
+		if (funkin.options.Options.streamedMusic) {
+			var vorbisFile = VorbisFile.fromBytes(bytes);
+			if (vorbisFile != null) return fromVorbisFile(vorbisFile);
+		}
+		#end
 		#if !cs
 		var audioBuffer = new AudioBuffer();
 		audioBuffer.data = new UInt8Array(Bytes.alloc(0));

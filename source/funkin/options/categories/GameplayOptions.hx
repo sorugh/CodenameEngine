@@ -16,7 +16,7 @@ class GameplayOptions extends TreeMenuScreen {
 		add(new Checkbox(getNameID('camZoomOnBeat'), getDescID('camZoomOnBeat'), 'camZoomOnBeat'));
 		add(new Checkbox(getNameID('autoPause'), getDescID('autoPause'), 'autoPause', __changeAutoPause));
 		add(offsetSetting = new NumOption(getNameID('songOffset'), getDescID('songOffset'), -999, 999, 1, 'songOffset', __changeOffset));
-		add(new SliderOption(getNameID('volumeSFX'), getDescID('volumeSFX'), 0, 1, 1, 6, 'volumeSFX'));
+		add(new SliderOption(getNameID('volumeSFX'), getDescID('volumeSFX'), 0, 1, 1, 5, 'volumeSFX'));
 
 		add(new Separator());
 		add(new TextOption('optionsMenu.advanced', 'optionsTree.gameplay.advanced-desc', ' >', () ->

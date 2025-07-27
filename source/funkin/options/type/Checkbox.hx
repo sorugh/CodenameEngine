@@ -19,12 +19,17 @@ class Checkbox extends TextOption {
 		"checking" => FlxPoint.get(35, 29)
 	];
 
+	override function set_text(v:String) {
+		super.set_text(v);
+		checkbox.x = __text.x + __text.width + 26;
+		return v;
+	}
+
 	public function new(text:String, desc:String, optionName:String, ?selectCallback:Void->Void, ?parent:Dynamic) {
-		super(text, desc, selectCallback);
 		this.optionName = optionName;
 		this.parent = parent = parent != null ? parent : Options;
 
-		add(checkbox = new FlxSprite(10, -30));
+		checkbox = new FlxSprite(10, -30);
 		checkbox.frames = Paths.getFrames('menus/options/checkboxThingie');
 		checkbox.animation.addByPrefix("unchecked", "Check Box unselected0", 24);
 		checkbox.animation.addByPrefix("checked", "Check Box Selected Static0", 24);
@@ -34,10 +39,13 @@ class Checkbox extends TextOption {
 		checkbox.scale.set(0.75, 0.75);
 		checkbox.updateHitbox();
 
-		__text.x = 100;
+		//__text.x = 100;
 
 		if (optionName != null) checked = Reflect.field(parent, optionName);
 		else checked = false;
+
+		super(text, desc, selectCallback);
+		add(checkbox);
 	}
 
 	public var firstFrame:Bool = true;

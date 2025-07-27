@@ -19,10 +19,15 @@ class SliderOption extends TextOption implements ITreeFloatOption {
 
 	function getValue():Float return (currentValue - min) / (max - min);
 
+	override function set_text(v:String) {
+		super.set_text(v);
+		slider.x = __text.x + __text.width + 30;
+		return v;
+	}
+
 	public function new(text:String, desc:String, min:Float, max:Float, step:Float, ?segments:Int, optionName:String, barWidth = 600.0,
 		?changedCallback:Float->Void = null, ?parent:Dynamic)
 	{
-		super(text, desc);
 		this.changedCallback = changedCallback;
 		this.min = min;
 		this.max = max;
@@ -32,16 +37,19 @@ class SliderOption extends TextOption implements ITreeFloatOption {
 
 		if (Reflect.field(parent, optionName) != null) currentValue = Reflect.field(parent, optionName);
 
-		add(slider = new Slider(16, 0, getValue(), barWidth, segments));
+		slider = new Slider(12, 0, getValue(), barWidth, segments);
 		slider.scale.set(0.75, 0.75);
 		slider.updateHitbox();
-		slider.y = __text.y + (__text.height - slider.height) * 0.5;
+
+		super(text, desc);
+		add(slider);
+		slider.y = Math.floor(__text.y + (__text.height - slider.height) * 0.5 + 2);
 	}
 
 	override function update(elapsed:Float) {
 		slider.selected = selected && !locked;
 		slider.value = getValue();
-		__text.x = slider.x + slider.width + 30;
+		//__text.x = slider.x + slider.width + 30;
 
 		super.update(elapsed);
 	}

@@ -112,6 +112,9 @@
 		<str id="autoPause-name">Auto Pause</str>
 		<str id="autoPause-desc">If checked, switching windows will pause the game.</str>
 
+		<str id="volumeMusic-name">Music Volume</str>
+		<str id="volumeMusic-desc">Changes only the volume of the music instead of everything.</str>
+
 		<str id="volumeSFX-name">SFX Volume</str>
 		<str id="volumeSFX-desc">Changes only the volume of the SFX instead of everything.</str>
 

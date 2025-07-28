@@ -29,6 +29,7 @@ class Options
 	public static var autoPause:Bool = true;
 	public static var antialiasing:Bool = true;
 	public static var volume:Float = 1;
+	public static var volumeMusic:Float = 1;
 	public static var volumeSFX:Float = 1;
 	public static var week6PixelPerfect:Bool = true;
 	public static var gameplayShaders:Bool = true;
@@ -225,6 +226,7 @@ class Options
 				gameplayShaders = true;
 		}
 
+		FlxG.sound.defaultMusicGroup.volume = volumeMusic;
 		FlxG.game.stage.quality = (FlxG.enableAntialiasing = antialiasing) ? BEST : LOW;
 		FlxG.autoPause = autoPause;
 		if (FlxG.updateFramerate < framerate) FlxG.drawFramerate = FlxG.updateFramerate = framerate;

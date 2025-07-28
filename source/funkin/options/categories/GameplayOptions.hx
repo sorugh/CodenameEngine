@@ -16,6 +16,7 @@ class GameplayOptions extends TreeMenuScreen {
 		add(new Checkbox(getNameID('camZoomOnBeat'), getDescID('camZoomOnBeat'), 'camZoomOnBeat'));
 		add(new Checkbox(getNameID('autoPause'), getDescID('autoPause'), 'autoPause', __changeAutoPause));
 		add(offsetSetting = new NumOption(getNameID('songOffset'), getDescID('songOffset'), -999, 999, 1, 'songOffset', __changeOffset));
+		add(new SliderOption(getNameID('volumeMusic'), getDescID('volumeMusic'), 0, 1, 1, 5, 'volumeMusic', -1, __changeVolumeMusic));
 		add(new SliderOption(getNameID('volumeSFX'), getDescID('volumeSFX'), 0, 1, 1, 5, 'volumeSFX'));
 
 		add(new Separator());
@@ -23,8 +24,9 @@ class GameplayOptions extends TreeMenuScreen {
 			parent.addMenu(new AdvancedGameplayOptions())));
 	}
 
-	private function __changeOffset(offset:Float) Conductor.songOffset = offset;
 	private function __changeAutoPause() FlxG.autoPause = Options.autoPause;
+	private function __changeOffset(offset:Float) Conductor.songOffset = offset;
+	private function __changeVolumeMusic(value:Float) FlxG.sound.defaultMusicGroup.volume = value;
 
 	var __lastBeat:Int = 0;
 	var __lastSongBeat:Int = 0;

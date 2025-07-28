@@ -25,7 +25,10 @@ class SliderOption extends TextOption implements ITreeFloatOption {
 	override function set_text(v:String) {
 		super.set_text(v);
 		slider.x = __text.x + __text.width + 30;
-		if (dynamicWidth) slider.barWidth = 1100 - __text.width;
+		if (dynamicWidth) {
+			slider.barWidth = 1100 - __text.width;
+			slider.updateHitbox();
+		}
 		return v;
 	}
 

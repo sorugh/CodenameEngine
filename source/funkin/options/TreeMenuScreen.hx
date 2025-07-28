@@ -93,10 +93,20 @@ class TreeMenuScreen extends FlxSpriteGroup {
 
 		if (inputEnabled) {
 			for (basic in turboBasics) basic.update(elapsed);
-			changeSelection((upTurboControl.activated ? -1 : 0) + (downTurboControl.activated ? 1 : 0) - FlxG.mouse.wheel);
+
+			var change = (upTurboControl.activated ? -1 : 0) + (downTurboControl.activated ? 1 : 0) - FlxG.mouse.wheel, mouseControl = false;
+			if (FlxG.mouse.justPressed) {
+				for (i in CoolUtil.maxInt(curSelected - 3, 0)...CoolUtil.minInt(curSelected + 4, length))
+					if (i != curSelected && members[i] != null && mouseOverlaps(members[i])) {
+						change = i - curSelected;
+						mouseControl = true;
+						break;
+					}
+			}
+			changeSelection(change);
 
 			if (length > 0 && curOption != null) {
-				if (controls.ACCEPT || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(members[curSelected]))) curOption.select();
+				if (controls.ACCEPT || (!mouseControl && FlxG.mouse.justPressed && mouseOverlaps(members[curSelected]))) curOption.select();
 				if (curFloatOption != null) {
 					if (controls.LEFT) curFloatOption.changeValue(-elapsed);
 					if (controls.RIGHT) curFloatOption.changeValue(elapsed);
@@ -172,9 +182,11 @@ class TreeMenuScreen extends FlxSpriteGroup {
 		if (parent != null) parent.updateDesc(customTxt);
 	}
 
+	function mouseOverlaps(sprite:FlxSprite):Bool
+		return sprite.overlapsPoint(FlxG.mouse.getPosition(@:privateAccess flixel.input.FlxPointer._cachedPoint), true);
+
 	override function destroy() {
 		super.destroy();
-
 		for (basic in turboBasics) basic.destroy();
 	}
 }

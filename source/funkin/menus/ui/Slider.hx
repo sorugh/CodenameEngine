@@ -99,7 +99,7 @@ class Slider extends FlxSprite {
 
 		if (showSlider) {
 			_frame.prepareMatrix(_matrix, ANGLE_0, __flipX != camera.flipX, __flipY != camera.flipY);
-			prepareDrawMatrix(camera, -_frame.sourceSize.x * 0.5 + __valueWidth, -(_frame.sourceSize.y - barHeight) * 0.5);
+			prepareDrawMatrix(camera, -_frame.sourceSize.x * 0.5 + (__flipX ? barWidth - __valueWidth : __valueWidth), -(_frame.sourceSize.y - barHeight) * 0.5);
 			forceDrawFrame(camera, _frame);
 		}
 	}
@@ -151,11 +151,11 @@ class Slider extends FlxSprite {
 			anim = getBarAnim(1, true);
 			frame = frames.frames[anim.frames[__frameTime % anim.numFrames]];
 
-			if (!flip != !__flipX) __barClipRect.set(0, 0, __valueWidth - x, frame.sourceSize.y);
-			else __barClipRect.set(__cornerWidth - __valueWidth + x, 0, __valueWidth - x, frame.sourceSize.y);
+			if (flip) __barClipRect.set(__cornerWidth - __valueWidth + x, 0, __valueWidth - x, frame.sourceSize.y);
+			else __barClipRect.set(0, 0, __valueWidth - x, frame.sourceSize.y);
 			__barFrame = frame.clipTo(__barClipRect, __barFrame);
-			__barFrame.prepareMatrix(_matrix, ANGLE_0, flip != camera.flipX, __flipY != camera.flipY);
-			prepareDrawMatrix(camera, x, 0);
+			__barFrame.prepareMatrix(_matrix, ANGLE_0, flip != __flipX != camera.flipX, __flipY != camera.flipY);
+			prepareDrawMatrix(camera, __flipX ? barWidth - x - frame.sourceSize.x : x, 0);
 			forceDrawFrame(camera, __barFrame);
 		}
 
@@ -163,11 +163,11 @@ class Slider extends FlxSprite {
 			anim = getBarAnim(1, false);
 			frame = frames.frames[anim.frames[__frameTime % anim.numFrames]];
 
-			if (flip != __flipX) __barClipRect.set(0, 0, __cornerWidth - __valueWidth + x, frame.sourceSize.y);
+			if (flip) __barClipRect.set(0, 0, __cornerWidth - __valueWidth + x, frame.sourceSize.y);
 			else __barClipRect.set(__valueWidth - x, 0, __cornerWidth - __valueWidth + x, frame.sourceSize.y);
 			__barFrame = frame.clipTo(__barClipRect, __barFrame);
-			__barFrame.prepareMatrix(_matrix, ANGLE_0, flip != camera.flipX, __flipY != camera.flipY);
-			prepareDrawMatrix(camera, x, 0);
+			__barFrame.prepareMatrix(_matrix, ANGLE_0, flip != __flipX != camera.flipX, __flipY != camera.flipY);
+			prepareDrawMatrix(camera, __flipX ? barWidth - x - frame.sourceSize.x : x, 0);
 			forceDrawFrame(camera, __barFrame);
 		}
 
@@ -187,7 +187,7 @@ class Slider extends FlxSprite {
 			__barFrame = frame.clipTo(__barClipRect, __barFrame);
 			__barFrame.prepareMatrix(_matrix, ANGLE_0, __flipX != camera.flipX, __flipY != camera.flipY);
 			_matrix.scale(s, 1);
-			prepareDrawMatrix(camera, x, 0);
+			prepareDrawMatrix(camera, __flipX ? barWidth - x - width : x, 0);
 			forceDrawFrame(camera, __barFrame);
 		}
 
@@ -200,7 +200,7 @@ class Slider extends FlxSprite {
 			__barFrame = frame.clipTo(__barClipRect, __barFrame);
 			__barFrame.prepareMatrix(_matrix, ANGLE_0, __flipX != camera.flipX, __flipY != camera.flipY);
 			_matrix.scale(s, 1);
-			prepareDrawMatrix(camera, x, 0);
+			prepareDrawMatrix(camera, __flipX ? barWidth - x - width : x, 0);
 			forceDrawFrame(camera, __barFrame);
 		}
 
@@ -218,7 +218,7 @@ class Slider extends FlxSprite {
 			__barClipRect.set(offset, 0, __valueWidth - x, frame.sourceSize.y);
 			__barFrame = frame.clipTo(__barClipRect, __barFrame);
 			__barFrame.prepareMatrix(_matrix, ANGLE_0, __flipX != camera.flipX, __flipY != camera.flipY);
-			prepareDrawMatrix(camera, x, 0);
+			prepareDrawMatrix(camera, __flipX ? barWidth - x - width : x, 0);
 			forceDrawFrame(camera, __barFrame);
 		}
 
@@ -229,7 +229,7 @@ class Slider extends FlxSprite {
 			__barClipRect.set(__valueWidth - x + offset, 0, __segmentWidth - offset - __valueWidth + x, frame.sourceSize.y);
 			__barFrame = frame.clipTo(__barClipRect, __barFrame);
 			__barFrame.prepareMatrix(_matrix, ANGLE_0, __flipX != camera.flipX, __flipY != camera.flipY);
-			prepareDrawMatrix(camera, x, 0);
+			prepareDrawMatrix(camera, __flipX ? barWidth - x - width : x, 0);
 			forceDrawFrame(camera, __barFrame);
 		}
 

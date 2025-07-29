@@ -11,8 +11,8 @@ import funkin.backend.system.Controls;
 import funkin.options.PlayerSettings;
 
 class TurboBasic extends FlxBasic {
-	public static inline final DEFAULT_DELAY:Float = 0.4;
-	public static inline final DEFAULT_INTERVAL:Float = 1 / 18;
+	public static var DEFAULT_DELAY:Float = 0.4;
+	public static var DEFAULT_INTERVAL:Float = 1 / 18;
 
 	public var delay:Float;
 	public var interval:Float;
@@ -22,10 +22,10 @@ class TurboBasic extends FlxBasic {
 
 	var time:Float = 0;
 
-	public function new(delay = DEFAULT_DELAY, interval = DEFAULT_INTERVAL, allPress = false) {
+	public function new(?delay:Float, ?interval:Float, allPress = false) {
 		super();
-		this.delay = delay;
-		this.interval = interval;
+		this.delay = delay != null ? delay : DEFAULT_DELAY;
+		this.interval = interval != null ? interval : DEFAULT_INTERVAL;
 		this.allPress = allPress;
 	}
 

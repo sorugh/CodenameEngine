@@ -27,11 +27,8 @@ class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 		this.libName = libName;
 
 		this.basePath = basePath;
-
-		if(modName == null)
-			this.modName = libName;
-		else
-			this.modName = modName;
+		
+		this.modName = (modName == null) ? libName : modName;
 
 		zip = SysZip.openFromFile(basePath);
 		zip.read();

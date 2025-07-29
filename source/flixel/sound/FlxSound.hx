@@ -312,6 +312,7 @@ class FlxSound extends FlxBasic {
 			_source = null;
 			_sound = null;
 
+			if (autoDestroy) persist = false;
 			reset();
 		}
 		else if (_channel != null && _channel.__isValid) {
@@ -880,7 +881,7 @@ class FlxSound extends FlxBasic {
 				cleanup(false, true);
 				startSound(time);
 			}
-			else if (playing) {
+			else {
 				_source.offset = 0;
 				_source.currentTime = time + _offset;
 			}

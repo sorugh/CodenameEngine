@@ -136,9 +136,9 @@ class NativeAudioSource {
 	public function play() {
 		if (playing || disposed) return;
 
+		var t = completed ? 0 : getCurrentTime();
 		playing = true;
-		if (completed) setCurrentTime(0);
-		else setCurrentTime(getCurrentTime());
+		setCurrentTime(t);
 	}
 
 	public function pause() {
@@ -394,6 +394,8 @@ class NativeAudioSource {
 				AL.sourcePlay(handle);
 			}
 		}
+		else
+			completed = false;
 
 		if (!playing && streamed) bufferTimes[STREAM_MAX_BUFFERS - (requestBuffers = queuedBuffers = 1)] = value / 1000;
 

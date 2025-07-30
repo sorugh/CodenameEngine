@@ -201,7 +201,7 @@ class OptionsMenu extends TreeMenu {
 					options.push(new SliderOption(name, desc, Std.parseFloat(node.att.min), Std.parseFloat(node.att.max), Std.parseFloat(node.att.step), Std.parseInt(node.att.segments), node.att.id, Std.parseInt(node.att.barWidth), null, FlxG.save.data));
 
 				case 'separator':
-					options.push(new Separator(Std.parseFloat(node.att.height)));
+					options.push(new Separator(Std.parseInt(node.att.height)));
 
 				case "menu":
 					options.push(new TextOption(name, desc, ' >', () -> {

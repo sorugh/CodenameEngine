@@ -386,6 +386,7 @@ class StageEditor extends UIState {
 		// Add it to the stage
 		char.visible = true;
 		char.alpha = 0.75;
+
 		char.extra.set(exID("node"), node);
 		char.extra.set(exID("spacingX"), charPos.charSpacingX);
 		char.extra.set(exID("spacingY"), charPos.charSpacingY);
@@ -395,7 +396,6 @@ class StageEditor extends UIState {
 		char.extra.set(exID("parentNode"), parent);
 		char.extra.set(exID("highMemory"), parent.name == "highMemory");
 		char.extra.set(exID("lowMemory"), parent.name == "lowMemory");
-		char.scale.x = node.has.scalex ? Std.parseFloat(node.att.scalex) : 1;
 
 		chars.push(char);
 		stage.applyCharStuff(char, charPos.name, 0);
@@ -403,6 +403,7 @@ class StageEditor extends UIState {
 
 		remove(charPos, true);
 		charPos.destroy();
+		
 		return char;
 	}
 

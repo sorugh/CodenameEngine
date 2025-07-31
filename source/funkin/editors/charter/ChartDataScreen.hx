@@ -76,6 +76,8 @@ class ChartDataScreen extends UISubstateWindow {
 	}
 
 	public function saveInfo() {
+		UIUtil.confirmUISelections(this);
+		
 		var oldData:{stage:String, speed:Float} = {stage: PlayState.SONG.stage, speed: PlayState.SONG.scrollSpeed};
 
 		PlayState.SONG.stage = stageTextBox.label.text;

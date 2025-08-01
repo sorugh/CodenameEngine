@@ -513,17 +513,17 @@ class AudioAnalyzer {
 	inline function __readDecoder(startPos:Float, endPos:Float, callback:AudioAnalyzerCallback) {
 		var n = Math.floor((endPos - startPos) * __toBits);
 		if ((n -= n % __sampleSize) > 0) {
-			var time = startPos / 1000, pos = Math.floor((startPos - __bufferTime * 1000) * __toBits);
+			var pos = Math.floor((startPos - __bufferTime * 1000) * __toBits);
 			pos -= pos % __sampleSize;
 
-			var doRead = __bufferLastSize == 0 || (time < __bufferTime && pos >= __bufferSize);
+			var doRead = __bufferLastSize == 0 || (pos < 0 && pos >= __bufferSize);
 			if (doRead) {
 				if (startPos < 1) {
 					__vorbis.rawSeek(0);
 					__bufferTime = 0;
 				}
 				else
-					__vorbis.timeSeek(__bufferTime = time);
+					__vorbis.timeSeek(__bufferTime = startPos / 1000);
 
 				__bufferLastSize = pos = 0;
 			}
@@ -531,15 +531,12 @@ class AudioAnalyzer {
 			var isBigEndian = lime.system.System.endianness == lime.system.Endian.BIG_ENDIAN, ranOut = false, c = 0, result;
 			while (true) {
 				if (doRead) {
-					trace('reading', pos, __bufferLastTime);
-
 					result = __vorbis.read(__buffer, pos, __bufferSize - pos, isBigEndian, __wordSize, true);
 					if (result == Vorbis.HOLE) continue;
 					else if (result < 0) break;
 					else if (!(ranOut = result == 0)) {
 						__bufferLastTime = __vorbis.timeTell();
 						__bufferLastSize += result;
-
 						while (pos < __bufferLastSize) {
 							callback(getByte(__buffer, pos, __wordSize), c);
 							if (++c > buffer.channels) c = 0;
@@ -561,9 +558,8 @@ class AudioAnalyzer {
 
 				if (n <= 0) break;
 				else if (doRead && ranOut) {
-					pos = 0;
+					__bufferLastSize = pos = 0;
 					__bufferTime = __bufferLastTime;
-					__bufferLastSize = 0;
 				}
 			}
 		}

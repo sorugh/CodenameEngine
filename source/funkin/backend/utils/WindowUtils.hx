@@ -64,8 +64,10 @@ final class WindowUtils {
 	**/
 	public static inline function setWindow(?name:String, ?image:String)
 	{
+		// CODED BY HEROEYAD!!!
 		Lib.application.window.setIcon(lime.graphics.Image.fromBytes(Assets.getBytes(image != null ? image : Flags.MOD_ICON)));
 		title = title != null ? title : Flags.MOD_NAME;
+		// CODED BY HEROEYAD!!!
 	}
 
 	/**

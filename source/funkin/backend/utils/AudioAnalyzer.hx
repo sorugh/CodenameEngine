@@ -24,7 +24,7 @@ class AudioAnalyzer {
 		if (wordSize == 2) return inline ArrayBufferIO.getInt16(buf, pos);
 		else if (wordSize == 3) {
 			var b = inline ArrayBufferIO.getUint16(buf, pos) | (buf.get(pos + 2) << 16);
-			if (b > 8388608) return b - 16777216;
+			if (b & 0x800000 != 0) return b - 0x1000000;
 			else return b;
 		}
 		else if (wordSize == 4) return inline ArrayBufferIO.getInt32(buf, pos);
@@ -33,7 +33,7 @@ class AudioAnalyzer {
 
 	public var sound:FlxSound;
 	public var buffer(default, null):AudioBuffer;
-	public var fftSamples(default, set):Int;
+	public var fftN(default, set):Int;
 
 	public var byteSize(default, null):Int;
 
@@ -59,11 +59,14 @@ class AudioAnalyzer {
 	var __sampleOutput:Array<Float>;
 
 	// fft
+	var __N2:Int;
 	var __logN:Int;
 	var __freqSamples:Array<Float>;
 	var __reverseIndices:Array<Int> = [];
-	var __rootReals:Array<Float> = [];
-	var __rootImags:Array<Float> = [];
+	var __factors:Array<Int> = [];
+	var __windows:Array<Float> = [];
+	var __twiddleReals:Array<Float> = [];
+	var __twiddleImags:Array<Float> = [];
 	var __freqReals:Array<Float> = [];
 	var __freqImags:Array<Float> = [];
 
@@ -74,9 +77,9 @@ class AudioAnalyzer {
 	 * Creates an analyzer for specified FlxSound
 	 * @param sound An FlxSound to analyze.
 	**/
-	public function new(sound:FlxSound, fftSamples = 512) {
+	public function new(sound:FlxSound, fftN = 2048) {
 		this.sound = sound;
-		this.fftSamples = fftSamples;
+		this.fftN = fftN;
 		__check();
 	}
 
@@ -90,23 +93,50 @@ class AudioAnalyzer {
 		__max.resize(buffer.channels);
 	}
 
-	inline function set_fftSamples(v:Int):Int {
-		if (fftSamples == (fftSamples = v)) return v;
-		
-		var half = v >> 1, a, c;
-		__logN = Math.floor(Math.log(v) / Math.log(2));
-		__reverseIndices.resize(half);
-		__rootReals.resize(half);
-		__rootImags.resize(half);
-		__freqReals.resize(half);
-		__freqImags.resize(half);
-		for (i in 0...half) {
+	inline function set_fftN(v:Int):Int {
+		if (fftN == (fftN = nextPow2(v))) return fftN;
+
+		__logN = Math.floor(Math.log(fftN) / Math.log(2));
+		__N2 = fftN >> 1;
+		__freqReals.resize(fftN);
+		__freqImags.resize(fftN);
+		__reverseIndices.resize(fftN);
+		__windows.resize(fftN);
+		__twiddleReals.resize(fftN);
+		__twiddleImags.resize(fftN);
+
+		var f, a;
+		for (i in 0...fftN) {
+			f = i / (fftN - 1);
+			__windows[i] = 0.42 - 0.5 * Math.cos(Math.PI * 2 * f) + 0.08 * Math.cos(4 * Math.PI * f);
 			__reverseIndices[i] = __bitReverse(i);
-			__rootReals[i] = Math.cos(a = 2 * Math.PI * i / v);
-			__rootImags[i] = Math.sin(a);
+			__twiddleReals[i] = Math.cos(a = 2 * Math.PI * i / fftN);
+			__twiddleImags[i] = Math.sin(a);
 		}
 
-		return v;
+		__factors.resize(0);
+
+		var inv = fftN;
+		while (inv > 0) {
+			if (inv % 4 == 0) {
+				__factors.push(4);
+				inv >>= 2;
+			}
+			else if (inv % 2 == 0) {
+				__factors.push(2);
+				inv >>= 1;
+			}
+			else
+				break;
+		}
+
+		return fftN;
+	}
+
+	inline function nextPow2(x:Int):Int {
+		var p = 1;
+		while (p < x) p <<= 1;
+		return p;
 	}
 
 	inline function __bitReverse(x:Int):Int {
@@ -119,27 +149,39 @@ class AudioAnalyzer {
 		return y;
 	}
 
-	public function getLevels(startPos:Float, barCount:Int, ?levels:Array<Float>, delta = 0.0, minDb = -70.0, maxDb = -20.0):Array<Float> {
+	public function getLevels(startPos:Float, barCount:Int, ?levels:Array<Float>, delta = 0.0, dbRange = 50.0, minFreq = 20.0, maxFreq = 20000.0):Array<Float> {
 		__frequencies = getFrequencies(startPos, __frequencies);
 
 		if (levels == null) levels = [];
 		levels.resize(barCount);
 
-		var x1 = 0.5, i1 = 1, n = fftSamples >> 1;
-		var x2, i2, v;
-		for (i in 0...barCount) {
-			i2 = Math.floor(x2 = Math.pow(n, (i + 1) / barCount) - 0.5);
+		var logMin = Math.log(minFreq), logMax = Math.log(maxFreq);
+		inline function calculateScale(i:Int)
+			return CoolUtil.bound(Math.exp(logMin + ((logMax - logMin) * i / barCount)) * fftN / buffer.sampleRate, 0, __N2 - 1);
 
-			if (i2 < i1) v = __frequencies[i2] * (x2 - x1);
+		var s1 = calculateScale(0), s2;
+		var i1 = Math.floor(s1), i2;
+		var v, range;
+		for (i in 0...barCount) {
+			i2 = Math.ceil(s2 = calculateScale(i));
+
+			if ((range = s2 - s1) < 1) {
+				if (i2 == i1) v = __frequencies[i1] * range;
+				else v = (s1 + (s2 - s1) * (s1 - i1)) * range;
+			}
 			else {
-				v = __frequencies[i1 - 1] * (i1 - x1);
-				while (i1 < i2) v += __frequencies[i1++];
-				if (i2 < n) v += __frequencies[i2] * (x2 - i2);
+				v = __frequencies[i1] * (Math.ceil(s1) - i1);
+				while (++i1 < i2) v += __frequencies[i1];
+				v += __frequencies[i2] * (s2 - Math.floor(s2));
 			}
 
-			i1 = Math.ceil(x1 = x2);
+			i1 = Math.floor(s1 = s2);
 
-			v = 20 * Math.log(v * barCount / 12) / 2.302585092994046/*log(10)*/ / (maxDb - minDb);
+			if (v > 0) v = 20 * Math.log(v) / 2.302585092994046;//log(10)
+			else v = -200;
+
+			v = CoolUtil.bound(1 + v / dbRange, 0, 1);
+
 			if (delta > 0 && levels[i] > v) levels[i] -= (levels[i] - v) * delta;
 			else levels[i] = v;
 		}
@@ -149,48 +191,106 @@ class AudioAnalyzer {
 
 	/**
 	 * Gets frequencies from an attached FlxSound from startPos with samples
-	 * @return Output of frequencies ranging from 1 to fftSamples/2.
+	 * @return Output of frequencies ranging from 1 to fftN/2.
 	**/
 	public function getFrequencies(startPos:Float, ?frequencies:Array<Float>):Array<Float> {
-		__freqSamples = getSamples(startPos, fftSamples, true, __freqSamples);
-
-		var inv = fftSamples >> 1;
-		for (i in 0...inv) {
-			__freqReals[__reverseIndices[i]] = __freqSamples[i];
-			__freqImags[i] = 0;
-		}
-
-		var h = 1, g = 0, b = 0, r = 0;
-		var tr, ti, i1, i2;
-		while (inv > 0) {
-			h <<= 1;
-			while (g < fftSamples) {
-				while (b < h) {
-					i2 = (i1 = g + b) + h;
-					tr = __rootReals[r] * __freqReals[i2] - __rootImags[r] * __freqImags[i2];
-					ti = __rootReals[r] * __freqImags[i2] + __rootImags[r] * __freqReals[i2];
-
-					__rootReals[i2] = __freqReals[i1] - tr;
-					__rootImags[i2] = __freqImags[i1] - ti;
-					__freqReals[i1] += tr;
-					__freqImags[i1] += ti;
-
-					b++;
-					r += inv;
-				}
-				b = r = 0;
-				g += h;
-			}
-			g = 0;
-
-			inv >>= 1;
-		}
+		__freqSamples = getSamples(startPos, fftN, true, __freqSamples);
 
 		if (frequencies == null) frequencies = [];
-		frequencies.resize(inv = fftSamples >> 1);
-		
-		var mag;
-		for (i in 0...inv) frequencies[i] = (mag = Math.sqrt(__freqReals[i] * __freqReals[i] + __freqImags[i] * __freqImags[i])) < 0.001 ? 0 : mag;
+		frequencies.resize(__N2);
+
+		if (fftN == 1) frequencies[0] = __freqSamples[0];
+		else {
+			for (i in 0...fftN) {
+				__freqReals[__reverseIndices[i]] = __freqSamples[i] * __windows[i];
+				__freqImags[i] = 0;
+			}
+
+			// https://github.com/FunkinCrew/grig.audio/commit/8567c4dad34cfeaf2ff23fe12c3796f5db80685e
+			inline function butterfly4PointOptimized(i0:Int, i1:Int, i2:Int, i3:Int, w1_idx:Int, w2_idx:Int, w3_idx:Int) {
+				// Load input values
+		        var x0r = __freqReals[i0];
+		        var x0i = __freqImags[i0];
+
+		        // Apply twiddle factors to x1, x2, x3
+		        // x1 = workingData[i1] * twiddle1
+		        var x1r_raw = __freqReals[i1];
+		        var x1i_raw = __freqImags[i1];
+		        var tw1r = __twiddleReals[w1_idx];
+		        var tw1i = __twiddleImags[w1_idx];
+		        var x1r = x1r_raw * tw1r - x1i_raw * tw1i;
+		        var x1i = x1r_raw * tw1i + x1i_raw * tw1r;
+
+		        // x2 = workingData[i2] * twiddle2
+		        var x2r_raw = __freqReals[i2];
+		        var x2i_raw = __freqImags[i2];
+		        var tw2r = __twiddleReals[w2_idx];
+		        var tw2i = __twiddleImags[w2_idx];
+		        var x2r = x2r_raw * tw2r - x2i_raw * tw2i;
+		        var x2i = x2r_raw * tw2i + x2i_raw * tw2r;
+
+		        // x3 = workingData[i3] * twiddle3
+		        var x3r_raw = __freqReals[i3];
+		        var x3i_raw = __freqImags[i3];
+		        var tw3r = __twiddleReals[w3_idx];
+		        var tw3i = __twiddleImags[w3_idx];
+		        var x3r = x3r_raw * tw3r - x3i_raw * tw3i;
+		        var x3i = x3r_raw * tw3i + x3i_raw * tw3r;
+
+		        // Compute intermediate values for 4-point DFT
+		        var t0r = x0r + x2r;  // (x0 + x2).real
+		        var t0i = x0i + x2i;  // (x0 + x2).imag
+		        var t1r = x0r - x2r;  // (x0 - x2).real
+		        var t1i = x0i - x2i;  // (x0 - x2).imag
+		        var t2r = x1r + x3r;  // (x1 + x3).real
+		        var t2i = x1i + x3i;  // (x1 + x3).imag
+		        var t3r = x1r - x3r;  // (x1 - x3).real
+		        var t3i = x1i - x3i;  // (x1 - x3).imag
+
+		        // Apply j multiplication: j * (a + jb) = -b + ja
+		        var jt3r = -t3i;  // j * t3.real = -t3.imag
+		        var jt3i = t3r;   // j * t3.imag = t3.real
+
+		        // Final 4-point DFT butterfly outputs
+		        __freqReals[i0] = t0r + t2r;        // X[k]
+		        __freqImags[i0] = t0i + t2i;
+		        __freqReals[i1] = t1r - jt3r;       // X[k + N/4]
+		        __freqImags[i1] = t1i - jt3i;
+		        __freqReals[i2] = t0r - t2r;        // X[k + N/2]
+		        __freqImags[i2] = t0i - t2i;
+		        __freqReals[i3] = t1r + jt3r;       // X[k + 3N/4]
+		        __freqImags[i3] = t1i + jt3i;
+			}
+
+			inline function butterfly2PointOptimized(i0:Int, i1:Int, w_idx:Int) {
+				var tempr = __freqReals[i1] * __twiddleReals[w_idx] - __freqImags[i1] * __twiddleImags[w_idx];
+				var tempi = __freqReals[i1] * __twiddleImags[w_idx] + __freqImags[i1] * __twiddleReals[w_idx];
+				__freqReals[i1] = __freqReals[i0] - tempr;
+				__freqImags[i1] = __freqImags[i0] - tempi;
+				__freqReals[i0] += tempr;
+				__freqImags[i0] += tempi;
+			}
+
+			var size = 1, n, s, start, t;
+			for (radix in __factors) {
+				n = Math.floor(fftN / (size *= radix));
+				s = size >> (radix >> 1);
+				if (radix == 4) for (i in 0...n) {
+					start = i * size;
+					for (k in 0...s)
+						butterfly4PointOptimized(t = start + k, t = (t + s), t = (t + s), t = (t + s),
+							(k * n) % fftN, (2 * k * n) % fftN, (3 * k * n) % fftN);
+				}
+				else for (i in 0...n) {
+					start = i * size;
+					for (k in 0...s) butterfly2PointOptimized(t = start + k, t = (t + s), (k * n) % fftN);
+				}
+			}
+
+			var inv = 1.0 / fftN;
+			frequencies[0] = Math.sqrt(__freqReals[0] * __freqReals[0] + __freqImags[0] * __freqImags[0]) * inv;
+			for (i in 1...__N2) frequencies[i] = 2 * Math.sqrt(__freqReals[i] * __freqReals[i] + __freqImags[i] * __freqImags[i]) * inv;
+		}
 
 		return frequencies;
 	}
@@ -248,7 +348,7 @@ class AudioAnalyzer {
 		__sampleIndex = 0;
 
 		__check();
-		__read(startPos, startPos + (length / __toBits), mono ? __getSamplesCallbackMerge : __getSamplesCallback);
+		__read(startPos, startPos + (length / __toBits * buffer.channels), mono ? __getSamplesCallbackMerge : __getSamplesCallback);
 
 		__sampleOutput = null;
 		return output;
@@ -315,16 +415,25 @@ class AudioAnalyzer {
 		var n = Math.floor((endPos - startPos) * __toBits);
 		if (startPos >= time && startPos < backend.bufferTimes[backend.bufferSizes.length - 1] * 1000) {
 			var pos = Math.floor((startPos - time) * __toBits), buf = backend.bufferDatas[i].buffer, size = backend.bufferSizes[i], c = 0;
+			while (pos > size) {
+				if (++i >= backend.bufferSizes.length) {
+					n = 0;
+					break;
+				}
+				pos -= size;
+				buf = backend.bufferDatas[i].buffer;
+				size = backend.bufferSizes[i];
+			}
 			pos -= pos % __sampleSize;
 
 			while (n > 0) {
 				callback(getByte(buf, pos, __wordSize), c);
 				if (++c > buffer.channels) c = 0;
 				if ((pos += __wordSize) >= size) {
-					if (++i >= backend.bufferDatas.length) break;
+					if (++i >= backend.bufferSizes.length) break;
+					pos = 0;
 					buf = backend.bufferDatas[i].buffer;
 					size = backend.bufferSizes[i];
-					pos = 0;
 				}
 				n -= __wordSize;
 			}

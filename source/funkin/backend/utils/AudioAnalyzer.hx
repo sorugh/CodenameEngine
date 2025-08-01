@@ -18,23 +18,48 @@ typedef AudioAnalyzerCallback = Int->Int->Void;
  * 
  * FlxSound.amplitude does work in CNE so if any case if your only checking for peak of current
  * time, use that instead.
-**/
+ */
 class AudioAnalyzer {
-	public static function getByte(buf:ArrayBuffer, pos:Int, wordSize:Int):Int {
-		if (wordSize == 2) return inline ArrayBufferIO.getInt16(buf, pos);
+	/**
+	 * Get bytes from an audio buffer with specified position and wordSize
+	 * @param buffer The audio buffer to get byte from.
+	 * @param position The specified position to get the byte from the audio buffer.
+	 * @param wordSize How many bytes to get with to one byte (Usually it's bitsPerSample / 8 or bitsPerSample >> 3).
+	 * @return Byte from the audio buffer with specified position.
+	 */
+	public static function getByte(buffer:ArrayBuffer, position:Int, wordSize:Int):Int {
+		if (wordSize == 2) return inline ArrayBufferIO.getInt16(buffer, position);
 		else if (wordSize == 3) {
-			var b = inline ArrayBufferIO.getUint16(buf, pos) | (buf.get(pos + 2) << 16);
+			var b = inline ArrayBufferIO.getUint16(buffer, position) | (buffer.get(position + 2) << 16);
 			if (b & 0x800000 != 0) return b - 0x1000000;
 			else return b;
 		}
-		else if (wordSize == 4) return inline ArrayBufferIO.getInt32(buf, pos);
-		else return inline ArrayBufferIO.getUint8(buf, pos) - 128;
+		else if (wordSize == 4) return inline ArrayBufferIO.getInt32(buffer, position);
+		else return inline ArrayBufferIO.getUint8(buffer, position) - 128;
 	}
 
+	/**
+	 * The current sound to analyze.
+	 */
 	public var sound:FlxSound;
-	public var buffer(default, null):AudioBuffer;
+
+	/**
+	 * How much samples for the fft to get.
+	 * Usually for getting the levels or frequencies of the sound.
+	 * 
+	 * Has to be power of two, or it won't work.
+	 */
 	public var fftN(default, set):Int;
 
+	/**
+	 * The current buffer from sound.
+	 */
+	public var buffer(default, null):AudioBuffer;
+
+	/**
+	 * The current byteSize from buffer.
+	 * Example the byteSize of 16 BitsPerSample is 32768 (1 << 16-1)
+	 */
 	public var byteSize(default, null):Int;
 
 	var __toBits:Float;
@@ -76,8 +101,9 @@ class AudioAnalyzer {
 	/**
 	 * Creates an analyzer for specified FlxSound
 	 * @param sound An FlxSound to analyze.
-	**/
-	public function new(sound:FlxSound, fftN = 512) {
+	 * @param fftN How much samples for fft to get (Optional, default 2048).
+	 */
+	public function new(sound:FlxSound, fftN = 2048) {
 		this.sound = sound;
 		this.fftN = fftN;
 		__check();
@@ -146,7 +172,19 @@ class AudioAnalyzer {
 		return y;
 	}
 
-	public function getLevels(startPos:Float, barCount:Int, ?levels:Array<Float>, delta = 0.0, minDb = -70, maxDb = -10, minFreq = 20.0, maxFreq = 22000.0):Array<Float> {
+	/**
+	 * Gets levels from an attached FlxSound from startPos, basically a minimized of frequencies.
+	 * @param startPos Start Position to get from sound in milliseconds.
+	 * @param barCount How much bars to get.
+	 * @param levels The output for getting the values, to avoid memory leaks (Optional).
+	 * @param delta How much delta for smoothen the values from the previous levels values (Optional).
+	 * @param minDb The minimum decibels to cap (Optional, default -70.0).
+	 * @param maxDb The maximum decibels to cap (Optional, default -10.0).
+	 * @param minFreq The minimum frequency to cap (Optional, default 20.0).
+	 * @param maxFreq The maximum frequency to cap (Optional, default 22000.0).
+	 * @return Output of levels/bars
+	 */
+	public function getLevels(startPos:Float, barCount:Int, ?levels:Array<Float>, delta = 0.0, minDb = -70.0, maxDb = -10.0, minFreq = 20.0, maxFreq = 22000.0):Array<Float> {
 		__frequencies = getFrequencies(startPos, __frequencies);
 
 		if (levels == null) levels = [];
@@ -184,9 +222,11 @@ class AudioAnalyzer {
 	}
 
 	/**
-	 * Gets frequencies from an attached FlxSound from startPos with samples
-	 * @return Output of frequencies ranging from 1 to fftN/2.
-	**/
+	 * Gets frequencies from an attached FlxSound from startPos.
+	 * @param startPos Start Position to get from sound in milliseconds.
+	 * @param frequencies The output for getting the frequencies, to avoid memory leaks (Optional).
+	 * @return Output of frequencies
+	 */
 	public function getFrequencies(startPos:Float, ?frequencies:Array<Float>):Array<Float> {
 		// https://github.com/FunkinCrew/grig.audio/commit/8567c4dad34cfeaf2ff23fe12c3796f5db80685e
 		inline function butterfly4PointOptimized(i0:Int, i1:Int, i2:Int, i3:Int, w1_idx:Int, w2_idx:Int, w3_idx:Int) {
@@ -293,12 +333,12 @@ class AudioAnalyzer {
 
 	/**
 	 * Analyzes an attached FlxSound from startPos to endPos in milliseconds to get the amplitudes.
-	 * @param startPos Start Position of the FlxSound in milliseconds.
-	 * @param endPos End Position of the FlxSound in milliseconds.
+	 * @param startPos Start Position to get from sound in milliseconds.
+	 * @param endPos End Position to get from sound in milliseconds.
 	 * @param outOrOutMin The output minimum value from the analyzer, indices is in channels (0 to -0.5 -> 0 to 0.5) (Optional, if outMax doesn't get passed in, it will be [min, max] with all channels combined instead).
 	 * @param outMax The output maximum value from the analyzer, indices is in channels (Optional).
 	 * @return Output of amplitude from given position.
-	**/
+	 */
 	public function analyze(startPos:Float, endPos:Float, ?outOrOutMin:Array<Float>, ?outMax:Array<Float>):Float {
 		var hasOut = outOrOutMin != null;
 		var hasTwoOut = hasOut && outMax != null;
@@ -333,12 +373,12 @@ class AudioAnalyzer {
 
 	/**
 	 * Gets samples from startPos with given length of samples.
-	 * @param startPos Start Position of the FlxSound in milliseconds.
+	 * @param startPos Start Position to get from sound in milliseconds.
 	 * @param length Length of Samples.
 	 * @param mono Merge all of the byte channels of samples in one channel instead (Optional).
 	 * @param Output that gets passed into this function (Optional).
 	 * @return Output of 
-	**/
+	 */
 	public function getSamples(startPos:Float, length:Int, mono = true, ?output:Array<Float>):Array<Float> {
 		((output == null) ? (__sampleOutput = output = []) : (__sampleOutput = output)).resize(__sampleOutputLength = length * (mono ? 1 : buffer.channels));
 		__sampleIndex = 0;
@@ -367,10 +407,10 @@ class AudioAnalyzer {
 
 	/**
 	 * Read an attached FlxSound from startPos to endPos in milliseconds with a callback.
-	 * @param startPos Start Position of the FlxSound in milliseconds.
-	 * @param endPos End Position of the FlxSound in milliseconds.
+	 * @param startPos Start Position to get from sound in milliseconds.
+	 * @param endPos End Position to get from sound in milliseconds.
 	 * @param callback Int->Int->Void Byte->Channels->Void Callback to get the byte of a sample.
-	**/
+	 */
 	public function read(startPos:Float, endPos:Float, callback:AudioAnalyzerCallback) {
 		__check();
 		__read(startPos, endPos, callback);

@@ -34,6 +34,8 @@ class Flags {
 	public static var MOD_DISCORD_CLIENT_ID:String = "";
 	public static var MOD_DISCORD_LOGO_KEY:String = "";
 	public static var MOD_DISCORD_LOGO_TEXT:String = "";
+
+	public static var MOD_REDIRECT_STATES:Map<String, String> = [];
 	// -- Codename's Default Flags --
 	public static var CURRENT_API_VERSION:Int = 1;
 	public static var COMMIT_NUMBER:Int = GitCommitMacro.commitNumber;

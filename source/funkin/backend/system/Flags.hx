@@ -185,6 +185,7 @@ class Flags {
 	public static var DISABLE_EDITORS:Bool = false;
 	public static var DISABLE_WARNING_SCREEN:Bool = true;
 	public static var DISABLE_TRANSITIONS:Bool = false;
+	public static var DISABLE_LANGUAGES:Bool = false;
 
 	@:also(funkin.backend.MusicBeatTransition.script)
 	public static var DEFAULT_TRANSITION_SCRIPT:String = "";

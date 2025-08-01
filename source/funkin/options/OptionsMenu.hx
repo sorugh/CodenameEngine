@@ -61,6 +61,8 @@ class OptionsMenu extends TreeMenu {
 		bg.scrollFactor.set();
 		updateBG();
 
+		for (i in mainOptions) if (i.name == "optionsTree.language-name" && Flags.DISABLE_LANGUAGES) mainOptions.remove(i);
+
 		addMenu(new TreeMenuScreen('optionsMenu.header.title', 'optionsMenu.header.desc', [for (o in mainOptions) new TextOption(o.name, o.desc, o.suffix != null ? o.suffix : " >", () -> {
 			if (o.substate != null) {
 				persistentUpdate = false;

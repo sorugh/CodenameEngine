@@ -168,6 +168,12 @@ import lime.media.openal.AL;
 			size = backend.bufferSizes[i = backend.bufferSizes.length - backend.queuedBuffers];
 			buf = backend.bufferDatas[i].buffer;
 			pos -= Math.floor(backend.bufferTimes[i] * buffer.sampleRate * buffer.channels * wordSize);
+			while (pos > size) {
+				if (++i >= backend.bufferSizes.length) return false;
+				pos -= size;
+				buf = backend.bufferDatas[i].buffer;
+				size = backend.bufferSizes[i];
+			}
 		}
 		else
 		#end {
@@ -183,10 +189,10 @@ import lime.media.openal.AL;
 			if (c % 2 == 0) ((b > leftMax) ? (leftMax = b) : (if ((b = -b) > leftMin) (leftMin = b)));
 			else ((b > rightMax) ? (rightMax = b) : (if ((b = -b) > rightMin) (rightMin = b)));
 			if ((pos += wordSize) >= size) #if lime_cffi {
-				if (!backend.streamed || ++i >= backend.bufferDatas.length) break;
-				size = backend.bufferSizes[i];
-				buf = backend.bufferDatas[i].buffer;
+				if (!backend.streamed || ++i >= backend.bufferSizes.length) break;
 				pos = 0;
+				buf = backend.bufferDatas[i].buffer;
+				size = backend.bufferSizes[i];
 			}
 			#else break; #end
 

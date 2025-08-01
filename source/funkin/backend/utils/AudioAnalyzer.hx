@@ -39,6 +39,54 @@ class AudioAnalyzer {
 	}
 
 	/**
+	 * Gets levels from the frequencies with specified sample rate.
+	 * @param frequencies Frequencies input.
+	 * @param sampleRate Sample Rate input.
+	 * @param barCount How much bars to get.
+	 * @param levels The output for getting the values, to avoid memory leaks (Optional).
+	 * @param delta How much delta for smoothen the values from the previous levels values (Optional).
+	 * @param minDb The minimum decibels to cap (Optional, default -70.0).
+	 * @param maxDb The maximum decibels to cap (Optional, default -10.0).
+	 * @param minFreq The minimum frequency to cap (Optional, default 20.0).
+	 * @param maxFreq The maximum frequency to cap (Optional, default 22000.0).
+	 * @return Output of levels/bars
+	 */
+	public static function getLevelsFromFrequencies(frequencies:Array<Float>, sampleRate:Int, barCount:Int, ?levels:Array<Float>, delta = 0.0, minDb = -70.0, maxDb = -10.0, minFreq = 20.0, maxFreq = 22000.0):Array<Float> {
+		if (levels == null) levels = [];
+		levels.resize(barCount);
+
+		var logMin = Math.log(minFreq), logMax = Math.log(maxFreq);
+		var logRange = logMax - logMin, dbRange = maxDb - minDb, n = frequencies.length;
+		inline function calculateScale(i:Int)
+			return CoolUtil.bound(Math.exp(logMin + (logRange * i / (barCount + 1))) * n * 2 / sampleRate, 0, n - 1);
+
+		var s1 = calculateScale(0), s2;
+		var i1 = Math.floor(s1), i2;
+		var v, range;
+		for (i in 0...barCount) {
+			if ((range = (s2 = calculateScale(i + 1)) - s1) < 1) {
+				i2 = Math.ceil(s2);
+				if (i2 == i1) v = frequencies[i1] * range;
+				else v = (frequencies[i1] + (frequencies[i2] - frequencies[i1]) * (s1 - i1)) * range;
+			}
+			else {
+				v = frequencies[i1] * (Math.ceil(s1) - i1);
+				if (i1 != (i2 = Math.floor(s2))) {
+					while (++i1 < i2) v += frequencies[i1];
+					v += frequencies[i2] * (s2 - Math.floor(s2));
+				}
+			}
+			i1 = Math.floor(s1 = s2);
+
+			v = ((20 * Math.log(v) / 2.302585092994046) - minDb) / dbRange;
+			if (delta > 0 && delta < 1 && v < levels[i]) levels[i] -= Math.pow(levels[i] - v, 2.302585092994046) * delta;
+			else levels[i] = v;
+		}
+
+		return levels;
+	}
+
+	/**
 	 * The current sound to analyze.
 	 */
 	public var sound:FlxSound;
@@ -184,42 +232,8 @@ class AudioAnalyzer {
 	 * @param maxFreq The maximum frequency to cap (Optional, default 22000.0).
 	 * @return Output of levels/bars
 	 */
-	public function getLevels(startPos:Float, barCount:Int, ?levels:Array<Float>, delta = 0.0, minDb = -70.0, maxDb = -10.0, minFreq = 20.0, maxFreq = 22000.0):Array<Float> {
-		__frequencies = getFrequencies(startPos, __frequencies);
-
-		if (levels == null) levels = [];
-		levels.resize(barCount);
-
-		var logMin = Math.log(minFreq), logMax = Math.log(maxFreq);
-		var logRange = logMax - logMin, dbRange = maxDb - minDb;
-		inline function calculateScale(i:Int)
-			return CoolUtil.bound(Math.exp(logMin + (logRange * i / (barCount + 1))) * fftN / buffer.sampleRate, 0, __N2 - 1);
-
-		var s1 = calculateScale(0), s2;
-		var i1 = Math.floor(s1), i2;
-		var v, range;
-		for (i in 0...barCount) {
-			if ((range = (s2 = calculateScale(i + 1)) - s1) < 1) {
-				i2 = Math.ceil(s2);
-				if (i2 == i1) v = __frequencies[i1] * range;
-				else v = (__frequencies[i1] + (__frequencies[i2] - __frequencies[i1]) * (s1 - i1)) * range;
-			}
-			else {
-				v = __frequencies[i1] * (Math.ceil(s1) - i1);
-				if (i1 != (i2 = Math.floor(s2))) {
-					while (++i1 < i2) v += __frequencies[i1];
-					v += __frequencies[i2] * (s2 - Math.floor(s2));
-				}
-			}
-			i1 = Math.floor(s1 = s2);
-
-			v = ((20 * Math.log(v) / 2.302585092994046) - minDb) / dbRange;
-			if (delta > 0 && delta < 1 && v < levels[i]) levels[i] -= Math.pow(levels[i] - v, 2) * delta;
-			else levels[i] = v;
-		}
-
-		return levels;
-	}
+	public function getLevels(startPos:Float, barCount:Int, ?levels:Array<Float>, ?delta:Float, ?minDb:Float, ?maxDb:Float, ?minFreq:Float, ?maxFreq:Float):Array<Float>
+		return inline getLevelsFromFrequencies(__frequencies = getFrequencies(startPos, __frequencies), buffer.sampleRate, barCount, levels, delta, minDb, maxDb, minFreq, maxFreq);
 
 	/**
 	 * Gets frequencies from an attached FlxSound from startPos.

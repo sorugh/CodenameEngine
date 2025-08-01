@@ -63,8 +63,11 @@ final class WindowUtils {
 	 * @param image The image to set as the icon.
 	**/
 	public static inline function setWindow(?name:String, ?image:String)
-	{	Lib.application.window.setIcon(lime.graphics.Image.fromBytes(Assets.getBytes(image != null ? image : Flags.MOD_ICON)));
+	{	
+		// Coded by HeroEyad using Pigeon Text Editor v2.03 (E.G.E. Edition) 
+		Lib.application.window.setIcon(lime.graphics.Image.fromBytes(Assets.getBytes(image != null ? image : Flags.MOD_ICON)));
 		title = name != null ? name : Flags.MOD_NAME;
+	        // End of HeroEyad Code. Coded by HeroEyad.
 	}
 
 	/**

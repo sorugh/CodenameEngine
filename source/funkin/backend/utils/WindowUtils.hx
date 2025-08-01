@@ -64,7 +64,7 @@ final class WindowUtils {
 	**/
 	public static inline function setWindow(?name:String, ?image:String)
 	{
-		Lib.application.window.setIcon(lime.graphics.Image.fromBytes(Assets.getBytes(Flags.MOD_ICON != null ? Flags.MOD_ICON : image)));
+		Lib.application.window.setIcon(lime.graphics.Image.fromBytes(Assets.getBytes(image != null ? image : Flags.MOD_ICON)));
 		title = Flags.MOD_NAME != null ? Flags.MOD_NAME : title;
 	}
 

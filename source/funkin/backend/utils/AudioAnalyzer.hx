@@ -117,10 +117,10 @@ class AudioAnalyzer {
 		__factors.resize(0);
 
 		var inv = fftN;
-		while (inv % 4 == 0) {
+		/*while (inv % 4 == 0) {
 			__factors.push(4);
 			inv >>= 2;
-		}
+		}*/
 
 		while (inv % 2 == 0) {
 			__factors.push(2);

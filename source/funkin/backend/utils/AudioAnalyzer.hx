@@ -44,14 +44,14 @@ final class AudioAnalyzer {
 	 * @param sampleRate Sample Rate input.
 	 * @param barCount How much bars to get.
 	 * @param levels The output for getting the values, to avoid memory leaks (Optional).
-	 * @param ratio How much ratio for smoothen the values from the previous levels values (Optional, use CoolUtil.getFPSRatio(1 - smoothingTimeConstant) to simulate web AnalyserNode.smoothingTimeConstant).
-	 * @param minDb The minimum decibels to cap (Optional, default -70.0, -120 is pure silence).
-	 * @param maxDb The maximum decibels to cap (Optional, default -10.0).
-	 * @param minFreq The minimum frequency to cap (Optional, default 20.0, Below 20.0 is not Recommended).
-	 * @param maxFreq The maximum frequency to cap (Optional, default 22000.0, Above 22000.0 is not Recommended).
+	 * @param ratio How much ratio for smoothen the values from the previous levels values (Optional, use CoolUtil.getFPSRatio(1 - ratio) to simulate web AnalyserNode.smoothingTimeConstant, 0.35 of smoothingTime works most of the time).
+	 * @param minDb The minimum decibels to cap (Optional, default -63.0, -120 is pure silence).
+	 * @param maxDb The maximum decibels to cap (Optional, default -10.0, Above 0 is not recommended).
+	 * @param minFreq The minimum frequency to cap (Optional, default 20.0, Below 8.0 is not recommended).
+	 * @param maxFreq The maximum frequency to cap (Optional, default 22000.0, Above 23000.0 is not recommended).
 	 * @return Output of levels/bars that ranges from 0 to 1
 	 */
-	public static function getLevelsFromFrequencies(frequencies:Array<Float>, sampleRate:Int, barCount:Int, ?levels:Array<Float>, ratio = 0.0, minDb = -70.0, maxDb = -10.0, minFreq = 20.0, maxFreq = 22000.0):Array<Float> {
+	public static function getLevelsFromFrequencies(frequencies:Array<Float>, sampleRate:Int, barCount:Int, ?levels:Array<Float>, ratio = 0.0, minDb = -63.0, maxDb = -10.0, minFreq = 20.0, maxFreq = 22000.0):Array<Float> {
 		if (levels == null) levels = [];
 		levels.resize(barCount);
 
@@ -98,6 +98,12 @@ final class AudioAnalyzer {
 	 * Has to be power of two, or it won't work.
 	 */
 	public var fftN(default, set):Int;
+
+	/**
+	 * Should fft related stuff use blackman windowing? (Web AnalyzerNode windowing).
+	 * Most of the time looks bad with this.
+	 */
+	public var useWindowingFFT:Bool = false;
 
 	/**
 	 * The current buffer from sound.
@@ -151,7 +157,7 @@ final class AudioAnalyzer {
 	/**
 	 * Creates an analyzer for specified FlxSound
 	 * @param sound An FlxSound to analyze.
-	 * @param fftN How much samples for fft to get (Optional, default 2048).
+	 * @param fftN How much samples for fft to get (Optional, default 2048, 4096 is recommended for highest quality).
 	 */
 	public function new(sound:FlxSound, fftN = 2048) {
 		this.sound = sound;
@@ -219,12 +225,12 @@ final class AudioAnalyzer {
 	 * @param startPos Start Position to get from sound in milliseconds.
 	 * @param barCount How much bars to get.
 	 * @param levels The output for getting the values, to avoid memory leaks (Optional).
-	 * @param ratio How much ratio for smoothen the values from the previous levels values (Optional, use CoolUtil.getFPSRatio(1 - smoothingTimeConstant) to simulate web AnalyserNode.smoothingTimeConstant).
-	 * @param minDb The minimum decibels to cap (Optional, default -70.0).
-	 * @param maxDb The maximum decibels to cap (Optional, default -10.0).
-	 * @param minFreq The minimum frequency to cap (Optional, default 20.0).
-	 * @param maxFreq The maximum frequency to cap (Optional, default 22000.0).
-	 * @return Output of levels/bars
+	 * @param ratio How much ratio for smoothen the values from the previous levels values (Optional, use CoolUtil.getFPSRatio(1 - ratio) to simulate web AnalyserNode.smoothingTimeConstant, 0.35 of smoothingTime works most of the time).
+	 * @param minDb The minimum decibels to cap (Optional, default -63.0, -120 is pure silence).
+	 * @param maxDb The maximum decibels to cap (Optional, default -10.0, Above 0 is not recommended).
+	 * @param minFreq The minimum frequency to cap (Optional, default 20.0, Below 8.0 is not recommended).
+	 * @param maxFreq The maximum frequency to cap (Optional, default 22000.0, Above 23000.0 is not recommended).
+	 * @return Output of levels/bars that ranges from 0 to 1
 	 */
 	public function getLevels(startPos:Float, barCount:Int, ?levels:Array<Float>, ?ratio:Float, ?minDb:Float, ?maxDb:Float, ?minFreq:Float, ?maxFreq:Float):Array<Float>
 		return inline getLevelsFromFrequencies(__frequencies = getFrequencies(startPos, __frequencies), buffer.sampleRate, barCount, levels, ratio, minDb, maxDb, minFreq, maxFreq);
@@ -244,7 +250,7 @@ final class AudioAnalyzer {
 		var i = fftN;
 		while (i > 0) {
 			i--;
-			__freqReals[__reverseIndices[i]] = __freqSamples[i] * __windows[i];
+			__freqReals[__reverseIndices[i]] = __freqSamples[i] * (useWindowingFFT ? __windows[i] : 1);
 			__freqImags[i] = 0;
 		}
 

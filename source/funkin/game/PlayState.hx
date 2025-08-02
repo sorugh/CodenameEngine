@@ -99,15 +99,15 @@ class PlayState extends MusicBeatState
 	/**
 	 * Game Over Song. (assets/music/gameOver.ogg)
 	 */
-	public var gameOverSong:String = Flags.DEFAULT_GAMEOVER_SONG;
+	public var gameOverSong:String = Flags.DEFAULT_GAMEOVER_MUSIC;
 	/**
 	 * Game Over Song. (assets/sounds/gameOverSFX.ogg)
 	 */
-	public var lossSFX:String = Flags.DEFAULT_GAMEOVER_LOSS_SFX;
+	public var lossSFX:String = Flags.DEFAULT_GAMEOVERSFX_SOUND;
 	/**
 	 * Game Over End SFX, used when retrying. (assets/sounds/gameOverEnd.ogg)
 	 */
-	public var retrySFX:String = Flags.DEFAULT_GAMEOVER_RETRY_SFX;
+	public var retrySFX:String = Flags.DEFAULT_GAMEOVEREND_SOUND;
 
 	/**
 	 * Current Stage.
@@ -461,11 +461,11 @@ class PlayState extends MusicBeatState
 	/**
 	 * Array of sprites for the intro.
 	 */
-	public var introSprites:Array<String> = [null, 'game/ready', "game/set", "game/go"];
+	public var introSprites:Array<String> = [Flags.DEFAULT_PREPARE_SPRITE, Flags.DEFAULT_READY_SPRITE, Flags.DEFAULT_SET_SPRITE, Flags.DEFAULT_GO_SPRITE];
 	/**
 	 * Array of sounds for the intro.
 	 */
-	public var introSounds:Array<String> = ['intro3', 'intro2', "intro1", "introGo"];
+	public var introSounds:Array<String> = [Flags.DEFAULT_INTRO1_SOUND, Flags.DEFAULT_INTRO2_SOUND, Flags.DEFAULT_INTRO3_SOUND, Flags.DEFAULT_INTROGO_SOUND];
 
 	/**
 	 * Whenever the game is paused or not.
@@ -1765,7 +1765,7 @@ class PlayState extends MusicBeatState
 		var directionID:Null<Int> = note == null ? direction : note.strumID;
 		if (playerID == null || directionID == null || playerID == -1) return;
 
-		var event:NoteMissEvent = gameAndCharsEvent("onPlayerMiss", EventManager.get(NoteMissEvent).recycle(note, -10, 1, muteVocalsOnMiss, note != null ? -0.0475 : -0.04, Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2), note == null, combo > 5, "sad", true, true, "miss", strumLines.members[playerID].characters, playerID, note != null ? note.noteType : null, directionID, 0));
+		var event:NoteMissEvent = gameAndCharsEvent("onPlayerMiss", EventManager.get(NoteMissEvent).recycle(note, -10, 1, muteVocalsOnMiss, note != null ? -0.0475 : -0.04, Paths.sound(FlxG.random.getObject([Flags.DEFAULT_MISS1_SOUND, Flags.DEFAULT_MISS2_SOUND, Flags.DEFAULT_MISS3_SOUND])), FlxG.random.float(0.1, 0.2), note == null, combo > 5, "sad", true, true, "miss", strumLines.members[playerID].characters, playerID, note != null ? note.noteType : null, directionID, 0));
 		strumLine.onMiss.dispatch(event);
 		if (event.cancelled) return;
 

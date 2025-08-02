@@ -405,11 +405,12 @@ final class CoolUtil
 	/**
 	 * Modifies a lerp ratio based on current FPS to keep a stable speed on higher framerate.
 	 * @param ratio Ratio
+	 * @param delta Delta/Elapsed for the fps-modified ratio (Optional)
 	 * @return FPS-Modified Ratio
 	 */
-	@:noUsing public static inline function getFPSRatio(ratio:Float):Float {
-		return 1.0 - Math.pow(1.0 - ratio, FlxG.elapsed * 60);
-	}
+	@:noUsing public static inline function getFPSRatio(ratio:Float, ?delta:Float):Float
+		return 1.0 - Math.pow(1.0 - ratio, (delta == null ? FlxG.elapsed : delta) * 60);
+
 	/**
 	 * Tries to get a color from a `Dynamic` variable.
 	 * @param c `Dynamic` color.

@@ -138,9 +138,7 @@ class MainState extends FlxState {
 		FlxG.signals.preStateSwitch.add(() -> {
 			var stateName = Type.getClassName(Type.getClass(@:privateAccess FlxG.game._requestedState));
 			stateName = stateName.substring(stateName.lastIndexOf(".") + 1);
-			trace(stateName);
 			if (Flags.MOD_REDIRECT_STATES.exists(stateName)) {
-				trace("WE FUCKING GOT IT!");
 				@:privateAccess {
 					var classFromString = Type.resolveClass(Flags.MOD_REDIRECT_STATES.get(stateName));
 					if (classFromString != null) FlxG.game._requestedState = Type.createInstance(classFromString, []);

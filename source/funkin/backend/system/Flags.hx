@@ -268,11 +268,9 @@ class Flags {
 	@:bypass public static var customFlags:Map<String, String> = [];
 
 	public static function loadFromData(flags:Map<String, String>, data:String) {
-		trace(data);
 		if (!(data.length > 0)) return;
 		var res = IniUtil.parseString(data);
 
-		trace(res);
 		if (res.exists("Common")) for (key => value in res.get("Common")) flags["MOD_" + key] = value;
 		if (res.exists("Discord")) for (key => value in res.get("Discord")) flags["MOD_DISCORD_" + key] = value;
 		if (res.exists("Flags")) for (key => value in res.get("Flags")) flags[key] = value;
@@ -281,7 +279,6 @@ class Flags {
 			if (!Flags.MOD_REDIRECT_STATES.exists(key)) Flags.MOD_REDIRECT_STATES.set(key, value);
 		if (res.exists("StateRedirects.force")) for (key => value in res.get("StateRedirects.force")) 
 			Flags.MOD_REDIRECT_STATES.set(key, value);
-		trace(flags);
 	}
 
 	public static function loadFromDatas(datas:Array<String>) {

@@ -465,7 +465,7 @@ class PlayState extends MusicBeatState
 	/**
 	 * Array of sounds for the intro.
 	 */
-	public var introSounds:Array<String> = [Flags.DEFAULT_INTRO1_SOUND, Flags.DEFAULT_INTRO2_SOUND, Flags.DEFAULT_INTRO3_SOUND, Flags.DEFAULT_INTROGO_SOUND];
+	public var introSounds:Array<String> = [Flags.DEFAULT_INTRO3_SOUND, Flags.DEFAULT_INTRO2_SOUND, Flags.DEFAULT_INTRO1_SOUND, Flags.DEFAULT_INTROGO_SOUND];
 
 	/**
 	 * Whenever the game is paused or not.

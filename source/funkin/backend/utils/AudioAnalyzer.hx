@@ -118,6 +118,9 @@ class AudioAnalyzer {
 	var __vorbis:VorbisFile;
 	var __buffer:ArrayBuffer;
 	var __bufferSize:Int;
+	var __bufferLastSize:Int;
+	var __bufferTime:Float;
+	var __bufferLastTime:Float;
 	#end
 
 	// analyze
@@ -160,7 +163,12 @@ class AudioAnalyzer {
 	function __check() if (sound.buffer != buffer) {
 		byteSize = 1 << ((buffer = sound.buffer).bitsPerSample - 1);
 
-		#if (lime_cffi && lime_vorbis) __vorbis = null; #end
+		#if (lime_cffi && lime_vorbis)
+		__vorbis = null;
+		__bufferLastSize = 0;
+		__bufferTime = Math.NaN;
+		__bufferLastTime = Math.NaN;
+		#end
 
 		__toBits = buffer.sampleRate / 1000 * (__sampleSize = buffer.channels * (__wordSize = buffer.bitsPerSample >> 3));
 		__min.resize(buffer.channels);
@@ -433,7 +441,7 @@ class AudioAnalyzer {
 	inline function __read(startPos:Float, endPos:Float, callback:AudioAnalyzerCallback) {
 		if (buffer.data != null) __readData(startPos, endPos, callback);
 		#if lime_cffi
-		else if (__canReadStream() && (startPos += __readStream(startPos, endPos, callback)) >= endPos) return;
+		else if (__canReadStream() && (startPos += __readStream(startPos, endPos, callback)) >= endPos) {}
 		#if lime_vorbis
 		else if (__prepareDecoder()) __readDecoder(startPos, endPos, callback);
 		#end
@@ -454,7 +462,7 @@ class AudioAnalyzer {
 
 	#if lime_cffi
 	inline function __canReadStream():Bool
-		@:privateAccess return sound._source != null && sound._source.__backend != null && sound._source.__backend.streamTimer != null;
+		@:privateAccess return sound._source != null && sound._source.__backend != null && sound._source.__backend.playing;
 
 	inline function __readStream(startPos:Float, endPos:Float, callback:AudioAnalyzerCallback):Float @:privateAccess {
 		var backend = sound._source.__backend;
@@ -496,35 +504,64 @@ class AudioAnalyzer {
 		if (buffer.__srcVorbisFile == null) return __vorbis != null;
 		if (__vorbis != null) return true;
 		if ((__vorbis = buffer.__srcVorbisFile.clone()) != null) { // IM HOPING IT HAVE A GC CLOSURE.
-			__buffer = new ArrayBuffer(__bufferSize = 0x400 * __sampleSize);
+			__buffer = new ArrayBuffer(__bufferSize = (buffer.sampleRate >> 1) * __sampleSize); // 0.5 seconds of buffers.
 			return true;
 		}
 		return false;
 	}
 
 	inline function __readDecoder(startPos:Float, endPos:Float, callback:AudioAnalyzerCallback) {
-		var time = startPos / 1000;
-		if (Math.abs(time - __vorbis.timeTell()) > 0.004) {
-			if (startPos < 1) __vorbis.rawSeek(0);
-			else __vorbis.timeSeek(time);
-		}
+		var n = Math.floor((endPos - startPos) * __toBits);
+		if ((n -= n % __sampleSize) > 0) {
+			var pos = Math.floor((startPos - __bufferTime * 1000) * __toBits);
+			pos -= pos % __sampleSize;
 
-		var isBigEndian = lime.system.System.endianness == lime.system.Endian.BIG_ENDIAN, result;
-		var n = Math.floor((endPos - startPos) * __toBits), pos = 0, c = 0;
-		n -= n % __sampleSize;
+			var doRead = __bufferLastSize == 0 || (pos < 0 && pos >= __bufferSize);
+			if (doRead) {
+				if (startPos < 1) {
+					__vorbis.rawSeek(0);
+					__bufferTime = 0;
+				}
+				else
+					__vorbis.timeSeek(__bufferTime = startPos / 1000);
 
-		while (n > 0) {
-			result = __vorbis.read(__buffer, 0, n < __bufferSize ? n : __bufferSize, isBigEndian, __wordSize, true);
-			if (result == Vorbis.HOLE) continue;
-			else if (result <= 0) break;
-
-			while (pos < result) {
-				callback(getByte(__buffer, pos, __wordSize), c);
-				if (++c > buffer.channels) c = 0;
-				if ((pos += __wordSize) >= n) break;
+				__bufferLastSize = pos = 0;
 			}
-			pos = 0;
-			n -= result;
+
+			var isBigEndian = lime.system.System.endianness == lime.system.Endian.BIG_ENDIAN, ranOut = false, c = 0, result;
+			while (true) {
+				if (doRead) {
+					result = __vorbis.read(__buffer, pos, __bufferSize - pos, isBigEndian, __wordSize, true);
+					if (result == Vorbis.HOLE) continue;
+					else if (result < 0) break;
+					else if (!(ranOut = result == 0)) {
+						__bufferLastTime = __vorbis.timeTell();
+						__bufferLastSize += result;
+						while (pos < __bufferLastSize) {
+							callback(getByte(__buffer, pos, __wordSize), c);
+							if (++c > buffer.channels) c = 0;
+							pos += __wordSize;
+							if ((n -= __wordSize) <= 0) break;
+						}
+					}
+				}
+				else {
+					while (pos < __bufferLastSize) {
+						callback(getByte(__buffer, pos, __wordSize), c);
+						if (++c > buffer.channels) c = 0;
+						pos += __wordSize;
+						if ((n -= __wordSize) <= 0) break;
+					}
+					doRead = true;
+					ranOut = pos >= __bufferSize;
+				}
+
+				if (n <= 0) break;
+				else if (doRead && ranOut) {
+					__bufferLastSize = pos = 0;
+					__bufferTime = __bufferLastTime;
+				}
+			}
 		}
 	}
 	#end

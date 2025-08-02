@@ -171,7 +171,8 @@ class OptionsMenu extends TreeMenu {
 						Logs.warn("A number option requires an \"id\" for option saving.");
 						continue;
 					}
-					options.push(new NumOption(name, desc, Std.parseFloat(node.att.min), Std.parseFloat(node.att.max), Std.parseFloat(node.att.step), node.att.id, null, FlxG.save.data));
+					var step = node.has.change ? Std.parseFloat(node.att.change) : (node.has.step ? Std.parseFloat(node.att.step) : null);
+					options.push(new NumOption(name, desc, Std.parseFloat(node.att.min), Std.parseFloat(node.att.max), step, node.att.id, null, FlxG.save.data));
 				case "choice":
 					if (!node.has.id) {
 						Logs.warn("A choice option requires an \"id\" for option saving.");
@@ -200,7 +201,9 @@ class OptionsMenu extends TreeMenu {
 						Logs.warn("A slider option requires an \"id\" for option saving.");
 						continue;
 					}
-					options.push(new SliderOption(name, desc, Std.parseFloat(node.att.min), Std.parseFloat(node.att.max), Std.parseFloat(node.att.step), Std.parseInt(node.att.segments), node.att.id, Std.parseInt(node.att.barWidth), null, FlxG.save.data));
+					var step = node.has.change ? Std.parseFloat(node.att.change) : (node.has.step ? Std.parseFloat(node.att.step) : null);
+					var segments = node.has.segments ? Std.parseInt(node.att.segments) : 5;
+					options.push(new SliderOption(name, desc, Std.parseFloat(node.att.min), Std.parseFloat(node.att.max), step, segments, node.att.id, Std.parseInt(node.att.barWidth), null, FlxG.save.data));
 
 				case 'separator':
 					options.push(new Separator(Std.parseInt(node.att.height)));

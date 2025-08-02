@@ -100,11 +100,6 @@ final class AudioAnalyzer {
 	public var fftN(default, set):Int;
 
 	/**
-	 * Whether or not should it also use the 4-point butterfly functions for FFT.
-	 */
-	public var allow4PointFFT:Bool = false;
-
-	/**
 	 * The current buffer from sound.
 	 */
 	public var buffer(default, null):AudioBuffer;
@@ -149,7 +144,6 @@ final class AudioAnalyzer {
 	var __twiddleImags:Array<Float> = [];
 	var __freqReals:Array<Float> = [];
 	var __freqImags:Array<Float> = [];
-	var __factors:Array<Int> = [];
 
 	// levels
 	var __frequencies:Array<Float>;
@@ -201,19 +195,6 @@ final class AudioAnalyzer {
 			__twiddleImags[i] = Math.sin(a);
 		}
 
-		__factors.resize(0);
-
-		var n = fftN;
-		while (n % 4 == 0) {
-			__factors.push(2);
-			n >>= 2;
-		}
-
-		while (n % 2 == 0) {
-			__factors.push(1);
-			n >>= 1;
-		}
-
 		return fftN;
 	}
 
@@ -255,71 +236,6 @@ final class AudioAnalyzer {
 	 * @return Output of frequencies
 	 */
 	public function getFrequencies(startPos:Float, ?frequencies:Array<Float>):Array<Float> {
-		// https://github.com/FunkinCrew/grig.audio/commit/8567c4dad34cfeaf2ff23fe12c3796f5db80685e
-		inline function butterfly4PointOptimized(i0:Int, i1:Int, i2:Int, i3:Int, t1:Int, t2:Int, t3:Int) {
-			// Load input values
-			var x0r = __freqReals[i0];
-			var x0i = __freqImags[i0];
-
-			// Apply twiddle factors to x1, x2, x3
-			// x1 = workingData[i1] * twiddle1
-			var x1r_raw = __freqReals[i1];
-			var x1i_raw = __freqImags[i1];
-			var tw1r = __twiddleReals[t1];
-			var tw1i = __twiddleImags[t1];
-			var x1r = x1r_raw * tw1r - x1i_raw * tw1i;
-			var x1i = x1r_raw * tw1i + x1i_raw * tw1r;
-
-			// x2 = workingData[i2] * twiddle2
-			var x2r_raw = __freqReals[i2];
-			var x2i_raw = __freqImags[i2];
-			var tw2r = __twiddleReals[t2];
-			var tw2i = __twiddleImags[t2];
-			var x2r = x2r_raw * tw2r - x2i_raw * tw2i;
-			var x2i = x2r_raw * tw2i + x2i_raw * tw2r;
-
-			// x3 = workingData[i3] * twiddle3
-			var x3r_raw = __freqReals[i3];
-			var x3i_raw = __freqImags[i3];
-			var tw3r = __twiddleReals[t3];
-			var tw3i = __twiddleImags[t3];
-			var x3r = x3r_raw * tw3r - x3i_raw * tw3i;
-			var x3i = x3r_raw * tw3i + x3i_raw * tw3r;
-
-			// Compute intermediate values for 4-point DFT
-			var t0r = x0r + x2r;  // (x0 + x2).real
-			var t0i = x0i + x2i;  // (x0 + x2).imag
-			var t1r = x0r - x2r;  // (x0 - x2).real
-			var t1i = x0i - x2i;  // (x0 - x2).imag
-			var t2r = x1r + x3r;  // (x1 + x3).real
-			var t2i = x1i + x3i;  // (x1 + x3).imag
-			var t3r = x1r - x3r;  // (x1 - x3).real
-			var t3i = x1i - x3i;  // (x1 - x3).imag
-
-			// Apply j multiplication: j * (a + jb) = -b + ja
-			var jt3r = -t3i;  // j * t3.real = -t3.imag
-			var jt3i = t3r;   // j * t3.imag = t3.real
-
-			// Final 4-point DFT butterfly outputs
-			__freqReals[i0] = t0r + t2r;        // X[k]
-			__freqImags[i0] = t0i + t2i;
-			__freqReals[i1] = t1r - jt3r;       // X[k + N/4]
-			__freqImags[i1] = t1i - jt3i;
-			__freqReals[i2] = t0r - t2r;        // X[k + N/2]
-			__freqImags[i2] = t0i - t2i;
-			__freqReals[i3] = t1r + jt3r;       // X[k + 3N/4]
-			__freqImags[i3] = t1i + jt3i;
-		}
-
-		inline function butterfly2PointOptimized(i0:Int, i1:Int, t:Int) {
-			var tempr = __freqReals[i1] * __twiddleReals[t] - __freqImags[i1] * __twiddleImags[t];
-			var tempi = __freqReals[i1] * __twiddleImags[t] + __freqImags[i1] * __twiddleReals[t];
-			__freqReals[i1] = __freqReals[i0] - tempr;
-			__freqImags[i1] = __freqImags[i0] - tempi;
-			__freqReals[i0] += tempr;
-			__freqImags[i0] += tempi;
-		}
-
 		__freqSamples = getSamples(startPos, fftN, true, __freqSamples);
 
 		if (frequencies == null) frequencies = [];
@@ -332,46 +248,32 @@ final class AudioAnalyzer {
 			__freqImags[i] = 0;
 		}
 
-		var size = 1, n = fftN, half, k, temp;
-		if (allow4PointFFT) for (factor in __factors) {
-			half = (size <<= factor) >> factor;
-			n >>= factor;
+		var size = 1, n = fftN, half = 1, k, i0, i1, t, tr:Float, ti:Float;
+		while ((size <<= 1) < fftN) {
+			n >>= 1;
 			i = 0;
 			while (i < fftN) {
 				k = 0;
 				while (k < half) {
-					if (factor == 2)
-						butterfly4PointOptimized(temp = i + k, temp += half, temp += half, temp += half,
-							(k * n) % fftN, (2 * k * n) % fftN, (3 * k * n) % fftN);
-					else
-						butterfly2PointOptimized(temp = i + k, temp += half, (k * n) % fftN);
+					i1 = (i0 = i + k) + half;
+					t = (k * n) % fftN;
+
+					tr = __freqReals[i1] * __twiddleReals[t] - __freqImags[i1] * __twiddleImags[t];
+					ti = __freqReals[i1] * __twiddleImags[t] + __freqImags[i1] * __twiddleReals[t];
+					__freqReals[i1] = __freqReals[i0] - tr;
+					__freqImags[i1] = __freqImags[i0] - ti;
+					__freqReals[i0] += tr;
+					__freqImags[i0] += ti;
 
 					k++;
 				}
 				i += size;
 			}
-		}
-		else {
-			half = 1;
-			n = fftN;
-			while ((size <<= 1) < fftN) {
-				n >>= 1;
-				i = 0;
-				while (i < fftN) {
-					k = 0;
-					while (k < half) {
-						butterfly2PointOptimized(temp = i + k, temp += half, (k * n) % fftN);
-						k++;
-					}
-					i += size;
-				}
-				half = size;
-			}
+			half = size;
 		}
 
-		var inv = 1.0 / fftN;
-		frequencies[i = 0] = Math.sqrt(__freqReals[0] * __freqReals[0] + __freqImags[0] * __freqImags[0]) * inv;
-		while (++i < __N2) frequencies[i] = 2 * Math.sqrt(__freqReals[i] * __freqReals[i] + __freqImags[i] * __freqImags[i]) * inv;
+		frequencies[i = 0] = Math.sqrt(__freqReals[0] * __freqReals[0] + __freqImags[0] * __freqImags[0]) * (tr = 1.0 / fftN);
+		while (++i < __N2) frequencies[i] = 2 * Math.sqrt(__freqReals[i] * __freqReals[i] + __freqImags[i] * __freqImags[i]) * tr;
 
 		return frequencies;
 	}

@@ -46,7 +46,7 @@ class PlayState extends MusicBeatState
 	public static var instance:PlayState = null;
 
 	/**
-	 * SONG DATA (Chart, Metadata)
+	 * SONG DATA (Chart, Metadata).
 	 */
 	public static var SONG:ChartData;
 	/**
@@ -62,7 +62,7 @@ class PlayState extends MusicBeatState
 	 */
 	public static var storyPlaylist:Array<String> = [];
 	/**
-	 * The selected difficulty name
+	 * The selected difficulty name.
 	 */
 	public static var difficulty:String = Flags.DEFAULT_DIFFICULTY;
 	/**
@@ -97,15 +97,15 @@ class PlayState extends MusicBeatState
 	 */
 	public static var deathCounter:Int = 0;
 	/**
-	 * Game Over Song. (assets/music/gameOver.ogg)
+	 * Game Over Song. (assets/music/gameOver.ogg).
 	 */
 	public var gameOverSong:String = Flags.DEFAULT_GAMEOVER_MUSIC;
 	/**
-	 * Game Over Song. (assets/sounds/gameOverSFX.ogg)
+	 * Game Over Song. (assets/sounds/gameOverSFX.ogg).
 	 */
 	public var lossSFX:String = Flags.DEFAULT_GAMEOVERSFX_SOUND;
 	/**
-	 * Game Over End SFX, used when retrying. (assets/sounds/gameOverEnd.ogg)
+	 * Game Over End SFX, used when retrying. (assets/sounds/gameOverEnd.ogg).
 	 */
 	public var retrySFX:String = Flags.DEFAULT_GAMEOVEREND_SOUND;
 
@@ -152,25 +152,25 @@ class PlayState extends MusicBeatState
 	public var vocals:FlxSound;
 
 	/**
-	 * Dad character
+	 * Dad character.
 	 */
 	public var dad(get, set):Character;
 	/**
-	 * Girlfriend character
+	 * Girlfriend character.
 	 */
 	public var gf(get, set):Character;
 	/**
-	 * Boyfriend character
+	 * Boyfriend character.
 	 */
 	public var boyfriend(get, set):Character;
 	/**
-	 * Boyfriend character
-	 * Same as boyfriend, just shorter
+	 * Boyfriend character.
+	 * Same as boyfriend, just shorter.
 	**/
 	public var bf(get, set):Character;
 
 	/**
-	 * Strum line position
+	 * Strum line position.
 	 */
 	public var strumLine:FlxObject;
 	/**
@@ -205,7 +205,7 @@ class PlayState extends MusicBeatState
 	public var cpu(get, set):StrumLine;
 
 	/**
-	 * Note splashes container
+	 * Note splashes container.
 	 */
 	public var splashHandler:SplashHandler;
 
@@ -227,15 +227,15 @@ class PlayState extends MusicBeatState
 	public var doIconBop:Bool = Flags.DEFAULT_ICONBOP;
 
 	/**
-	 * Current song name (lowercase)
+	 * Current song name (lowercase).
 	 */
 	public var curSong:String = "";
 	/**
-	 * Current song name (lowercase and spaces to dashes)
+	 * Current song name (lowercase and spaces to dashes).
 	 */
 	public var curSongID:String = "";
 	/**
-	 * Current stage name
+	 * Current stage name.
 	 */
 	public var curStage(get, set):String;
 
@@ -245,7 +245,7 @@ class PlayState extends MusicBeatState
 	public var gfSpeed(get, set):Int;
 
 	/**
-	 * Current health. Goes from 0 to maxHealth (defaults to 2)
+	 * Current health. Goes from 0 to maxHealth (defaults to 2).
 	 */
 	public var health(default, set):Float = 1;
 
@@ -259,7 +259,7 @@ class PlayState extends MusicBeatState
 	public var combo:Int = 0;
 
 	/**
-	 * Whenever the misses should show "Combo Breaks" instead of "Misses"
+	 * Whenever the misses should show "Combo Breaks" instead of "Misses".
 	 */
 	public var comboBreaks:Bool = !Options.ghostTapping;
 	/**
@@ -281,15 +281,15 @@ class PlayState extends MusicBeatState
 	public var startingSong:Bool = false;
 
 	/**
-	 * Player's icon
+	 * Player's icon.
 	 */
 	public var iconP1:HealthIcon;
 	/**
-	 * Opponent's icon
+	 * Opponent's icon.
 	 */
 	public var iconP2:HealthIcon;
 	/**
-	 * Every active icon that will be updated during gameplay (defaults to `iconP1` and `iconP1` between `create` and `postCreate` in scripts)
+	 * Every active icon that will be updated during gameplay (defaults to `iconP1` and `iconP1` between `create` and `postCreate` in scripts).
 	 */
 	public var iconArray:Array<HealthIcon> = [];
 
@@ -298,7 +298,7 @@ class PlayState extends MusicBeatState
 	 */
 	public var camHUD:HudCamera;
 	/**
-	 * Camera for the game (stages, characters)
+	 * Camera for the game (stages, characters).
 	 */
 	public var camGame:FlxCamera;
 
@@ -347,7 +347,7 @@ class PlayState extends MusicBeatState
 	public static var campaignMisses:Int = 0;
 
 	/**
-	 * Accuracy for the current week
+	 * Accuracy for the current week.
 	 */
 	public static var campaignAccuracy(get, never):Float;
 
@@ -379,7 +379,7 @@ class PlayState extends MusicBeatState
 	/**
 	 * Interval of cam zooming (in conductor values).
 	 * Example: If Interval is 1 and Beat Type is on MEASURE, it'll zoom every a measure.
-	 * NOTE: Will set to 4 if not found any other time signatures unlike 4/4
+	 * NOTE: Will set to 4 if not found any other time signatures unlike 4/4.
 	 */
 	public var camZoomingInterval:Float = Flags.DEFAULT_CAM_ZOOM_INTERVAL;
 	/**
@@ -389,7 +389,7 @@ class PlayState extends MusicBeatState
 	/**
 	 * Beat type for interval of cam zooming.
 	 * Example: If Beat Type is on STEP and Interval is 2, it'll zoom every 2 steps.
-	 * NOTE: Will set to BEAT if not found any other time signatures unlike 4/4
+	 * NOTE: Will set to BEAT if not found any other time signatures unlike 4/4.
 	 */
 	public var camZoomingEvery:BeatType = MEASURE;
 	/**
@@ -397,7 +397,7 @@ class PlayState extends MusicBeatState
 	 */
 	public var camZoomingLastBeat:Float;
 	/**
-	 * How strong the cam zooms should be (defaults to 1)
+	 * How strong the cam zooms should be (defaults to 1).
 	 */
 	public var camZoomingStrength:Float = Flags.DEFAULT_CAM_ZOOM_STRENGTH;
 	/**
@@ -438,16 +438,16 @@ class PlayState extends MusicBeatState
 	public var endCutscene:String = null;
 
 	/**
-	 * Last rating (may be null)
+	 * Last rating (may be null).
 	 */
 	public var curRating:ComboRating;
 
 	/**
-	 * Timer for the start countdown
+	 * Timer for the start countdown.
 	 */
 	public var startTimer:FlxTimer;
 	/**
-	 * Remaining events
+	 * Remaining events.
 	 */
 	public var events:Array<ChartEvent> = [];
 	/**
@@ -518,7 +518,7 @@ class PlayState extends MusicBeatState
 	 * Hit window, in milliseconds. Defaults to 250ms unless changed in options.
 	 * Base game hit window is 175ms.
 	 */
-	public var hitWindow:Float = Options.hitWindow; // is calculated in create(), is safeFrames in milliseconds
+	public var hitWindow:Float = Options.hitWindow; // is calculated in create(), is safeFrames in milliseconds.
 
 	@:noCompletion @:dox(hide) private var _startCountdownCalled:Bool = false;
 	@:noCompletion @:dox(hide) private var _endSongCalled:Bool = false;

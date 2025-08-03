@@ -448,7 +448,7 @@ final class AudioAnalyzer {
 	}
 
 	inline function __readData(startPos:Float, endPos:Float, callback:AudioAnalyzerCallback) {
-		var pos = Math.floor(startPos * __toBits), end = Math.floor(endPos * __toBits), c = 0;
+		var pos = Math.floor(startPos * __toBits), end = Math.min(Math.floor(endPos * __toBits), buffer.data.buffer.length), c = 0;
 		pos -= pos % __sampleSize;
 		end -= end % __sampleSize;
 

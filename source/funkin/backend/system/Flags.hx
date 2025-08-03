@@ -36,7 +36,11 @@ class Flags {
 	public static var MOD_DISCORD_LOGO_TEXT:String = "";
 
 	public static var MOD_REDIRECT_STATES:Map<String, String> = [];
+
 	// -- Codename's Default Flags --
+	@:lazy public static var SAVE_PATH:String = haxe.macro.Compiler.getDefine("SAVE_PATH");
+	@:lazy public static var SAVE_NAME:String = haxe.macro.Compiler.getDefine("SAVE_NAME");
+
 	public static var CURRENT_API_VERSION:Int = 1;
 	public static var COMMIT_NUMBER:Int = GitCommitMacro.commitNumber;
 	public static var COMMIT_HASH:String = GitCommitMacro.commitHash;

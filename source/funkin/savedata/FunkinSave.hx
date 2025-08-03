@@ -24,7 +24,7 @@ class FunkinSave {
 	public static var save:FlxSave;
 
 	public static function init() {
-		var path = haxe.macro.Compiler.getDefine("SAVE_PATH"), name = haxe.macro.Compiler.getDefine("SAVE_NAME");
+		var path = Flags.SAVE_PATH, name = Flags.SAVE_NAME;
 		if (path == null) path = 'CodenameEngine';
 		if (name == null) name = 'save-default';
 

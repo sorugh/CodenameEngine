@@ -103,6 +103,7 @@ class MainState extends FlxState {
 			loadLib(addon.path, ltrim(addon.name, "[HIGH]"));
 		#end
 
+		Flags.reset();
 		Flags.load();
 		TranslationUtil.findAllLanguages();
 		TranslationUtil.setLanguage(Flags.DISABLE_LANGUAGES ? Flags.DEFAULT_LANGUAGE : null);

@@ -277,7 +277,7 @@ class Flags {
 				case "StateRedirects": for (key => value in section) if (!MOD_REDIRECT_STATES.exists(key)) MOD_REDIRECT_STATES.set(key, value);
 				case "Global": // do nothing
 				default:
-					if (Std.isOfType(Reflect.field(Flags, name), haxe.ds.StringMap)) Reflect.setField(Flags, name, section);
+					if (Std.isOfType(Reflect.field(Flags, name), haxe.ds.StringMap)) Reflect.setProperty(Flags, name, section);
 					else trace('Invalid section $name');
 			}
 		}
@@ -293,8 +293,6 @@ class Flags {
 	}
 
 	public static function parseFlags(flags:Map<String, String>) {
-		customFlags = [];
-		reset();
 		for(name=>value in flags)
 			if(!parse(name, value))
 				customFlags.set(name, value);

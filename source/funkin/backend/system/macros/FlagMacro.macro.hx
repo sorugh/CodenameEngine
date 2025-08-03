@@ -30,6 +30,7 @@ class FlagMacro {
 
 		var resetExprs:Array<Expr> = [];
 		var parserExprs:Array<Expr> = [];
+		resetExprs.push(macro $i{"customFlags"} = $v{[]});
 
 		for (field in fields) {
 			var skip = field.meta.hasMeta(":bypass");

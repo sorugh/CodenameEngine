@@ -147,19 +147,21 @@ class AssetsLibraryList extends AssetLibrary {
 
 	public function new(?base:AssetLibrary) {
 		super();
-		#if (sys && TEST_BUILD)
-			Logs.infos("Used cne test / cne build. Switching into source assets.");
-			#if MOD_SUPPORT
-				ModsFolder.modsPath = './${Main.pathBack}mods/';
-				ModsFolder.addonsPath = './${Main.pathBack}addons/';
-			#end
-			__defaultLibraries.push(ModsFolder.loadLibraryFromFolder('assets', './${Main.pathBack}assets/', true, SOURCE));
-		#elseif USE_ADAPTED_ASSETS
-			__defaultLibraries.push(ModsFolder.loadLibraryFromFolder('assets', './assets/', true, SOURCE));
-		#else
 		if (base == null) (this.base = Assets.getLibrary("default")).tag = SOURCE;
 		else this.base = base;
 		__defaultLibraries.push(this.base);
+
+		#if (sys && TEST_BUILD)
+		Logs.infos("Used cne test / cne build. Switching into source assets.");
+
+		#if MOD_SUPPORT
+		ModsFolder.modsPath = './${Main.pathBack}mods/';
+		ModsFolder.addonsPath = './${Main.pathBack}addons/';
+		#end
+
+		__defaultLibraries.push(ModsFolder.loadLibraryFromFolder('assets', './${Main.pathBack}assets/', true, SOURCE));
+		#elseif USE_ADAPTED_ASSETS
+		__defaultLibraries.push(ModsFolder.loadLibraryFromFolder('assets', './assets/', true, SOURCE));
 		#end
 		for (d in __defaultLibraries) addLibrary(d);
 	}

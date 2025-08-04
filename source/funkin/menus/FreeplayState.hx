@@ -477,13 +477,8 @@ class FreeplaySonglist {
 		if (useTxt) {
 			var oldPath = Paths.txt('freeplaySonglist');
 			var newPath = Paths.txt('config/freeplaySonglist');
-			trace(oldPath, newPath, source);
-			if (Paths.assetsTree.existsSpecific(newPath, "TEXT", source)) {
-				trace('new');
-				songsFound = CoolUtil.coolTextFile(newPath);
-			}
+			if (Paths.assetsTree.existsSpecific(newPath, "TEXT", source)) songsFound = CoolUtil.coolTextFile(newPath);
 			else if (Paths.assetsTree.existsSpecific(oldPath, "TEXT", source)) {
-				trace('old');
 				Logs.warn("data/freeplaySonglist.txt is deprecated and will be removed in the future. Please move the file to data/config/", DARKYELLOW, "FreeplaySonglist");
 				songsFound = CoolUtil.coolTextFile(oldPath);
 			}
@@ -507,7 +502,7 @@ class FreeplaySonglist {
 				songList.getSongsFromSource(SOURCE, useTxt);
 				songList.getSongsFromSource(MODS, useTxt);
 			default /*case 'override'*/:
-				if (!songList.getSongsFromSource(MODS, useTxt))
+				if (songList.getSongsFromSource(MODS, useTxt))
 					songList.getSongsFromSource(SOURCE, useTxt);
 		}
 

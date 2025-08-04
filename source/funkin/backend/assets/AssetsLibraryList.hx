@@ -150,10 +150,10 @@ class AssetsLibraryList extends AssetLibrary {
 		#if (sys && TEST_BUILD)
 			Logs.infos("Used cne test / cne build. Switching into source assets.");
 			#if MOD_SUPPORT
-				ModsFolder.modsPath = './${pathBack}mods/';
-				ModsFolder.addonsPath = './${pathBack}addons/';
+				ModsFolder.modsPath = './${Main.pathBack}mods/';
+				ModsFolder.addonsPath = './${Main.pathBack}addons/';
 			#end
-			__defaultLibraries.push(ModsFolder.loadLibraryFromFolder('assets', './${pathBack}assets/', true, SOURCE));
+			__defaultLibraries.push(ModsFolder.loadLibraryFromFolder('assets', './${Main.pathBack}assets/', true, SOURCE));
 		#elseif USE_ADAPTED_ASSETS
 			__defaultLibraries.push(ModsFolder.loadLibraryFromFolder('assets', './assets/', true, SOURCE));
 		#else

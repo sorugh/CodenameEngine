@@ -473,9 +473,14 @@ class FreeplaySonglist {
 	public function new() {}
 
 	public function getSongsFromSource(source:funkin.backend.assets.AssetSource, useTxt:Bool = true) {
-		var path:String = Paths.txt('freeplaySonglist');
-		var songsFound:Array<String> = useTxt && Paths.assetsTree.existsSpecific(path, "TEXT", source) ? CoolUtil.coolTextFile(path) : Paths.getFolderDirectories('songs', false, source);
+		var oldPath = Paths.txt("freeplaySonglist");
+		var newPath = Paths.txt("config/freeplaySonglist");
+		var path:String = useTxt && !Paths.assetsTree.existsSpecific(newPath, "TEXT", source) && Paths.assetsTree.existsSpecific(oldPath, "TEXT", source) ? {
+			Logs.warn("data/freeplaySonglist.txt is deprecated and will be removed in the future. Please move the file to data/config/", DARKYELLOW, "FreeplaySonglist");
+			oldPath;
+		} : newPath;
 
+		var songsFound:Array<String> = useTxt && Paths.assetsTree.existsSpecific(path, "TEXT", source) ? CoolUtil.coolTextFile(path): Paths.getFolderDirectories("songs", false, source);
 		if (songsFound.length > 0) {
 			for (s in songsFound) songs.push(Chart.loadChartMeta(s, Flags.DEFAULT_DIFFICULTY, source == MODS));
 			return false;

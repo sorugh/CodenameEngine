@@ -63,7 +63,8 @@
 		<str id="framerate-name">FPS</str>
 		<str id="framerate-desc">Yo creo que se explica sólo.</str>
 
-		<str id="antialiasing-desc">Si está desactivado, desactivará el antialiasing en todos los sprites, lo cual puede aumentar el rendimiento pero hará los visuales más pixelados.</str>
+		<str id="flashingMenu-name">Luces Intermitentes</str>
+		<str id="flashingMenu-desc">Si está desactivado, el menú no parpadeará, y otros parpadeos serán más lentos.</str>
 
 		<str id="colorHealthBar-name">Colores de Barra de HP</str>
 		<str id="colorHealthBar-desc">Si lo desactivas, se usarán los colores verde y rojo, como el FNF original.</str>
@@ -71,26 +72,24 @@
 		<str id="week6PixelPerfect-name">Efecto Pixel Perfect</str>
 		<str id="week6PixelPerfect-desc">Si está activado, Week 6 tendrá un efecto que alinea todos los píxeles en la pantalla.</str>
 
-		<str id="gameplayShaders-name">Shaders de Gameplay</str>
-		<str id="gameplayShaders-desc">Si está desactivado, shaders de gameplay (como la distorsión en Thorns) serán desactivados; puede ayudar con el rendimiento en dispositivos débiles.</str>
+		<group name="AppearanceOptionsAdvanced" prefix="Advanced.">
+			<str id="antialiasing-desc">Si está desactivado, desactivará el antialiasing en todos los sprites, lo cual puede aumentar el rendimiento pero hará los visuales más pixelados.</str>
 
-		<str id="flashingMenu-name">Luces Intermitentes</str>
-		<str id="flashingMenu-desc">Si está desactivado, el menú no parpadeará, y otros parpadeos serán más lentos.</str>
+			<str id="lowMemoryMode-name">Modo de Baja Memoria</str>
+			<str id="lowMemoryMode-desc">Si está activado, algunos elementos en los escenarios se eliminarán para mejorar el rendimiento.</str>
 
-		<str id="lowMemoryMode-name">Modo de Baja Memoria</str>
-		<str id="lowMemoryMode-desc">Si está activado, algunos elementos en los escenarios se eliminarán para mejorar el rendimiento.</str>
+			<str id="gameplayShaders-name">Shaders de Gameplay</str>
+			<str id="gameplayShaders-desc">Si está desactivado, shaders de gameplay (como la distorsión en Thorns) serán desactivados; puede ayudar con el rendimiento en dispositivos débiles.</str>
 
-		<str id="gpuOnlyBitmaps-name">Sprites en GPU</str>
-		<str id="gpuOnlyBitmaps-desc">Si está activado, todos los sprites serán cargados en el GPU, liberando MUCHA memoria (EXPERIMENTAL). Desactivar esto consumirá mucha RAM, en especial con sprites grandes. Si no estás seguro, déjalo activado.</str>
+			<str id="gpuOnlyBitmaps-name">Sprites en GPU</str>
+			<str id="gpuOnlyBitmaps-desc">Si está activado, todos los sprites serán cargados en el GPU, liberando MUCHA memoria (EXPERIMENTAL). Desactivar esto consumirá mucha RAM, en especial con sprites grandes. Si no estás seguro, déjalo activado.</str>
+		</group>
 	</group>
 
 	<group name="GameplayOptions" prefix="GameplayOptions.">
 		<str id="downscroll-desc">Si está activado, las notas iran de arriba hacia abajo, como si estuvieran cayendo.</str>
 
 		<str id="ghostTapping-desc">Si está desactivado, apretar una tecla sin ninguna nota contará como un Combo Break.</str>
-
-		<str id="songOffset-name">Offset de Sonido</str>
-		<str id="songOffset-desc">Empareja la posición en la que empieza una canción.</str>
 
 		<str id="naughtyness-name">Guarradas</str>
 		<str id="naughtyness-desc">Si está desactivado, se censurarán las escenas de Week 7.</str>
@@ -101,8 +100,14 @@
 		<str id="autoPause-name">Auto Pausa</str>
 		<str id="autoPause-desc">Si está activado, el juego se pausará cuando cambies de ventana.</str>
 
+		<str id="volumeMusic-name">Volumen Música</str>
+		<str id="volumeMusic-desc">Cambia sólo el volumen de los música en vez de todo.</str>
+
 		<str id="volumeSFX-name">Volumen SFX</str>
 		<str id="volumeSFX-desc">Cambia sólo el volumen de los sonidos en vez de todo.</str>
+
+		<str id="songOffset-name">Offset de Sonido</str>
+		<str id="songOffset-desc">Empareja la posición en la que empieza una canción.</str>
 
 		<group name="GameplayOptionsAdvanced" prefix="Advanced.">
 			<str id="windowSize-name">Tamaño de Ventana</str>

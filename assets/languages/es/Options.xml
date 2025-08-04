@@ -111,7 +111,7 @@
 			<str id="streamedMusic-desc">Si está activado, la música será transmitida en tiempo real, liberando un montón de RAM, aunque usará más CPU si hay mucho audio al mismo tiempo (EXPERIMENTAL). Desactivarlo consumirá más RAM, especialmente en canciones más largas. Si no estás seguro, déjalo activado.</str>
 			
 			<str id="streamedVocals-name">Transmición de Vocales</str>
-			<str id="streamedVocals-desc">Si está activado, las vocales también serán transmitidas, impactará el rendimiento si hay muchas vocales (EXPERIMENTAL). Si no estás seguro, déjalo activado.</str>
+			<str id="streamedVocals-desc">Si está activado, las vocales también serán transmitidas, impactará el rendimiento si hay muchas vocales (EXPERIMENTAL). Si no estás seguro, déjalo desactivade.</str>
 		</group>
 	</group>
 

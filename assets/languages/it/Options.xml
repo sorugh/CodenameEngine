@@ -124,7 +124,7 @@
 			<str id="streamedMusic-desc">Se attivato, solo la musica avrà l'audio in streaming, liberando inoltre MOLTA memoria con lo svantaggio di un maggiore utilizzo della CPU se vengono trasmessi in streaming più audio contemporaneamente (SPERIMENTALE). Disattivarlo consumerà molta memoria, soprattutto su canzoni più lunghe. Se non sei sicuro, lascia questa opzione attivata.</str>
 
 			<str id="streamedVocals-name">Streaming Voci</str>
-			<str id="streamedVocals-desc">Se attivato, anche la voce verrà trasmessa in streaming se è selezionata anche Streaming Musica, avrà un impatto sulla performance se la canzone utilizza molte voci (SPERIMENTALE). Se non sei sicuro, lascia questa opzione attivata.</str>
+			<str id="streamedVocals-desc">Se attivato, anche la voce verrà trasmessa in streaming se è selezionata anche Streaming Musica, avrà un impatto sulla performance se la canzone utilizza molte voci (SPERIMENTALE). Se non sei sicuro, lascia questa opzione disattivata.</str>
 		</group>
 	</group>
 

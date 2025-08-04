@@ -147,7 +147,21 @@ class AssetsLibraryList extends AssetLibrary {
 
 	public function new(?base:AssetLibrary) {
 		super();
-		__defaultLibraries.push(addLibrary(this.base = (base == null ? Assets.getLibrary("default") : base), SOURCE));
+		#if (sys && TEST_BUILD)
+			Logs.infos("Used cne test / cne build. Switching into source assets.");
+			#if MOD_SUPPORT
+				ModsFolder.modsPath = './${pathBack}mods/';
+				ModsFolder.addonsPath = './${pathBack}addons/';
+			#end
+			__defaultLibraries.push(ModsFolder.loadLibraryFromFolder('assets', './${pathBack}assets/', true, SOURCE));
+		#elseif USE_ADAPTED_ASSETS
+			__defaultLibraries.push(ModsFolder.loadLibraryFromFolder('assets', './assets/', true, SOURCE));
+		#else
+		if (base == null) (this.base = Assets.getLibrary("default")).tag = SOURCE;
+		else this.base = base;
+		__defaultLibraries.push(this.base);
+		#end
+		for (d in __defaultLibraries) addLibrary(d);
 	}
 
 	public function unloadLibraries() {
@@ -162,19 +176,13 @@ class AssetsLibraryList extends AssetLibrary {
 		libraries = [];
 
 		// adds default libraries in again
-		for(d in __defaultLibraries)
-			addLibrary(d);
+		for (d in __defaultLibraries) addLibrary(d);
 	}
 
 	public function addLibrary(lib:AssetLibrary, ?tag:AssetSource, ?addTransLib:Bool = true) {
 		libraries.insert(0, lib);
-		if(tag != null)
-			lib.tag = tag;
-
-		if(lib.tag == null) { // if tag is null, set it to MODS, so it doesnt set the tag on the libs that exists
-			lib.tag = MODS;
-			//trace('AssetLibrary ${getCleanLibrary(lib)} tag not set, defaulting to MODS');
-		}
+		if (tag != null) lib.tag = tag;
+		else if (lib.tag == null) lib.tag = MODS;
 		#if TRANSLATIONS_SUPPORT
 		if(addTransLib) {
 			var cleanLib = getCleanLibrary(lib);

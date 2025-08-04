@@ -473,14 +473,22 @@ class FreeplaySonglist {
 	public function new() {}
 
 	public function getSongsFromSource(source:funkin.backend.assets.AssetSource, useTxt:Bool = true) {
-		var oldPath = Paths.txt("freeplaySonglist");
-		var newPath = Paths.txt("config/freeplaySonglist");
-		var path:String = useTxt && !Paths.assetsTree.existsSpecific(newPath, "TEXT", source) && Paths.assetsTree.existsSpecific(oldPath, "TEXT", source) ? {
-			Logs.warn("data/freeplaySonglist.txt is deprecated and will be removed in the future. Please move the file to data/config/", DARKYELLOW, "FreeplaySonglist");
-			oldPath;
-		} : newPath;
-
-		var songsFound:Array<String> = useTxt && Paths.assetsTree.existsSpecific(path, "TEXT", source) ? CoolUtil.coolTextFile(path): Paths.getFolderDirectories("songs", false, source);
+		var songsFound:Array<String> = null;
+		if (useTxt) {
+			var oldPath = Paths.txt('freeplaySonglist');
+			var newPath = Paths.txt('config/freeplaySonglist');
+			trace(oldPath, newPath, source);
+			if (Paths.assetsTree.existsSpecific(newPath, "TEXT", source)) {
+				trace('new');
+				songsFound = CoolUtil.coolTextFile(newPath);
+			}
+			else if (Paths.assetsTree.existsSpecific(oldPath, "TEXT", source)) {
+				trace('old');
+				Logs.warn("data/freeplaySonglist.txt is deprecated and will be removed in the future. Please move the file to data/config/", DARKYELLOW, "FreeplaySonglist");
+				songsFound = CoolUtil.coolTextFile(oldPath);
+			}
+		}
+		if (songsFound == null) songsFound = Paths.getFolderDirectories("songs", false, source);
 		if (songsFound.length > 0) {
 			for (s in songsFound) songs.push(Chart.loadChartMeta(s, Flags.DEFAULT_DIFFICULTY, source == MODS));
 			return false;
@@ -499,7 +507,7 @@ class FreeplaySonglist {
 				songList.getSongsFromSource(SOURCE, useTxt);
 				songList.getSongsFromSource(MODS, useTxt);
 			default /*case 'override'*/:
-				if (songList.getSongsFromSource(MODS, useTxt))
+				if (!songList.getSongsFromSource(MODS, useTxt))
 					songList.getSongsFromSource(SOURCE, useTxt);
 		}
 

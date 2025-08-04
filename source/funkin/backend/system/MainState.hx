@@ -4,6 +4,7 @@ package funkin.backend.system;
 import sys.FileSystem;
 #end
 import flixel.FlxState;
+import funkin.backend.assets.AssetsLibraryList;
 import funkin.backend.assets.ModsFolder;
 import funkin.backend.assets.ModsFolderLibrary;
 import funkin.backend.chart.EventsData;
@@ -127,14 +128,13 @@ class MainState extends FlxState {
 
 		if (Options.devMode && Options.allowConfigWarning) {
 			var lib:ModsFolderLibrary;
-			for (e in Paths.assetsTree.libraries) {
-				@:privateAccess if (!(e is openfl.utils.AssetLibrary) || !((lib = cast cast(e, openfl.utils.AssetLibrary).__proxy) is ModsFolderLibrary)) continue;
-				if (lib.modName == ModsFolder.currentModFolder) {
-					if (lib.exists(Paths.ini("config/modpack"), lime.utils.AssetType.TEXT)) break;
+			for (e in Paths.assetsTree.libraries) if ((lib = cast AssetsLibraryList.getCleanLibrary(e)) is ModsFolderLibrary
+				&& lib.modName == ModsFolder.currentModFolder)
+			{
+				if (lib.exists(Paths.ini("config/modpack"), lime.utils.AssetType.TEXT)) break;
 
-					FlxG.switchState(new ModConfigWarning(lib));
-					return;
-				}
+				FlxG.switchState(new ModConfigWarning(lib));
+				return;
 			}
 		}
 

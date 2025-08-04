@@ -154,14 +154,12 @@
 	<library name="assets"    preload="true"  if="PRELOAD_ALL"/>
 	<library name="assets"    preload="false" if="NO_PRELOAD_ALL" />
 
-	<!-- TODO: make it copy this manually, instead of using assets node, so it doesn't manually check for fonts -->
-	<assets path='mods' rename='mods' embed='false' unless="TEST_BUILD" />
+	<section unless="TEST_BUILD">
+		<assets path="assets/"    rename="assets"	exclude="*.ogg" if="web"/>
+		<assets path="assets/"    rename="assets"	exclude="*.mp3" unless="web"/>
 
-	<section unless="USE_ADAPTED_ASSETS">
-		<section unless="TEST_BUILD">
-			<assets path="assets/"    rename="assets"	exclude="*.ogg" if="web"/>
-			<assets path="assets/"    rename="assets"	exclude="*.mp3" unless="web"/>
-		</section>
+		<!-- TODO: make it copy this manually, instead of using assets node, so it doesn't manually check for fonts -->
+		<assets path='mods' rename='mods' embed='false' />
 	</section>
 
 	<assets path='art/readme.txt' rename='do NOT readme.txt' />

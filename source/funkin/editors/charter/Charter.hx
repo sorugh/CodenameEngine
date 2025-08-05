@@ -648,7 +648,14 @@ class Charter extends UIState {
 			if (lastEvents != null && lastTime == e.time) lastEvents.events.push(e);
 			else {
 				lastEvents = new CharterEvent(Conductor.getStepForTime(lastTime = e.time), [e], e.global);
-				(e.global ? rightEventsGroup : leftEventsGroup).add(lastEvents);
+				if (e.global) {
+					rightEventsGroup.add(lastEvents);
+					lastRightEvents = lastEvents;
+				}
+				else {
+					leftEventsGroup.add(lastEvents);
+					lastLeftEvents = lastEvents;
+				}
 			}
 		}
 

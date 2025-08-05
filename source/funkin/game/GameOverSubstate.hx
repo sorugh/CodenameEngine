@@ -115,6 +115,8 @@ class GameOverSubstate extends MusicBeatSubstate
 			CoolUtil.playMusic(Paths.music(gameOverSong), false, 1, true, Flags.DEFAULT_BPM);
 			character.playAnim("deathLoop", true, DANCE);
 			cancelConductorUpdate = false;
+
+			gameoverScript.call("postDeathStart");
 		}
 	}
 

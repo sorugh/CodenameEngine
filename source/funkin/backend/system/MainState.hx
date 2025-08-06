@@ -112,7 +112,7 @@ class MainState extends FlxState {
 		TranslationUtil.setLanguage(Flags.DISABLE_LANGUAGES ? Flags.DEFAULT_LANGUAGE : null);
 		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder); // Loads global.hx
 		MusicBeatTransition.script = Flags.DEFAULT_TRANSITION_SCRIPT;
-		WindowUtils.resetTitle();
+		WindowUtils.resetAffixes(false);
 		WindowUtils.setWindow();
 		Main.refreshAssets();
 		DiscordUtil.init();

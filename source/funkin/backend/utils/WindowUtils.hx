@@ -45,16 +45,17 @@ final class WindowUtils {
 	 * Resets the window title to the application name and resets the prefix and suffix.
 	**/
 	public static inline function resetTitle() {
-		title = Flags.TITLE == null ? Lib.application.meta.get('name') : Flags.TITLE;
-		resetAffixes();
+		resetAffixes(false);
+		title = Flags.TITLE;
 	}
 
 	/**
 	 * Resets the prefix and suffix.
+	 * @param update Should it update window title.
 	**/
-	public static inline function resetAffixes() {
+	public static inline function resetAffixes(update = true) {
 		prefix = suffix = "";
-		updateTitle();
+		if (update) updateTitle();
 	}
 
 	/**
@@ -62,11 +63,13 @@ final class WindowUtils {
 	 * @param title The title to set.
 	 * @param image The image to set as the icon.
 	**/
-	public static inline function setWindow(?name:String, ?image:String)
+	public static inline function setWindow(?title:String, ?image:String)
 	{
-		if (Flags.MOD_ICON == null && image == null) return;
-		Lib.application.window.setIcon(lime.graphics.Image.fromBytes(Assets.getBytes(Paths.image(image != null ? image : Flags.MOD_ICON))));
-		title = name != null ? name : Flags.MOD_NAME;
+		// TODO: Implement ICON SIZES in Flags.
+		WindowUtils.title = title != null ? title : (Flags.WINDOW_TITLE_USE_MOD_NAME ? Flags.MOD_NAME : Flags.TITLE);
+
+		var iconPath = image != null ? image : Flags.MOD_ICON;
+		if (Assets.exists(Paths.image(iconPath))) Lib.application.window.setIcon(lime.graphics.Image.fromBytes(Assets.getBytes(Paths.image(iconPath))));
 	}
 
 	/**

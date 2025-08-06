@@ -33,9 +33,8 @@ class Paths
 		for (it=>part in parts) {
 			if (it == 0) continue;
 			var entries:Array<String> = null;
-			if (Path.extension(part) == "") assetsTree.getFolders(fixedPath);
-			else assetsTree.getFiles(fixedPath);
-			trace(entries);
+			if (Path.extension(part) == "") entries = assetsTree.getFolders(fixedPath);
+			else entries = assetsTree.getFiles(fixedPath);
 			for (entry in entries) {
 				trace(part, entry);
 				if (entry.toLowerCase() == part.toLowerCase()) {
@@ -49,7 +48,6 @@ class Paths
 		}
 		else returnedPath = fixedPath;
 		#end
-		trace(returnedPath);
 		return returnedPath;
 	}
 

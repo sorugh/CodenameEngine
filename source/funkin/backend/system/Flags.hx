@@ -136,6 +136,9 @@ class Flags {
 	public static var DEFAULT_CAM_ZOOM_STRENGTH:Int = 1;
 	public static var DEFAULT_CAM_ZOOM:Float = 1.05; // what zoom level it defaults to
 	public static var DEFAULT_HUD_ZOOM:Float = 1.0;
+	public static var DEFAULT_ZOOM:Float = 1.0;
+	public static var DEFAULT_ZOOM_LERP:Float = 0.05;
+	public static var USE_CAM_ZOOM_MULT:Bool = true;
 	public static var MAX_CAMERA_ZOOM_MULT:Float = 1.35;
 
 	// to translate these you need to convert them into ids

@@ -84,8 +84,6 @@ class Chart {
 	}
 
 	public static function loadChartMeta(songName:String, difficulty:String = '', fromMods:Bool = true, includeMetaDifficulties:Bool = true):ChartMetaData {
-		trace(songName, difficulty, fromMods, includeMetaDifficulties);
-
 		var metaPath = Paths.file('songs/${songName}/meta.json');
 		var metaDiffPath = Paths.file('songs/${songName}/meta-${difficulty}.json');
 

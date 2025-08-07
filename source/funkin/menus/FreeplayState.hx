@@ -256,7 +256,7 @@ class FreeplayState extends MusicBeatState
 		#if PRELOAD_ALL
 		var dontPlaySongThisFrame = false;
 		autoplayElapsed += elapsed;
-		if (!disableAutoPlay && !songInstPlaying && (autoplayElapsed > timeUntilAutoplay || FlxG.keys.justPressed.SPACE)) {
+		if (!disableAutoPlay && !songInstPlaying && (autoplayElapsed > timeUntilAutoplay)) {
 			if (curPlayingInst != (curPlayingInst = Paths.inst(curSong.name, curSongDifficulty, curSong.instSuffix))) {
 				var streamed = false;
 				if (Options.streamedMusic) {
@@ -362,30 +362,31 @@ class FreeplayState extends MusicBeatState
 	{
 		if (change == 0 && !force) return;
 
-		var curSong = songs[curSelected];
-		var validDifficulties = curSong.difficulties.length > 0;
-		var event = event("onChangeDiff", EventManager.get(MenuChangeEvent).recycle(curDifficulty, validDifficulties ? FlxMath.wrap(curDifficulty + change, 0, curSong.difficulties.length-1) : 0, change));
+		var song = songs[curSelected];
+		var validDifficulties = song.difficulties.length > 0;
+		var event = event("onChangeDiff", EventManager.get(MenuChangeEvent).recycle(curDifficulty, validDifficulties ? FlxMath.wrap(curDifficulty + change, 0, song.difficulties.length-1) : 0, change));
 
 		if (event.cancelled) {
-			updateCurSongMeta();
+			if (force) updateCurSongMeta();
 			return;
 		}
 
+		var prevInstSuffix = curSong.instSuffix;
 		curDifficulty = event.value;
 		updateCurSongMeta();
 		updateScore();
 
 		#if PRELOAD_ALL
-		if (songs[curSelected] != curSong) {
+		if (curSong.instSuffix != prevInstSuffix) {
 			autoplayElapsed = 0;
 			songInstPlaying = false;
 		}
 		#end
 
-		if (curSong.difficulties.length > 1)
-			diffText.text = '< ${curSong.difficulties[curDifficulty].toUpperCase()} >';
+		if (song.difficulties.length > 1)
+			diffText.text = '< ${song.difficulties[curDifficulty].toUpperCase()} >';
 		else
-			diffText.text = validDifficulties ? curSong.difficulties[curDifficulty].toUpperCase() : "-";
+			diffText.text = validDifficulties ? song.difficulties[curDifficulty].toUpperCase() : "-";
 	}
 
 	function updateScore() {

@@ -375,6 +375,13 @@ class FreeplayState extends MusicBeatState
 		updateCurSongMeta();
 		updateScore();
 
+		#if PRELOAD_ALL
+		if (songs[curSelected] != curSong) {
+			autoplayElapsed = 0;
+			songInstPlaying = false;
+		}
+		#end
+
 		if (curSong.difficulties.length > 1)
 			diffText.text = '< ${curSong.difficulties[curDifficulty].toUpperCase()} >';
 		else
@@ -421,13 +428,6 @@ class FreeplayState extends MusicBeatState
 		curCoopMode = event.value;
 
 		updateScore();
-
-		#if PRELOAD_ALL
-		if (songs[curSelected] != curSong) {
-			autoplayElapsed = 0;
-			songInstPlaying = false;
-		}
-		#end
 
 		var key = "[TAB] "; // TODO: make this configurable
 

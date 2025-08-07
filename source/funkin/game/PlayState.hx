@@ -1113,7 +1113,7 @@ class PlayState extends MusicBeatState
 		curSong = songData.meta.name.toLowerCase();
 		curSongID = curSong.replace(" ", "-");
 
-		FlxG.sound.setMusic(inst = FlxG.sound.load(Assets.getMusic(Paths.inst(SONG.meta.name, difficulty))));
+		FlxG.sound.setMusic(inst = FlxG.sound.load(Assets.getMusic(Paths.inst(SONG.meta.name, difficulty, SONG.meta.instSuffix))));
 
 		var vocalsPath = Paths.voices(SONG.meta.name, difficulty);
 		vocals = Assets.exists(vocalsPath) ? FlxG.sound.load(Options.streamedVocals ? Assets.getMusic(vocalsPath) : vocalsPath) : new FlxSound();

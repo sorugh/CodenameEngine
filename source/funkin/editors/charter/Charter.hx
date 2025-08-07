@@ -601,7 +601,7 @@ class Charter extends UIState {
 		Conductor.setupSong(PlayState.SONG);
 		noteTypes = PlayState.SONG.noteTypes;
 
-		FlxG.sound.setMusic(FlxG.sound.load(Paths.inst(__song, __diff)));
+		FlxG.sound.setMusic(FlxG.sound.load(Paths.inst(__song, __diff, PlayState.SONG.meta.instSuffix)));
 		vocals = Assets.exists(Paths.voices(__song, __diff)) ? FlxG.sound.load(Paths.voices(__song, __diff)) : new FlxSound();
 		vocals.group = FlxG.sound.defaultMusicGroup;
 
@@ -680,7 +680,7 @@ class Charter extends UIState {
 		if (FlxG.sound.music.loaded)
 			wavesToGenerate.push({name: "Inst.ogg", sound: FlxG.sound.music});
 
-		if (PlayState.SONG.meta.needsVoices != false && vocals.loaded)
+		if (vocals.loaded)
 			wavesToGenerate.push({name: "Voices.ogg", sound: vocals});
 
 		for (strumLine in strumLines)

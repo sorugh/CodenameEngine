@@ -25,12 +25,8 @@ class UpdateUtil {
 		var error = false;
 
 		var newUpdates = __doReleaseFiltering(GitHub.getReleases(Flags.REPO_OWNER, Flags.REPO_NAME, function(e) {
-			trace("shiiiii duuudeee");
-			trace(e);
 			error = true;
 		}), curTag);
-
-		trace(newUpdates);
 
 		if (error) return {
 			success: false,
@@ -55,9 +51,7 @@ class UpdateUtil {
 
 	static var __curVersionPos = -2;
 	static function __doReleaseFiltering(releases:Array<GitHubRelease>, currentVersionTag:String) {
-		trace(releases);
 		releases = releases.filterReleases(Options.betaUpdates, false);
-		trace(releases);
 		if (releases.length <= 0)
 			return releases;
 
@@ -71,7 +65,6 @@ class UpdateUtil {
 			var containsBinary = skipNextBinaryChecks;
 			if (!containsBinary) {
 				for(asset in release.assets) {
-					trace(asset);
 					if (asset.name.toLowerCase() == AsyncUpdater.executableGitHubName.toLowerCase()) {
 						containsBinary = true;
 						break;

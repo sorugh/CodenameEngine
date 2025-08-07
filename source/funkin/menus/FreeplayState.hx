@@ -53,7 +53,7 @@ class FreeplayState extends MusicBeatState
 	public var diffText:FlxText;
 
 	/**
-	 * Text containing the current coop/opponent mode ([TAB] Co-Op mode)
+	 * Text containing the current coop/opponent mode ([KEYBINDS] Co-Op mode)
 	 */
 	public var coopText:FlxText;
 
@@ -237,7 +237,7 @@ class FreeplayState extends MusicBeatState
 		if (canSelect) {
 			changeSelection((controls.UP_P ? -1 : 0) + (controls.DOWN_P ? 1 : 0) - FlxG.mouse.wheel);
 			changeDiff((controls.LEFT_P ? -1 : 0) + (controls.RIGHT_P ? 1 : 0));
-			changeCoopMode((FlxG.keys.justPressed.TAB ? 1 : 0)); // TODO: make this configurable
+			changeCoopMode((controls.CHANGE_MODE ? 1 : 0)); // TODO: make this configurable
 			// putting it before so that its actually smooth
 			updateOptionsAlpha();
 		}
@@ -430,7 +430,11 @@ class FreeplayState extends MusicBeatState
 
 		updateScore();
 
-		var key = "[TAB] "; // TODO: make this configurable
+		var coopBinds = [CoolUtil.keyToString(Options.P1_CHANGE_MODE[0]), CoolUtil.keyToString(Options.P2_CHANGE_MODE[0])].filter(x -> x != "---");
+		if (coopBinds.length == 2 && coopBinds[1] == coopBinds[0]) coopBinds.pop();
+		else if (coopBinds.length == 0) coopBinds.push("---");
+
+		var key = '[${coopBinds.join(" / ")}] ';
 
 		if (bothEnabled) {
 			coopText.text = key + coopLabels[curCoopMode];

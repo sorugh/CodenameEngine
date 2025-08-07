@@ -1224,6 +1224,7 @@ class PlayState extends MusicBeatState
 		var time = Conductor.songPosition + Conductor.songOffset;
 		for (strumLine in strumLines.members) strumLine.vocals.play(true, time);
 		vocals.play(true, time);
+		if (!inst.playing) inst.play(true, time);
 
 		gameAndCharsCall("onVocalsResync");
 	}

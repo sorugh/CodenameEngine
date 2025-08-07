@@ -38,6 +38,7 @@ class Paths
 			for (entry in entries) {
 				if (entry.toLowerCase() == part.toLowerCase()) {
 					fixedPath += entry + (it != parts.length - 1 ? "/" : "");
+					break;
 				}
 			}
 		}

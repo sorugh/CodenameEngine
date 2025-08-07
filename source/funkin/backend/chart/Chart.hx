@@ -278,7 +278,7 @@ class Chart {
 
 		CoolUtil.safeSaveFile(chartPath, Json.stringify(filteredChart, null, saveSettings.prettyPrint == true ? Flags.JSON_PRETTY_PRINT : null));
 
-		if (saveSettings.overrideExistingMeta == true || !FileSystem.exists(metaPath))
+		if (meta != null && (saveSettings.overrideExistingMeta || !FileSystem.exists(metaPath)))
 			CoolUtil.safeSaveFile(metaPath, makeMetaSaveable(meta));
 		#end
 		return filteredChart;

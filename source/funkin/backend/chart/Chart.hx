@@ -83,8 +83,8 @@ class Chart {
 		return data;
 	}
 
-	public static function loadChartMeta(songName:String, ?difficulty:String, fromMods:Bool = true, includeMetaDifficulties:Bool = false):ChartMetaData {
-		if (difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
+	public static function loadChartMeta(songName:String, difficulty:String = '', fromMods:Bool = true, includeMetaDifficulties:Bool = true):ChartMetaData {
+		trace(songName, difficulty, fromMods, includeMetaDifficulties);
 
 		var metaPath = Paths.file('songs/${songName}/meta.json');
 		var metaDiffPath = Paths.file('songs/${songName}/meta-${difficulty}.json');
@@ -141,8 +141,10 @@ class Chart {
 
 		if (includeMetaDifficulties && !fromDifficulty) {
 			data.metas = [];
-			for (difficulty in data.difficulties) if (!data.metas.exists(difficulty) && Assets.exists(Paths.file('songs/${songName}/meta-${difficulty}.json')))
-				data.metas.set(difficulty, loadChartMeta(songName, difficulty, fromMods, false));
+			for (difficulty in data.difficulties) {
+				if (!data.metas.exists(difficulty) && Assets.exists(Paths.file('songs/${songName}/meta-${difficulty}.json')))
+					data.metas.set(difficulty, loadChartMeta(songName, difficulty, fromMods, false));
+			}
 		}
 
 		return data;

@@ -492,7 +492,7 @@ class FreeplayState extends MusicBeatState
 			curSong = null;
 			curSongDifficulty = null;
 		}
-		else if ((curSong = song.metas.get(curSongDifficulty = curSong.difficulties[curDifficulty])) == null)
+		else if ((curSong = song.metas.get(curSongDifficulty = song.difficulties[curDifficulty])) == null)
 			curSong = song;
 	}
 }

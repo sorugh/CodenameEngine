@@ -28,7 +28,6 @@ typedef ChartMetaData = {
 	public var ?coopAllowed:Bool;
 	public var ?opponentModeAllowed:Bool;
 	public var ?customValues:Dynamic;
-	public var ?needsVoices:Bool;
 }
 
 typedef ChartStrumLine = {

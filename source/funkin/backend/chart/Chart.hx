@@ -110,7 +110,6 @@ class Chart {
 		data.setFieldDefault("bpm", Flags.DEFAULT_BPM);
 		data.setFieldDefault("beatsPerMeasure", Flags.DEFAULT_BEATS_PER_MEASURE);
 		data.setFieldDefault("stepsPerBeat", Flags.DEFAULT_STEPS_PER_BEAT);
-		data.setFieldDefault("needsVoices", true);
 		data.setFieldDefault("icon", Flags.DEFAULT_HEALTH_ICON);
 		data.setFieldDefault("difficulties", []);
 		data.setFieldDefault("coopAllowed", Flags.DEFAULT_COOP_ALLOWED);

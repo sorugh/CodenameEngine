@@ -1375,10 +1375,9 @@ class PlayState extends MusicBeatState
 			updateIconPositions();
 
 		if (startingSong) {
-			if (startedCountdown) {
-				Conductor.songPosition += Conductor.songOffset + elapsed * 1000;
-				if (Conductor.songPosition >= 0)
-					startSong();
+			if (startedCountdown && (Conductor.songPosition += Conductor.songOffset + elapsed * 1000) >= 0) {
+				Conductor.songPosition = Conductor.songOffset;
+				startSong();
 			}
 		}
 		else if (FlxG.sound.music != null && (__vocalSyncTimer -= elapsed) < 0) {

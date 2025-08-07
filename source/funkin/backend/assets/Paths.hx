@@ -40,11 +40,7 @@ class Paths
 				}
 			}
 		}
-		if (returnedPath.toLowerCase() != fixedPath.toLowerCase()) {
-			trace("linux path broke");
-			trace(fixedPath);
-		}
-		else returnedPath = fixedPath;
+		if (returnedPath.toLowerCase() == fixedPath.toLowerCase()) returnedPath = fixedPath;
 		#end
 		return returnedPath;
 	}

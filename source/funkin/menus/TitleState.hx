@@ -129,7 +129,7 @@ class TitleState extends MusicBeatState
 
 		if (pressedEnter && transitioning && skippedIntro) {
 			FlxG.camera.stopFX();// FlxG.camera.visible = false;
-			goToMainMenu();
+			goToMainMenu(false);
 		}
 
 		if (pressedEnter && !transitioning && skippedIntro)
@@ -152,25 +152,24 @@ class TitleState extends MusicBeatState
 		transitioning = true;
 		// FlxG.sound.music.stop();
 
-		new FlxTimer().start(2, (_) -> goToMainMenu());
+		new FlxTimer().start(2, (_) -> goToMainMenu(false));
 	}
 
-	function goToMainMenu() {
+	function goToMainMenu(force = true) {
 		#if UPDATE_CHECKING
-		if (!Flags.DISABLE_AUTOUPDATER) {
-			var report = hasCheckedUpdates ? null : funkin.backend.system.updating.UpdateUtil.checkForUpdates();
-			hasCheckedUpdates = true;
+		if (!force && !Flags.DISABLE_AUTOUPDATER) {
+			funkin.backend.system.updating.UpdateUtil.waitForUpdates(false, (report) -> {
+				hasCheckedUpdates = true;
+				if (FlxG.state != this) return;
 
-			if (report != null && report.newUpdate) {
-				FlxG.switchState(new funkin.backend.system.updating.UpdateAvailableScreen(report));
-			} else {
-				FlxG.switchState(new MainMenuState());
-			}
+				if (!report.newUpdate) goToMainMenu(true);
+				else FlxG.switchState(new funkin.backend.system.updating.UpdateAvailableScreen(report));
+			}, true);
 		}
-		else FlxG.switchState(new MainMenuState());
-		#else
-		FlxG.switchState(new MainMenuState());
-		#end
+		else
+		#end {
+			FlxG.switchState(new MainMenuState());
+		}
 	}
 
 	public function createCoolText(textArray:Array<String>)

@@ -461,7 +461,14 @@ class FreeplayState extends MusicBeatState
 		curSelected = event.value;
 		if (event.playMenuSFX) CoolUtil.playMenuSFX(SCROLL, 0.7);
 
+		var prevDiff = curDifficulties[curDifficulty], prevVariant = curDiffMetaKeys[curDifficulty];
 		updateCurDifficulties();
+
+		for (i => diff in curDifficulties) if (diff == prevDiff && curDiffMetaKeys[i] == prevVariant) {
+			curDifficulty = i;
+			break;
+		}
+
 		changeDiff(0, true);
 
 		#if PRELOAD_ALL

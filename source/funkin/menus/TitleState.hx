@@ -157,14 +157,17 @@ class TitleState extends MusicBeatState
 
 	function goToMainMenu() {
 		#if UPDATE_CHECKING
-		var report = hasCheckedUpdates ? null : funkin.backend.system.updating.UpdateUtil.checkForUpdates();
-		hasCheckedUpdates = true;
+		if (!Flags.DISABLE_AUTOUPDATER) {
+			var report = hasCheckedUpdates ? null : funkin.backend.system.updating.UpdateUtil.checkForUpdates();
+			hasCheckedUpdates = true;
 
-		if (report != null && report.newUpdate) {
-			FlxG.switchState(new funkin.backend.system.updating.UpdateAvailableScreen(report));
-		} else {
-			FlxG.switchState(new MainMenuState());
+			if (report != null && report.newUpdate) {
+				FlxG.switchState(new funkin.backend.system.updating.UpdateAvailableScreen(report));
+			} else {
+				FlxG.switchState(new MainMenuState());
+			}
 		}
+		else FlxG.switchState(new MainMenuState());
 		#else
 		FlxG.switchState(new MainMenuState());
 		#end

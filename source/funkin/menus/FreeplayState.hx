@@ -499,7 +499,9 @@ class FreeplayState extends MusicBeatState
 		curDiffMetaKeys.resize(0);
 		curDifficulties = songs[curSelected].difficulties.copy();
 		for (i in 0...curDifficulties.length) curDiffMetaKeys.push(null);
-		for (variant => meta in songs[curSelected].metas) {
+		
+		var meta:ChartMetaData;
+		for (variant in songs[curSelected].variants) if ((meta = songs[curSelected].metas.get(variant)) != null) {
 			curDifficulties = curDifficulties.concat(meta.difficulties);
 			for (i in 0...meta.difficulties.length) curDiffMetaKeys.push(variant);
 		}

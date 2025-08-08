@@ -269,6 +269,8 @@ class Flags {
 	@:bypass public static var customFlags:Map<String, String> = [];
 
 	public static function loadFromData(flags:Map<String, String>, data:String) {
+		WINDOW_TITLE_USE_MOD_NAME = false;
+
 		if (!(data.length > 0)) return;
 		var res = IniUtil.parseString(data);
 
@@ -286,7 +288,7 @@ class Flags {
 			}
 		}
 
-		if (!flags.exists("WINDOW_TITLE_USE_MOD_NAME")) WINDOW_TITLE_USE_MOD_NAME = !flags.exists('TITLE');
+		if (!flags.exists("WINDOW_TITLE_USE_MOD_NAME")) WINDOW_TITLE_USE_MOD_NAME = !flags.exists('TITLE') && flags.exists('MOD_NAME');
 		else WINDOW_TITLE_USE_MOD_NAME = parseBool(flags.get("WINDOW_TITLE_USE_MOD_NAME"));
 
 		flags.remove("WINDOW_TITLE_USE_MOD_NAME");

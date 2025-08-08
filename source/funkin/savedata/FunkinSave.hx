@@ -3,6 +3,8 @@ package funkin.savedata;
 import flixel.util.FlxSave;
 import lime.app.Application;
 import openfl.Lib;
+import haxe.Serializer;
+import haxe.Unserializer;
 
 /**
  * Class used for saves WITHOUT going through the struggle of type checks
@@ -11,17 +13,14 @@ import openfl.Lib;
  */
 @:build(funkin.backend.system.macros.FunkinSaveMacro.build("save", "flush", "load"))
 class FunkinSave {
-	public static var highscores:Map<HighscoreEntry, SongScore> = [];
-
-
 	/**
 	 * ONLY OPEN IF YOU WANT TO EDIT FUNCTIONS RELATED TO SAVING, LOADING OR HIGHSCORES.
 	 */
 	#if REGION
-	@:dox(hide) @:doNotSave
-	private static var __eventAdded = false;
-	@:doNotSave
-	public static var save:FlxSave;
+	@:doNotSave public static var highscores:Map<HighscoreEntry, SongScore> = [];
+
+	@:dox(hide) @:doNotSave private static var __eventAdded = false;
+	@:doNotSave public static var save:FlxSave;
 
 	public static function init() {
 		var path = Flags.SAVE_PATH, name = Flags.SAVE_NAME;
@@ -44,6 +43,47 @@ class FunkinSave {
 			});
 			__eventAdded = true;
 		}
+	}
+
+	private static function __load() {
+		if (save.data.highscores != null) {
+			var temp;
+			for (entryData in Reflect.fields(save.data.highscores)) if ((temp = __getHighscoreEntry(entryData)) != null)
+				highscores.set(temp, Reflect.field(save.data.highscores, entryData));
+		}
+	}
+
+	private static function __flush() {
+		if (save.data.highscores == null) save.data.highscores = {};
+		for (entry => score in highscores) Reflect.setField(save.data.highscores, __formatHighscoreEntry(entry), score);
+	}
+
+	static function __getHighscoreEntry(data:String):HighscoreEntry {
+		try {
+			var d = Unserializer.run(data);
+			if (d.song is String)
+				return HSongEntry(d.song, d.diff, d.changes);
+			else if (d.week is String)
+				return HWeekEntry(d.week, d.diff);
+		}
+		catch (e) {}
+		return null;
+	}
+
+	static function __formatHighscoreEntry(entry:HighscoreEntry):String {
+		switch (entry) {
+			case HWeekEntry(weekName:String, difficulty:String):
+				return Serializer.run({week: weekName, diff: difficulty});
+			case HSongEntry(songName:String, difficulty:String, variation:Null<String>, changes:Array<HighscoreChange>):
+				var d = {
+					song: songName,
+					diff: difficulty,
+					changes: changes
+				};
+				if (variation != null && variation != '') d.variation = variation;
+				return Serializer.run(d);
+		}
+		return '';
 	}
 
 	/**
@@ -103,7 +143,7 @@ class FunkinSave {
 
 enum HighscoreEntry {
 	HWeekEntry(weekName:String, difficulty:String);
-	HSongEntry(songName:String, difficulty:String, changes:Array<HighscoreChange>);
+	HSongEntry(songName:String, difficulty:String, variation:Null<String>, changes:Array<HighscoreChange>);
 }
 
 enum HighscoreChange {

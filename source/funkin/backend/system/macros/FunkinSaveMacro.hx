@@ -44,6 +44,7 @@ class FunkinSaveMacro {
 		 */
 		var saveFuncBlocks:Array<Expr> = [for(f in fieldNames) macro $i{saveFieldName}.data.$f = $i{f}];
 
+		saveFuncBlocks.push(macro $i{"__flush"}());
 		saveFuncBlocks.push(macro $i{saveFieldName}.flush());
 
 		fields.push({
@@ -72,7 +73,7 @@ class FunkinSaveMacro {
 					expr: EBlock([for(f in fieldNames)
 						macro if ($i{saveFieldName}.data.$f != null)
 							$i{f} = $i{saveFieldName}.data.$f
-					])
+					, macro $i{"__load"}()])
 				}
 			}),
 			access: [APublic, AStatic]

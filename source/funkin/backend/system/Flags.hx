@@ -286,7 +286,10 @@ class Flags {
 			}
 		}
 
-		if (!flags.exists("WINDOW_TITLE_USE_MOD_NAME")) flags.set("WINDOW_TITLE_USE_MOD_NAME", flags.exists('TITLE') ? 'false' : 'true');
+		if (!flags.exists("WINDOW_TITLE_USE_MOD_NAME")) WINDOW_TITLE_USE_MOD_NAME = !flags.exists('TITLE');
+		else WINDOW_TITLE_USE_MOD_NAME = parseBool(flags.get("WINDOW_TITLE_USE_MOD_NAME"));
+
+		flags.remove("WINDOW_TITLE_USE_MOD_NAME");
 	}
 
 	public static function loadFromDatas(datas:Array<String>) {

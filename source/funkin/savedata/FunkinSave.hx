@@ -11,14 +11,14 @@ import haxe.Unserializer;
  * Just add your save variables the way you would do in the Options.hx file.
  * The macro will automatically generate the `flush` and `load` functions.
  */
-@:build(funkin.backend.system.macros.FunkinSaveMacro.build("save", "flush", "load"))
+@:build(funkin.backend.system.macros.FunkinSaveMacro.build("save", "__flush", "__load"))
 class FunkinSave {
+	@:doNotSave public static var highscores:Map<HighscoreEntry, SongScore> = [];
+
 	/**
 	 * ONLY OPEN IF YOU WANT TO EDIT FUNCTIONS RELATED TO SAVING, LOADING OR HIGHSCORES.
 	 */
 	#if REGION
-	@:doNotSave public static var highscores:Map<HighscoreEntry, SongScore> = [];
-
 	@:dox(hide) @:doNotSave private static var __eventAdded = false;
 	@:doNotSave public static var save:FlxSave;
 
@@ -45,7 +45,8 @@ class FunkinSave {
 		}
 	}
 
-	private static function __load() {
+	public static function load() {
+		__load();
 		if (save.data.highscores != null) {
 			var temp;
 			for (entryData in Reflect.fields(save.data.highscores)) if ((temp = __getHighscoreEntry(entryData)) != null)
@@ -53,7 +54,8 @@ class FunkinSave {
 		}
 	}
 
-	private static function __flush() {
+	public static function flush() {
+		__flush();
 		if (save.data.highscores == null) save.data.highscores = {};
 		for (entry => score in highscores) Reflect.setField(save.data.highscores, __formatHighscoreEntry(entry), score);
 	}
@@ -62,7 +64,7 @@ class FunkinSave {
 		try {
 			var d = Unserializer.run(data);
 			if (d.song is String)
-				return HSongEntry(d.song, d.diff, d.changes);
+				return HSongEntry(d.song, d.diff, d.variation, d.changes);
 			else if (d.week is String)
 				return HWeekEntry(d.week, d.diff);
 		}
@@ -72,10 +74,10 @@ class FunkinSave {
 
 	static function __formatHighscoreEntry(entry:HighscoreEntry):String {
 		switch (entry) {
-			case HWeekEntry(weekName:String, difficulty:String):
+			case HWeekEntry(weekName, difficulty):
 				return Serializer.run({week: weekName, diff: difficulty});
-			case HSongEntry(songName:String, difficulty:String, variation:Null<String>, changes:Array<HighscoreChange>):
-				var d = {
+			case HSongEntry(songName, difficulty, variation, changes):
+				var d:Dynamic = {
 					song: songName,
 					diff: difficulty,
 					changes: changes
@@ -92,14 +94,14 @@ class FunkinSave {
 	 * @param diff Song difficulty
 	 * @param changes Changes made to that song in freeplay.
 	 */
-	public static inline function getSongHighscore(name:String, diff:String, ?changes:Array<HighscoreChange>) {
+	public static inline function getSongHighscore(name:String, diff:String, ?variation:String, ?changes:Array<HighscoreChange>) {
 		if (changes == null) changes = [];
-		return safeGetHighscore(HSongEntry(name.toLowerCase(), diff.toLowerCase(), changes));
+		return safeGetHighscore(HSongEntry(name.toLowerCase(), diff.toLowerCase(), variation, changes));
 	}
 
-	public static inline function setSongHighscore(name:String, diff:String, highscore:SongScore, ?changes:Array<HighscoreChange>) {
+	public static inline function setSongHighscore(name:String, diff:String, ?variation:String, highscore:SongScore, ?changes:Array<HighscoreChange>) {
 		if (changes == null) changes = [];
-		if (safeRegisterHighscore(HSongEntry(name.toLowerCase(), diff.toLowerCase(), changes), highscore)) {
+		if (safeRegisterHighscore(HSongEntry(name.toLowerCase(), diff.toLowerCase(), variation, changes), highscore)) {
 			flush();
 			return true;
 		}

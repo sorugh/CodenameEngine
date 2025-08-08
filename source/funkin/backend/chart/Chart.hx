@@ -139,7 +139,8 @@ class Chart {
 			}
 		}
 
-		if (includeMetaVariations & data.variants.length > 0) for (variant in data.variants) {
+		data.metas = [];
+		if (includeMetaVariations && data.variants.length > 0) for (variant in data.variants) {
 			if (!data.metas.exists(variant) && Assets.exists(Paths.file('songs/$songName/meta-$variant.json')))
 				data.metas.set(variant, loadChartMeta(songName, variant, fromMods));
 		}
@@ -147,8 +148,10 @@ class Chart {
 		return data;
 	}
 
-	public static function parse(songName:String, ?variant:String):ChartData {
-		var chartPath = Paths.chart(songName, variant);
+	public static function parse(songName:String, ?difficulty:String, ?variant:String):ChartData {
+		if (difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
+
+		var chartPath = Paths.chart(songName, difficulty, variant);
 		var base:ChartData = {
 			strumLines: [],
 			noteTypes: [],
@@ -162,7 +165,7 @@ class Chart {
 			fromMods: Paths.assetsTree.existsSpecific(chartPath, "TEXT", MODS)
 		};
 
-		var valid:Bool = true, namePrint = (variant == null || variant == '') ? '$songName' : '$songName ($variant)';
+		var valid:Bool = true, namePrint = '$songName $difficulty' + ((variant != null && variant != '') ? ' ($variant)' : '');
 		if (!Assets.exists(chartPath)) {
 			Logs.error('Chart for song $namePrint at "$chartPath" was not found.');
 			valid = false;
@@ -256,22 +259,33 @@ class Chart {
 		if (difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
 		if (saveSettings == null) saveSettings = {};
 
-		var filteredChart = filterChartForSaving(chart, saveSettings.saveMetaInChart, saveSettings.saveLocalEvents, saveSettings.saveGlobalEvents);
+		var filteredChart = filterChartForSaving(chart, saveSettings.saveMetaInChart, saveSettings.saveLocalEvents, saveSettings.saveGlobalEvents && saveSettings.seperateGlobalEvents != true);
 
 		#if sys
-		var songPath = saveSettings.songFolder == null ? 'assets/songs/${chart.meta.name}' : saveSettings.songFolder;
+		var prefix = 'assets/songs/', assetsRoot = Paths.getAssetsRoot() + '/';
+		var songPath = saveSettings.songFolder == null ? '${chart.meta.name}' : saveSettings.songFolder, prettyPrint = saveSettings.prettyPrint == true ? Flags.JSON_PRETTY_PRINT : null;
 		var metaPath = '$songPath/meta.json', temp:String;
-		if ((temp = Paths.assetsTree.getPath(metaPath)) != null) metaPath = temp;
+		if ((temp = Paths.assetsTree.getPath(prefix + metaPath)) != null) metaPath = temp;
+		else metaPath = assetsRoot + metaPath;
 
 		var chartFolder = saveSettings.folder == null ? ((variant == null || variant == '') ? 'charts' : 'charts/$variant') : saveSettings.folder;
 		var chartPath = '$songPath/$chartFolder/${difficulty.trim()}.json';
-		if ((temp = Paths.assetsTree.getPath(chartPath)) != null) chartPath = temp;
+		if ((temp = Paths.assetsTree.getPath(prefix + chartPath)) != null) chartPath = temp;
+		else chartPath = assetsRoot + chartPath;
 
 		if (saveSettings.saveChart == null || saveSettings.saveChart == true)
-			CoolUtil.safeSaveFile(chartPath, Json.stringify(filteredChart, null, saveSettings.prettyPrint == true ? Flags.JSON_PRETTY_PRINT : null));
+			CoolUtil.safeSaveFile(chartPath, Json.stringify(filteredChart, null, prettyPrint));
 
-		if (filteredChart.meta != null && (saveSettings.overrideExistingMeta || !FileSystem.exists(metaPath)))
-			CoolUtil.safeSaveFile(metaPath, makeMetaSaveable(filteredChart.meta));
+		if (saveSettings.overrideExistingMeta || !FileSystem.exists(metaPath))
+			CoolUtil.safeSaveFile(metaPath, Json.stringify(filterMetaForSaving(chart.meta), null, prettyPrint));
+
+		if (saveSettings.seperateGlobalEvents == true) {
+			var eventsPath = '$songPath/events.json';
+			if ((temp = Paths.assetsTree.getPath(prefix + eventsPath)) != null) eventsPath = temp;
+			else eventsPath = assetsRoot + eventsPath;
+
+			CoolUtil.safeSaveFile(eventsPath, Json.stringify({events: filterEventsForSaving(chart.events, false, true)}, null, prettyPrint));
+		}
 		#end
 
 		return filteredChart;
@@ -304,10 +318,10 @@ class Chart {
 		var data = [];
 		if (!saveLocalEvents && !saveGlobalEvents) return data;
 
-		for (event in chart.events) if ((saveLocalEvents && event.global != true) || (saveGlobalEvents && event.global == true)) {
+		for (event in events) if ((saveLocalEvents && event.global != true) || (saveGlobalEvents && event.global == true)) {
 			var copy = Reflect.copy(event);
 			if (saveLocalEvents ? event.global != true : event.global == true) Reflect.deleteField(copy, "global"); // should NOT delete the field when saving with the local events and the event should have been global  - Nex
-			data.events.push(copy);
+			data.push(copy);
 		}
 
 		return data;

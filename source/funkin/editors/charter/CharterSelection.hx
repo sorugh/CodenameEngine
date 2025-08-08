@@ -26,7 +26,7 @@ class CharterSelectionScreen extends EditorTreeMenuScreen {
 	public var curSong:ChartMetaData;
 
 	inline public function makeChartOption(d:String, name:String):TextOption {
-		return new TextOption(d, getID('acceptDifficulty'), () -> FlxG.switchState(new Charter(name, d)));
+		return new TextOption(d, getID('acceptDifficulty'), () -> FlxG.switchState(new Charter(name, d, null)));
 	}
 
 	public function makeSongOption(s:ChartMetaData):IconOption {

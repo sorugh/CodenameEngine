@@ -158,6 +158,7 @@ class FreeplayState extends MusicBeatState
 
 			var icon:HealthIcon = new HealthIcon(songs[i].icon);
 			icon.sprTracker = songText;
+			if (Math.max(icon.width, icon.height) > 150) icon.setUnstretchedGraphicSize(150, 150);
 
 			// using a FlxGroup is too much fuss!
 			iconArray.push(icon);

@@ -18,6 +18,7 @@ class IconOption extends TextOption {
 		iconSpr.setPosition(90 - iconSpr.width, (__text.height - iconSpr.height) / 2);
 		iconSpr.sprTracker = __text;
 		iconSpr.sprTrackerAlignment = LEFT;
+		if (Math.max(iconSpr.width, iconSpr.height) > 150) iconSpr.setUnstretchedGraphicSize(150, 150);
 		add(iconSpr);
 	}
 }

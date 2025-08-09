@@ -49,8 +49,9 @@ class FunkinSave {
 		__load();
 		if (save.data.highscores != null) {
 			var temp;
-			for (entryData in Reflect.fields(save.data.highscores)) if ((temp = __getHighscoreEntry(entryData)) != null)
-				highscores.set(temp, Reflect.field(save.data.highscores, entryData));
+			for (entryData in Reflect.fields(save.data.highscores))
+				if ((temp = __getHighscoreEntry(entryData)) != null && Reflect.field(save.data.highscores, entryData) != null)
+					highscores.set(temp, Reflect.field(save.data.highscores, entryData));
 		}
 	}
 

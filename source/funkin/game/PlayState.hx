@@ -60,7 +60,7 @@ class PlayState extends MusicBeatState
 	/**
 	 * The remaining songs in the Story Mode playlist.
 	 */
-	public static var storyPlaylist:Array<String> = [];
+	public static var storyPlaylist:Array<WeekSong> = [];
 	/**
 	 * The selected difficulty name.
 	 */
@@ -1752,11 +1752,11 @@ class PlayState extends MusicBeatState
 				FlxG.save.flush();
 			}
 			else {
-				Logs.infos('Loading next song (${storyPlaylist[0].toLowerCase()}/$difficulty/$variation)', "PlayState");
+				Logs.infos('Loading next song (${storyPlaylist[0].name.toLowerCase()}/$difficulty/${storyPlaylist[0].variation})', "PlayState");
 
 				registerSmoothTransition();
 
-				__loadSong(storyPlaylist[0], difficulty, variation);
+				__loadSong(storyPlaylist[0].name, difficulty, variation);
 				FlxG.switchState(new PlayState());
 			}
 		}
@@ -2132,40 +2132,44 @@ class PlayState extends MusicBeatState
 	 * @param weekData Week Data
 	 * @param difficulty Week Difficulty
 	 */
-	public static function loadWeek(weekData:WeekData, ?difficulty:String, ?variation:String) {
+	public static function loadWeek(weekData:WeekData, ?difficulty:String) {
 		if (difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
 		storyWeek = weekData;
-		storyPlaylist = [for (e in weekData.songs) e.name];
+		storyPlaylist = weekData.songs.copy();
 		isStoryMode = true;
 		campaignScore = 0;
 		campaignMisses = 0;
 		campaignAccuracyTotal = 0;
 		campaignAccuracyCount = 0;
-		chartingMode = false;
-		opponentMode = coopMode = false;
-		__loadSong(storyPlaylist[0], difficulty, variation);
+		chartingMode = coopMode = opponentMode = false;
+		__loadSong(storyPlaylist[0].name, difficulty, storyPlaylist[0].variation);
 	}
 
 	/**
 	 * Loads a song into PlayState
 	 * @param name Song name
 	 * @param difficulty Chart difficulty (if invalid, will load an empty chart)
+	 * @param variation Song Variation
 	 * @param opponentMode Whenever opponent mode is on
 	 * @param coopMode Whenever co-op mode is on.
 	 */
 	public static function loadSong(_name:String, ?_difficulty:String, ?_variation:String, _opponentMode:Bool = false, _coopMode:Bool = false) {
 		if (_difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
-		isStoryMode = false;
+		if (_variation is Bool) { // vackward cumpatibshit
+			_coopMode = _opponentMode;
+			_opponentMode = cast _variation;
+		}
 		opponentMode = _opponentMode;
-		chartingMode = false;
 		coopMode = _coopMode;
+		isStoryMode = chartingMode = false;
 		__loadSong(_name, _difficulty, _variation);
 	}
 
 	/**
 	 * (INTERNAL) Loads a song without resetting story mode/opponent mode/coop mode values.
 	 * @param name Song name
-	 * @param difficulty Song difficulty
+	 * @param difficulty Chart difficulty
+	 * @param variation Song Variation
 	 */
 	public static function __loadSong(_name:String, _difficulty:String, _variation:String) {
 		difficulty = _difficulty;

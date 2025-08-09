@@ -83,6 +83,24 @@ class Chart {
 		return data;
 	}
 
+	inline public static function defaultChartMetaFields(data:ChartMetaData):ChartMetaData {
+		data.setFieldDefault("displayName", data.name);
+
+		data.setFieldDefault("bpm", Flags.DEFAULT_BPM);
+		data.setFieldDefault("beatsPerMeasure", Flags.DEFAULT_BEATS_PER_MEASURE);
+		data.setFieldDefault("stepsPerBeat", Flags.DEFAULT_STEPS_PER_BEAT);
+		data.setFieldDefault("icon", Flags.DEFAULT_HEALTH_ICON);
+		data.setFieldDefault("coopAllowed", Flags.DEFAULT_COOP_ALLOWED);
+		data.setFieldDefault("opponentModeAllowed", Flags.DEFAULT_OPPONENT_MODE_ALLOWED);
+		data.setFieldDefault("instSuffix", "");
+		data.setFieldDefault("vocalsSuffix", "");
+		data.setFieldDefault("needsVoices", true);
+		data.setFieldDefault("difficulties", []);
+		data.setFieldDefault("variants", []);
+
+		return data;
+	}
+
 	public static function loadChartMeta(songName:String, ?variant:String, fromMods:Bool = true, includeMetaVariations = true):ChartMetaData {
 		var defaultPath = Paths.file('songs/$songName/meta.json'), isVariant = false;
 		var data:ChartMetaData = null, paths = (variant == null || variant == '') ? [defaultPath] : [Paths.file('songs/$songName/meta-$variant.json'), defaultPath];
@@ -109,19 +127,7 @@ class Chart {
 		if (isVariant) data.variant = variant;
 		else data.variant = null;
 
-		data.setFieldDefault("displayName", data.name);
-
-		data.setFieldDefault("bpm", Flags.DEFAULT_BPM);
-		data.setFieldDefault("beatsPerMeasure", Flags.DEFAULT_BEATS_PER_MEASURE);
-		data.setFieldDefault("stepsPerBeat", Flags.DEFAULT_STEPS_PER_BEAT);
-		data.setFieldDefault("icon", Flags.DEFAULT_HEALTH_ICON);
-		data.setFieldDefault("coopAllowed", Flags.DEFAULT_COOP_ALLOWED);
-		data.setFieldDefault("opponentModeAllowed", Flags.DEFAULT_OPPONENT_MODE_ALLOWED);
-		data.setFieldDefault("instSuffix", "");
-		data.setFieldDefault("vocalsSuffix", "");
-		data.setFieldDefault("needsVoices", true);
-		data.setFieldDefault("difficulties", []);
-		data.setFieldDefault("variants", []);
+		defaultChartMetaFields(data);
 
 		if (data.difficulties.length <= 0) {
 			var path = 'songs/$songName/charts/';
@@ -283,7 +289,6 @@ class Chart {
 			var eventsPath = '$songPath/events.json', events = filterEventsForSaving(chart.events, false, true);
 
 			if (events.length != 0) CoolUtil.safeSaveFile(eventsPath, Json.stringify({events: events}, null, prettyPrint));
-			else if (FileSystem.exists(eventsPath)) FileSystem.deleteFile(eventsPath);
 		}
 		#end
 
@@ -332,6 +337,7 @@ class Chart {
 	public static inline function filterMetaForSaving(meta:ChartMetaData):ChartMetaData {
 		var data:Dynamic = Reflect.copy(meta);
 		if (data.color != null) data.color = FlxColor.fromInt(data.color).toWebString(); // dont even ask me  - Nex
+		Reflect.deleteField(data, "name");
 		Reflect.deleteField(data, 'parsedColor');
 		Reflect.deleteField(data, 'metas');
 		Reflect.deleteField(data, "variant");

@@ -357,7 +357,8 @@ class SongCreationScreen extends UISubstateWindow {
 	}
 
 	// for variations
-	function formatMeta(meta:ChartMetaData):ChartMetaData return meta;
+	function formatMeta(meta:ChartMetaData):ChartMetaData
+		return funkin.backend.chart.Chart.defaultChartMetaFields(meta);
 
 	function getChartSavePath(meta:ChartMetaData, diff:String):String
 		return 'charts/${meta.variant != null && meta.variant != "" ? meta.variant + "/" : ""}$diff.json';
@@ -432,7 +433,7 @@ class SongCreationScreen extends UISubstateWindow {
 				color: colorWheel.curColor,
 				opponentModeAllowed: opponentModeCheckbox.checked,
 				coopAllowed: coopAllowedCheckbox.checked,
-				difficulties: [for (diff in difficultiesTextBox.label.text.split(",")) diff.trim()],
+				difficulties: [for (diff in difficultiesTextBox.label.text.split(",")) diff.trim()]
 			});
 
 			if (onSave != null) onSave({

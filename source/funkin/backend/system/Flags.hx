@@ -127,6 +127,9 @@ class Flags {
 
 	public static var DEFAULT_NOTE_MS_LIMIT:Float = 1500;
 	public static var DEFAULT_NOTE_SCALE:Float = 0.7;
+	#if MODCHARTING_FEATURES
+	public static var DEFAULT_MODCHART_HOLD_SUBDIVISIONS:Int = 4;
+	#end
 
 	@:also(funkin.game.Character.FALLBACK_DEAD_CHARACTER)
 	public static var DEFAULT_GAMEOVER_CHARACTER:String = "bf-dead";
@@ -307,6 +310,8 @@ class Flags {
 		for(name=>value in flags)
 			if(!parse(name, value))
 				customFlags.set(name, value);
+
+		Options.modchartingHoldSubdivisions = DEFAULT_MODCHART_HOLD_SUBDIVISIONS;
 	}
 
 	/**

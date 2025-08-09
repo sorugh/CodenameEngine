@@ -39,6 +39,13 @@ class OptionsMenu extends TreeMenu {
 			state: LanguageOptions
 		},
 		#end
+		#if MODCHARTING_FEATURES
+		{
+			name: 'Modchart Settings >',
+			desc: 'Customize your modcharting experience...',
+			state: ModchartingOptions
+		},
+		#end
 		{
 			name: 'optionsTree.miscellaneous-name',
 			desc: 'optionsTree.miscellaneous-desc',

@@ -56,9 +56,9 @@ class FunkinSave {
 	}
 
 	public static function flush() {
-		__flush();
 		if (save.data.highscores == null) save.data.highscores = {};
 		for (entry => score in highscores) Reflect.setField(save.data.highscores, __formatHighscoreEntry(entry), score);
+		__flush();
 	}
 
 	static function __getHighscoreEntry(data:String):HighscoreEntry {

@@ -156,7 +156,7 @@ class Chart {
 		data.metas = [];
 		if (includeMetaVariations && data.variants.length > 0) for (variant in data.variants) {
 			if (!data.metas.exists(variant) && Assets.exists(Paths.file('songs/$songName/meta-$variant.json'))) {
-				var meta = loadChartMeta(songName, variant, fromMods)
+				var meta = loadChartMeta(songName, variant, fromMods);
 				if (meta.variant != null) data.metas.set(variant, meta);
 			}
 		}

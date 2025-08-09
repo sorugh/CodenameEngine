@@ -1210,7 +1210,9 @@ class Charter extends UIState {
 
 		var strL = strumLines.members[strumLineID].strumLine;
 		strumLines.members[strumLineID].destroy();
-		strumLines.members.remove(strumLines.members[strumLineID]);
+		strumLines.members[strumLineID] = strumLines.members[strumLines.members.length - 1];
+		strumLines.members.pop();
+		@:privateAccess strumLines.length--;
 		strumLines.refreshStrumlineIDs();
 		strumLines.snapStrums();
 

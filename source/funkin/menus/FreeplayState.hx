@@ -382,7 +382,7 @@ class FreeplayState extends MusicBeatState
 		updateScore();
 
 		#if PRELOAD_ALL
-		if (curSong != prevSong) {
+		if (curSong != prevSong || force) {
 			autoplayElapsed = 0;
 			songInstPlaying = false;
 		}

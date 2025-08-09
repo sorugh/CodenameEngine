@@ -71,8 +71,9 @@ class Chart {
 		return LEGACY;
 	}
 
-	public static function loadEventsJson(songName:String) {
-		var path = Paths.file('songs/${songName}/events.json');
+	public static function loadEventsJson(songName:String, ?variant:String) {
+		var variantSuffix = variant != null && variant != "" ? '-$variant' : "";
+		var path = Paths.file('songs/${songName}/events$variantSuffix.json');
 		var data:Array<ChartEvent> = null;
 		if (Assets.exists(path)) {
 			try {
@@ -225,7 +226,7 @@ class Chart {
 		 * events.json LOADING
 		 */
 		#if REGION
-		var extraEvents:Array<ChartEvent> = loadEventsJson(songName);
+		var extraEvents:Array<ChartEvent> = loadEventsJson(songName, variant);
 		if (extraEvents != null) base.events = base.events.concat(extraEvents);
 		#end
 
@@ -267,8 +268,8 @@ class Chart {
 		var filteredChart = filterChartForSaving(chart, saveSettings.saveMetaInChart, saveSettings.saveLocalEvents, saveSettings.saveGlobalEvents && saveSettings.seperateGlobalEvents != true);
 
 		#if sys
-		var songPath = saveSettings.songFolder == null ? 'assets/songs/${chart.meta.name}' : saveSettings.songFolder;
-		var metaPath = 'meta.json', prettyPrint = saveSettings.prettyPrint == true ? Flags.JSON_PRETTY_PRINT : null, temp:String;
+		var songPath = saveSettings.songFolder == null ? 'assets/songs/${chart.meta.name}' : saveSettings.songFolder, variantSuffix = variant != null && variant != "" ? '-$variant' : "";
+		var metaPath = 'meta$variantSuffix.json', prettyPrint = saveSettings.prettyPrint == true ? Flags.JSON_PRETTY_PRINT : null, temp:String;
 		if ((temp = Paths.assetsTree.getPath('$songPath/$metaPath')) != null) {
 			songPath = temp.substr(0, temp.length - metaPath.length - 1);
 			metaPath = temp;
@@ -286,7 +287,7 @@ class Chart {
 			CoolUtil.safeSaveFile(metaPath, Json.stringify(filterMetaForSaving(chart.meta), null, prettyPrint));
 
 		if (saveSettings.seperateGlobalEvents == true) {
-			var eventsPath = '$songPath/events.json', events = filterEventsForSaving(chart.events, false, true);
+			var eventsPath = '$songPath/events$variantSuffix.json', events = filterEventsForSaving(chart.events, false, true);
 
 			if (events.length != 0) CoolUtil.safeSaveFile(eventsPath, Json.stringify({events: events}, null, prettyPrint));
 		}

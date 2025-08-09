@@ -391,7 +391,7 @@ class SongCreationScreen extends UISubstateWindow {
 						strumLines: [],
 						noteTypes: [],
 						events: [],
-						meta: {name: null},
+						meta: {name: songId},
 						scrollSpeed: Flags.DEFAULT_SCROLL_SPEED,
 						stage: Flags.DEFAULT_STAGE,
 						codenameChart: true
@@ -451,9 +451,12 @@ class SongCreationScreen extends UISubstateWindow {
 		var playData = vslicemeta.playData;
 
 		var meta:ChartMetaData = {name: songId};
-		var diffCharts:Array<ChartDataWithInfo> = [];
+		var diffCharts:Array<ChartDataWithInfo> = [], events:Array<ChartEvent> = null;
 		VSliceParser.parse(vslicemeta, vslicechart, meta, diffCharts, songId);
 		formatMeta(meta);
+
+		if (diffCharts.length != 0) events = diffCharts[0].chart.events;
+		for (diff in diffCharts) diff.chart.events = [];
 
 		if (onSave != null) onSave({
 			meta: meta,
@@ -464,6 +467,7 @@ class SongCreationScreen extends UISubstateWindow {
 		}, (songFolder:String) -> {
 			#if sys
 			for (diff in diffCharts) CoolUtil.safeSaveFile('$songFolder/${getChartSavePath(meta, diff.diffName)}', Json.stringify(diff.chart, Flags.JSON_PRETTY_PRINT));
+			if (events != null) CoolUtil.safeSaveFile('$songFolder/events${meta.variant != null && meta.variant != "" ? "-" + meta.variant : ""}.json', Json.stringify({events: events}, Flags.JSON_PRETTY_PRINT));
 			#end
 		});
 	}

@@ -1691,8 +1691,8 @@ class PlayState extends MusicBeatState
 	 */
 	public function endSong():Void
 	{
+		if (gameAndCharsEvent("onSongEnd", new CancellableEvent()).cancelled) return;
 		endingSong = true;
-		gameAndCharsCall("onSongEnd");
 		canPause = false;
 
 		for (strumLine in strumLines.members) strumLine.vocals.stop();

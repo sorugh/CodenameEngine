@@ -220,8 +220,7 @@ class Chart {
 		 */
 		#if REGION
 		var extraEvents:Array<ChartEvent> = loadEventsJson(songName);
-		if (extraEvents != null)
-			base.events = base.events.concat(extraEvents);
+		if (extraEvents != null) base.events = base.events.concat(extraEvents);
 		#end
 
 		/**
@@ -262,16 +261,17 @@ class Chart {
 		var filteredChart = filterChartForSaving(chart, saveSettings.saveMetaInChart, saveSettings.saveLocalEvents, saveSettings.saveGlobalEvents && saveSettings.seperateGlobalEvents != true);
 
 		#if sys
-		var prefix = 'assets/songs/', assetsRoot = Paths.getAssetsRoot() + '/';
-		var songPath = saveSettings.songFolder == null ? '${chart.meta.name}' : saveSettings.songFolder, prettyPrint = saveSettings.prettyPrint == true ? Flags.JSON_PRETTY_PRINT : null;
-		var metaPath = '$songPath/meta.json', temp:String;
-		if ((temp = Paths.assetsTree.getPath(prefix + metaPath)) != null) metaPath = temp;
-		else metaPath = assetsRoot + metaPath;
+		var songPath = saveSettings.songFolder == null ? 'assets/songs/${chart.meta.name}' : saveSettings.songFolder;
+		var metaPath = 'meta.json', prettyPrint = saveSettings.prettyPrint == true ? Flags.JSON_PRETTY_PRINT : null, temp:String;
+		if ((temp = Paths.assetsTree.getPath('$songPath/$metaPath')) != null) {
+			songPath = temp.substr(0, temp.length - metaPath.length - 1);
+			metaPath = temp;
+		}
+		else if (saveSettings.songFolder == null)
+			metaPath = (songPath = '${Paths.getAssetsRoot()}/$songPath') + '/$metaPath';
 
 		var chartFolder = saveSettings.folder == null ? ((variant == null || variant == '') ? 'charts' : 'charts/$variant') : saveSettings.folder;
 		var chartPath = '$songPath/$chartFolder/${difficulty.trim()}.json';
-		if ((temp = Paths.assetsTree.getPath(prefix + chartPath)) != null) chartPath = temp;
-		else chartPath = assetsRoot + chartPath;
 
 		if (saveSettings.saveChart == null || saveSettings.saveChart == true)
 			CoolUtil.safeSaveFile(chartPath, Json.stringify(filteredChart, null, prettyPrint));
@@ -280,11 +280,10 @@ class Chart {
 			CoolUtil.safeSaveFile(metaPath, Json.stringify(filterMetaForSaving(chart.meta), null, prettyPrint));
 
 		if (saveSettings.seperateGlobalEvents == true) {
-			var eventsPath = '$songPath/events.json';
-			if ((temp = Paths.assetsTree.getPath(prefix + eventsPath)) != null) eventsPath = temp;
-			else eventsPath = assetsRoot + eventsPath;
+			var eventsPath = '$songPath/events.json', events = filterEventsForSaving(chart.events, false, true);
 
-			CoolUtil.safeSaveFile(eventsPath, Json.stringify({events: filterEventsForSaving(chart.events, false, true)}, null, prettyPrint));
+			if (events.length != 0) CoolUtil.safeSaveFile(eventsPath, Json.stringify({events: events}, null, prettyPrint));
+			else if (FileSystem.exists(eventsPath)) FileSystem.deleteFile(eventsPath);
 		}
 		#end
 
@@ -335,6 +334,10 @@ class Chart {
 		if (data.color != null) data.color = FlxColor.fromInt(data.color).toWebString(); // dont even ask me  - Nex
 		Reflect.deleteField(data, 'parsedColor');
 		Reflect.deleteField(data, 'metas');
+		Reflect.deleteField(data, "variant");
+		if (data.instSuffix != null && data.instSuffix == "") Reflect.deleteField(data, "instSuffix");
+		if (data.vocalsSuffix != null && data.vocalsSuffix == "") Reflect.deleteField(data, "vocalsSuffix");
+		if (data.variants != null && data.variants.length == 0) Reflect.deleteField(data, "variants");
 		return data;
 	}
 }

@@ -26,11 +26,11 @@ class CharterSelectionScreen extends EditorTreeMenuScreen {
 	public var curSong:ChartMetaData;
 
 	inline public function makeChartOption(d:String, v:String, name:String):TextOption {
-		return new TextOption(d, getID('acceptDifficulty'), FlxG.switchState.bind(new Charter(name, d, v)));
+		return new TextOption(d, getID('acceptDifficulty'), () -> FlxG.switchState(new Charter(name, d, v)));
 	}
 
 	inline public function makeVariationOption(s:ChartMetaData):TextOption {
-		return new TextOption(s.variant, getID('acceptVariation'), " >", openSongOption.bind(s, false));
+		return new TextOption(s.variant, getID('acceptVariation'), " >", () -> openSongOption(s, false));
 	}
 
 	public function openSongOption(s:ChartMetaData, first = true) {
@@ -64,7 +64,7 @@ class CharterSelectionScreen extends EditorTreeMenuScreen {
 	public function makeSongOption(s:ChartMetaData):IconOption {
 		songList.push(s.name.toLowerCase());
 
-		var opt = new IconOption(s.name, getID('acceptSong'), s.icon, openSongOption.bind(s, true));
+		var opt = new IconOption(s.name, getID('acceptSong'), s.icon, () -> openSongOption(s, true));
 		opt.suffix = " >";
 		opt.editorFlashColor = s.color.getDefault(FlxColor.WHITE);
 

@@ -2153,16 +2153,18 @@ class PlayState extends MusicBeatState
 	 * @param opponentMode Whenever opponent mode is on
 	 * @param coopMode Whenever co-op mode is on.
 	 */
-	public static function loadSong(_name:String, ?_difficulty:String, ?_variation:String, _opponentMode:Bool = false, _coopMode:Bool = false) {
+	public static function loadSong(_name:String, ?_difficulty:String, ?_variation:Dynamic, _opponentMode:Bool = false, _coopMode:Bool = false) {
 		if (_difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
 		if (_variation is Bool) { // vackward cumpatibshit
 			_coopMode = _opponentMode;
 			_opponentMode = cast _variation;
+			_variation = null;
 		}
+		else if (!(_variation is String)) _variation = null;
 		opponentMode = _opponentMode;
 		coopMode = _coopMode;
 		isStoryMode = chartingMode = false;
-		__loadSong(_name, _difficulty, _variation);
+		__loadSong(_name, _difficulty, cast _variation);
 	}
 
 	/**

@@ -601,33 +601,32 @@ class Charter extends UIState {
 			__resetStatics();
 		}
 
-		var SONG = PlayState.SONG;
-		Conductor.setupSong(SONG);
-		noteTypes = SONG.noteTypes;
+		Conductor.setupSong(PlayState.SONG);
+		noteTypes = PlayState.SONG.noteTypes;
 
-		FlxG.sound.setMusic(FlxG.sound.load(Paths.inst(SONG.meta.name, __diff, SONG.meta.instSuffix)));
-		if (Assets.exists(Paths.voices(SONG.meta.name, __diff, SONG.meta.vocalsSuffix)))
-			vocals = FlxG.sound.load(Paths.voices(SONG.meta.name, __diff, SONG.meta.vocalsSuffix));
+		FlxG.sound.setMusic(FlxG.sound.load(Paths.inst(__song, __diff, PlayState.SONG.meta.instSuffix)));
+		if (Assets.exists(Paths.voices(__song, __diff, PlayState.SONG.meta.vocalsSuffix)))
+			vocals = FlxG.sound.load(Paths.voices(__song, __diff, PlayState.SONG.meta.vocalsSuffix));
 		else
 			vocals = new FlxSound();
 
-		vocals.muted = !SONG.meta.needsVoices;
+		vocals.muted = !PlayState.SONG.meta.needsVoices;
 		vocals.group = FlxG.sound.defaultMusicGroup;
 
-		gridBackdrops.createGrids(SONG.strumLines.length);
+		gridBackdrops.createGrids(PlayState.SONG.strumLines.length);
 
-		for(strL in SONG.strumLines)
+		var noteCount:Int = 0;
+		for (strL in PlayState.SONG.strumLines) {
 			createStrumline(strumLines.members.length, strL, false, false);
+			noteCount += strL.notes.length;
+		}
 
 		// create notes
 		notesGroup.autoSort = false;
-		var noteCount:Int = 0;
-		for (strL in SONG.strumLines)
-			noteCount += strL.notes.length;
 		notesGroup.preallocate(noteCount);
 
 		var notesCreated:Int = 0;
-		for (i => strL in SONG.strumLines)
+		for (i => strL in PlayState.SONG.strumLines)
 			for (note in strL.notes) {
 				var n = new CharterNote();
 				var t = Conductor.getStepForTime(note.time);
@@ -641,7 +640,7 @@ class Charter extends UIState {
 		rightEventsGroup.autoSort = leftEventsGroup.autoSort = false;
 		var lastLeftEvents:CharterEvent = null, lastRightEvents:CharterEvent = null;
 		var lastLeftTime = Math.NaN, lastRightTime = Math.NaN;
-		for (e in SONG.events) if (e != null) {
+		for (e in PlayState.SONG.events) if (e != null) {
 			if (e.global) {
 				if (lastRightEvents != null && lastRightTime == e.time) lastRightEvents.events.push(e);
 				else rightEventsGroup.add(lastRightEvents = new CharterEvent(Conductor.getStepForTime(lastRightTime = e.time), [e], e.global));

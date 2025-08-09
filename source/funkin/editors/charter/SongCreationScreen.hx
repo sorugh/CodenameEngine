@@ -42,6 +42,7 @@ class SongCreationScreen extends UISubstateWindow {
 	public var difficultiesTextBox:UITextBox;
 
 	public var engineDropdown:UIDropDown;
+	public var createSong:UIButton;
 
 	public var importInstExplorer:UIFileExplorer;
 	public var importVoicesExplorer:UIFileExplorer;
@@ -189,6 +190,14 @@ class SongCreationScreen extends UISubstateWindow {
 		selectFormatGroup.add(engineDropdown);
 		addLabelOn(engineDropdown, translate("importChartFormat"));
 
+		createSong = new UIButton(windowSpr.x + 20, windowSpr.y + windowSpr.bHeight - 16 - 32, "< " + translate("back"), function() {
+			winTitle = translate("win-title");
+			isImporting = false;
+			updatePagesTexts();
+			refreshPages();
+		}, 120);
+		selectFormatGroup.add(createSong);
+
 		var menuTitle:UIText;
 		importAudioGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, translate("importAudios"), 28));
 
@@ -332,7 +341,7 @@ class SongCreationScreen extends UISubstateWindow {
 		backButton.x = (saveButton.x = windowSpr.x + windowSpr.bWidth - 20 - 125) - 20 - saveButton.bWidth;
 		closeButton.x = (curPage > 0 ? backButton : saveButton).x - 20 - saveButton.bWidth;
 
-		for (button in [saveButton, backButton, closeButton, importFrom])
+		for (button in [saveButton, backButton, closeButton, importFrom, createSong])
 			button.y = windowSpr.y + windowSpr.bHeight - 16 - 32;
 	}
 

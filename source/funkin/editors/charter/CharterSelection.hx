@@ -83,7 +83,7 @@ class CharterSelectionScreen extends EditorTreeMenuScreen {
 	#if sys
 	public function saveSong(creation:SongCreationData, ?callback:String -> Void) {
 		var variant = creation.meta.variant != null && creation.meta.variant != "" ? creation.meta.variant : null;
-		if (songList.contains(creation.meta.name.toLowerCase()) || (variant != null && curSong != null && curSong.variants.contains(variant))) {
+		if (variant != null && curSong != null ? curSong.metas.exists(variant) : songList.contains(creation.meta.name.toLowerCase())) {
 			parent.openSubState(new UIWarningSubstate(TU.translate("chartCreation.warnings.song-exists-title"), TU.translate("chartCreation.warnings.song-exists-body"), [
 				{label: TU.translate("editor.ok"), color: 0xFFFF0000, onClick: (t) -> {}},
 			]));
@@ -112,11 +112,14 @@ class CharterSelectionScreen extends EditorTreeMenuScreen {
 
 		// Add to List
 		if (variant != null && curSong != null) {
-			if (curSong.variants == null) curSong.variants.push(variant);
-			curSong.variants.push(variant);
+			if (curSong.variants == null) curSong.variants = [];
+			if (!curSong.variants.contains(variant)) curSong.variants.push(variant);
 			curSong.metas.set(variant, creation.meta);
 
 			parent.tree.last().add(makeVariationOption(creation.meta));
+
+			var metaPath = '$songFolder/meta${curSong.variant != null && curSong.variant == "" ? "-" + curSong.variant : ""}.json';
+			CoolUtil.safeSaveFile(metaPath, Chart.makeMetaSaveable(curSong));
 		}
 		else {
 			freeplayList.songs.insert(0, creation.meta);
@@ -146,12 +149,8 @@ class CharterSelectionScreen extends EditorTreeMenuScreen {
 		screen.insert(idx, makeChartOption(name, curSong.variant != null && curSong.variant != "" ? curSong.variant : null, curSong.name));
 
 		// Add to Meta
-		var meta = Json.parse(sys.io.File.getContent('$songFolder/meta.json'));
-		if (meta.difficulties == null) meta.difficulties = [];
-		if (!meta.difficulties.contains(name)) {
-			meta.difficulties.push(name);
-			CoolUtil.safeSaveFile('$songFolder/meta.json', Chart.makeMetaSaveable(meta));
-		}
+		var metaPath = '$songFolder/meta${curSong.variant != null && curSong.variant == "" ? "-" + curSong.variant : ""}.json';
+		CoolUtil.safeSaveFile(metaPath, Chart.makeMetaSaveable(curSong));
 	}
 	#end
 }

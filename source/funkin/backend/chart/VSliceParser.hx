@@ -45,14 +45,14 @@ class VSliceParser {
 			type: 0,
 			position: (p2isGF = metadata.playData.characters.opponent.startsWith("gf")) ? "girlfriend" : "dad",
 			notes: [],
-			vocalsSuffix: '-${metadata.playData.characters.opponent}${resultMeta.vocalsSuffix}'
+			vocalsSuffix: '-${metadata.playData.characters.opponent}${resultMeta.vocalsSuffix != null ? resultMeta.vocalsSuffix : ""}'
 		});
 		result.strumLines.push({
 			characters: [metadata.playData.characters.player],
 			type: 1,
 			position: "boyfriend",
 			notes: [],
-			vocalsSuffix: '-${metadata.playData.characters.player}${resultMeta.vocalsSuffix}'
+			vocalsSuffix: '-${metadata.playData.characters.player}${resultMeta.vocalsSuffix != null ? resultMeta.vocalsSuffix : ""}'
 		});
 		var gfName = metadata.playData.characters.girlfriend;
 		if (!p2isGF && gfName != "none") {

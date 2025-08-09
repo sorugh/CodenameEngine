@@ -450,10 +450,9 @@ class SongCreationScreen extends UISubstateWindow {
 		var vslicechart:NewSwagSong = Json.parse(files.get('${songId}-chart.json'));
 		var playData = vslicemeta.playData;
 
-		var meta:ChartMetaData = {name: songId};
+		var meta:ChartMetaData = formatMeta({name: songId});
 		var diffCharts:Array<ChartDataWithInfo> = [], events:Array<ChartEvent> = null;
 		VSliceParser.parse(vslicemeta, vslicechart, meta, diffCharts, songId);
-		formatMeta(meta);
 
 		if (diffCharts.length != 0) events = diffCharts[0].chart.events;
 		for (diff in diffCharts) diff.chart.events = [];

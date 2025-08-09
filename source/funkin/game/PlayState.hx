@@ -60,7 +60,11 @@ class PlayState extends MusicBeatState
 	/**
 	 * The remaining songs in the Story Mode playlist.
 	 */
-	public static var storyPlaylist:Array<WeekSong> = [];
+	public static var storyPlaylist:Array<String> = [];
+	/**
+	 * The remaining variations to play with the Story Mode
+	 */
+	public static var storyVariations:Array<String> = [];
 	/**
 	 * The selected difficulty name.
 	 */
@@ -1733,6 +1737,7 @@ class PlayState extends MusicBeatState
 			campaignAccuracyTotal += accuracy;
 			campaignAccuracyCount++;
 			storyPlaylist.shift();
+			storyVariations.shift();
 
 			if (storyPlaylist.length <= 0) {
 				FlxG.switchState(new StoryMenuState());
@@ -1752,11 +1757,11 @@ class PlayState extends MusicBeatState
 				FlxG.save.flush();
 			}
 			else {
-				Logs.infos('Loading next song (${storyPlaylist[0].name.toLowerCase()}/$difficulty/${storyPlaylist[0].variation})', "PlayState");
+				Logs.infos('Loading next song (${storyPlaylist[0].toLowerCase()}/$difficulty/${storyVariations[0]})', "PlayState");
 
 				registerSmoothTransition();
 
-				__loadSong(storyPlaylist[0].name, difficulty, variation);
+				__loadSong(storyPlaylist[0], difficulty, storyVariations[0]);
 				FlxG.switchState(new PlayState());
 			}
 		}
@@ -2135,14 +2140,15 @@ class PlayState extends MusicBeatState
 	public static function loadWeek(weekData:WeekData, ?difficulty:String) {
 		if (difficulty == null) difficulty = Flags.DEFAULT_DIFFICULTY;
 		storyWeek = weekData;
-		storyPlaylist = weekData.songs.copy();
+		storyPlaylist = [for (e in weekData.songs) e.name];
+		storyVariations = [for (e in weekData.songs) e.variation];
 		isStoryMode = true;
 		campaignScore = 0;
 		campaignMisses = 0;
 		campaignAccuracyTotal = 0;
 		campaignAccuracyCount = 0;
 		chartingMode = coopMode = opponentMode = false;
-		__loadSong(storyPlaylist[0].name, difficulty, storyPlaylist[0].variation);
+		__loadSong(storyPlaylist[0], difficulty, storyVariations[0]);
 	}
 
 	/**

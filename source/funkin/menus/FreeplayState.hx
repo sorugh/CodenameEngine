@@ -182,11 +182,11 @@ class FreeplayState extends MusicBeatState
 
 		coopText = new FlxText(diffText.x, diffText.y + diffText.height + 2, 0, "", 24);
 		coopText.font = scoreText.font;
+		coopText.visible = curSong.coopAllowed || curSong.opponentModeAllowed;
 		add(coopText);
 
 		add(scoreText);
 
-		changeSelection(0, true);
 		changeDiff(0, true);
 		changeCoopMode(0, true);
 
@@ -469,11 +469,6 @@ class FreeplayState extends MusicBeatState
 		}
 
 		changeDiff(0, true);
-
-		#if PRELOAD_ALL
-		autoplayElapsed = 0;
-		songInstPlaying = false;
-		#end
 
 		coopText.visible = curSong.coopAllowed || curSong.opponentModeAllowed;
 	}

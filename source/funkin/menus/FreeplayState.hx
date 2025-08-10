@@ -124,13 +124,9 @@ class FreeplayState extends MusicBeatState
 		}
 
 		updateCurDifficulties();
-
-		if (curSong != null) {
-			for(k=>diff in curDifficulties) {
-				if (diff == Options.freeplayLastDifficulty) {
-					curDifficulty = k;
-				}
-			}
+		for(i=>diff in curDifficulties) {
+			if (curDiffMetaKeys[i] == Options.freeplayLastVariation && diff == Options.freeplayLastDifficulty)
+				curDifficulty = i;
 		}
 
 		updateCurSong();

@@ -98,6 +98,7 @@ class Chart {
 		data.setFieldDefault("needsVoices", true);
 		data.setFieldDefault("difficulties", []);
 		data.setFieldDefault("variants", []);
+		data.setFieldDefault("metas", []);
 
 		return data;
 	}

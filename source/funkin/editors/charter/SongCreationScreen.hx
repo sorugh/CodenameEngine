@@ -245,7 +245,7 @@ class SongCreationScreen extends UISubstateWindow {
 			var pages = isImporting ? importPages : pages;
 			if (curPage == pages.length-1) {
 				saveSongInfo();
-				close();
+				if (subState == null) close();
 			} else {
 				curPage++;
 				refreshPages();
@@ -415,6 +415,7 @@ class SongCreationScreen extends UISubstateWindow {
 						#end
 					});
 			} catch (e:haxe.Exception) {
+				trace(e.stack, e.message);
 				openSubState(new UIWarningSubstate("Importing Song/Charts: Error!", e.details(), [
 					{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
 				]));
@@ -464,6 +465,7 @@ class SongCreationScreen extends UISubstateWindow {
 			playerVocals: files.get('Voices-${playData.characters.playerVocals != null ? playData.characters.playerVocals[0] : playData.characters.player}.${Flags.SOUND_EXT}'),
 			oppVocals: files.get('Voices-${playData.characters.opponentVocals != null ? playData.characters.opponentVocals[0] : playData.characters.opponent}.${Flags.SOUND_EXT}'),
 		}, (songFolder:String) -> {
+			trace(songFolder);
 			#if sys
 			for (diff in diffCharts) CoolUtil.safeSaveFile('$songFolder/${getChartSavePath(meta, diff.diffName)}', Json.stringify(diff.chart, Flags.JSON_PRETTY_PRINT));
 			if (events != null) CoolUtil.safeSaveFile('$songFolder/events${meta.variant != null && meta.variant != "" ? "-" + meta.variant : ""}.json', Json.stringify({events: events}, Flags.JSON_PRETTY_PRINT));

@@ -20,7 +20,7 @@ class VariationCreationScreen extends SongCreationScreen {
 		cast(songNameTextBox.members[songNameTextBox.members.length - 1], UIText).text = translateMeta("variation");
 
 		cast(importIdTextBox.members[importIdTextBox.members.length - 1], UIText).applyMarkup(
-			translate("variation"),
+			translateMeta("variation"),
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]
 		);
 

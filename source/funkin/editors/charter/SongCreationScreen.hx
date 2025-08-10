@@ -296,7 +296,7 @@ class SongCreationScreen extends UISubstateWindow {
 
 			if (curPage == 1) {
 				importInstExplorer.selectable = importVoicesExplorer.selectable = !project;
-				saveButton.selectable = project ? true : (importInstExplorer.file != null);
+				saveButton.selectable = #if TEST_BUILD true #else project ? true : (importInstExplorer.file != null) #end;
 			} else if (curPage == 2) {
 				importIdTextBox.selectable = !project;
 				importChartFile.fileType = project ? "fnfc" : "json";
@@ -450,7 +450,7 @@ class SongCreationScreen extends UISubstateWindow {
 		var vslicechart:NewSwagSong = Json.parse(files.get('${songId}-chart.json'));
 		var playData = vslicemeta.playData;
 
-		var meta:ChartMetaData = formatMeta({name: songId});
+		var meta:ChartMetaData = formatMeta({name: songId, needsVoices: files.exists('Voices.${Flags.SOUND_EXT}')});
 		var diffCharts:Array<ChartDataWithInfo> = [], events:Array<ChartEvent> = null;
 		VSliceParser.parse(vslicemeta, vslicechart, meta, diffCharts, songId);
 

@@ -386,7 +386,7 @@ class SongCreationScreen extends UISubstateWindow {
 					saveFromVSlice(files, songId);
 				default /*"Psych/Legacy FNF"*/:
 					var songId = importIdTextBox.label.text;
-					var oldChart:SwagSong = Json.parse(cast importChartFile.file);
+					var oldChart:SwagSong = Chart.cleanSongData(Json.parse(cast importChartFile.file));
 					var base:ChartData = {
 						strumLines: [],
 						noteTypes: [],

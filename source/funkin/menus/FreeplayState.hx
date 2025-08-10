@@ -123,6 +123,8 @@ class FreeplayState extends MusicBeatState
 			}
 		}
 
+		updateCurDifficulties();
+
 		if (curSong != null) {
 			for(k=>diff in curDifficulties) {
 				if (diff == Options.freeplayLastDifficulty) {
@@ -131,7 +133,6 @@ class FreeplayState extends MusicBeatState
 			}
 		}
 
-		updateCurDifficulties();
 		updateCurSong();
 
 		DiscordUtil.call("onMenuLoaded", ["Freeplay"]);

@@ -182,7 +182,8 @@ class VSliceParser {
 		result.beatsPerMeasure = firstTimeChange.n.getDefault(Flags.DEFAULT_BEATS_PER_MEASURE);
 		result.stepsPerBeat = firstTimeChange.d.getDefault(Flags.DEFAULT_STEPS_PER_BEAT);
 		result.displayName = songName;
-		result.difficulties = data.playData.difficulties.concat(data.playData.songVariations.getDefault([]));
+		result.difficulties = data.playData.difficulties.copy();
+		result.variants = data.playData.songVariations.copy();
 
 		if (result.customValues == null) result.customValues = {};
 		result.customValues.artist = data.artist;

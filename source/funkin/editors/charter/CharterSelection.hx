@@ -41,7 +41,7 @@ class CharterSelectionScreen extends EditorTreeMenuScreen {
 
 		for (d in s.difficulties) if (d != '') screen.add(makeChartOption(d, isVariant ? s.variant : null, s.name));
 		screen.add(new Separator());
-		if (s.variants != null) for (v in s.variants) if (s.metas.get(v) != null) screen.add(makeVariationOption(s.metas.get(v)));
+		if (s.variants != null && s.metas != null) for (v in s.variants) if (s.metas.get(v) != null) screen.add(makeVariationOption(s.metas.get(v)));
 
 		#if sys
 		screen.insert(0, new NewOption(getID('newDifficulty'), getID('newDifficultyDesc'), () -> {

@@ -277,9 +277,9 @@ class Chart {
 		var filteredChart = filterChartForSaving(chart, saveSettings.saveMetaInChart, saveSettings.saveLocalEvents, saveSettings.saveGlobalEvents && saveSettings.seperateGlobalEvents != true);
 
 		#if sys
-		var songPath = saveSettings.songFolder == null ? 'assets/songs/${chart.meta.name}' : saveSettings.songFolder, variantSuffix = variant != null && variant != "" ? '-$variant' : "";
+		var songPath = saveSettings.songFolder == null ? 'songs/${chart.meta.name}' : saveSettings.songFolder, variantSuffix = variant != null && variant != "" ? '-$variant' : "";
 		var metaPath = 'meta$variantSuffix.json', prettyPrint = saveSettings.prettyPrint == true ? Flags.JSON_PRETTY_PRINT : null, temp:String;
-		if ((temp = Paths.assetsTree.getPath('$songPath/$metaPath')) != null) {
+		if ((temp = Paths.assetsTree.getPath('assets/$songPath/$metaPath')) != null) {
 			songPath = temp.substr(0, temp.length - metaPath.length - 1);
 			metaPath = temp;
 		}

@@ -39,6 +39,7 @@ class VariationCreationScreen extends SongCreationScreen {
 		meta.variant = meta.name;
 		meta.vocalsSuffix = meta.instSuffix = '-${meta.variant}';
 		meta.name = parentMeta.name;
+		meta.face = parentMeta.face;
 		return super.formatMeta(meta);
 	}
 }

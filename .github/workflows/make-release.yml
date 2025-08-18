@@ -1,4 +1,4 @@
-name: Collect & Release Builds
+name: Create Release Builds
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ on:
 
 jobs:
   collect-release:
-    name: Create Release Builds
+    name: Release ${{ github.event.inputs.tag_name }} Builds
     runs-on: ubuntu-latest
 
     steps:
@@ -72,14 +72,29 @@ jobs:
         run: |
           mkdir -p renamed
 
+          # Windows
           mv artifacts/windows/executable/CodenameEngine.exe renamed/update-windows.exe
-          zip -r "renamed/Codename Engine-Windows.zip" artifacts/windows/full_build
+          cd artifacts/windows/full_build
+          zip -r ../../../renamed/"Codename Engine-Windows.zip" *
+          cd -
 
+          # macOS
           mv artifacts/macos/executable/CodenameEngine renamed/update-mac
-          zip -r "renamed/Codename Engine-Mac.zip" artifacts/macos/full_build
+          cd artifacts/macos/full_build
+          if [ -f CodenameEngine.tar.gz ]; then
+            # Keep tar.gz as-is
+            cp CodenameEngine.tar.gz ../../../renamed/"Codename Engine-Mac.tar.gz"
+          else
+            # Zip contents at root
+            zip -r ../../../renamed/"Codename Engine-Mac.zip" *
+          fi
+          cd -
 
+          # Linux
           mv artifacts/linux/executable/CodenameEngine renamed/update-linux
-          zip -r "renamed/Codename Engine-Linux.zip" artifacts/linux/full_build
+          cd artifacts/linux/full_build
+          zip -r ../../../renamed/"Codename Engine-Linux.zip" *
+          cd -
 
       - name: Find Base Release
         id: get_base_release
@@ -136,6 +151,7 @@ jobs:
             renamed/Codename Engine-Windows.zip
             renamed/update-windows.exe
             renamed/Codename Engine-Mac.zip
+            renamed/Codename Engine-Mac.tar.gz
             renamed/update-mac
             renamed/Codename Engine-Linux.zip
             renamed/update-linux

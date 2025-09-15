@@ -15,10 +15,12 @@ Here's the full guide on how to setup and compile Codename Engine!<br>
     <summary>Linux</summary>
 
 1. Install [version 4.3.7 of Haxe](https://haxe.org/download/version/4.3.7/).
-2. Install `g++`, if not present already.
-3. Download and install [`git-scm`](https://git-scm.com/download/linux) if not present already.
-4. Run `setup-unix.sh` using the terminal or double-clicking it and wait for the libraries to install.
-5. Once the libraries are installed, run `haxelib run lime test linux` to compile and launch the game (may take a long time)
+2. Install `libvlc` if not present already.
+    - ℹ On certain Arch based distros installing `vlc-plugins-all` might solve if `libvlc` alone doesn't work.
+3. Install `g++`, if not present already.
+4. Download and install [`git-scm`](https://git-scm.com/download/linux) if not present already.
+5. Run `setup-unix.sh` using the terminal or double-clicking it and wait for the libraries to install.
+6. Once the libraries are installed, run `haxelib run lime test linux` to compile and launch the game (may take a long time)
     - ℹ You can run `haxelib run lime setup` to make the lime command global, allowing you to execute `lime test linux` directly.
 </details>
 <details>

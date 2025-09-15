@@ -70,7 +70,7 @@ The engine uses [HaxeFlixel](https://haxeflixel.com/) and it mainly features:
 <details>
   <summary><h2>How to setup and build</h2></summary>
 
-  Check out our guide [HERE](building/BUILDING.md)
+  Check out our guide [HERE](building/README.md)
 </details>
 
 <details>

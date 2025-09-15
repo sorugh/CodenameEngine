@@ -16,7 +16,7 @@ The engine uses [HaxeFlixel](https://haxeflixel.com/) and it mainly features:
 - Much more, more can be read [HERE](FEATURES.md)
 
 > [!NOTE]
-> Please keep in mind that, despite these differences, we do not consider our engine to be any better than the others.
+> Please keep in mind that, despite these differences, we do not consider our engine to be any better or worse than the others.
 
 ---
 

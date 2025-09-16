@@ -13,7 +13,7 @@ The engine uses [HaxeFlixel](https://haxeflixel.com/) and it mainly features:
 - Many modding tools without changing the core gameplay and the base to mod on.
 - Allows modularity using addons and mods that apply on top of the core mod.
 - Advanced editors which allows for possibly better experience and easiness when creating the mod.
-- Much more, more can be read [HERE](FEATURES.md)
+- Much more can be read [HERE](FEATURES.md)
 
 > [!NOTE]
 > Please keep in mind that, despite these differences, we do not consider our engine to be any better or worse than the others.

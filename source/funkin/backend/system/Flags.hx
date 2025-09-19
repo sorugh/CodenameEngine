@@ -29,7 +29,7 @@ class Flags {
 	@:noCompletion public static var MOD_ICON32:String = "";
 	@:noCompletion public static var MOD_ICON24:String = "";
 	@:noCompletion public static var MOD_ICON16:String = "";
-	public static var MOD_ICON:String = "";
+	public static var MOD_ICON:String = "iconOG";
 
 	public static var MOD_DISCORD_CLIENT_ID:String = "";
 	public static var MOD_DISCORD_LOGO_KEY:String = "";

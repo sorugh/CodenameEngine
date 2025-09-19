@@ -5,8 +5,7 @@
 
 		<!-- OpenFL & Lime (Required for Flixel) -->
 		<git name="openfl" url="https://github.com/CodenameCrew/cne-openfl" />
-		<lib name="lime" version="8.1.2" />
-		<!-- <git name="lime" url="https://github.com/CodenameCrew/cne-lime" />  disabled for now until fixed -->
+		<git name="lime" url="https://github.com/openfl/lime" ref="0b1ab0a245dcafec0a4587c93cc2e3e651345c5b" skipDeps="true" />
 
 		<!-- Flixel -->
 		<git name="flixel" url="https://github.com/CodenameCrew/cne-flixel" />
@@ -43,12 +42,12 @@
 	</if>
 
 	<!-- Lime Building -->
-	<!-- <if cond="build-lime || all">
+	<if cond="build-lime || all">
 		<print pretty="true">Rebuilding Lime...</print>
 
-		<!- - Build lime - ->
+		<!-- Build lime -->
 		<cmd inLib="lime" cmd="haxelib run lime rebuild . $PLATFORM -release -clean" />
 		<cmd inLib="lime" dir="tools" cmd="haxe tools.hxml" />
-	</if> -->
+	</if> 
 
 </libraries>
